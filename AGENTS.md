@@ -21,3 +21,4 @@ pnpm validate   # node dist/cli.js validate — run after `pnpm build`
 
 - Runtime dependency: `yaml` only. Adding another runtime dependency is a decision, not a default.
 - `init` never overwrites, edits, or deletes an existing path, and never creates or edits a consumer's `AGENTS.md`.
+- Architecture claims follow ADR-001 (`docs/adrs/adr-001-claim-path.md`).

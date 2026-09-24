@@ -5,5 +5,9 @@
     "claude",
     "codex",
     "cursor"
+  ],
+  "ignore": [
+    "templates/**",
+    "test/**"
   ]
 }
