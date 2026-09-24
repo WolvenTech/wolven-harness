@@ -1,0 +1,13 @@
+collections:
+  adrs:
+    path: ./docs/adrs
+    pattern: "*.md"
+  specs:
+    path: ./docs/specs
+    pattern: "*.md"
+  notes:
+    path: ./docs/notes
+    pattern: "*.md"
+  deferrals:
+    path: ./docs/deferrals
+    pattern: "*.md"
