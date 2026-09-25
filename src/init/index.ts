@@ -24,8 +24,7 @@ async function traced<T>(io: Io, name: string, fn: () => Promise<T>): Promise<T>
 
 /**
  * Runs `init`'s steps in a fixed order: resolve options, apply templates,
- * wire runtimes, add the validate script. Later units replace each step's
- * body without changing this order or this file.
+ * wire runtimes, add the validate script.
  */
 export async function runInit(argv: string[], io: Io): Promise<number> {
   const ctx: Context = {

@@ -1,0 +1,5 @@
+{
+  "enabled": true,
+  "codePaths": ["src", "test", "scripts"],
+  "baseline": "c90bed7"
+}

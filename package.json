@@ -16,7 +16,8 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "test": "tsx --test \"test/**/*.test.ts\"",
-    "validate": "node dist/cli.js validate"
+    "validate": "node dist/cli.js validate",
+    "comments": "tsx scripts/comment-gate.ts"
   },
   "dependencies": {
     "yaml": "^2.6.1"
