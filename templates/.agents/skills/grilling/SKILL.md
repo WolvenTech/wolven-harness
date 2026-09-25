@@ -18,13 +18,14 @@ Ask a single question per round.
 ❓ **Q1 — <question title>**: <question body>
 
 Options:
-- (Recommended) <option A>
-- <option B>
+a) (Recommended) <option A>
+b) <option B>
+c) <option C>
 
-➡️ Recommended: <one-line why>
+➡️ Recommended: a — <one-line why>
 ```
 
-Either way, give at least two options, with the recommended one listed first and labelled `(Recommended)`.
+Either way, give at least two options, with the recommended one listed first and labelled `(Recommended)`. Label every option with a letter (`a)`, `b)`, `c)`) or a number (`1.`, `2.`, `3.`), so the Human can answer by typing just the label, or point to an option by its label inside a free-text answer.
 
 **Stop after every question.** Do not answer for the Human, do not continue the tree, and do not queue the next round until the Human responds.
 

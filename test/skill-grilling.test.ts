@@ -25,6 +25,16 @@ test('skill-grilling: asks one question per round with the recommended option li
   assert.match(skill.body, /recommended one listed first/i);
 });
 
+test('skill-grilling: labels every option so the answer can be the label alone', async () => {
+  const skill = await readSkill('grilling');
+
+  assert.match(skill.body, /^a\) \(Recommended\)/m);
+  assert.match(skill.body, /^b\) /m);
+  assert.match(skill.body, /label every option with a letter/i);
+  assert.match(skill.body, /typing just the label/i);
+  assert.match(skill.body, /free-text answer/i);
+});
+
 test('skill-grilling: stops after every question instead of answering for the other side', async () => {
   const skill = await readSkill('grilling');
 
