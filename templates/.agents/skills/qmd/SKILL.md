@@ -34,7 +34,7 @@ Typical loop:
 
 ```bash
 qmd search "retry policy for outbound calls" -n 5
-# leads: #abc123 adrs/adr-014-retry-policy.md; #def432 specs/outbound-calls.md
+# leads: #abc123 adrs/adr-NNN-retry-policy.md; #def432 specs/outbound-calls/outbound-calls-spec.md
 qmd multi-get "#abc123,#def432" --format md
 ```
 
