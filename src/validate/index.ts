@@ -23,8 +23,8 @@ function parseArgs(argv: string[]): ParsedArgs {
 }
 
 /**
- * Runs `validate`'s orchestrator: resolves the git root (R3.5), loads and
- * guards the `ignore` config (R3.7), builds the `RepoContext`, runs the
+ * Runs `validate`: resolves the git top-level (the claim gate requires
+ * git), loads and guards the `ignore` config, builds the `RepoContext`, runs the
  * profile/spine/claims checks, and prints the report. Every path printed
  * is root-relative, so output is identical from any subdirectory.
  */

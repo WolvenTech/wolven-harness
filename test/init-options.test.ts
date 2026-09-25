@@ -38,7 +38,7 @@ async function listFiles(dir: string): Promise<string[]> {
   return out.sort();
 }
 
-// --- proof-wha-init-prompts ---
+// --- init-prompts ---
 
 test('init-prompts: flags-only', async () => {
   const dir = await makeRepo({}, { git: true });
@@ -157,7 +157,7 @@ test('init-prompts: tty re-asks on an invalid runtimes answer', async () => {
   assert.deepEqual(config.runtimes, ['claude']);
 });
 
-// --- proof-wha-init-config ---
+// --- init-config ---
 
 test('init-config: re-run reads .wolven-harness.json without prompting', {
   timeout: 5000,

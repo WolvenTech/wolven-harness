@@ -5,7 +5,7 @@ const GLOB_CHARS = /[*?[\]{}]/;
 const GUARDED_DIRS = ['docs', '.agents'];
 
 /**
- * Validates one `ignore` entry (R3.7 guard): it must be `<dir>/**`, `dir`
+ * Validates one `ignore` entry: it must be `<dir>/**`, `dir`
  * must be a relative path with no glob characters, no leading `/`, no
  * `..` segment, and not empty or `.`, and `dir` must not be `docs` or
  * `.agents`, or a path under either.

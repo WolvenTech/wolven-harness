@@ -4,7 +4,7 @@ import { writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { makeRepo, run } from './helpers/fixture.js';
 
-// --- proof-wha-skill-frontmatter ---
+// --- skill-frontmatter ---
 
 test('skill-frontmatter: SKILL.md missing "name" exits 1 with the rule id', async () => {
   const dir = await makeRepo(
@@ -103,7 +103,7 @@ test('skill-frontmatter: an existing cited rule produces no rule-missing finding
   assert.doesNotMatch(result.stdout, /rule-missing/);
 });
 
-// --- proof-wha-step0-pending ---
+// --- step0-pending ---
 
 test('step0-pending: fresh init warns, and AGENTS.md mentioning WOLVEN.md clears it', async () => {
   const dir = await makeRepo({}, { git: true });

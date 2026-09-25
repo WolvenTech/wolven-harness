@@ -142,7 +142,7 @@ function checkFile(rel: string, dir: string, baseName: string, content: string, 
 }
 
 /**
- * Enforces the writing profile (R2.2) on direct children of
+ * Enforces the writing profile on direct children of
  * `docs/{adrs,specs,notes,deferrals}/*.md`. Nested paths and non-`.md`
  * files are out of scope.
  */

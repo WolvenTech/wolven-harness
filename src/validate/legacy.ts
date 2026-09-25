@@ -14,13 +14,13 @@ export interface LegacyAdr {
 const LEGACY_BASENAME_RE = /^adr-?(\d{3}).*\.md$/i;
 
 /**
- * Implements legacy-ADR detection (R3.3): every entry in `ctx.files`
+ * Detects legacy ADRs: every entry in `ctx.files`
  * (already tracked, non-ignored, root-relative, POSIX) outside
  * `docs/adrs/` — at any depth, that's profile territory — whose basename
  * matches `LEGACY_BASENAME_RE` is a legacy ADR. The number is the first
  * three digits of the basename, as a string like '002'. No content check
  * is performed; the basename shape is the whole rule. Results are sorted
- * by path. Called from `claims.ts`'s R3.3/R3.4 legacy branch.
+ * by path. `claims.ts` uses them to downgrade legacy-only claims to warnings.
  */
 export async function detectLegacy(ctx: RepoContext): Promise<LegacyAdr[]> {
   const results: LegacyAdr[] = [];

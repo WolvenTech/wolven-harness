@@ -12,7 +12,7 @@ function ignoreConfig(ignore: string[]): string {
   return JSON.stringify({ version: 1, gitHost: 'gh', runtimes: ['codex'], ignore }, null, 2);
 }
 
-// --- proof-wha-ignore ---
+// --- ignore ---
 
 test('ignore: an ADR-999 claim under an ignored dir does not fail, and the ignored line names it', async () => {
   const dir = await makeRepo(

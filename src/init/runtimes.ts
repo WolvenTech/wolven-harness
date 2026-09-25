@@ -18,7 +18,7 @@ export function setSymlinkImpl(impl?: SymlinkImpl): void {
 }
 
 /**
- * Wires supported runtimes (S1, R1.5). Only `claude` needs anything: it
+ * Wires supported runtimes. Only `claude` needs anything: it
  * cannot read `.agents/skills/` natively, so it gets a relative directory
  * symlink `.claude/skills -> ../.agents/skills` and a `CLAUDE.md` stub.
  * `codex` and `cursor` read `.agents/skills/` natively — nothing is

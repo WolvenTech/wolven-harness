@@ -8,7 +8,7 @@ import { makeRepo, run } from './helpers/fixture.js';
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, '..');
 
-/** A minimal, R2.2-valid profile ADR body. */
+/** A minimal profile ADR body that passes the writing profile. */
 function stableAdr(opts: { title?: string; status?: string; supersededBy?: string } = {}): string {
   const lines = ['---', 'type: adr'];
   if (opts.title !== undefined) lines.push(`title: ${opts.title}`);
@@ -19,7 +19,7 @@ function stableAdr(opts: { title?: string; status?: string; supersededBy?: strin
   return lines.join('\n');
 }
 
-// --- proof-wha-claim-scan ---
+// --- claim-scan ---
 
 test('claim-scan: a claim in src/*.ts, AGENTS.md, and docs/specs/*.md is reported at each file:line', async () => {
   const dir = await makeRepo(
@@ -135,7 +135,7 @@ test('claim-scan: "ADR-0421" is not a claim', async () => {
   assert.match(result.stdout, /claims: 0 ok/);
 });
 
-// --- proof-wha-claim-fail-closed ---
+// --- claim-fail-closed ---
 
 test('claim-fail-closed: claim-missing — a claim with no matching ADR exits 1', async () => {
   const dir = await makeRepo(
@@ -171,7 +171,7 @@ test('claim-fail-closed: claim-duplicate — two profile ADRs with the same numb
   assert.match(result.stdout, /ADR-003/);
 });
 
-test('claim-fail-closed: claim-invalid — an ADR failing R2.2 (missing title) exits 1', async () => {
+test('claim-fail-closed: claim-invalid — an ADR failing the writing profile (missing title) exits 1', async () => {
   const dir = await makeRepo(
     {
       'docs/adrs/adr-004-no-title.md': stableAdr(),
@@ -259,7 +259,7 @@ test('claim-fail-closed: claim-ok — a stable ADR with a bare and a correct slu
   assert.match(result.stdout, /claims: 2 ok, 0 legacy-warn, 0 fail/);
 });
 
-// --- proof-wha-self-claim ---
+// --- self-claim ---
 
 test('self-claim: the package repo\'s own ADR-001 doc and AGENTS.md citation pass validate', async () => {
   const adr001 = await readFile(path.join(repoRoot, 'docs', 'adrs', 'adr-001-claim-path.md'), 'utf8');

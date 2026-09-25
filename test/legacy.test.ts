@@ -19,7 +19,7 @@ const LEGACY_README = [
   '',
 ].join('\n');
 
-/** The agentic-mkt-shaped legacy fixture: two Nygard ADRs plus an index README. */
+/** A legacy-ADR fixture: two Nygard ADRs under `adrs/` plus an index README. */
 function legacyFixtureFiles(): Record<string, string> {
   return {
     'adrs/adr-001.md': legacyAdrBody('001', 'Use Postgres'),
@@ -28,16 +28,16 @@ function legacyFixtureFiles(): Record<string, string> {
   };
 }
 
-/** A minimal, R2.2-valid stable profile ADR body. */
+/** A minimal stable profile ADR body that passes the writing profile. */
 function stableProfileAdr(title: string): string {
   return ['---', 'type: adr', `title: ${title}`, 'description: a fixture ADR', 'status: stable', '---', '', '# Fixture ADR', ''].join(
     '\n',
   );
 }
 
-// --- proof-wha-legacy-detect ---
+// --- legacy-detect ---
 
-test('legacy-detect: agentic-mkt fixture prints exactly two legacy-adr lines, none for README, exit 0', async () => {
+test('legacy-detect: Nygard fixture prints exactly two legacy-adr lines, none for README, exit 0', async () => {
   const dir = await makeRepo(legacyFixtureFiles(), { git: true });
 
   const result = await run(['validate'], { cwd: dir });
@@ -81,7 +81,7 @@ test('legacy-detect: detectLegacy matches adr-shaped basenames outside docs/adrs
   assert.ok(!byPath.has('adr-01.md'));
 });
 
-// --- proof-wha-legacy-claims ---
+// --- legacy-claims ---
 
 test('legacy-claims: AGENTS.md citing ADR-002 warns, exit 0, file:line only under --verbose', async () => {
   const dir = await makeRepo(

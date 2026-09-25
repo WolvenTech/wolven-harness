@@ -54,7 +54,7 @@ interface ProfileAdrEntry {
   number: string;
   path: string;
   slug?: string;
-  validR22: boolean;
+  passesProfile: boolean;
   status?: string;
   supersededBy?: string;
 }
@@ -68,7 +68,7 @@ interface ProfileIndex {
 /**
  * Indexes profile ADRs: files directly under `docs/adrs/` whose basename
  * starts with `adr-NNN`. Reads `status`/`superseded_by` from frontmatter
- * itself (own parser) only for files that pass R2.2 (no `profileFindings`
+ * itself (own parser) only for files that pass the writing profile (no `profileFindings`
  * error at that path).
  */
 async function buildProfileIndex(ctx: RepoContext, profileFindings: Finding[]): Promise<ProfileIndex> {
@@ -90,11 +90,11 @@ async function buildProfileIndex(ctx: RepoContext, profileFindings: Finding[]): 
     const number = numberMatch[1];
     const slugMatch = baseName.match(ADR_SLUG_FULL_RE);
     const slug = slugMatch ? slugMatch[1] : undefined;
-    const validR22 = !errorFiles.has(rel);
+    const passesProfile = !errorFiles.has(rel);
 
     let status: string | undefined;
     let supersededBy: string | undefined;
-    if (validR22) {
+    if (passesProfile) {
       try {
         const content = await ctx.read(rel);
         const frontmatter = parseFrontmatter(content);
@@ -107,7 +107,7 @@ async function buildProfileIndex(ctx: RepoContext, profileFindings: Finding[]): 
       }
     }
 
-    const entry: ProfileAdrEntry = { number, path: rel, slug, validR22, status, supersededBy };
+    const entry: ProfileAdrEntry = { number, path: rel, slug, passesProfile, status, supersededBy };
     const list = byNumber.get(number) ?? [];
     list.push(entry);
     byNumber.set(number, list);
@@ -135,7 +135,7 @@ function buildLegacyIndex(legacyAdrs: LegacyAdr[]): LegacyIndex {
   return { byNumber, paths };
 }
 
-/** Whether `rel` is excluded from the claim scan (R3.1 exclusions). */
+/** Whether `rel` is excluded from the claim scan: ADR files, `node_modules/`, and archived paths. */
 function isScanExcluded(rel: string, profile: ProfileIndex, legacy: LegacyIndex): boolean {
   if (profile.dirFiles.has(rel)) return true;
   if (legacy.paths.has(rel)) return true;
@@ -149,7 +149,7 @@ type ClaimOutcome =
   | { kind: 'fail'; rule: string; message: string }
   | { kind: 'legacy-warn'; legacyPath: string };
 
-/** Resolves one claim occurrence (R3.2/R3.3/R3.4) against the profile and legacy indexes. */
+/** Resolves one claim occurrence against the profile and legacy indexes. */
 function resolveClaim(
   number: string,
   tokenSlug: string | undefined,
@@ -176,8 +176,8 @@ function resolveClaim(
   if (profileMatches.length === 1) {
     const adr = profileMatches[0];
 
-    if (!adr.validR22 || adr.status === undefined) {
-      return { kind: 'fail', rule: 'claim-invalid', message: `${adrId} (${adr.path}) fails the writing profile (R2.2)` };
+    if (!adr.passesProfile || adr.status === undefined) {
+      return { kind: 'fail', rule: 'claim-invalid', message: `${adrId} (${adr.path}) fails the writing profile` };
     }
 
     if (adr.status === 'draft') {
@@ -203,8 +203,8 @@ function resolveClaim(
       return { kind: 'ok' };
     }
 
-    // Defensive: an unrecognized status would already have failed R2.2 above.
-    return { kind: 'fail', rule: 'claim-invalid', message: `${adrId} (${adr.path}) fails the writing profile (R2.2)` };
+    // Defensive: an unrecognized status would already have failed the writing profile above.
+    return { kind: 'fail', rule: 'claim-invalid', message: `${adrId} (${adr.path}) fails the writing profile` };
   }
 
   // Exactly one legacy match.
@@ -212,9 +212,9 @@ function resolveClaim(
 }
 
 /**
- * Implements the ADR claim gate (R3.1-R3.6): scans tracked, non-ignored,
+ * Runs the ADR claim gate: scans tracked, non-ignored,
  * non-ADR files for `ADR-NNN` / `adr-NNN-<slug>` claim tokens and resolves
- * each against the profile ADRs (R3.2) and legacy ADRs (R3.3/R3.4).
+ * each against the profile ADRs (stable only) and legacy ADRs (warn only).
  */
 export async function checkClaims(
   ctx: RepoContext,

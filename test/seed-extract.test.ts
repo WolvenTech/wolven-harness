@@ -51,10 +51,10 @@ test('seed-extract: template files exist', () => {
   assert.ok(relSet.has('hooks/README.md'));
 });
 
-test('seed-extract: no OMT collection or config words', () => {
+test('seed-extract: no source-repo collection or config words', () => {
   // Case-sensitive, matches `rg -n "canon|concepts|sources|config.yml" templates/.agents`.
   const hits = findMatches(/canon|concepts|sources|config\.yml/);
-  assert.deepEqual(hits, [], `unexpected OMT collection/config words: ${JSON.stringify(hits)}`);
+  assert.deepEqual(hits, [], `unexpected source-repo collection/config words: ${JSON.stringify(hits)}`);
 });
 
 test('seed-extract: no residue', () => {

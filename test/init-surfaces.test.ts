@@ -66,9 +66,9 @@ function templateSkillNames(): string[] {
   return entries.filter((e) => e.isDirectory()).map((e) => e.name);
 }
 
-// --- init-surfaces: R1.3 manifest ---
+// --- init-surfaces: created-path manifest ---
 
-test('init-surfaces: creates exactly the R1.3 list', async () => {
+test('init-surfaces: creates exactly the expected paths', async () => {
   const dir = await makeRepo({}, { git: true });
 
   const result = await run(['init', '--git-host', 'gh', '--runtimes', 'codex'], { cwd: dir });
@@ -94,7 +94,7 @@ test('init-surfaces: creates exactly the R1.3 list', async () => {
   assert.deepEqual(actual, expected);
 });
 
-// --- wolven-template: R1.7 rendered content ---
+// --- wolven-template: rendered content ---
 
 test('wolven-template: first line points to harness-init step 0', async () => {
   const raw = await readFile(path.join(repoTemplatesDir, 'WOLVEN.md'), 'utf8');

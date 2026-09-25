@@ -27,7 +27,7 @@ async function readOptional(p: string): Promise<string | undefined> {
 }
 
 /**
- * Rule `skill-frontmatter` (R4.1): every directory directly under
+ * Rule `skill-frontmatter`: every directory directly under
  * `.agents/skills/` must have a `SKILL.md` whose frontmatter parses and
  * carries non-empty string `name` and `description`. A missing skills dir
  * yields no findings.
@@ -98,7 +98,7 @@ async function checkSkillFrontmatter(root: string): Promise<Finding[]> {
 }
 
 /**
- * Rule `rule-missing` (R4.1): every `.agents/rules/<name>.md` cited in
+ * Rule `rule-missing`: every `.agents/rules/<name>.md` cited in
  * `WOLVEN.md` or `AGENTS.md` must exist. One finding per missing cited
  * path, per citing line.
  */
@@ -131,7 +131,7 @@ async function checkRuleCitations(root: string): Promise<Finding[]> {
 }
 
 /**
- * Rule `step0-pending` (R4.2): while `WOLVEN.md` exists and `AGENTS.md` is
+ * Rule `step0-pending`: while `WOLVEN.md` exists and `AGENTS.md` is
  * absent or doesn't mention it, warn (exit 0) rather than fail.
  */
 async function checkStep0Pending(root: string): Promise<Finding[]> {
@@ -146,10 +146,10 @@ async function checkStep0Pending(root: string): Promise<Finding[]> {
 }
 
 /**
- * Implements the validate spine (R4.1-R4.2): skill frontmatter, cited-rule
+ * Checks the harness spine: skill frontmatter, cited-rule
  * existence, and the step-0-pending warning. Reads the working tree
  * directly via `node:fs/promises` against `ctx.root`, not `ctx.files` —
- * `WOLVEN.md` and `.agents/**` stay untracked until the Human commits, and
+ * `WOLVEN.md` and `.agents/**` stay untracked until someone commits them, and
  * these checks must still see them.
  */
 export async function checkSpine(ctx: RepoContext): Promise<Finding[]> {
