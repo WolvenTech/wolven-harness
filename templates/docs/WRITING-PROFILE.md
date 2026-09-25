@@ -1,7 +1,7 @@
 # Writing profile
 
 `wolven-harness validate` enforces four rules on every profile doc under
-`docs/{adrs,prds,specs,notes,deferrals,maps}/`.
+`docs/{adrs,prds,specs,notes,deferrals}/`.
 
 ## Layout
 
@@ -21,7 +21,6 @@ everything under a doc-folder's `archived/`, are not checked.
 | `specs` | `spec` |
 | `notes` | `note` |
 | `deferrals` | `deferral` |
-| `maps` | `map` |
 
 ## The four rules
 

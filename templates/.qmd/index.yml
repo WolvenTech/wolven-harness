@@ -14,6 +14,3 @@ collections:
   deferrals:
     path: ./docs/deferrals
     pattern: "!(archived)/**/*.md"
-  maps:
-    path: ./docs/maps
-    pattern: "!(archived)/**/*.md"

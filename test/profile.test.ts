@@ -54,7 +54,6 @@ const TYPE_DIR_CASES: { dir: string; expectedType?: string; wrongType: string }[
   { dir: 'specs', expectedType: 'spec', wrongType: 'adr' },
   { dir: 'notes', expectedType: 'note', wrongType: 'spec' },
   { dir: 'deferrals', expectedType: 'deferral', wrongType: 'note' },
-  { dir: 'maps', expectedType: 'map', wrongType: 'note' },
 ];
 
 for (const { dir, expectedType, wrongType } of TYPE_DIR_CASES) {
@@ -369,7 +368,31 @@ test('doc-layout: z-plan.md beside z-spec.md exits 0', async () => {
   assert.equal(result.code, 0, result.stdout);
 });
 
-test('doc-layout: docs/maps/m/03-ticket.md without frontmatter exits 0', async () => {
+test('doc-layout: docs/notes/n/sources.md without frontmatter next to n-note.md exits 0', async () => {
+  const dir = await makeRepo(
+    {
+      'docs/notes/n/n-note.md': [
+        '---',
+        'type: note',
+        'title: N',
+        'description: a valid note',
+        'status: draft',
+        '---',
+        '',
+        '# N',
+        '',
+      ].join('\n'),
+      'docs/notes/n/sources.md': '# sources, no frontmatter\n',
+    },
+    { git: true },
+  );
+
+  const result = await run(['validate'], { cwd: dir });
+
+  assert.equal(result.code, 0, result.stdout);
+});
+
+test('doc-layout: docs/maps/m/m-map.md is not profile-checked', async () => {
   const dir = await makeRepo(
     {
       'docs/maps/m/m-map.md': [
@@ -383,7 +406,6 @@ test('doc-layout: docs/maps/m/03-ticket.md without frontmatter exits 0', async (
         '# M',
         '',
       ].join('\n'),
-      'docs/maps/m/03-ticket.md': '# ticket, no frontmatter\n',
     },
     { git: true },
   );

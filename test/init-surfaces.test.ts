@@ -90,7 +90,6 @@ test('init-surfaces: creates exactly the expected paths', async () => {
     'docs/specs/.gitkeep',
     'docs/notes/.gitkeep',
     'docs/deferrals/.gitkeep',
-    'docs/maps/.gitkeep',
     '.qmd/index.yml',
     '.wolven-harness.json',
   ];

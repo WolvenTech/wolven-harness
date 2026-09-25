@@ -9,7 +9,6 @@ const DIR_TYPE: Record<string, string> = {
   specs: 'spec',
   notes: 'note',
   deferrals: 'deferral',
-  maps: 'map',
 };
 
 const STATUSES = new Set(['draft', 'stable', 'deprecated']);
@@ -18,10 +17,10 @@ const STATUSES = new Set(['draft', 'stable', 'deprecated']);
 const ADR_FILE_RE = /^docs\/adrs\/([^/]+\.md)$/;
 
 /** A `.md` directly under a doc-folder — the flat layout, always rejected. */
-const FLAT_FILE_RE = /^docs\/(prds|specs|notes|deferrals|maps)\/([^/]+)\.md$/;
+const FLAT_FILE_RE = /^docs\/(prds|specs|notes|deferrals)\/([^/]+)\.md$/;
 
 /** A file under a doc-folder's slug folder: captures dir, slug, and the rest of the path. */
-const SLUG_FILE_RE = /^docs\/(prds|specs|notes|deferrals|maps)\/([^/]+)\/(.+)$/;
+const SLUG_FILE_RE = /^docs\/(prds|specs|notes|deferrals)\/([^/]+)\/(.+)$/;
 
 /** Kebab-case, ASCII-only filename. */
 const KEBAB_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*\.md$/;
@@ -151,7 +150,7 @@ function checkFile(rel: string, dir: string, baseName: string, content: string, 
 
 /**
  * Enforces the writing profile on `docs/adrs/*.md` (flat, unchanged) and on
- * the doc-folder layout `docs/{prds,specs,notes,deferrals,maps}/<slug>/<slug>-<type>.md`
+ * the doc-folder layout `docs/{prds,specs,notes,deferrals}/<slug>/<slug>-<type>.md`
  * (plus `<slug>-plan.md` for specs). A flat `.md` under a doc-folder fails,
  * naming the expected doc-folder path; a slug folder without its main doc
  * fails too. Other files in a slug folder, and everything under a doc-folder's

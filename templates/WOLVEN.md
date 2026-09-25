@@ -12,7 +12,6 @@ Before anything else: run the `harness-init` skill, step 0 — it integrates thi
 | `docs/specs/<slug>/` | Active specs: `docs/specs/<slug>/<slug>-spec.md` (plus `<slug>-plan.md`) |
 | `docs/notes/<slug>/` | Research notes: `docs/notes/<slug>/<slug>-note.md` |
 | `docs/deferrals/<slug>/` | Deferred scope with revisit triggers: `docs/deferrals/<slug>/<slug>-deferral.md` |
-| `docs/maps/<slug>/` | Destination maps: `docs/maps/<slug>/<slug>-map.md`, plus one file per ticket |
 | `docs/WRITING-PROFILE.md` | The four rules every `docs/**` markdown file follows |
 
 Every doc-folder except `docs/adrs/` follows `docs/<folder>/<slug>/<slug>-<type>.md`.

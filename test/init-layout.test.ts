@@ -14,13 +14,12 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, '..');
 const repoTemplatesDir = path.join(repoRoot, 'templates');
 
-const DOC_FOLDERS = ['prds', 'specs', 'notes', 'deferrals', 'maps'] as const;
+const DOC_FOLDERS = ['prds', 'specs', 'notes', 'deferrals'] as const;
 const DIR_TYPE: Record<string, string> = {
   prds: 'prd',
   specs: 'spec',
   notes: 'note',
   deferrals: 'deferral',
-  maps: 'map',
 };
 
 function makeIo(cwd: string): Io {
@@ -33,7 +32,7 @@ function makeIo(cwd: string): Io {
   };
 }
 
-test('init-layout: init into an empty fixture creates docs/{prds,specs,notes,deferrals,maps}/.gitkeep', async () => {
+test('init-layout: init into an empty fixture creates docs/{prds,specs,notes,deferrals}/.gitkeep', async () => {
   const dir = await makeRepo({}, { git: true });
 
   const result = await run(['init', '--git-host', 'gh', '--runtimes', 'codex'], { cwd: dir });

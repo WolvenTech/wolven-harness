@@ -42,10 +42,10 @@ It prints one `<file>:<line>: [<kind>] <message>` line per finding and ends with
 
 ## Doc layout
 
-`init` creates `docs/{prds,specs,notes,deferrals,maps}/`, each holding one
+`init` creates `docs/{prds,specs,notes,deferrals}/`, each holding one
 slug folder per document: `docs/<folder>/<slug>/<slug>-<type>.md` (folder →
-type: `prds`→`prd`, `specs`→`spec`, `notes`→`note`, `deferrals`→`deferral`,
-`maps`→`map`). `docs/specs/<slug>/` may also hold `<slug>-plan.md`. `docs/adrs/`
+type: `prds`→`prd`, `specs`→`spec`, `notes`→`note`, `deferrals`→`deferral`).
+`docs/specs/<slug>/` may also hold `<slug>-plan.md`. `docs/adrs/`
 is the exception and stays flat: `docs/adrs/adr-NNN-<slug>.md`. See
 `docs/WRITING-PROFILE.md` for the full type map and rules.
 
