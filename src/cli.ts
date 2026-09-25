@@ -3,6 +3,7 @@ import { realpathSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { runInit } from './init/index.js';
 import { runValidate } from './validate/index.js';
+import { runComments } from './comments/index.js';
 import type { Io } from './init/types.js';
 
 export type { Io };
@@ -15,6 +16,7 @@ function printUsage(io: Io): void {
       'Commands:',
       '  init       Scaffold WOLVEN.md, the .agents/ source tree, and wire runtimes',
       '  validate   Check the repo against the writing profile and claim gate',
+      '  comments   Judge comment lines added since a base ref [--base <ref>]',
       '',
       'Run "wolven-harness --help" to see this message.',
       '',
@@ -35,6 +37,8 @@ export async function main(argv: string[], io: Io): Promise<number> {
       return runInit(rest, io);
     case 'validate':
       return runValidate(rest, io);
+    case 'comments':
+      return runComments(rest, io);
     default:
       io.stderr.write(`wolven-harness: unknown command "${command}"\n\n`);
       printUsage(io);

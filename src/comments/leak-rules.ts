@@ -4,7 +4,8 @@ export type LeakKind =
   | 'review-vantage'
   | 'reviewer-addressed'
   | 'flow-narration'
-  | 'planning-id';
+  | 'planning-id'
+  | 'todo';
 
 export type LeakRule = {
   kind: LeakKind;
@@ -142,6 +143,11 @@ export const LEAK_RULES: readonly LeakRule[] = [
     kind: 'planning-id',
     pattern: /\b(?:spec|Entrega) [A-D]\b/i,
     says: 'cites planning context a package reader never sees',
+  },
+  {
+    kind: 'todo',
+    pattern: /@todo\b/i,
+    says: 'defers the work instead of describing what holds now',
   },
 ] as const;
 

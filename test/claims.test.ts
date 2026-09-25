@@ -26,7 +26,7 @@ test('claim-scan: a claim in src/*.ts, AGENTS.md, and docs/specs/*.md is reporte
     {
       'src/x.ts': 'ADR-042\n',
       'AGENTS.md': 'ADR-042\n',
-      'docs/specs/y.md': [
+      'docs/specs/y/y-spec.md': [
         '---',
         'type: spec',
         'title: Y',
@@ -46,7 +46,7 @@ test('claim-scan: a claim in src/*.ts, AGENTS.md, and docs/specs/*.md is reporte
   assert.equal(result.code, 1);
   assert.match(result.stdout, /claim-missing.*src\/x\.ts:1/);
   assert.match(result.stdout, /claim-missing.*AGENTS\.md:1/);
-  assert.match(result.stdout, /claim-missing.*docs\/specs\/y\.md:8/);
+  assert.match(result.stdout, /claim-missing.*docs\/specs\/y\/y-spec\.md:8/);
 });
 
 test('claim-scan: tokens inside docs/adrs/*.md are not reported', async () => {

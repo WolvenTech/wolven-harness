@@ -2,18 +2,26 @@ import { parse } from 'yaml';
 import type { RepoContext } from './repo.js';
 import type { Finding } from './report.js';
 
-/** Maps each profile directory to the `type` its frontmatter must carry. */
+/** Maps each doc-folder to the singular `type` its frontmatter must carry. */
 const DIR_TYPE: Record<string, string> = {
   adrs: 'adr',
+  prds: 'prd',
   specs: 'spec',
   notes: 'note',
   deferrals: 'deferral',
+  maps: 'map',
 };
 
 const STATUSES = new Set(['draft', 'stable', 'deprecated']);
 
-/** Matches a direct child `docs/<dir>/<name>.md` for the four profile dirs. */
-const PROFILE_FILE_RE = /^docs\/(adrs|specs|notes|deferrals)\/([^/]+\.md)$/;
+/** A direct child `docs/adrs/<name>.md` — ADRs stay flat, unlike the other doc-folders. */
+const ADR_FILE_RE = /^docs\/adrs\/([^/]+\.md)$/;
+
+/** A `.md` directly under a doc-folder — the flat layout, always rejected. */
+const FLAT_FILE_RE = /^docs\/(prds|specs|notes|deferrals|maps)\/([^/]+)\.md$/;
+
+/** A file under a doc-folder's slug folder: captures dir, slug, and the rest of the path. */
+const SLUG_FILE_RE = /^docs\/(prds|specs|notes|deferrals|maps)\/([^/]+)\/(.+)$/;
 
 /** Kebab-case, ASCII-only filename. */
 const KEBAB_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*\.md$/;
@@ -50,8 +58,8 @@ function parseFrontmatter(content: string): Record<string, unknown> | undefined 
 }
 
 /**
- * Checks one profile file (already known to live directly under
- * `docs/<dir>/`) and appends its findings.
+ * Checks one main doc (an ADR, or a doc-folder's `<slug>-<type>.md` /
+ * `<slug>-plan.md`) and appends its findings.
  */
 function checkFile(rel: string, dir: string, baseName: string, content: string, findings: Finding[]): void {
   // (d) kebab-case ASCII filename.
@@ -142,20 +150,76 @@ function checkFile(rel: string, dir: string, baseName: string, content: string, 
 }
 
 /**
- * Enforces the writing profile on direct children of
- * `docs/{adrs,specs,notes,deferrals}/*.md`. Nested paths and non-`.md`
- * files are out of scope.
+ * Enforces the writing profile on `docs/adrs/*.md` (flat, unchanged) and on
+ * the doc-folder layout `docs/{prds,specs,notes,deferrals,maps}/<slug>/<slug>-<type>.md`
+ * (plus `<slug>-plan.md` for specs). A flat `.md` under a doc-folder fails,
+ * naming the expected doc-folder path; a slug folder without its main doc
+ * fails too. Other files in a slug folder, and everything under a doc-folder's
+ * `archived/`, are out of scope.
  */
 export async function checkProfile(ctx: RepoContext): Promise<Finding[]> {
   const findings: Finding[] = [];
 
-  for (const rel of ctx.files) {
-    const match = rel.match(PROFILE_FILE_RE);
-    if (!match) continue;
+  // invariant: slugsSeen minus mainDocSeen, per dir, is the missing-main-doc set.
+  const slugsSeen = new Map<string, Set<string>>();
+  const mainDocSeen = new Map<string, Set<string>>();
 
-    const [, dir, baseName] = match;
+  for (const rel of ctx.files) {
+    const adrMatch = rel.match(ADR_FILE_RE);
+    if (adrMatch) {
+      const content = await ctx.read(rel);
+      checkFile(rel, 'adrs', adrMatch[1], content, findings);
+      continue;
+    }
+
+    const flatMatch = rel.match(FLAT_FILE_RE);
+    if (flatMatch) {
+      const [, dir, name] = flatMatch;
+      findings.push({
+        level: 'error',
+        rule: 'profile-flat-layout',
+        file: rel,
+        message: `expected the doc-folder layout "docs/${dir}/${name}/${name}-${DIR_TYPE[dir]}.md", not a flat file`,
+      });
+      continue;
+    }
+
+    const slugMatch = rel.match(SLUG_FILE_RE);
+    if (!slugMatch) continue;
+
+    const [, dir, slug, restPath] = slugMatch;
+    if (slug === 'archived') continue; // docs/<dir>/archived/** is skipped entirely.
+    if (!restPath.endsWith('.md')) continue;
+
+    if (!slugsSeen.has(dir)) slugsSeen.set(dir, new Set());
+    slugsSeen.get(dir)!.add(slug);
+
+    const expectedType = DIR_TYPE[dir];
+    const isDirectChild = !restPath.includes('/');
+    const isMainDoc = isDirectChild && restPath === `${slug}-${expectedType}.md`;
+    const isPlanDoc = dir === 'specs' && isDirectChild && restPath === `${slug}-plan.md`;
+    if (!isMainDoc && !isPlanDoc) continue; // other files in the folder are not checked.
+
+    if (isMainDoc) {
+      if (!mainDocSeen.has(dir)) mainDocSeen.set(dir, new Set());
+      mainDocSeen.get(dir)!.add(slug);
+    }
+
     const content = await ctx.read(rel);
-    checkFile(rel, dir, baseName, content, findings);
+    checkFile(rel, dir, restPath, content, findings);
+  }
+
+  for (const [dir, slugs] of slugsSeen) {
+    const done = mainDocSeen.get(dir) ?? new Set<string>();
+    for (const slug of slugs) {
+      if (done.has(slug)) continue;
+      findings.push({
+        level: 'error',
+        rule: 'profile-missing-main-doc',
+        file: `docs/${dir}/${slug}`,
+        message: `folder is missing its main doc "${slug}-${DIR_TYPE[dir]}.md"`,
+      });
+    }
   }
 
   return findings;

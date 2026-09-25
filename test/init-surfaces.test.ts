@@ -76,14 +76,17 @@ test('init-surfaces: creates exactly the expected paths', async () => {
 
   const nonSkillFiles = [
     'WOLVEN.md',
+    '.agents/rules/comments.md',
     '.agents/rules/qmd-first.md',
     '.agents/rules/yagni-strict.md',
     '.agents/hooks/README.md',
     'docs/WRITING-PROFILE.md',
     'docs/adrs/adr-000-record-architecture-decisions.md',
+    'docs/prds/.gitkeep',
     'docs/specs/.gitkeep',
     'docs/notes/.gitkeep',
     'docs/deferrals/.gitkeep',
+    'docs/maps/.gitkeep',
     '.qmd/index.yml',
     '.wolven-harness.json',
   ];

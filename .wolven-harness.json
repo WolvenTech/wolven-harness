@@ -9,5 +9,8 @@
   "ignore": [
     "templates/**",
     "test/**"
-  ]
+  ],
+  "comments": {
+    "paths": ["src", "test"]
+  }
 }

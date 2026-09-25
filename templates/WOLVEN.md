@@ -7,11 +7,15 @@ Before anything else: run the `harness-init` skill, step 0 — it integrates thi
 | `.agents/skills/` | Agent skills, one folder per skill, each with a `SKILL.md` |
 | `.agents/rules/` | Standing rules agents load unconditionally |
 | `.agents/hooks/` | Hook scripts and wiring (placeholder until the project needs one) |
-| `docs/adrs/` | Architecture decision records (profile ADRs) |
-| `docs/specs/` | Active specs |
-| `docs/notes/` | Research notes |
-| `docs/deferrals/` | Deferred scope with revisit triggers |
+| `docs/adrs/` | Architecture decision records (profile ADRs), flat: `adr-NNN-<slug>.md` |
+| `docs/prds/<slug>/` | Product requirement docs: `docs/prds/<slug>/<slug>-prd.md` |
+| `docs/specs/<slug>/` | Active specs: `docs/specs/<slug>/<slug>-spec.md` (plus `<slug>-plan.md`) |
+| `docs/notes/<slug>/` | Research notes: `docs/notes/<slug>/<slug>-note.md` |
+| `docs/deferrals/<slug>/` | Deferred scope with revisit triggers: `docs/deferrals/<slug>/<slug>-deferral.md` |
+| `docs/maps/<slug>/` | Destination maps: `docs/maps/<slug>/<slug>-map.md`, plus one file per ticket |
 | `docs/WRITING-PROFILE.md` | The four rules every `docs/**` markdown file follows |
+
+Every doc-folder except `docs/adrs/` follows `docs/<folder>/<slug>/<slug>-<type>.md`.
 
 ## Before you answer from memory
 
@@ -31,6 +35,7 @@ qmd query "<question>"
 
 - `.agents/rules/qmd-first.md` — QMD before web, ADRs first
 - `.agents/rules/yagni-strict.md` — strict YAGNI; deferrals under `docs/deferrals/` only
+- `.agents/rules/comments.md` — comment style for added lines; run `harness:comments` before handing work back
 
 ## Architecture claims
 

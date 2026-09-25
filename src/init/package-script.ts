@@ -2,9 +2,16 @@ import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import type { Context, StepResult } from './types.js';
 
-const SCRIPT_KEY = 'harness:validate';
-const SCRIPT_VALUE = 'wolven-harness validate';
-const REPORT_ID = `package.json#scripts.${SCRIPT_KEY}`;
+type ScriptEntry = { key: string; value: string };
+
+const HARNESS_SCRIPTS: readonly ScriptEntry[] = [
+  { key: 'harness:validate', value: 'wolven-harness validate' },
+  { key: 'harness:comments', value: 'wolven-harness comments' },
+];
+
+function reportId(key: string): string {
+  return `package.json#scripts.${key}`;
+}
 
 /** Indent string used by the first indented line, defaulting to two spaces. */
 function detectIndent(raw: string): string {
@@ -17,12 +24,12 @@ function hasTrailingNewline(raw: string): boolean {
 }
 
 /**
- * Adds `"harness:validate": "wolven-harness validate"` to a consumer
- * `package.json`'s `scripts`, only when that key is absent. Every other
- * key, and the original key order, is preserved — `JSON.parse` keeps
- * source insertion order for string keys, and re-serializing after adding
- * exactly one new key changes nothing else. Indentation and a trailing
- * newline are detected from the source file rather than assumed. Missing
+ * Adds each entry in `HARNESS_SCRIPTS` to a consumer `package.json`'s
+ * `scripts`, only when that key is absent. Every other key, and the
+ * original key order, is preserved — `JSON.parse` keeps source insertion
+ * order for string keys, and re-serializing after adding only the missing
+ * keys changes nothing else. Indentation and a trailing newline are
+ * detected from the source file rather than assumed. Missing
  * `package.json` is not an error: this step simply does nothing.
  */
 export async function addValidateScript(ctx: Context): Promise<StepResult> {
@@ -37,18 +44,25 @@ export async function addValidateScript(ctx: Context): Promise<StepResult> {
   }
 
   const pkg = JSON.parse(raw) as { scripts?: Record<string, string> };
+  const created: string[] = [];
+  const skipped: string[] = [];
 
-  if (pkg.scripts && Object.prototype.hasOwnProperty.call(pkg.scripts, SCRIPT_KEY)) {
-    return { created: [], skipped: [REPORT_ID] };
+  for (const { key, value } of HARNESS_SCRIPTS) {
+    if (pkg.scripts && Object.prototype.hasOwnProperty.call(pkg.scripts, key)) {
+      skipped.push(reportId(key));
+      continue;
+    }
+    if (!pkg.scripts) pkg.scripts = {};
+    pkg.scripts[key] = value;
+    created.push(reportId(key));
   }
 
-  if (!pkg.scripts) pkg.scripts = {};
-  pkg.scripts[SCRIPT_KEY] = SCRIPT_VALUE;
+  if (created.length === 0) return { created, skipped };
 
   const indent = detectIndent(raw);
   let output = JSON.stringify(pkg, null, indent);
   if (hasTrailingNewline(raw)) output += '\n';
 
   await writeFile(pkgPath, output, 'utf8');
-  return { created: [REPORT_ID], skipped: [] };
+  return { created, skipped };
 }

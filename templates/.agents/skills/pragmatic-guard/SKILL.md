@@ -13,11 +13,11 @@ Intensity is **strict** by default (see `.agents/rules/yagni-strict.md`).
 2. Score **need** (0–10) vs **complexity** (0–10) for the proposed addition.
 3. If complexity is not clearly justified by a present need, **refuse** and
    propose the simpler path.
-4. If deferred: create or update a markdown file under **`docs/deferrals/`**
+4. If deferred: create or update **`docs/deferrals/<slug>/<slug>-deferral.md`**
    only — never `docs/` root or repo root. Frontmatter: `type: deferral`,
    `title`, `description`, `status` (`draft`, `stable`, or `deprecated`).
    Include trigger checkboxes — concrete, observable conditions that would
-   justify revisiting the work. Filename: kebab-case, ASCII.
+   justify revisiting the work. `<slug>`: kebab-case, ASCII.
 5. Exemptions: security, data integrity, compliance, accessibility — do not
    weaken these.
 
@@ -47,8 +47,9 @@ touching core."
 
 > Refused. A plugin system solves a problem we do not have yet — there is
 > exactly one integration in scope. Building the direct path now and recording
-> a deferral (`docs/deferrals/plugin-system.md`, trigger: a second integration
-> is requested) keeps the door open without paying the abstraction cost today.
+> a deferral (`docs/deferrals/plugin-system/plugin-system-deferral.md`,
+> trigger: a second integration is requested) keeps the door open without
+> paying the abstraction cost today.
 
 ## Output
 

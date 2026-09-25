@@ -2,12 +2,18 @@ collections:
   adrs:
     path: ./docs/adrs
     pattern: "*.md"
+  prds:
+    path: ./docs/prds
+    pattern: "!(archived)/**/*.md"
   specs:
     path: ./docs/specs
-    pattern: "*.md"
+    pattern: "!(archived)/**/*.md"
   notes:
     path: ./docs/notes
-    pattern: "*.md"
+    pattern: "!(archived)/**/*.md"
   deferrals:
     path: ./docs/deferrals
-    pattern: "*.md"
+    pattern: "!(archived)/**/*.md"
+  maps:
+    path: ./docs/maps
+    pattern: "!(archived)/**/*.md"
