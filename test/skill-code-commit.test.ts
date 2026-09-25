@@ -1,32 +1,28 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { parse as parseYaml } from 'yaml';
 import { readSkill, assertSkillBasics } from './helpers/skill-contract.js';
 
 test('skill-code-commit: passes the shared skill contract checks', async () => {
   await assertSkillBasics('code-commit', { requireHarnessValidate: true });
 });
 
-test('skill-code-commit: is ask-only in its frontmatter', async () => {
+test('skill-code-commit: is model-invocable', async () => {
   const skill = await readSkill('code-commit');
 
-  assert.equal(skill.frontmatter['disable-model-invocation'], true);
+  assert.equal(
+    Object.prototype.hasOwnProperty.call(skill.frontmatter, 'disable-model-invocation'),
+    false,
+    'SKILL.md frontmatter must not set disable-model-invocation',
+  );
+
+  assert.ok(!skill.files.includes('agents/openai.yaml'), 'must not ship agents/openai.yaml');
 });
 
-test('skill-code-commit: ships an ask-only agents/openai.yaml', async () => {
-  const skill = await readSkill('code-commit');
+test('skill-code-commit: is invoked from code-execute only when the resolved opt says so', async () => {
+  const executeSkill = await readSkill('code-execute');
 
-  assert.ok(skill.files.includes('agents/openai.yaml'), 'expected agents/openai.yaml');
-
-  const raw = await skill.read('agents/openai.yaml');
-  const parsed = parseYaml(raw) as {
-    interface?: { display_name?: string; short_description?: string };
-    policy?: { allow_implicit_invocation?: boolean };
-  };
-
-  assert.equal(parsed.policy?.allow_implicit_invocation, false);
-  assert.ok(typeof parsed.interface?.display_name === 'string' && parsed.interface.display_name.length > 0);
-  assert.ok(typeof parsed.interface?.short_description === 'string' && parsed.interface.short_description.length > 0);
+  assert.match(executeSkill.body, /invoke `code-commit` only when the resolved/i);
+  assert.match(executeSkill.body, /never invoke `code-pr`,\s*`code-review`, or `code-ci` on its own/i);
 });
 
 test('skill-code-commit: keeps Conventional Commits shape', async () => {

@@ -1,20 +1,20 @@
 ---
 name: code-execute
-description: Execute ordered work units from a locked plan in-repo — implement, validate before any commit, and stop; commits, PRs, reviews, and CI babysitting are always a separate ask
+description: Execute ordered work units from a locked plan in-repo — implement, validate, then invoke code-commit only when the resolved commit-cadence opt says to; PRs, reviews, and CI babysitting are always a separate ask
 ---
 
 # Code Execute
 
-Runs a plan's work units end-to-end: implement, validate, and update the
-plan's own resume record — then stop. This skill never commits, opens a
-PR, leaves review comments, or babysits CI; `code-commit`, `code-pr`,
-`code-review`, and `code-ci` run only when the Human asks for them
-separately.
+Runs a plan's work units end-to-end: implement, validate, update the
+plan's own resume record, and invoke `code-commit` only when the resolved
+commit-cadence opt says to. This skill never opens a PR, leaves review
+comments, or babysits CI; `code-pr`, `code-review`, and `code-ci` run only
+when asked for separately.
 
-**Consult:** `pragmatic-guard`.
+**Consult:** `pragmatic-guard`, `code-commit`.
 **Input:** `docs/specs/<slug>/<slug>-plan.md` (+ its spec) when a plan
 exists — a one-file change can skip straight here with `harness:validate`.
-**Validate:** `harness:validate` before any commit is even asked for.
+**Validate:** `harness:validate` before any commit, asked for or automatic.
 
 **References (read when):**
 
@@ -23,8 +23,9 @@ exists — a one-file change can skip straight here with `harness:validate`.
 | [builder-brief.md](references/builder-brief.md) | The unit's `Subagent` cell reads `spawn` — fill it in for that unit and paste it as the subagent's prompt |
 
 **In / out / handoff:** an approved unit and its frozen obligations →
-validated work with the plan's resume section refreshed → stop; the
-work waits, uncommitted, for the Human to ask for `code-commit`.
+validated work with the plan's resume section refreshed → `code-commit`
+invoked only when the resolved commit-cadence opt says to; otherwise the
+work stops, uncommitted, ready to be asked for.
 
 ## Frozen obligations
 
@@ -95,6 +96,31 @@ When **more than one unit** is in flight, or `git status` shows
 
 Any Done-when item without evidence stays incomplete.
 
+## Consumer opt (commit cadence)
+
+Read `.agents/code-commit.config.yml` before mutate. An absent file, or an
+absent key, takes that key's default: `autocommit: false`,
+`autocommit-rule: wave`. A value outside `true`/`false` (for `autocommit`)
+or `unit`/`wave` (for `autocommit-rule`) is **fail-closed** — stop; do not
+guess and do not commit; name the bad key and the value that was read.
+
+The pre-start print states the resolved `autocommit` and `autocommit-rule`
+values, whether they came from the file or from a default.
+
+| `autocommit` | `autocommit-rule` | Execute path |
+|---|---|---|
+| `false` | ignored | Skip `code-commit`. Work stays uncommitted, ready to be asked for. |
+| `true` | `unit` | After that unit's validate PASS, invoke `code-commit` once for that unit's work plus its plan-completion mark. |
+| `true` | `wave` | Do not commit per unit. After the wave gate's validate PASS, invoke `code-commit` once for that wave's proven work plus those units' plan-completion marks. |
+
+- No plan in scope: no automatic commit; an explicit standalone commit ask
+  still runs `code-commit` directly, whatever the opt says.
+- A batch's plan-completion marks flip in the worktree immediately before
+  that batch's commit; a failed commit leaves those marks incomplete.
+- Validate red: never commit, on any cadence.
+- `init` ships no config file, so an unconfigured consumer keeps a person
+  in the loop at the `false` / `wave` defaults.
+
 ## Subagent dispatch (plan's Subagent column)
 
 Honor the unit's `Subagent` value exactly as the plan states it — see
@@ -140,13 +166,17 @@ same wave can reintroduce a hit an earlier, narrower check missed.
    **before mutate**; an undecided discrepancy stops the unit.
 4. Produce real diffs / evidence before claiming done.
 5. **Validate before commit** — `harness:validate` PASS is required before
-   the Human is even asked for a commit; never claim done on a red gate.
-6. **Plan mark lands in the same commit** — when the Human runs
-   `code-commit`, that commit carries both the proven work and the plan's
-   Done-when marks for the batch it covers; if the commit does not
-   succeed, the marks go back to unchecked.
-7. **Do not** invoke `code-commit`, `code-pr`, `code-review`, or `code-ci`
-   on its own — each runs only on an explicit ask.
+   `code-commit` is invoked or even asked for; never claim done on a red
+   gate.
+6. **Plan mark lands in the same commit** — the batch's plan-completion
+   marks flip immediately before its commit, so one commit carries both
+   the mark and the proven work; if the commit does not succeed, the
+   marks go back to unchecked.
+7. **Commit only on cadence** — invoke `code-commit` only when the
+   resolved `autocommit` / `autocommit-rule` opt says to; never guess past
+   a value outside the two known enums; never invoke `code-pr`,
+   `code-review`, or `code-ci` on its own — each of those three runs only
+   on an explicit ask.
 8. **Verify-before-claim** — no done/shipped without fresh in-session
    evidence.
 9. **No side directories** for resume state — the plan file is the only
@@ -155,7 +185,7 @@ same wave can reintroduce a hit an earlier, narrower check missed.
 ## When NOT to use
 
 - Locking requirements or unit order — `code-spec` / `code-plan`.
-- Committing — `code-commit`, on an explicit ask only.
+- A standalone commit with no plan unit in scope — `code-commit` directly.
 - Opening a PR — `code-pr`.
 - Leaving review comments on a PR — `code-review`.
 - Babysitting conflicts / comments / CI to merge-ready — `code-ci`.
@@ -172,9 +202,12 @@ Before editing files, print:
    column
 5. **Done when** — copy from the plan (checklist below)
 6. **Validate** — `harness:validate` (plus any unit-named check) that must
-   PASS before a commit is even asked for
+   PASS before a commit is invoked or even asked for
 7. **Resume** — confirm the seven-field execution/resume section is
    present and refreshed in the plan
+8. **Resolved opt** — the `autocommit` and `autocommit-rule` values read
+   from `.agents/code-commit.config.yml`, or their defaults when the file
+   or a key is absent
 
 If any item is ambiguous, ask once — then proceed.
 
@@ -221,35 +254,57 @@ time on disjoint paths.
 
 Run the unit's checks, then the [final check](#final-check-mandatory-paste-both-outputs)
 above. Fix failures; do not suppress a gate. If validate fails, stop — do
-not mark the unit done and do not ask for `code-commit`.
+not mark the unit done and do not invoke `code-commit`.
 
 Iron law: no "done", "shipped", or "PASS" claim without fresh command
 output from this session.
 
-### 4. Wave gate — mark, then ask for a commit
+### 4. Mark the batch done (immediately before its commit)
 
-At the wave's gate unit, once its checks (including the final check,
-re-run over the whole repo) PASS: flip that wave's Done-when marks in the
-plan, in the worktree, for every unit the wave covers. This edit is not
-committed yet. Then stop and tell the Human that `code-commit` is ready to
-land the wave's work and its plan marks together.
+Once the batch the resolved cadence will commit passes its checks
+(including the final check, re-run over the whole repo at a wave gate):
+flip that batch's Done-when marks in the plan, in the worktree. This edit
+is not committed yet — it lands together with the work in the next step.
+
+- `true` + `unit` — this unit only, right after that unit's PASS.
+- `true` + `wave` — those wave units, once at the wave gate after PASS, not
+  per unit.
+- `false`, or no plan in scope — skip this step; there is no commit to
+  pair it with.
+
+### 5. Commit (opt cadence, only after PASS, plan mark included)
+
+Invoke `code-commit` only when the resolved opt says to; do not invent a
+parallel commit path here.
+
+- `autocommit: true`, `autocommit-rule: unit` — after that unit's validate
+  PASS: one commit of that unit's work plus its plan-completion mark.
+- `autocommit: true`, `autocommit-rule: wave` — once at the wave gate after
+  PASS, not per unit: one commit of that wave's proven work plus those
+  units' plan-completion marks.
+- `autocommit: false` — skip `code-commit`; state that it is ready to be
+  asked for; the work stays uncommitted.
+- No plan in scope — no automatic commit; a standalone ask still runs
+  `code-commit` directly.
 
 If the commit does not succeed (hook reject, empty stage, conflict,
-abort): undo the plan-mark edit for that wave — never leave a green
+abort): undo the plan-mark edit from step 4 — never leave a green
 checkmark describing work the repo does not contain. Fix the underlying
 issue and retry from validate.
 
-Pull the next frontier unit once the wave is settled.
+Pull the next frontier unit once the batch is settled.
 
-Stop here unless the Human explicitly asks for `code-commit`, `code-pr`,
-`code-review`, or `code-ci`.
+Stop here unless explicitly asked for `code-pr`, `code-review`, or
+`code-ci`.
 
 ## Pragmatic-guard
 
 Refuse a TLC-style execute dump, independent-verifier ceremony, an empty
-"done" claim with no diff, auto-chaining a commit / PR / review / CI after
-every unit, redefining frozen obligations mid-execute, and opening a side
-directory to hold resume state.
+"done" claim with no diff, a hardcoded per-unit commit when the resolved
+cadence says otherwise, auto-chaining PR / review / CI after every unit,
+redefining frozen obligations mid-execute, guessing past an unknown
+`autocommit` / `autocommit-rule` value, and opening a side directory to
+hold resume state.
 
 ## Anti-patterns
 
@@ -266,7 +321,10 @@ directory to hold resume state.
   different commit than the work, or leaving it flipped after a failed
   commit
 - **Guessing a blank Subagent cell** instead of sending the plan back
-- Auto-chaining `code-commit`, `code-pr`, `code-review`, or `code-ci`
-  after every unit
+- **Hardcoded per-unit commit** — invoking `code-commit` after every unit
+  when the resolved opt is `wave` or `false`
+- **Guessing a bad enum** — continuing past an unknown `autocommit` /
+  `autocommit-rule` value instead of failing closed
+- Auto-chaining `code-pr`, `code-review`, or `code-ci` after every unit
 - Skipping the pre-start print on a multi-file unit
 - Packing the next wave into this one because capacity exists

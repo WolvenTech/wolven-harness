@@ -132,3 +132,35 @@ test('skill-code-pr: pre-merge closure runs only as the last batch before merge,
   assert.match(closure, /last mutate batch/i);
   assert.match(closure, /never.{0,40}mid-initiative|not.{0,20}mid-initiative/is);
 });
+
+test('skill-code-pr: pre-merge closure is not needed to open or amend, only to claim merge-ready or tick closure boxes', async () => {
+  const skill = await readSkill('code-pr');
+
+  const flat = skill.body.replace(/\s+/g, ' ');
+  assert.match(flat, /not needed to.{0,20}\*\*open\*\*.{0,20}\*\*amend\*\*/i);
+  assert.match(flat, /needed only to claim merge-ready or to tick a closure checkbox/i);
+  assert.match(skill.body, /\*\*Not a refusal:\*\*/);
+});
+
+test('skill-code-pr: prints the PR found or created and the resolved base', async () => {
+  const skill = await readSkill('code-pr');
+  const flat = skill.body.replace(/\s+/g, ' ');
+
+  assert.match(flat, /[Pp]rint the PR found or created and the resolved base/);
+});
+
+test('skill-code-pr: ships a filled verification example', async () => {
+  const skill = await readSkill('code-pr');
+
+  assert.match(skill.body, /## EXAMPLE — filled verification/);
+  const example = skill.body.slice(
+    skill.body.indexOf('## EXAMPLE — filled verification'),
+    skill.body.indexOf('## Pragmatic-guard'),
+  );
+
+  assert.match(example, /\*\*Title:\*\* `[a-z]+(\([a-z0-9-]+\))?: .+`/);
+  assert.match(example, /harness:validate/);
+  assert.match(example, /## Checklist/);
+  assert.match(example, /\[x\]/);
+  assert.match(example, /checkbox reset/i);
+});

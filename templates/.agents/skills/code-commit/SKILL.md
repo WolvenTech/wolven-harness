@@ -1,19 +1,19 @@
 ---
 name: code-commit
-description: Create Conventional Commits for repo work, only on an explicit ask — after a stopped wave gate or a standalone commit request
-disable-model-invocation: true
+description: Create Conventional Commits for repo work — invoked directly on an explicit ask, or from code-execute only when the resolved commit-cadence opt says to
 ---
 
 # Code Commit
 
 Turns a validated, uncommitted change into one or more
 [Conventional Commits 1.0.0](https://www.conventionalcommits.org/en/v1.0.0/#summary).
-Ask-only: nothing else in this bundle invokes it — it runs when asked
-directly.
+Two entry paths share this contract: a direct commit request, or
+`code-execute` invoking it only when the resolved commit-cadence opt says to.
 
 **Consult:** `pragmatic-guard`.
-**Invoked directly, two ways:** after `code-execute` stops at a wave gate and
-asks for a commit, or on a standalone commit request with no gate involved.
+**Invoked two ways:** directly, on an explicit commit request with no gate
+involved; or from `code-execute`, after that batch's validate PASS, only when
+the resolved commit-cadence opt says to.
 **Does not:** push, open a review request, leave review comments, or babysit
 a check run — that is `code-pr` / `code-review` / `code-ci`, invoked
 separately.
@@ -64,9 +64,9 @@ locally unless a separate, explicit ask to push or open a review request.
    warn if asked to stage one.
 3. **Conventional Commits** — `type[(scope)]: summary`, with an optional
    body and footers; the subject says why, not a restated file list.
-4. **Validate first** — after a wave gate, commit only once `harness:validate`
-   (and `harness:comments` for code changes) has passed; never commit on a
-   red run.
+4. **Validate first** — when invoked from `code-execute`, commit only once
+   `harness:validate` (and `harness:comments` for code changes) has passed
+   on the batch being committed; never commit on a red run.
 5. **Atomic plan completion** — when a plan unit is in scope, its
    plan-completion mark lands in the **same** commit as the proven work; a
    failed commit cleans up any false-green mark it left (see the atomic
@@ -82,14 +82,14 @@ locally unless a separate, explicit ask to push or open a review request.
 - Keep a change ready to land → `code-ci`.
 - Board / ticket work outside a repo → out of scope for this skill.
 
-**Not a refusal:** a red gate mid-execute means fix the gate or ask before
-committing; a standalone commit is still valid whenever explicitly asked.
+**Not a refusal:** a red gate means fix it first — never commit through it;
+a standalone commit is still valid whenever explicitly asked.
 
 ## Entry modes
 
 | Mode | When | Behavior |
 |------|------|----------|
-| **After a wave gate** | The calling skill's wave gate passed and it stopped to ask for a commit | One atomic commit: the batch's work plus only that unit's plan-completion mark (split only if the batch clearly holds unrelated contexts) |
+| **From `code-execute`** | Validate PASSed and the resolved commit-cadence opt says to commit — after that unit, or once at a wave gate | One atomic commit: the batch's work plus only that batch's plan-completion mark (split only if the batch clearly holds unrelated contexts) |
 | **Standalone** | An explicit "commit this" / "ship this locally" ask, with no gate involved | Inspect the workspace → group the diff into coherent contexts → one or more Conventional Commits |
 
 ## Multi-commit heuristics
@@ -109,14 +109,14 @@ plan-completion mark.
 
 ## Workflow
 
-### After a wave gate
+### From `code-execute`
 
 1. Confirm `harness:validate` (and `harness:comments` for code changes)
-   passed on the change being committed, and that any plan Done-when marks
+   passed on the batch being committed, and that any plan Done-when marks
    in scope are already flipped in the worktree, uncommitted.
 2. `git status` / `git diff` / recent `git log` for message style.
-3. Stage only the files that belong to the unit, **plus** the matching
-   plan-completion edit for that unit only; exclude secrets and unrelated
+3. Stage only the files that belong to the batch, **plus** the matching
+   plan-completion edit for that batch only; exclude secrets and unrelated
    changes.
 4. Commit with a HEREDOC message (`feat` / `fix` / `docs` / `chore` / …).
 5. On success: confirm `git status` is clean for the staged paths, and that

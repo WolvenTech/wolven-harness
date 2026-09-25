@@ -22,6 +22,10 @@ from here.
 - Leave findings or reply on review threads → `code-review`.
 - Babysit checks and conflicts to a merge-ready state → `code-ci`.
 
+**Not a refusal:** partial work, a docs-only diff, or open plan units still
+get a create or amend with the current state — never refuse, and never wait
+for more work to land first.
+
 ## Hard gates
 
 1. **Explicit ask** — run only when asked directly for a pull request; never
@@ -55,13 +59,18 @@ from here.
     tick only what this session's evidence supports. Never copy ticks
     forward from a prior body. Pre-merge closure boxes stay unchecked
     unless closure already ran on this branch.
-11. **Real evidence** — Verification & Testing and the Checklist cite
+11. **Pre-merge closure is not a precondition** — it is not needed to
+    **open** or **amend** a pull request; it is needed only to claim
+    merge-ready or to tick a closure checkbox in the body. A docs-only
+    change, a partial wave, or a mid-initiative state still gets a create
+    or amend with pre-merge closure left unchecked.
+12. **Real evidence** — Verification & Testing and the Checklist cite
     commands actually run this session on this diff; N/A is valid only for
     a docs-only change with no gate to run.
-12. **Create or amend, never a second PR** — open PR (host operations)
+13. **Create or amend, never a second PR** — open PR (host operations)
     creates when none exists; the same operation's amend path is how an
     existing pull request's title and body get updated. Return the PR URL.
-13. **Never merge** — no merge, no enabling auto-merge, no reading merge
+14. **Never merge** — no merge, no enabling auto-merge, no reading merge
     settings, and no reply on review threads — that belongs to a review or
     check-babysitting skill.
 
@@ -95,9 +104,37 @@ from here.
     ran on this branch.
 11. **Create or amend** — open PR (host operations): create a new pull
     request, or update title and body on the one found. Never open a
-    second pull request for the same head. Return the PR URL.
+    second pull request for the same head. Print the PR found or created
+    and the resolved base, and return the PR URL.
 12. **Stop** — no review, no check-babysitting, no merge, no reply on
     review threads, and no pre-merge closure unless separately asked.
+
+## EXAMPLE — filled verification (a feature PR, current state)
+
+**Title:** `feat(auth): add passwordless email sign-in`
+
+**Verification & Testing (filled — do not leave blank):**
+
+```markdown
+## Verification & Testing
+- **Tests Run:** `npm run harness:validate`; the project's test command
+  (e.g. `npm test`)
+- **Test Coverage:** New sign-in flow covered by its own test file
+- **How Verified:** `npm run harness:validate` → exit 0; the project's
+  test suite → all green; manually exercised the sign-in link in a local
+  build
+
+## Checklist
+- [x] Tests pass locally (`npm test`)
+- [x] Documentation updated (README sign-in section)
+- [x] No unrelated changes included
+```
+
+**Risk & Reviewer Notes:** Medium — touches the session-cookie path; low
+risk everywhere else.
+
+Ticked boxes in this example are **after** checkbox reset — start from
+`[ ]`, then retick only from this session's evidence.
 
 ## Pragmatic-guard
 

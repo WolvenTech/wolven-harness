@@ -53,9 +53,16 @@ test('builder-brief: tells the parent to paste the brief and re-run the final ch
   assert.match(flat, /re-runs[^.]*final check[^.]*wave gate/i);
 });
 
-test('builder-brief: never calls code-commit, code-pr, code-review, or code-ci on its own', async () => {
+test('builder-brief: never auto-chains code-pr, code-review, or code-ci', async () => {
   const skill = await readSkill('code-execute');
-  assert.match(skill.body, /do not\s*\*\*\s*invoke `code-commit`, `code-pr`, `code-review`, or `code-ci`/i);
+  assert.match(skill.body, /never invoke `code-pr`,\s*`code-review`, or `code-ci` on its own/i);
+  assert.match(skill.body, /[Aa]uto-chaining `code-pr`, `code-review`, or `code-ci` after every unit/);
+});
+
+test('builder-brief: invokes code-commit only when the resolved opt says to', async () => {
+  const skill = await readSkill('code-execute');
+  assert.match(skill.body, /invoke `code-commit` only when the resolved/i);
+  assert.match(skill.body, /[Cc]ommit only on cadence/);
 });
 
 test('builder-brief.md carries the unit row verbatim placeholder and its Owns / must-not-touch', async () => {
@@ -98,7 +105,7 @@ test('builder-brief: says the brief is a paste-in prompt, not a registered agent
   assert.match(skill.body, /not a registered persona file/i);
 });
 
-test('builder-brief: no writer, Fast-draft, docs/index, .agents/agents, or code-commit.config anywhere in the skill', async () => {
+test('builder-brief: no writer, Fast-draft, docs/index, or .agents/agents anywhere in the skill', async () => {
   const skill = await readSkill('code-execute');
 
   for (const rel of skill.files) {
@@ -107,8 +114,44 @@ test('builder-brief: no writer, Fast-draft, docs/index, .agents/agents, or code-
     assert.doesNotMatch(content, /fast-draft/i, `${rel} must not mention Fast-draft`);
     assert.doesNotMatch(content, /docs\/index/i, `${rel} must not mention docs/index`);
     assert.doesNotMatch(content, /\.agents\/agents/i, `${rel} must not load .agents/agents`);
-    assert.doesNotMatch(content, /code-commit\.config/i, `${rel} must not invent a commit-cadence config file`);
     assert.doesNotMatch(content, /\bthreshold\b/i, `${rel} must not name a threshold rule`);
     assert.doesNotMatch(content, /\bN\s*=\s*\d/i, `${rel} must not name an "N = <number>" line-count rule`);
   }
+});
+
+test('builder-brief: reads the consumer opt from one named config path', async () => {
+  const skill = await readSkill('code-execute');
+  assert.match(skill.body, /\.agents\/code-commit\.config\.yml/);
+});
+
+test('builder-brief: both cadence keys are named with their defaults', async () => {
+  const skill = await readSkill('code-execute');
+  const flat = skill.body.replace(/\s+/g, ' ');
+  assert.match(flat, /key's default: `autocommit: false`, `autocommit-rule: wave`/);
+});
+
+test('builder-brief: an unknown cadence value fails closed instead of guessing', async () => {
+  const skill = await readSkill('code-execute');
+  assert.match(skill.body, /fail-closed/i);
+  assert.match(skill.body, /do not\s*\n?\s*guess/i);
+  assert.match(skill.body, /name the bad key/i);
+});
+
+test('builder-brief: the three-row cadence table covers false, unit, and wave', async () => {
+  const skill = await readSkill('code-execute');
+  const flat = skill.body.replace(/\s+/g, ' ');
+  assert.match(flat, /\| `false` \| ignored \| Skip `code-commit`/);
+  assert.match(flat, /\| `true` \| `unit` \|/);
+  assert.match(flat, /\| `true` \| `wave` \|/);
+});
+
+test('builder-brief: pre-start print states the resolved opt', async () => {
+  const skill = await readSkill('code-execute');
+  const preStart = skill.body.slice(
+    skill.body.indexOf('## Pre-start print'),
+    skill.body.indexOf('## Done-when checklist'),
+  );
+  assert.match(preStart, /[Rr]esolved opt/);
+  assert.match(preStart, /`autocommit`/);
+  assert.match(preStart, /`autocommit-rule`/);
 });
