@@ -1,0 +1,5 @@
+interface:
+  display_name: "Code Commit"
+  short_description: "Create a Conventional Commit for a validated, uncommitted change"
+policy:
+  allow_implicit_invocation: false

@@ -72,11 +72,18 @@ export async function readSkill(name: string): Promise<SkillContract> {
   };
 }
 
+/** The shared git-host operations table, relative to the skills root: the only link a skill may make into another skill's folder. */
+const SHARED_HOST_TABLE = ['code-pr', 'references', 'host-operations.md'];
+
 function isExternalLink(url: string): boolean {
   return /^([a-z][a-z0-9+.-]*:)/i.test(url) || url.startsWith('#');
 }
 
-/** Fails if a relative markdown link in `content` (found in `rel`, inside `skillDir`) resolves outside the skill folder or to a missing file. */
+/**
+ * Fails if a relative markdown link in `content` (found in `rel`, inside
+ * `skillDir`) resolves to a missing file, or outside the skill folder unless
+ * it targets the one file every ship skill shares for git-host steps.
+ */
 function assertLocalLinksResolve(skillDir: string, rel: string, content: string): void {
   for (const match of content.matchAll(LINK_RE)) {
     const url = match[1];
@@ -88,8 +95,9 @@ function assertLocalLinksResolve(skillDir: string, rel: string, content: string)
     const fileDir = path.dirname(path.join(skillDir, rel));
     const resolved = path.resolve(fileDir, withoutAnchor);
     const withinSkill = resolved === skillDir || resolved.startsWith(skillDir + path.sep);
+    const isSharedHostTable = resolved === path.join(path.dirname(skillDir), ...SHARED_HOST_TABLE);
 
-    assert.ok(withinSkill, `${rel}: link "${url}" leaves the skill folder`);
+    assert.ok(withinSkill || isSharedHostTable, `${rel}: link "${url}" leaves the skill folder`);
     assert.ok(existsSync(resolved), `${rel}: link "${url}" does not resolve to an existing file`);
   }
 }
