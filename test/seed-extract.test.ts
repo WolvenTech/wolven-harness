@@ -52,8 +52,8 @@ test('seed-extract: template files exist', () => {
 });
 
 test('seed-extract: no source-repo collection or config words', () => {
-  // Case-sensitive, matches `rg -n "canon|concepts|sources|config.yml" templates/.agents`.
-  const hits = findMatches(/canon|concepts|sources|config\.yml/);
+  // why: the source repo's QMD collections were named canon, concepts, and sources, and its QMD config was config.yml; plain English uses of those words, and other config.yml files, are fine.
+  const hits = findMatches(/\bcanon\b|docs\/(canon|concepts|sources)\b|-c (canon|concepts|sources)\b|qmd\/config\.yml/);
   assert.deepEqual(hits, [], `unexpected source-repo collection/config words: ${JSON.stringify(hits)}`);
 });
 

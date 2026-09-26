@@ -151,6 +151,7 @@ test('init-skip: closing line names harness-init, and pre-existing files stay by
 
   const pkg = JSON.parse(await readFile(path.join(dir, 'package.json'), 'utf8'));
   assert.equal(pkg.scripts['harness:validate'], 'wolven-harness validate');
+  assert.equal(pkg.scripts['harness:comments'], 'wolven-harness comments');
   assert.equal(pkg.scripts.build, 'tsc');
   assert.equal(pkg.name, 'consumer');
   assert.equal(pkg.version, '1.0.0');
@@ -172,6 +173,7 @@ test('init-skip: second `init` run creates nothing further', async () => {
   const secondRun = await run(['init', '--git-host', 'gh', '--runtimes', 'codex'], { cwd: dir });
   assert.equal(secondRun.code, 0);
   assert.match(secondRun.stdout, /skipped \(exists\):[\s\S]*package\.json#scripts\.harness:validate/);
+  assert.match(secondRun.stdout, /skipped \(exists\):[\s\S]*package\.json#scripts\.harness:comments/);
 
   const pkgAfterSecond = await readFile(path.join(dir, 'package.json'), 'utf8');
   assert.equal(pkgAfterSecond, pkgAfterFirst, 'second run does not touch package.json again');
@@ -180,33 +182,56 @@ test('init-skip: second `init` run creates nothing further', async () => {
 
 // --- addValidateScript: direct unit tests ---
 
-test('init-script: adds harness:validate only when absent', async () => {
+test('init-script: adds harness:validate and harness:comments only when absent', async () => {
   const root = await makeRepo({ 'package.json': '{\n  "name": "pkg",\n  "version": "1.0.0"\n}\n' });
   const ctx: Context = { root, templatesDir: path.join(root, 'unused'), io: makeIo(root) };
 
   const result = await addValidateScript(ctx);
 
-  assert.deepEqual(result.created, ['package.json#scripts.harness:validate']);
+  assert.deepEqual(result.created, ['package.json#scripts.harness:validate', 'package.json#scripts.harness:comments']);
   assert.deepEqual(result.skipped, []);
 
   const pkg = JSON.parse(await readFile(path.join(root, 'package.json'), 'utf8'));
   assert.equal(pkg.scripts['harness:validate'], 'wolven-harness validate');
+  assert.equal(pkg.scripts['harness:comments'], 'wolven-harness comments');
   assert.equal(pkg.name, 'pkg');
   assert.equal(pkg.version, '1.0.0');
 });
 
-test('init-script: no change when present', async () => {
-  const raw = `${JSON.stringify({ name: 'pkg', scripts: { 'harness:validate': 'wolven-harness validate' } }, null, 2)}\n`;
+test('init-script: no change when both present', async () => {
+  const raw = `${JSON.stringify(
+    {
+      name: 'pkg',
+      scripts: { 'harness:validate': 'wolven-harness validate', 'harness:comments': 'wolven-harness comments' },
+    },
+    null,
+    2,
+  )}\n`;
   const root = await makeRepo({ 'package.json': raw });
   const ctx: Context = { root, templatesDir: path.join(root, 'unused'), io: makeIo(root) };
 
   const result = await addValidateScript(ctx);
 
   assert.deepEqual(result.created, []);
-  assert.deepEqual(result.skipped, ['package.json#scripts.harness:validate']);
+  assert.deepEqual(result.skipped, ['package.json#scripts.harness:validate', 'package.json#scripts.harness:comments']);
 
   const after = await readFile(path.join(root, 'package.json'), 'utf8');
-  assert.equal(after, raw, 'file is untouched byte-for-byte when the key is already present');
+  assert.equal(after, raw, 'file is untouched byte-for-byte when both keys are already present');
+});
+
+test('init-script: adds only the missing key when one is already present', async () => {
+  const raw = `${JSON.stringify({ name: 'pkg', scripts: { 'harness:validate': 'wolven-harness validate' } }, null, 2)}\n`;
+  const root = await makeRepo({ 'package.json': raw });
+  const ctx: Context = { root, templatesDir: path.join(root, 'unused'), io: makeIo(root) };
+
+  const result = await addValidateScript(ctx);
+
+  assert.deepEqual(result.created, ['package.json#scripts.harness:comments']);
+  assert.deepEqual(result.skipped, ['package.json#scripts.harness:validate']);
+
+  const pkg = JSON.parse(await readFile(path.join(root, 'package.json'), 'utf8'));
+  assert.equal(pkg.scripts['harness:validate'], 'wolven-harness validate');
+  assert.equal(pkg.scripts['harness:comments'], 'wolven-harness comments');
 });
 
 test('init-script: preserves other keys, key order, indentation, and trailing newline', async () => {
@@ -226,7 +251,7 @@ test('init-script: preserves other keys, key order, indentation, and trailing ne
   const ctx: Context = { root, templatesDir: path.join(root, 'unused'), io: makeIo(root) };
 
   const result = await addValidateScript(ctx);
-  assert.deepEqual(result.created, ['package.json#scripts.harness:validate']);
+  assert.deepEqual(result.created, ['package.json#scripts.harness:validate', 'package.json#scripts.harness:comments']);
 
   const after = await readFile(path.join(root, 'package.json'), 'utf8');
   const pkg = JSON.parse(after);
@@ -234,8 +259,8 @@ test('init-script: preserves other keys, key order, indentation, and trailing ne
   assert.deepEqual(Object.keys(pkg), ['name', 'version', 'scripts', 'dependencies'], 'top-level key order preserved');
   assert.deepEqual(
     Object.keys(pkg.scripts),
-    ['build', 'test', 'harness:validate'],
-    'existing scripts keep their order; the new key is appended',
+    ['build', 'test', 'harness:validate', 'harness:comments'],
+    'existing scripts keep their order; the new keys are appended in the fixed order',
   );
   assert.equal(pkg.dependencies.yaml, '^2.0.0');
   assert.ok(after.startsWith('{\n  "name": "pkg"'), 'two-space indentation preserved');

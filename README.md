@@ -19,7 +19,7 @@ node /path/to/wolven-harness/dist/cli.js init
 
 Run it at the git top-level of the target repo. It asks for the git host (`gh` or `bit`) and the runtimes to wire (`claude`, `codex`, `cursor`), or takes them as flags — `--git-host gh --runtimes claude,codex` — which are required when stdin is not a TTY. The answers are saved to `.wolven-harness.json`.
 
-`init` only creates paths that are missing and never edits an existing file; it lists what it created and what it skipped. It writes `WOLVEN.md`, `docs/` (writing profile, ADR folder with a starter ADR, specs, notes, deferrals), `.qmd/index.yml`, `.agents/` (skills, rules, hooks), the runtime wiring below, and a `harness:validate` script in `package.json`. It never creates or edits `AGENTS.md`: run the `harness-init` skill next, whose first step folds `WOLVEN.md` into `AGENTS.md`.
+`init` only creates paths that are missing and never edits an existing file; it lists what it created and what it skipped. It writes `WOLVEN.md`, `docs/` (writing profile, ADR folder with a starter ADR, specs, notes, deferrals), `.qmd/index.yml`, `.agents/` (skills, rules, hooks — including the `comments.md` standing rule), the runtime wiring below, and `harness:validate` and `harness:comments` scripts in `package.json`. It never creates or edits `AGENTS.md`: run the `harness-init` skill next, whose first step folds `WOLVEN.md` into `AGENTS.md`.
 
 ### `wolven-harness validate`
 
@@ -33,6 +33,21 @@ Run it from anywhere inside the repo; it resolves the git top-level and exits 1 
 `--verbose` also lists each legacy reference by file and line. The command exits 1 when any error is found.
 
 To skip vendored or generated trees, add `"ignore": ["<dir>/**"]` to `.wolven-harness.json`. Only whole directories can be ignored, and never `docs/` or `.agents/`.
+
+### `wolven-harness comments`
+
+Run it from anywhere inside the repo; it resolves the git top-level and judges lines added since a base ref (default: the merge-base with `origin/HEAD`, falling back to `origin/main` then `main`) plus untracked files, against the style in `.agents/rules/comments.md`. An added comment must be a `why:`, `hazard:`, or `invariant:` line (four lines or fewer) or a `/** */` block directly above a declaration, and must not narrate the change, cite something outside the repository, or defer work with `@todo`.
+
+It prints one `<file>:<line>: [<kind>] <message>` line per finding and ends with `comments: ok (0 findings)` or `comments: <n> finding(s)`, exiting 1 on any finding. `--base <ref>` overrides the base. `init` installs it as the `harness:comments` script.
+
+## Doc layout
+
+`init` creates `docs/{prds,specs,notes,deferrals}/`, each holding one
+slug folder per document: `docs/<folder>/<slug>/<slug>-<type>.md` (folder →
+type: `prds`→`prd`, `specs`→`spec`, `notes`→`note`, `deferrals`→`deferral`).
+`docs/specs/<slug>/` may also hold `<slug>-plan.md`. `docs/adrs/`
+is the exception and stays flat: `docs/adrs/adr-NNN-<slug>.md`. See
+`docs/WRITING-PROFILE.md` for the full type map and rules.
 
 ## Runtimes
 

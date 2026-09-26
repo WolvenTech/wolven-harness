@@ -14,10 +14,11 @@ for security, data integrity, compliance, and accessibility.
 
 ## Deferrals
 
-When complexity is refused, record a deferral under **`docs/deferrals/`** only
-(never repo root or `docs/` root). Frontmatter: `type: deferral`, `title`,
-`description`, `status` (`draft`, `stable`, or `deprecated`). Include trigger
-checkboxes — concrete conditions that would justify revisiting the work.
-Filename: kebab-case, ASCII.
+When complexity is refused, record a deferral at
+**`docs/deferrals/<slug>/<slug>-deferral.md`** only (never repo root or
+`docs/` root). Frontmatter: `type: deferral`, `title`, `description`,
+`status` (`draft`, `stable`, or `deprecated`). Include trigger checkboxes —
+concrete conditions that would justify revisiting the work. `<slug>`:
+kebab-case, ASCII.
 
 Skill: `pragmatic-guard`

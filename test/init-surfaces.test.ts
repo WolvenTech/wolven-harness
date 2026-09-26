@@ -5,10 +5,14 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { PassThrough } from 'node:stream';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
 import { parse } from 'yaml';
 import { makeRepo, run } from './helpers/fixture.js';
 import { renderWolven } from '../src/init/render-wolven.js';
 import type { Context, Io } from '../src/init/types.js';
+
+const execFileAsync = promisify(execFile);
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, '..');
@@ -76,11 +80,13 @@ test('init-surfaces: creates exactly the expected paths', async () => {
 
   const nonSkillFiles = [
     'WOLVEN.md',
+    '.agents/rules/comments.md',
     '.agents/rules/qmd-first.md',
     '.agents/rules/yagni-strict.md',
     '.agents/hooks/README.md',
     'docs/WRITING-PROFILE.md',
     'docs/adrs/adr-000-record-architecture-decisions.md',
+    'docs/prds/.gitkeep',
     'docs/specs/.gitkeep',
     'docs/notes/.gitkeep',
     'docs/deferrals/.gitkeep',
@@ -202,4 +208,19 @@ test('init-surfaces: WRITING-PROFILE.md ≤ 80 lines', () => {
   const lineCount = raw.split('\n').length;
 
   assert.ok(lineCount <= 80, `WRITING-PROFILE.md is ${lineCount} lines, expected <= 80`);
+});
+
+test('init-surfaces: a fresh install passes validate once committed', async () => {
+  const dir = await makeRepo({ 'package.json': '{ "name": "consumer", "version": "1.0.0" }\n' }, { git: true });
+  const init = await run(['init', '--git-host', 'gh', '--runtimes', 'claude'], { cwd: dir });
+  assert.equal(init.code, 0, init.stderr);
+
+  // why: the claim gate scans tracked files only, so shipped examples are judged once a consumer commits them.
+  const env = { ...process.env, GIT_AUTHOR_NAME: 't', GIT_AUTHOR_EMAIL: 't@example.com', GIT_COMMITTER_NAME: 't', GIT_COMMITTER_EMAIL: 't@example.com' };
+  await execFileAsync('git', ['add', '-A'], { cwd: dir, env });
+  await execFileAsync('git', ['commit', '-q', '-m', 'install'], { cwd: dir, env });
+
+  const result = await run(['validate'], { cwd: dir });
+  assert.doesNotMatch(result.stdout, /claim-/, result.stdout);
+  assert.match(result.stdout, /claims: \d+ ok, 0 legacy-warn, 0 fail/);
 });

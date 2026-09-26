@@ -1,16 +1,34 @@
 # Writing profile
 
-`wolven-harness validate` enforces four rules on every
-`docs/{adrs,specs,notes,deferrals}/*.md` file.
+`wolven-harness validate` enforces four rules on every profile doc under
+`docs/{adrs,prds,specs,notes,deferrals}/`.
+
+## Layout
+
+`docs/adrs/` stays flat: `docs/adrs/adr-NNN-<slug>.md`.
+
+Every other doc-folder holds one slug folder per document:
+`docs/<folder>/<slug>/<slug>-<type>.md`. `docs/specs/<slug>/` may also hold
+`<slug>-plan.md` (also `type: spec`). Other files in a slug folder, and
+everything under a doc-folder's `archived/`, are not checked.
+
+## Type map
+
+| Folder | `type` |
+| --- | --- |
+| `adrs` | `adr` |
+| `prds` | `prd` |
+| `specs` | `spec` |
+| `notes` | `note` |
+| `deferrals` | `deferral` |
 
 ## The four rules
 
-1. **Frontmatter.** Every file has non-empty `type`, `title`, `description`,
-   and `status`.
+1. **Frontmatter.** Every main doc has non-empty `type`, `title`,
+   `description`, and `status`.
 2. **Status.** `status` is one of `draft`, `stable`, or `deprecated`.
-3. **Type matches directory.** `docs/adrs/*.md` → `type: adr`;
-   `docs/specs/*.md` → `type: spec`; `docs/notes/*.md` → `type: note`;
-   `docs/deferrals/*.md` → `type: deferral`.
+3. **Type matches directory.** The main doc's `type` matches the type map
+   above for its folder.
 4. **Filename.** kebab-case, ASCII only — no spaces, underscores, or
    non-ASCII characters.
 

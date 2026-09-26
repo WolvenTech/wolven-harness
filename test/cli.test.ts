@@ -2,22 +2,24 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { makeRepo, run } from './helpers/fixture.js';
 
-test('--help lists init and validate', async () => {
+test('--help lists init, validate, and comments', async () => {
   const dir = await makeRepo({});
   const result = await run(['--help'], { cwd: dir });
 
   assert.equal(result.code, 0);
   assert.match(result.stdout, /\binit\b/);
   assert.match(result.stdout, /\bvalidate\b/);
+  assert.match(result.stdout, /\bcomments\b/);
 });
 
-test('no args prints usage listing init and validate', async () => {
+test('no args prints usage listing init, validate, and comments', async () => {
   const dir = await makeRepo({});
   const result = await run([], { cwd: dir });
 
   assert.equal(result.code, 0);
   assert.match(result.stdout, /\binit\b/);
   assert.match(result.stdout, /\bvalidate\b/);
+  assert.match(result.stdout, /\bcomments\b/);
 });
 
 test('unknown command exits 1', async () => {

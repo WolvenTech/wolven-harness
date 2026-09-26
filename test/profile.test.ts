@@ -13,7 +13,7 @@ const seededAdrPath = path.join(repoRoot, 'templates', 'docs', 'adrs', 'adr-000-
 test('profile-rules: profile-frontmatter — missing block exits 1 naming the rule', async () => {
   const dir = await makeRepo(
     {
-      'docs/notes/no-frontmatter.md': '# No frontmatter\n\nJust body text.\n',
+      'docs/notes/no-frontmatter/no-frontmatter-note.md': '# No frontmatter\n\nJust body text.\n',
     },
     { git: true },
   );
@@ -27,7 +27,7 @@ test('profile-rules: profile-frontmatter — missing block exits 1 naming the ru
 test('profile-rules: profile-status — invalid status value exits 1 naming the rule', async () => {
   const dir = await makeRepo(
     {
-      'docs/notes/bad-status.md': [
+      'docs/notes/bad-status/bad-status-note.md': [
         '---',
         'type: note',
         'title: Bad status',
@@ -48,18 +48,21 @@ test('profile-rules: profile-status — invalid status value exits 1 naming the 
   assert.match(result.stdout, /profile-status/);
 });
 
-const TYPE_DIR_CASES: { dir: string; wrongType: string }[] = [
+const TYPE_DIR_CASES: { dir: string; expectedType?: string; wrongType: string }[] = [
   { dir: 'adrs', wrongType: 'note' },
-  { dir: 'specs', wrongType: 'adr' },
-  { dir: 'notes', wrongType: 'spec' },
-  { dir: 'deferrals', wrongType: 'note' },
+  { dir: 'prds', expectedType: 'prd', wrongType: 'spec' },
+  { dir: 'specs', expectedType: 'spec', wrongType: 'adr' },
+  { dir: 'notes', expectedType: 'note', wrongType: 'spec' },
+  { dir: 'deferrals', expectedType: 'deferral', wrongType: 'note' },
 ];
 
-for (const { dir, wrongType } of TYPE_DIR_CASES) {
+for (const { dir, expectedType, wrongType } of TYPE_DIR_CASES) {
   test(`profile-rules: profile-type-dir — docs/${dir} with mismatched type exits 1 naming the rule`, async () => {
-    const fileName = dir === 'adrs' ? 'adr-001-wrong-type.md' : 'wrong-type.md';
+    // why: keep the filename matching its correct type, so the mismatch
+    // being tested is only in the frontmatter's `type` field.
+    const path = dir === 'adrs' ? `docs/adrs/adr-001-wrong-type.md` : `docs/${dir}/x/x-${expectedType}.md`;
     const files: Record<string, string> = {
-      [`docs/${dir}/${fileName}`]: [
+      [path]: [
         '---',
         `type: ${wrongType}`,
         'title: Wrong type',
@@ -83,7 +86,7 @@ for (const { dir, wrongType } of TYPE_DIR_CASES) {
 test('profile-rules: profile-filename — non-kebab filename exits 1 naming the rule', async () => {
   const dir = await makeRepo(
     {
-      'docs/notes/Bad_Name.md': [
+      'docs/notes/Bad_Name/Bad_Name-note.md': [
         '---',
         'type: note',
         'title: Bad filename',
@@ -178,7 +181,7 @@ test('profile-rules: clean fixture with all four dirs plus a deprecated/successo
         '# New decision',
         '',
       ].join('\n'),
-      'docs/specs/example-spec.md': [
+      'docs/specs/example-spec/example-spec-spec.md': [
         '---',
         'type: spec',
         'title: Example spec',
@@ -189,7 +192,7 @@ test('profile-rules: clean fixture with all four dirs plus a deprecated/successo
         '# Example spec',
         '',
       ].join('\n'),
-      'docs/notes/example-note.md': [
+      'docs/notes/example-note/example-note-note.md': [
         '---',
         'type: note',
         'title: Example note',
@@ -200,7 +203,7 @@ test('profile-rules: clean fixture with all four dirs plus a deprecated/successo
         '# Example note',
         '',
       ].join('\n'),
-      'docs/deferrals/example-deferral.md': [
+      'docs/deferrals/example-deferral/example-deferral-deferral.md': [
         '---',
         'type: deferral',
         'title: Example deferral',
@@ -258,7 +261,7 @@ test('profile-rules: an "ignore" entry for an unrelated dir still checks docs/ n
         2,
       ),
       'vendor/thing.txt': 'vendored\n',
-      'docs/notes/no-frontmatter.md': '# still checked\n',
+      'docs/notes/no-frontmatter/no-frontmatter-note.md': '# still checked\n',
     },
     { git: true },
   );
@@ -267,6 +270,162 @@ test('profile-rules: an "ignore" entry for an unrelated dir still checks docs/ n
 
   assert.equal(result.code, 1);
   assert.match(result.stdout, /profile-frontmatter/);
+});
+
+test('doc-layout: docs/prds/x/x-prd.md with type: prd exits 0', async () => {
+  const dir = await makeRepo(
+    {
+      'docs/prds/x/x-prd.md': [
+        '---',
+        'type: prd',
+        'title: X',
+        'description: a valid prd',
+        'status: stable',
+        '---',
+        '',
+        '# X',
+        '',
+      ].join('\n'),
+    },
+    { git: true },
+  );
+
+  const result = await run(['validate'], { cwd: dir });
+
+  assert.equal(result.code, 0, result.stdout);
+});
+
+test('doc-layout: a flat docs/specs/y.md exits 1 naming the doc-folder path', async () => {
+  const dir = await makeRepo(
+    {
+      'docs/specs/y.md': [
+        '---',
+        'type: spec',
+        'title: Y',
+        'description: a flat spec file',
+        'status: stable',
+        '---',
+        '',
+        '# Y',
+        '',
+      ].join('\n'),
+    },
+    { git: true },
+  );
+
+  const result = await run(['validate'], { cwd: dir });
+
+  assert.equal(result.code, 1);
+  assert.match(result.stdout, /profile-flat-layout/);
+  assert.match(result.stdout, /docs\/specs\/y\/y-spec\.md/);
+});
+
+test('doc-layout: a folder missing its main doc exits 1 naming the rule', async () => {
+  const dir = await makeRepo(
+    {
+      'docs/notes/orphan/README.md': '# no main doc here\n',
+    },
+    { git: true },
+  );
+
+  const result = await run(['validate'], { cwd: dir });
+
+  assert.equal(result.code, 1);
+  assert.match(result.stdout, /profile-missing-main-doc/);
+});
+
+test('doc-layout: z-plan.md beside z-spec.md exits 0', async () => {
+  const dir = await makeRepo(
+    {
+      'docs/specs/z/z-spec.md': [
+        '---',
+        'type: spec',
+        'title: Z',
+        'description: a valid spec',
+        'status: stable',
+        '---',
+        '',
+        '# Z',
+        '',
+      ].join('\n'),
+      'docs/specs/z/z-plan.md': [
+        '---',
+        'type: spec',
+        'title: Z plan',
+        'description: the plan next to the Z spec',
+        'status: stable',
+        '---',
+        '',
+        '# Z plan',
+        '',
+      ].join('\n'),
+    },
+    { git: true },
+  );
+
+  const result = await run(['validate'], { cwd: dir });
+
+  assert.equal(result.code, 0, result.stdout);
+});
+
+test('doc-layout: docs/notes/n/sources.md without frontmatter next to n-note.md exits 0', async () => {
+  const dir = await makeRepo(
+    {
+      'docs/notes/n/n-note.md': [
+        '---',
+        'type: note',
+        'title: N',
+        'description: a valid note',
+        'status: draft',
+        '---',
+        '',
+        '# N',
+        '',
+      ].join('\n'),
+      'docs/notes/n/sources.md': '# sources, no frontmatter\n',
+    },
+    { git: true },
+  );
+
+  const result = await run(['validate'], { cwd: dir });
+
+  assert.equal(result.code, 0, result.stdout);
+});
+
+test('doc-layout: docs/maps/m/m-map.md is not profile-checked', async () => {
+  const dir = await makeRepo(
+    {
+      'docs/maps/m/m-map.md': [
+        '---',
+        'type: map',
+        'title: M',
+        'description: a valid map',
+        'status: draft',
+        '---',
+        '',
+        '# M',
+        '',
+      ].join('\n'),
+    },
+    { git: true },
+  );
+
+  const result = await run(['validate'], { cwd: dir });
+
+  assert.equal(result.code, 0, result.stdout);
+});
+
+test('doc-layout: docs/notes/archived/a/a.md is not checked', async () => {
+  const dir = await makeRepo(
+    {
+      'docs/notes/archived/a/a.md': '# archived, no frontmatter\n',
+    },
+    { git: true },
+  );
+
+  const result = await run(['validate'], { cwd: dir });
+
+  assert.equal(result.code, 0, result.stdout);
 });
 
 test('profile-doc: templates/docs/WRITING-PROFILE.md is at most 80 lines', async () => {

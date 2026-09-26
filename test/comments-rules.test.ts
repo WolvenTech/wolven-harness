@@ -5,11 +5,9 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { promisify } from 'node:util';
 import { makeRepo } from './helpers/fixture.js';
-import { runCommentGate } from '../scripts/comment-gate.js';
+import { findCommentFindings } from '../src/comments/index.js';
 
 const execFileAsync = promisify(execFile);
-
-const CONFIG = JSON.stringify({ enabled: true, codePaths: ['src', 'test', 'scripts'] });
 
 async function headSha(dir: string): Promise<string> {
   const { stdout } = await execFileAsync('git', ['rev-parse', 'HEAD'], { cwd: dir });
@@ -17,7 +15,7 @@ async function headSha(dir: string): Promise<string> {
 }
 
 async function setupRepo(initialFiles: Record<string, string>): Promise<{ dir: string; base: string }> {
-  const dir = await makeRepo({ '.comment-gate.json': CONFIG, ...initialFiles }, { git: true });
+  const dir = await makeRepo(initialFiles, { git: true });
   const base = await headSha(dir);
   return { dir, base };
 }
@@ -28,18 +26,18 @@ async function putFile(dir: string, rel: string, lines: string[]): Promise<void>
   await writeFile(full, `${lines.join('\n')}\n`, 'utf8');
 }
 
-test('comment-gate: flags an untagged // comment', async () => {
+test('comments-rules: flags an untagged // comment', async () => {
   const { dir, base } = await setupRepo({ 'src/a.ts': ['export const a = 1;', ''].join('\n') });
   await putFile(dir, 'src/a.ts', ['export const a = 1;', '', '// fix bug', 'export const b = 2;']);
 
-  const hits = await runCommentGate({ root: dir, base });
+  const hits = await findCommentFindings({ root: dir, base });
 
   assert.equal(hits.length, 1);
   assert.equal(hits[0]?.kind, 'untagged');
   assert.equal(hits[0]?.file, 'src/a.ts');
 });
 
-test('comment-gate: flags a tagged comment over 4 lines', async () => {
+test('comments-rules: flags a tagged comment over 4 lines', async () => {
   const { dir, base } = await setupRepo({ 'src/b.ts': ['export const a = 1;', ''].join('\n') });
   await putFile(dir, 'src/b.ts', [
     'export const a = 1;',
@@ -52,13 +50,13 @@ test('comment-gate: flags a tagged comment over 4 lines', async () => {
     'export const b = 2;',
   ]);
 
-  const hits = await runCommentGate({ root: dir, base });
+  const hits = await findCommentFindings({ root: dir, base });
 
   assert.equal(hits.length, 1);
   assert.equal(hits[0]?.kind, 'over-length');
 });
 
-test('comment-gate: flags change-narration', async () => {
+test('comments-rules: flags change-narration', async () => {
   const { dir, base } = await setupRepo({ 'src/c.ts': ['export const a = 1;', ''].join('\n') });
   await putFile(dir, 'src/c.ts', [
     'export const a = 1;',
@@ -67,13 +65,13 @@ test('comment-gate: flags change-narration', async () => {
     'export const b = 2;',
   ]);
 
-  const hits = await runCommentGate({ root: dir, base });
+  const hits = await findCommentFindings({ root: dir, base });
 
   assert.equal(hits.length, 1);
   assert.equal(hits[0]?.kind, 'change-narration');
 });
 
-test('comment-gate: flags a dead citation', async () => {
+test('comments-rules: flags a dead citation', async () => {
   const { dir, base } = await setupRepo({ 'src/d.ts': ['export const a = 1;', ''].join('\n') });
   await putFile(dir, 'src/d.ts', [
     'export const a = 1;',
@@ -82,13 +80,13 @@ test('comment-gate: flags a dead citation', async () => {
     'export const b = 2;',
   ]);
 
-  const hits = await runCommentGate({ root: dir, base });
+  const hits = await findCommentFindings({ root: dir, base });
 
   assert.equal(hits.length, 1);
   assert.equal(hits[0]?.kind, 'dead-citation');
 });
 
-test('comment-gate: flags a planning id shaped like R3.1', async () => {
+test('comments-rules: flags a planning id shaped like R3.1', async () => {
   const { dir, base } = await setupRepo({ 'src/e.ts': ['export const a = 1;', ''].join('\n') });
   await putFile(dir, 'src/e.ts', [
     'export const a = 1;',
@@ -97,13 +95,13 @@ test('comment-gate: flags a planning id shaped like R3.1', async () => {
     'export const b = 2;',
   ]);
 
-  const hits = await runCommentGate({ root: dir, base });
+  const hits = await findCommentFindings({ root: dir, base });
 
   assert.equal(hits.length, 1);
   assert.equal(hits[0]?.kind, 'planning-id');
 });
 
-test('comment-gate: flags a planning id shaped like S1', async () => {
+test('comments-rules: flags a planning id shaped like S1', async () => {
   const { dir, base } = await setupRepo({ 'src/f.ts': ['export const a = 1;', ''].join('\n') });
   await putFile(dir, 'src/f.ts', [
     'export const a = 1;',
@@ -112,13 +110,13 @@ test('comment-gate: flags a planning id shaped like S1', async () => {
     'export const b = 2;',
   ]);
 
-  const hits = await runCommentGate({ root: dir, base });
+  const hits = await findCommentFindings({ root: dir, base });
 
   assert.equal(hits.length, 1);
   assert.equal(hits[0]?.kind, 'planning-id');
 });
 
-test('comment-gate: flags a planning id shaped like proof-x', async () => {
+test('comments-rules: flags a planning id shaped like proof-x', async () => {
   const { dir, base } = await setupRepo({ 'src/g.ts': ['export const a = 1;', ''].join('\n') });
   await putFile(dir, 'src/g.ts', [
     'export const a = 1;',
@@ -127,13 +125,13 @@ test('comment-gate: flags a planning id shaped like proof-x', async () => {
     'export const b = 2;',
   ]);
 
-  const hits = await runCommentGate({ root: dir, base });
+  const hits = await findCommentFindings({ root: dir, base });
 
   assert.equal(hits.length, 1);
   assert.equal(hits[0]?.kind, 'planning-id');
 });
 
-test('comment-gate: flags a planning id shaped like unit 08', async () => {
+test('comments-rules: flags a planning id shaped like unit 08', async () => {
   const { dir, base } = await setupRepo({ 'src/h.ts': ['export const a = 1;', ''].join('\n') });
   await putFile(dir, 'src/h.ts', [
     'export const a = 1;',
@@ -142,13 +140,13 @@ test('comment-gate: flags a planning id shaped like unit 08', async () => {
     'export const b = 2;',
   ]);
 
-  const hits = await runCommentGate({ root: dir, base });
+  const hits = await findCommentFindings({ root: dir, base });
 
   assert.equal(hits.length, 1);
   assert.equal(hits[0]?.kind, 'planning-id');
 });
 
-test('comment-gate: flags a planning id shaped like a later unit', async () => {
+test('comments-rules: flags a planning id shaped like a later unit', async () => {
   const { dir, base } = await setupRepo({ 'src/i.ts': ['export const a = 1;', ''].join('\n') });
   await putFile(dir, 'src/i.ts', [
     'export const a = 1;',
@@ -157,13 +155,13 @@ test('comment-gate: flags a planning id shaped like a later unit', async () => {
     'export const b = 2;',
   ]);
 
-  const hits = await runCommentGate({ root: dir, base });
+  const hits = await findCommentFindings({ root: dir, base });
 
   assert.equal(hits.length, 1);
   assert.equal(hits[0]?.kind, 'planning-id');
 });
 
-test('comment-gate: passes a resolvable why: comment', async () => {
+test('comments-rules: passes a resolvable why: comment', async () => {
   const { dir, base } = await setupRepo({ 'src/j.ts': ['export const a = 1;', ''].join('\n') });
   await putFile(dir, 'src/j.ts', [
     'export const a = 1;',
@@ -172,12 +170,12 @@ test('comment-gate: passes a resolvable why: comment', async () => {
     'export const b = 2;',
   ]);
 
-  const hits = await runCommentGate({ root: dir, base });
+  const hits = await findCommentFindings({ root: dir, base });
 
   assert.deepEqual(hits, []);
 });
 
-test('comment-gate: passes an informative JSDoc comment on a declaration', async () => {
+test('comments-rules: passes an informative JSDoc comment on a declaration', async () => {
   const { dir, base } = await setupRepo({ 'src/k.ts': ['export const a = 1;', ''].join('\n') });
   await putFile(dir, 'src/k.ts', [
     'export const a = 1;',
@@ -190,23 +188,23 @@ test('comment-gate: passes an informative JSDoc comment on a declaration', async
     '}',
   ]);
 
-  const hits = await runCommentGate({ root: dir, base });
+  const hits = await findCommentFindings({ root: dir, base });
 
   assert.deepEqual(hits, []);
 });
 
-test('comment-gate: checks untracked new files', async () => {
+test('comments-rules: checks untracked new files', async () => {
   const { dir, base } = await setupRepo({ 'src/l.ts': ['export const a = 1;', ''].join('\n') });
   await putFile(dir, 'scripts/new-thing.ts', ['// leftover fixme', 'export const z = 9;']);
 
-  const hits = await runCommentGate({ root: dir, base });
+  const hits = await findCommentFindings({ root: dir, base });
 
   assert.equal(hits.length, 1);
   assert.equal(hits[0]?.file, 'scripts/new-thing.ts');
   assert.equal(hits[0]?.kind, 'untagged');
 });
 
-test('comment-gate: grandfathers a pre-baseline comment and flags a new one', async () => {
+test('comments-rules: grandfathers a pre-existing comment and flags a new one', async () => {
   const { dir, base } = await setupRepo({
     'src/old.ts': ['// sloppy old comment', 'export const legacy = 1;', ''].join('\n'),
   });
@@ -218,13 +216,13 @@ test('comment-gate: grandfathers a pre-baseline comment and flags a new one', as
     'export const fresh = 2;',
   ]);
 
-  const hits = await runCommentGate({ root: dir, base });
+  const hits = await findCommentFindings({ root: dir, base });
 
   assert.equal(hits.length, 1);
   assert.equal(hits[0]?.text, '// new sloppy comment');
 });
 
-test('comment-gate: passes a tool directive', async () => {
+test('comments-rules: passes a tool directive', async () => {
   const { dir, base } = await setupRepo({ 'src/m.ts': ['export const a = 1;', ''].join('\n') });
   await putFile(dir, 'src/m.ts', [
     'export const a = 1;',
@@ -233,12 +231,12 @@ test('comment-gate: passes a tool directive', async () => {
     'console.log(a);',
   ]);
 
-  const hits = await runCommentGate({ root: dir, base });
+  const hits = await findCommentFindings({ root: dir, base });
 
   assert.deepEqual(hits, []);
 });
 
-test('comment-gate: passes an interior edit of an informative JSDoc on a declaration', async () => {
+test('comments-rules: passes an interior edit of an informative JSDoc on a declaration', async () => {
   const jsdocLines = [
     'export const a = 1;',
     '',
@@ -261,12 +259,12 @@ test('comment-gate: passes an interior edit of an informative JSDoc on a declara
     '}',
   ]);
 
-  const hits = await runCommentGate({ root: dir, base });
+  const hits = await findCommentFindings({ root: dir, base });
 
   assert.deepEqual(hits, []);
 });
 
-test('comment-gate: flags a planning id introduced by an interior JSDoc edit', async () => {
+test('comments-rules: flags a planning id introduced by an interior JSDoc edit', async () => {
   const jsdocLines = [
     'export const a = 1;',
     '',
@@ -289,13 +287,13 @@ test('comment-gate: flags a planning id introduced by an interior JSDoc edit', a
     '}',
   ]);
 
-  const hits = await runCommentGate({ root: dir, base });
+  const hits = await findCommentFindings({ root: dir, base });
 
   assert.equal(hits.length, 1);
   assert.equal(hits[0]?.kind, 'planning-id');
 });
 
-test('comment-gate: flags one finding for an interior edit of an untagged block comment', async () => {
+test('comments-rules: flags one finding for an interior edit of an untagged block comment', async () => {
   const blockLines = [
     'export const a = 1;',
     '',
@@ -316,8 +314,63 @@ test('comment-gate: flags one finding for an interior edit of an untagged block 
     'export const b = 2;',
   ]);
 
-  const hits = await runCommentGate({ root: dir, base });
+  const hits = await findCommentFindings({ root: dir, base });
 
   assert.equal(hits.length, 1);
   assert.equal(hits[0]?.kind, 'untagged');
+});
+
+test('comments-rules: a plain JSDoc above a function passes', async () => {
+  const { dir, base } = await setupRepo({ 'src/q.ts': ['export const a = 1;', ''].join('\n') });
+  await putFile(dir, 'src/q.ts', [
+    'export const a = 1;',
+    '',
+    '/**',
+    ' * a.',
+    ' */',
+    'export function nextA(): number {',
+    '  return a + 1;',
+    '}',
+  ]);
+
+  const hits = await findCommentFindings({ root: dir, base });
+
+  assert.deepEqual(hits, []);
+});
+
+test('comments-rules: a /** */ block above a statement fails untagged', async () => {
+  const { dir, base } = await setupRepo({ 'src/r.ts': ['export const a = 1;', ''].join('\n') });
+  await putFile(dir, 'src/r.ts', [
+    'export const a = 1;',
+    '',
+    '/**',
+    ' * notes about the log line below',
+    ' */',
+    "console.log('ready');",
+  ]);
+
+  const hits = await findCommentFindings({ root: dir, base });
+
+  assert.equal(hits.length, 1);
+  assert.equal(hits[0]?.kind, 'untagged');
+});
+
+test('comments-rules: @todo in JSDoc fails', async () => {
+  const { dir, base } = await setupRepo({ 'src/s.ts': ['export const a = 1;', ''].join('\n') });
+  await putFile(dir, 'src/s.ts', [
+    'export const a = 1;',
+    '',
+    '/**',
+    ' * Formats the amount for display.',
+    ' * @todo handle currency symbols',
+    ' */',
+    'export function formatAmount3(n: number): string {',
+    '  return n.toFixed(2);',
+    '}',
+  ]);
+
+  const hits = await findCommentFindings({ root: dir, base });
+
+  assert.equal(hits.length, 1);
+  assert.equal(hits[0]?.kind, 'todo');
 });

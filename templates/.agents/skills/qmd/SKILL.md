@@ -13,9 +13,9 @@ allowed-tools: Bash(qmd:*), mcp__qmd__*
 
 ## How search works
 
-QMD searches local markdown collections: architecture decisions, specs, notes,
-and deferrals. Use it before web search when the answer may already be in
-indexed local files.
+QMD searches local markdown collections: architecture decisions, product
+requirement docs, specs, notes, and deferrals. Use it before web search
+when the answer may already be in indexed local files.
 
 The workflow is always: search for candidates, retrieve the full text with
 `qmd get`/`qmd multi-get`, then answer from retrieved text, citing paths or
@@ -34,7 +34,7 @@ Typical loop:
 
 ```bash
 qmd search "retry policy for outbound calls" -n 5
-# leads: #abc123 adrs/adr-014-retry-policy.md; #def432 specs/outbound-calls.md
+# leads: #abc123 adrs/adr-NNN-retry-policy.md; #def432 specs/outbound-calls/outbound-calls-spec.md
 qmd multi-get "#abc123,#def432" --format md
 ```
 
@@ -94,8 +94,8 @@ qmd search "outbound retry policy" -c adrs -n 10
 qmd query "deferred scope on the retry work" -c deferrals -c specs -n 10
 ```
 
-Omit `-c` to search everything. Collections in this repo: `adrs`, `specs`,
-`notes`, `deferrals`.
+Omit `-c` to search everything. Collections in this repo: `adrs`, `prds`,
+`specs`, `notes`, `deferrals`.
 
 ## MCP Tool: `query`
 

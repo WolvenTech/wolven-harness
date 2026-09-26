@@ -21,6 +21,7 @@ qmd query "<question>"               # 2. widen only if ADRs miss
 | Collection | What it holds | Trust |
 |---|---|---|
 | `adrs` | architecture decisions in force | current |
+| `prds` | product requirement docs | current, but not settled |
 | `specs` | active work in flight | current, but not settled |
 | `deferrals` | deferred items with triggers | current |
 | `notes` | research belonging to no effort | dated, may be stale |
