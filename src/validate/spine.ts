@@ -98,6 +98,63 @@ async function checkSkillFrontmatter(root: string): Promise<Finding[]> {
 }
 
 /**
+ * Rule `skill-stub-open`: warns once per `.agents/skills/<name>/SKILL.md`
+ * whose frontmatter carries `metadata.wolven-harness: stub`, naming the
+ * file and telling the reader to define the skill and then remove the
+ * marker. Any other `metadata` value, or none, raises nothing. This is a
+ * warning (exit 0), not an error, and never overlaps `skill-frontmatter`.
+ */
+async function checkSkillStubOpen(root: string): Promise<Finding[]> {
+  const skillsDir = path.join(root, '.agents', 'skills');
+
+  let entries;
+  try {
+    entries = await readdir(skillsDir, { withFileTypes: true });
+  } catch {
+    return [];
+  }
+
+  const findings: Finding[] = [];
+  const dirs = entries
+    .filter((e) => e.isDirectory())
+    .map((e) => e.name)
+    .sort();
+
+  for (const dir of dirs) {
+    const relFile = `.agents/skills/${dir}/SKILL.md`;
+    const raw = await readOptional(path.join(skillsDir, dir, 'SKILL.md'));
+    if (raw === undefined) continue;
+
+    const match = raw.match(FRONTMATTER_RE);
+    if (!match) continue;
+
+    let parsed: Record<string, unknown> | null | undefined;
+    try {
+      parsed = parse(match[1]) as Record<string, unknown> | null | undefined;
+    } catch {
+      continue;
+    }
+
+    const metadata = parsed?.metadata;
+    const isOpenStub =
+      typeof metadata === 'object' &&
+      metadata !== null &&
+      (metadata as Record<string, unknown>)['wolven-harness'] === 'stub';
+
+    if (isOpenStub) {
+      findings.push({
+        level: 'warn',
+        rule: 'skill-stub-open',
+        file: relFile,
+        message: 'open stub: define the skill, then remove the wolven-harness: stub marker',
+      });
+    }
+  }
+
+  return findings;
+}
+
+/**
  * Rule `rule-missing`: every `.agents/rules/<name>.md` cited in
  * `WOLVEN.md` or `AGENTS.md` must exist. One finding per missing cited
  * path, per citing line.
@@ -146,18 +203,19 @@ async function checkStep0Pending(root: string): Promise<Finding[]> {
 }
 
 /**
- * Checks the harness spine: skill frontmatter, cited-rule
- * existence, and the step-0-pending warning. Reads the working tree
- * directly via `node:fs/promises` against `ctx.root`, not `ctx.files` —
- * `WOLVEN.md` and `.agents/**` stay untracked until someone commits them, and
- * these checks must still see them.
+ * Checks the harness spine: skill frontmatter, open skill stubs,
+ * cited-rule existence, and the step-0-pending warning. Reads the working
+ * tree directly via `node:fs/promises` against `ctx.root`, not `ctx.files`
+ * — `WOLVEN.md` and `.agents/**` stay untracked until someone commits them,
+ * and these checks must still see them.
  */
 export async function checkSpine(ctx: RepoContext): Promise<Finding[]> {
-  const [skillFindings, ruleFindings, step0Findings] = await Promise.all([
+  const [skillFindings, stubFindings, ruleFindings, step0Findings] = await Promise.all([
     checkSkillFrontmatter(ctx.root),
+    checkSkillStubOpen(ctx.root),
     checkRuleCitations(ctx.root),
     checkStep0Pending(ctx.root),
   ]);
 
-  return [...skillFindings, ...ruleFindings, ...step0Findings];
+  return [...skillFindings, ...stubFindings, ...ruleFindings, ...step0Findings];
 }

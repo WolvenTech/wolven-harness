@@ -103,6 +103,69 @@ test('skill-frontmatter: an existing cited rule produces no rule-missing finding
   assert.doesNotMatch(result.stdout, /rule-missing/);
 });
 
+test('stub-warn: one stub raises exactly one skill-stub-open warning, exit 0', async () => {
+  const dir = await makeRepo(
+    {
+      '.agents/skills/foo/SKILL.md':
+        '---\nname: foo\ndescription: does stuff\nmetadata:\n  wolven-harness: stub\n---\n\n# Foo\n',
+    },
+    { git: true },
+  );
+
+  const result = await run(['validate'], { cwd: dir });
+
+  assert.equal(result.code, 0);
+  const matches = result.stdout.match(/skill-stub-open/g) ?? [];
+  assert.equal(matches.length, 1);
+});
+
+test('stub-warn: removing the marker clears the warning', async () => {
+  const dir = await makeRepo(
+    {
+      '.agents/skills/foo/SKILL.md': '---\nname: foo\ndescription: does stuff\n---\n\n# Foo\n',
+    },
+    { git: true },
+  );
+
+  const result = await run(['validate'], { cwd: dir });
+
+  assert.equal(result.code, 0);
+  assert.doesNotMatch(result.stdout, /skill-stub-open/);
+});
+
+test('stub-warn: an unrelated metadata value raises no warning', async () => {
+  const dir = await makeRepo(
+    {
+      '.agents/skills/foo/SKILL.md':
+        '---\nname: foo\ndescription: does stuff\nmetadata:\n  other: x\n---\n\n# Foo\n',
+    },
+    { git: true },
+  );
+
+  const result = await run(['validate'], { cwd: dir });
+
+  assert.equal(result.code, 0);
+  assert.doesNotMatch(result.stdout, /skill-stub-open/);
+});
+
+test('stub-warn: two stubs raise two skill-stub-open warnings', async () => {
+  const dir = await makeRepo(
+    {
+      '.agents/skills/foo/SKILL.md':
+        '---\nname: foo\ndescription: does stuff\nmetadata:\n  wolven-harness: stub\n---\n\n# Foo\n',
+      '.agents/skills/bar/SKILL.md':
+        '---\nname: bar\ndescription: does other stuff\nmetadata:\n  wolven-harness: stub\n---\n\n# Bar\n',
+    },
+    { git: true },
+  );
+
+  const result = await run(['validate'], { cwd: dir });
+
+  assert.equal(result.code, 0);
+  const matches = result.stdout.match(/skill-stub-open/g) ?? [];
+  assert.equal(matches.length, 2);
+});
+
 // --- step0-pending ---
 
 test('step0-pending: fresh init warns, and AGENTS.md mentioning WOLVEN.md clears it', async () => {
