@@ -19,7 +19,7 @@ node /path/to/wolven-harness/dist/cli.js init
 
 Run it at the git top-level of the target repo. It asks for the git host (`gh` or `bit`) and the runtimes to wire (`claude`, `codex`, `cursor`), or takes them as flags — `--git-host gh --runtimes claude,codex` — which are required when stdin is not a TTY. The answers are saved to `.wolven-harness.json`.
 
-`init` only creates paths that are missing and never edits an existing file; it lists what it created and what it skipped. It writes `WOLVEN.md`, `docs/` (writing profile, ADR folder with a starter ADR, specs, notes, deferrals), `.qmd/index.yml`, `.agents/` (skills, rules, hooks — including the `comments.md` standing rule), the runtime wiring below, and `harness:validate` and `harness:comments` scripts in `package.json`. It never creates or edits `AGENTS.md`: run the `harness-init` skill next, whose first step folds `WOLVEN.md` into `AGENTS.md`.
+`init` only creates paths that are missing and never edits an existing file; it lists what it created and what it skipped. It writes `WOLVEN.md`, `docs/` (writing profile, ADR folder with a starter ADR, specs, notes, deferrals), `.qmd/index.yml`, `.agents/` (skills, rules, hooks — including the `comments.md` standing rule), the runtime wiring below, and `harness:validate` and `harness:comments` scripts in `package.json`. It never creates or edits `AGENTS.md`: see [Setting up with harness-init](#setting-up-with-harness-init) below.
 
 ### `wolven-harness validate`
 
@@ -39,6 +39,20 @@ To skip vendored or generated trees, add `"ignore": ["<dir>/**"]` to `.wolven-ha
 Run it from anywhere inside the repo; it resolves the git top-level and judges lines added since a base ref (default: the merge-base with `origin/HEAD`, falling back to `origin/main` then `main`) plus untracked files, against the style in `.agents/rules/comments.md`. An added comment must be a `why:`, `hazard:`, or `invariant:` line (four lines or fewer) or a `/** */` block directly above a declaration, and must not narrate the change, cite something outside the repository, or defer work with `@todo`.
 
 It prints one `<file>:<line>: [<kind>] <message>` line per finding and ends with `comments: ok (0 findings)` or `comments: <n> finding(s)`, exiting 1 on any finding. `--base <ref>` overrides the base. `init` installs it as the `harness:comments` script.
+
+## Setting up with harness-init
+
+`init` never creates or edits `AGENTS.md` on its own. Once it finishes, ask your agent to run the `harness-init` skill — `init`'s own closing line points you here, and so does `harness:validate` for as long as entry integration hasn't run yet.
+
+The skill walks the repo through seven steps, and you steer every write:
+
+- **Step 0 — entry integration.** Folds `WOLVEN.md` into `AGENTS.md` in one of three modes — full, light, or mention-only — after checking what `AGENTS.md` already holds, any overlapping router or rule, whether `CLAUDE.md` imports `AGENTS.md`, and whether `.gitignore` hides a harness path.
+- **Step 1 — legacy ADR migration**, offered only when `harness:validate` reports a legacy ADR. Migrates each one into `docs/adrs/`, keeping its number, mapping its status, and fixing the links the move touches. This step is done only once `harness:validate` exits 0 with no legacy warnings left — any claim that starts failing along the way gets worked through with you first: repointed, reworded, or turned into a new decision.
+- **Steps 2–4 — discovery, research, and suggestions.** Reads what the repo already shows, researches a decided tool on the open web only with your OK and capped, and suggests two to four skills worth adding.
+- **Step 5 — stubs.** Writes the skills you pick as ask-only stubs. `harness:validate` flags each open one with a `skill-stub-open` warning until you write its body and remove the stub marker.
+- **Step 6 — session note.** Closes the run with a note under `docs/notes/` recording what happened and what is still yours to define.
+
+Before writing anything, the agent shows you the diff and waits for your choice, and turns any ambiguity into one question at a time. The run also offers three commits — entry, migration, setup — each only once `harness:validate` passes, and only if you say yes.
 
 ## Doc layout
 
