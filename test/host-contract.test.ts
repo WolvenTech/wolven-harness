@@ -1,13 +1,15 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFile, readdir } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { parseMarkdownTables, type MdTable } from './helpers/markdown.js';
+import { walkFiles } from './helpers/walk.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, '..');
 const skillsRoot = path.join(repoRoot, 'templates', '.agents', 'skills');
-const HOST_TABLE_REL = path.join('code-pr', 'references', 'host-operations.md');
+const HOST_TABLE_REL = 'code-pr/references/host-operations.md';
 const HOST_TABLE_PATH = path.join(skillsRoot, HOST_TABLE_REL);
 
 const OPERATIONS = [
@@ -21,51 +23,6 @@ const OPERATIONS = [
   'read check status',
   'read a failing log',
 ];
-
-/** One parsed GitHub-flavored markdown table: header cells and data rows, cell text trimmed. */
-interface MdTable {
-  headers: string[];
-  rows: string[][];
-}
-
-function isTableRow(line: string): boolean {
-  return /^\s*\|.*\|\s*$/.test(line);
-}
-
-function isSeparatorRow(line: string): boolean {
-  return isTableRow(line) && /^[\s|:-]+$/.test(line) && line.includes('-');
-}
-
-function splitRow(line: string): string[] {
-  return line
-    .trim()
-    .replace(/^\|/, '')
-    .replace(/\|$/, '')
-    .split('|')
-    .map((cell) => cell.trim());
-}
-
-/** Parses every `| … |` table (header + separator + data rows) out of a markdown document. */
-function parseMarkdownTables(md: string): MdTable[] {
-  const lines = md.split('\n');
-  const tables: MdTable[] = [];
-  let i = 0;
-  while (i < lines.length) {
-    if (isTableRow(lines[i]) && i + 1 < lines.length && isSeparatorRow(lines[i + 1])) {
-      const headers = splitRow(lines[i]);
-      i += 2;
-      const rows: string[][] = [];
-      while (i < lines.length && isTableRow(lines[i])) {
-        rows.push(splitRow(lines[i]));
-        i++;
-      }
-      tables.push({ headers, rows });
-    } else {
-      i++;
-    }
-  }
-  return tables;
-}
 
 function findColumn(headers: string[], name: string): number {
   return headers.findIndex((h) => h.toLowerCase() === name.toLowerCase());
@@ -82,23 +39,6 @@ async function readHostTable(): Promise<{ md: string; table: MdTable }> {
 /** Bare backtick-quoted identifiers in `cell` — tool names, never a `method: x` annotation (which has a space). */
 function toolNamesIn(cell: string): string[] {
   return [...cell.matchAll(/`([A-Za-z_][A-Za-z0-9_]*)`/g)].map((m) => m[1]);
-}
-
-async function listFilesUnderSkills(): Promise<string[]> {
-  const out: string[] = [];
-  async function walk(dir: string): Promise<void> {
-    const entries = await readdir(dir, { withFileTypes: true });
-    for (const entry of entries) {
-      const full = path.join(dir, entry.name);
-      if (entry.isDirectory()) {
-        await walk(full);
-      } else {
-        out.push(full);
-      }
-    }
-  }
-  await walk(skillsRoot);
-  return out;
 }
 
 test('host-table: has all nine operations, one row each', async () => {
@@ -170,13 +110,11 @@ test('host-contract: no other skill file names a gh command, a table tool name, 
   assert.ok(toolNames.size > 0, 'expected at least one host tool name parsed out of the table');
 
   const ghCommandRe = /(^|[\s`(])gh (pr|api|run|auth|repo|issue)\b/m;
-  const files = await listFilesUnderSkills();
 
-  for (const file of files) {
-    const rel = path.relative(skillsRoot, file).split(path.sep).join('/');
-    if (rel === HOST_TABLE_REL.split(path.sep).join('/')) continue;
+  for (const rel of await walkFiles(skillsRoot)) {
+    if (rel === HOST_TABLE_REL) continue;
 
-    const content = await readFile(file, 'utf8');
+    const content = await readFile(path.join(skillsRoot, rel), 'utf8');
 
     assert.doesNotMatch(content, ghCommandRe, `${rel}: must not name a gh CLI command outside host-operations.md`);
     assert.ok(!content.includes('api.bitbucket.org'), `${rel}: must not name api.bitbucket.org outside host-operations.md`);

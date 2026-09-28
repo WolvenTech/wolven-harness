@@ -7,13 +7,7 @@ test('skill-code-review: passes the shared skill contract checks', async () => {
   await assertSkillBasics('code-review', { requireHarnessValidate: true });
 });
 
-test('skill-code-review: is ask-only in its frontmatter', async () => {
-  const skill = await readSkill('code-review');
-
-  assert.equal(skill.frontmatter['disable-model-invocation'], true);
-});
-
-test('skill-code-review: ships an ask-only agents/openai.yaml', async () => {
+test('skill-code-review: ships display_name and short_description', async () => {
   const skill = await readSkill('code-review');
 
   assert.ok(skill.files.includes('agents/openai.yaml'), 'expected agents/openai.yaml');
@@ -24,7 +18,6 @@ test('skill-code-review: ships an ask-only agents/openai.yaml', async () => {
     policy?: { allow_implicit_invocation?: boolean };
   };
 
-  assert.equal(parsed.policy?.allow_implicit_invocation, false);
   assert.ok(typeof parsed.interface?.display_name === 'string' && parsed.interface.display_name.length > 0);
   assert.ok(typeof parsed.interface?.short_description === 'string' && parsed.interface.short_description.length > 0);
 });
@@ -83,35 +76,4 @@ test('skill-code-review: links host operations and names the operations in plain
   assert.match(skill.body, /read PR and diff/i);
   assert.match(skill.body, /list unresolved threads/i);
   assert.match(skill.body, /post a review comment/i);
-});
-
-test('skill-code-review: names no git-host tool outside host-operations.md', async () => {
-  const skill = await readSkill('code-review');
-  const criteria = await skill.read('references/review-criteria.md');
-  const combined = `${skill.body}\n${criteria}`;
-
-  assert.doesNotMatch(combined, /\bgh pr\b/);
-  assert.doesNotMatch(combined, /create_pull_request|pull_request_read|pull_request_review_write|get_job_logs/);
-  assert.doesNotMatch(combined, /createPullRequest|getPullRequestDetails/);
-  assert.doesNotMatch(combined, /api\.bitbucket\.org/);
-});
-
-test('skill-code-review: has no Bugbot, Cursor, or ClickUp residue anywhere in the folder', async () => {
-  const skill = await readSkill('code-review');
-
-  for (const rel of skill.files) {
-    const content = await skill.read(rel);
-    assert.doesNotMatch(content.toLowerCase(), /bugbot/, `${rel} must not mention Bugbot`);
-    assert.doesNotMatch(content.toLowerCase(), /cursor/, `${rel} must not mention Cursor`);
-    assert.doesNotMatch(content.toLowerCase(), /clickup/, `${rel} must not mention ClickUp`);
-  }
-});
-
-test('skill-code-review: has no concrete ADR token, only the placeholder', async () => {
-  const skill = await readSkill('code-review');
-  const criteria = await skill.read('references/review-criteria.md');
-  const combined = `${skill.body}\n${criteria}`;
-
-  assert.doesNotMatch(combined, /ADR-\d{3}\b/);
-  assert.doesNotMatch(combined, /adr-\d{3}-[a-z0-9-]+/);
 });

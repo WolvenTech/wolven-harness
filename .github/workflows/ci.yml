@@ -1,0 +1,40 @@
+name: ci
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  package-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # why: `pnpm comments` diffs against the merge-base with origin/main; a
+          # shallow, single-ref checkout has neither that branch nor the history
+          # needed to compute it.
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.28.2
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - run: pnpm test
+      - run: pnpm validate
+      - run: pnpm comments
+
+      # why: packs with the release job's npm so a bad manifest fails here, not
+      # after the release tag exists. `npm publish --dry-run` can't be used: npm
+      # 11 fails it once the version on main is already published.
+      - run: npm install -g npm@11.20.0
+      - run: npm pack --dry-run

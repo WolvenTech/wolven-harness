@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import type { Context } from './types.js';
 
 /** This running package's own `name` and `version`, from its `package.json`. */
-export interface OwnPackage {
+interface OwnPackage {
   name: string;
   version: string;
 }

@@ -101,7 +101,7 @@ to perform one.
    finding blocking or nit.
 6. Post each finding — post a review comment (host operations) — with
    file:line, label, and a one-line why tied to a ref or diff line.
-7. End with a verdict (approve-with-nits / request-changes / needs-a-human-call)
+7. End with a verdict (approve-with-nits / request-changes / needs-the-human)
    — never a merge.
 
 ## Anti-patterns

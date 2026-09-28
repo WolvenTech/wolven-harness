@@ -3,48 +3,104 @@ name: release
 on:
   push:
     branches: [main]
+  # why: a push only keeps the release PR current. An empty manual run creates
+  # the Release and publishes; a tag republishes one that already exists.
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing release tag to publish again, e.g. v0.2.0. Leave empty to create the GitHub Release and publish.
+        required: false
+        default: ''
 
 permissions:
-  contents: write
-  pull-requests: write
-  packages: write
+  contents: read
 
 jobs:
   release-please:
+    if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.tag == '') }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
     steps:
       - id: release
         uses: googleapis/release-please-action@v4
         with:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
+          # why: the push run must not create the GitHub Release; a manual run does.
+          skip-github-release: ${{ github.event_name == 'push' }}
 
-      - if: ${{ steps.release.outputs.release_created }}
-        uses: actions/checkout@v4
+  build:
+    needs: release-please
+    if: ${{ !cancelled() && (needs.release-please.outputs.release_created == 'true' || (github.event_name == 'workflow_dispatch' && startsWith(inputs.tag, 'v'))) }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify manual retry targets a published release
+        if: ${{ github.event_name == 'workflow_dispatch' && startsWith(inputs.tag, 'v') }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ inputs.tag }}
+        run: |
+          actual=$(gh release view "$RELEASE_TAG" --json tagName,isDraft --jq 'select(.isDraft == false) | .tagName')
+          test "$actual" = "$RELEASE_TAG"
 
-      - if: ${{ steps.release.outputs.release_created }}
-        uses: pnpm/action-setup@v4
+      - uses: actions/checkout@v4
         with:
-          version: 11
+          ref: ${{ needs.release-please.outputs.tag_name || inputs.tag }}
 
-      - if: ${{ steps.release.outputs.release_created }}
-        uses: actions/setup-node@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.28.2
+
+      - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: pnpm
-          registry-url: https://npm.pkg.github.com
-          scope: '@wolventech'
 
-      - if: ${{ steps.release.outputs.release_created }}
-        run: pnpm install --frozen-lockfile
-
-      - if: ${{ steps.release.outputs.release_created }}
-        run: pnpm build
-
-      - if: ${{ steps.release.outputs.release_created }}
-        run: pnpm test
-
-      - if: ${{ steps.release.outputs.release_created }}
-        run: pnpm publish --no-git-checks
+      - name: Verify release tag matches package version
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ needs.release-please.outputs.tag_name || inputs.tag }}
+        run: node -e 'if (`v${require("./package.json").version}` !== process.env.RELEASE_TAG) process.exit(1)'
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - run: pnpm test
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist
+          if-no-files-found: error
+
+  # invariant: only this job can mint the OIDC token npm trusts, and it never
+  # installs the project's dependencies or runs its lifecycle scripts.
+  publish:
+    needs: [release-please, build]
+    if: ${{ !cancelled() && needs.build.result == 'success' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.release-please.outputs.tag_name || inputs.tag }}
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # why: OIDC trusted publishing needs npm CLI >= 11.5.1; Node 22 bundles npm 10.x.
+      - run: npm install -g npm@11.20.0
+
+      - run: npm publish --access public --ignore-scripts

@@ -37,8 +37,8 @@ export async function runInit(argv: string[], io: Io): Promise<number> {
 
   let results: StepResult[];
   try {
-    const opts = await traced(io, 'resolveOptions', () => resolveOptions(argv, io, ctx));
-    const applyResult = await traced(io, 'applyTemplates', () => applyTemplates(opts, ctx));
+    const opts = await traced(io, 'resolveOptions', () => resolveOptions(argv, ctx));
+    const applyResult = await traced(io, 'applyTemplates', () => applyTemplates(ctx));
     const runtimeResult = await traced(io, 'wireRuntimes', () => wireRuntimes(opts, ctx));
     const scriptResult = await traced(io, 'addValidateScript', () => addValidateScript(ctx));
     await traced(io, 'warnMissingDevDependency', () => warnMissingDevDependency(ctx));

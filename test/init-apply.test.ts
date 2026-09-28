@@ -2,23 +2,11 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
-import { PassThrough } from 'node:stream';
 import { makeRepo, run } from './helpers/fixture.js';
+import { makeIo } from './helpers/io.js';
 import { applyTemplates } from '../src/init/apply.js';
 import { addValidateScript } from '../src/init/package-script.js';
-import type { Context, Io, Options } from '../src/init/types.js';
-
-function makeIo(cwd: string): Io {
-  return {
-    cwd,
-    stdin: new PassThrough(),
-    stdout: new PassThrough(),
-    stderr: new PassThrough(),
-    isTTY: false,
-  };
-}
-
-const OPTS: Options = { gitHost: 'gh', runtimes: ['claude'] };
+import type { Context } from '../src/init/types.js';
 
 async function fileExists(p: string): Promise<boolean> {
   try {
@@ -36,7 +24,7 @@ test('init-skip: existing files byte-identical', async () => {
   const root = await makeRepo({ '.agents/rules/qmd-first.md': 'EXISTING CONTENT\n' });
   const ctx: Context = { root, templatesDir, io: makeIo(root) };
 
-  const result = await applyTemplates(OPTS, ctx);
+  const result = await applyTemplates(ctx);
 
   assert.deepEqual(result.skipped, ['.agents/rules/qmd-first.md']);
   assert.deepEqual(result.created, []);
@@ -50,7 +38,7 @@ test('init-skip: AGENTS.md never created', async () => {
   const root = await makeRepo({});
   const ctx: Context = { root, templatesDir, io: makeIo(root) };
 
-  const result = await applyTemplates(OPTS, ctx);
+  const result = await applyTemplates(ctx);
 
   assert.ok(!result.created.includes('AGENTS.md'), 'AGENTS.md is not in created');
   assert.ok(result.skipped.includes('AGENTS.md'), 'AGENTS.md is reported (hard refuse), not silently dropped');
@@ -66,7 +54,7 @@ test('init-apply: creates missing nested paths, sorted, WOLVEN.md rendered not c
   const root = await makeRepo({});
   const ctx: Context = { root, templatesDir, io: makeIo(root) };
 
-  const result = await applyTemplates(OPTS, ctx);
+  const result = await applyTemplates(ctx);
 
   const expected = ['.agents/skills/qmd/SKILL.md', 'WOLVEN.md', 'docs/notes/.gitkeep'].sort();
   assert.deepEqual(result.created, expected, 'created list is sorted deterministically');
@@ -88,7 +76,7 @@ test('init-apply: a file blocking a path component is skipped, not thrown on', a
   const root = await makeRepo({ '.agents': 'this is a plain file, not a directory\n' });
   const ctx: Context = { root, templatesDir, io: makeIo(root) };
 
-  const result = await applyTemplates(OPTS, ctx);
+  const result = await applyTemplates(ctx);
 
   assert.deepEqual(result.skipped, ['.agents/rules/foo.md']);
   assert.deepEqual(result.created, []);
@@ -100,7 +88,7 @@ test('init-apply: missing templatesDir returns empty lists', async () => {
   const root = await makeRepo({});
   const ctx: Context = { root, templatesDir: path.join(root, 'does-not-exist'), io: makeIo(root) };
 
-  const result = await applyTemplates(OPTS, ctx);
+  const result = await applyTemplates(ctx);
 
   assert.deepEqual(result, { created: [], skipped: [] });
 });
@@ -113,10 +101,10 @@ test('init-skip: second run creates nothing', async () => {
   const root = await makeRepo({});
   const ctx: Context = { root, templatesDir, io: makeIo(root) };
 
-  const first = await applyTemplates(OPTS, ctx);
+  const first = await applyTemplates(ctx);
   assert.deepEqual(first.created, ['.agents/rules/qmd-first.md', 'docs/notes/.gitkeep'].sort());
 
-  const second = await applyTemplates(OPTS, ctx);
+  const second = await applyTemplates(ctx);
   assert.deepEqual(second.created, []);
   assert.deepEqual(second.skipped, ['.agents/rules/qmd-first.md', 'docs/notes/.gitkeep'].sort());
 });

@@ -1,8 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdir, readFile, readdir } from 'node:fs/promises';
+import { mkdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { makeRepo, run } from './helpers/fixture.js';
+import { walkFiles } from './helpers/walk.js';
 
 async function readConfigFile(dir: string): Promise<Record<string, unknown>> {
   const raw = await readFile(path.join(dir, '.wolven-harness.json'), 'utf8');
@@ -18,27 +19,17 @@ async function configExists(dir: string): Promise<boolean> {
   }
 }
 
-/** Recursive, sorted relative-path listing, excluding `.git/`. */
-async function listFiles(dir: string): Promise<string[]> {
-  const out: string[] = [];
-  async function walk(rel: string): Promise<void> {
-    const abs = path.join(dir, rel);
-    const entries = await readdir(abs, { withFileTypes: true });
-    for (const entry of entries) {
-      if (entry.name === '.git') continue;
-      const entryRel = path.join(rel, entry.name);
-      if (entry.isDirectory()) {
-        await walk(entryRel);
-      } else {
-        out.push(entryRel);
-      }
-    }
-  }
-  await walk('.');
-  return out.sort();
-}
-
 // --- init-prompts ---
+
+test('init-prompts: an unknown argument exits 1 and writes nothing', async () => {
+  const dir = await makeRepo({}, { git: true });
+
+  const result = await run(['init', '--help'], { cwd: dir, isTTY: false });
+
+  assert.equal(result.code, 1);
+  assert.match(result.stderr, /unknown option "--help"/);
+  assert.equal(await configExists(dir), false);
+});
 
 test('init-prompts: flags-only', async () => {
   const dir = await makeRepo({}, { git: true });
@@ -119,12 +110,12 @@ test('init-prompts: subdir exits 1 and creates nothing', async () => {
   const subdir = path.join(dir, 'sub');
   await mkdir(subdir);
 
-  const before = await listFiles(dir);
+  const before = (await walkFiles(dir)).sort();
   const result = await run(['init', '--git-host', 'gh', '--runtimes', 'claude'], {
     cwd: subdir,
     isTTY: false,
   });
-  const after = await listFiles(dir);
+  const after = (await walkFiles(dir)).sort();
 
   assert.equal(result.code, 1);
   assert.deepEqual(after, before);
@@ -133,12 +124,12 @@ test('init-prompts: subdir exits 1 and creates nothing', async () => {
 test('init-prompts: non-git dir exits 1 and creates nothing', async () => {
   const dir = await makeRepo({ 'README.md': '# fixture\n' });
 
-  const before = await listFiles(dir);
+  const before = (await walkFiles(dir)).sort();
   const result = await run(['init', '--git-host', 'gh', '--runtimes', 'claude'], {
     cwd: dir,
     isTTY: false,
   });
-  const after = await listFiles(dir);
+  const after = (await walkFiles(dir)).sort();
 
   assert.equal(result.code, 1);
   assert.deepEqual(after, before);

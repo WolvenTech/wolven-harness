@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readSkill, minimalValidateFixture } from './helpers/skill-contract.js';
 import { run } from './helpers/fixture.js';
+import { flatten } from './helpers/prose.js';
 
 const REF = 'references/session-note-template.md';
 const DATE = '2026-01-01';
@@ -9,13 +10,6 @@ const DATE = '2026-01-01';
 async function readReference(): Promise<string> {
   const skill = await readSkill('harness-init');
   return skill.read(REF);
-}
-
-// why: prose in the reference wraps across lines, so a phrase spanning
-// several words is matched against whitespace-collapsed text instead of
-// the raw body, which would otherwise break on an arbitrary line wrap.
-function flatten(text: string): string {
-  return text.replace(/\s+/g, ' ');
 }
 
 /** Extracts the single fenced ```markdown block's inner text, trimmed of trailing whitespace. */

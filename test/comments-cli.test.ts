@@ -19,6 +19,17 @@ async function putFile(dir: string, rel: string, lines: string[]): Promise<void>
   await writeFile(full, `${lines.join('\n')}\n`, 'utf8');
 }
 
+test('comments-cli: an unreadable config exits 1 instead of crashing', async () => {
+  const dir = await makeRepo({ '.wolven-harness.json': '{ not json\n' }, { git: true });
+  await execFileAsync('git', ['branch', '-m', 'main'], { cwd: dir });
+
+  const result = await run(['comments'], { cwd: dir });
+
+  assert.equal(result.code, 1);
+  assert.match(result.stderr, /not valid JSON/);
+  assert.equal(result.stdout, '');
+});
+
 test('comments-cli: a non-git directory exits 1', async () => {
   const dir = await makeRepo({ 'src/a.ts': 'export const a = 1;\n' });
   const result = await run(['comments'], { cwd: dir });

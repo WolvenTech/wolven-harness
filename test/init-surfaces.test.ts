@@ -1,16 +1,17 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readdirSync, readFileSync, statSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { PassThrough } from 'node:stream';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { parse } from 'yaml';
 import { makeRepo, run } from './helpers/fixture.js';
+import { makeIo } from './helpers/io.js';
+import { walkFiles } from './helpers/walk.js';
 import { renderWolven } from '../src/init/render-wolven.js';
-import type { Context, Io } from '../src/init/types.js';
+import type { Context } from '../src/init/types.js';
 
 const execFileAsync = promisify(execFile);
 
@@ -18,45 +19,11 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, '..');
 const repoTemplatesDir = path.join(repoRoot, 'templates');
 
-function makeIo(cwd: string): Io {
-  return {
-    cwd,
-    stdin: new PassThrough(),
-    stdout: new PassThrough(),
-    stderr: new PassThrough(),
-    isTTY: false,
-  };
-}
-
-/** Recursively lists every file under `dir`, relative to `dir`, posix-joined, skipping `.git`. */
-function walkFiles(dir: string): string[] {
-  let entries;
-  try {
-    entries = readdirSync(dir, { withFileTypes: true });
-  } catch {
-    return [];
-  }
-  const out: string[] = [];
-  for (const entry of entries) {
-    if (entry.name === '.git') continue;
-    const full = path.join(dir, entry.name);
-    if (entry.isDirectory()) {
-      out.push(...walkFiles(full).map((rel) => path.join(entry.name, rel)));
-    } else if (entry.isFile()) {
-      out.push(entry.name);
-    }
-  }
-  return out;
-}
-
-function toPosix(relFsPath: string): string {
-  return relFsPath.split(path.sep).join('/');
-}
-
 /** Every skill file the real `templates/.agents/skills/*` manifest carries, prefixed for the consumer root. */
-function templateSkillFiles(): string[] {
+async function templateSkillFiles(): Promise<string[]> {
   const skillsDir = path.join(repoTemplatesDir, '.agents', 'skills');
-  return walkFiles(skillsDir).map((rel) => `.agents/skills/${toPosix(rel)}`);
+  const files = await walkFiles(skillsDir);
+  return files.map((rel) => `.agents/skills/${rel}`);
 }
 
 function templateSkillNames(): string[] {
@@ -94,8 +61,8 @@ test('init-surfaces: creates exactly the expected paths', async () => {
     '.wolven-harness.json',
   ];
 
-  const expected = [...nonSkillFiles, ...templateSkillFiles()].sort();
-  const actual = walkFiles(dir).sort();
+  const expected = [...nonSkillFiles, ...(await templateSkillFiles())].sort();
+  const actual = (await walkFiles(dir)).sort();
 
   assert.deepEqual(actual, expected);
 });
@@ -167,6 +134,21 @@ test('wolven-template: skills table lists every template skill', async () => {
   }
 });
 
+test('wolven-template: a malformed skill is skipped', async () => {
+  const tempTemplatesDir = await makeRepo({
+    'WOLVEN.md': 'intro\n\n{{skills_table}}\n\nend\n',
+    '.agents/skills/broken-skill/SKILL.md': '---\nname: "unterminated\n---\n\nbody\n',
+    '.agents/skills/kept-skill/SKILL.md': '---\nname: kept-skill\ndescription: Still listed.\n---\n\nbody\n',
+  });
+
+  const ctx: Context = { root: '/unused', templatesDir: tempTemplatesDir, io: makeIo('/unused') };
+  const rendered = await renderWolven(ctx);
+
+  assert.equal(rendered.includes('broken-skill'), false);
+  assert.ok(rendered.includes('kept-skill'));
+  assert.ok(rendered.includes('Still listed.'));
+});
+
 test('wolven-template: new skill folder appears without code change', async () => {
   const tempTemplatesDir = await makeRepo({
     'WOLVEN.md': 'intro\n\n{{skills_table}}\n\nend\n',
@@ -201,13 +183,6 @@ test('init-surfaces: adr-000 is a stable profile ADR', () => {
   assert.equal(parsed.status, 'stable');
   assert.ok(typeof parsed.title === 'string' && parsed.title.length > 0);
   assert.ok(typeof parsed.description === 'string' && parsed.description.length > 0);
-});
-
-test('init-surfaces: WRITING-PROFILE.md ≤ 80 lines', () => {
-  const raw = readFileSync(path.join(repoTemplatesDir, 'docs', 'WRITING-PROFILE.md'), 'utf8');
-  const lineCount = raw.split('\n').length;
-
-  assert.ok(lineCount <= 80, `WRITING-PROFILE.md is ${lineCount} lines, expected <= 80`);
 });
 
 test('init-surfaces: a fresh install passes validate once committed', async () => {

@@ -1,11 +1,10 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
+import type { AddedLine } from './diff.js';
 import { firstLeak, leakReason } from './leak-rules.js';
 import type { LeakKind } from './leak-rules.js';
 
-export type AddedLine = { file: string; line: number; text: string };
-
-export type FindingKind = 'untagged' | 'over-length' | LeakKind;
+type FindingKind = 'untagged' | 'over-length' | LeakKind;
 
 export type CommentFinding = {
   file: string;
@@ -37,8 +36,7 @@ const COMMENT_PREFIX = /^\s*(?:\/\/|\/\*|\*|#)\s*/;
 const DECLARED_REASON = /^\s*(?:\/\/|\/\*|\*|#)\s*(?:why|hazard|invariant):\s*\S/i;
 const CLOSER_OR_CONTINUATION = /^\s*(?:\*\/|\*|\/\/)/;
 
-export const COMMENT_MARKERS = ['why:', 'hazard:', 'invariant:'] as const;
-export const MAX_DECLARED_LINES = 4;
+const MAX_DECLARED_LINES = 4;
 
 function matchesSyntax(text: string, syntax: CommentSyntax): boolean {
   const trimmed = text.trimStart();
@@ -63,25 +61,23 @@ function isGeneratedFileBanner(text: string): boolean {
 /** A file's `CommentSyntax`, looked up by its (root-relative) path. */
 export type SyntaxFor = (file: string) => CommentSyntax;
 
-const defaultSyntaxFor: SyntaxFor = () => BUILTIN_SYNTAX;
-
-export function isCommentLine(text: string, syntax: CommentSyntax = BUILTIN_SYNTAX): boolean {
+function isCommentLine(text: string, syntax: CommentSyntax): boolean {
   return matchesSyntax(text, syntax) && !TOOL_DIRECTIVE.test(text) && !isGeneratedFileBanner(text);
 }
 
-export function declaresReason(text: string): boolean {
+function declaresReason(text: string): boolean {
   return DECLARED_REASON.test(text);
 }
 
 const DECLARATION =
   /^\s*(?:(?:export|declare|public|private|protected|readonly|static|async|abstract)\s+)*(?:class|function|const|let|var|type|interface|enum|namespace)\s+([A-Za-z_$][\w$]*)|^\s*(?:readonly\s+)?([A-Za-z_$][\w$]*)\??\s*[:(<]/;
 
-export function attachedIdentifier(codeLine: string | undefined): string | null {
+function attachedIdentifier(codeLine: string | undefined): string | null {
   const match = codeLine === undefined ? null : DECLARATION.exec(codeLine);
   return match ? (match[1] ?? match[2] ?? null) : null;
 }
 
-export function groupCommentBlocks(added: AddedLine[], syntaxFor: SyntaxFor = defaultSyntaxFor): AddedLine[][] {
+function groupCommentBlocks(added: AddedLine[], syntaxFor: SyntaxFor): AddedLine[][] {
   const blocks: AddedLine[][] = [];
   let block: AddedLine[] = [];
 
@@ -123,7 +119,7 @@ function expandToEnclosingBlock(
   seedHeadLine: number,
   seedTailLine: number,
   nextCodeLine: NextCodeLine,
-  syntaxFor: SyntaxFor = defaultSyntaxFor,
+  syntaxFor: SyntaxFor,
 ): { headLine: number; tailLine: number } {
   const syntax = syntaxFor(file);
   let headLine = seedHeadLine;
@@ -165,19 +161,17 @@ type MergedBlock = { file: string; headLine: number; tailLine: number; addedLine
  */
 function judgeBlock(
   entry: MergedBlock,
-  nextCodeLine?: NextCodeLine,
-  syntaxFor: SyntaxFor = defaultSyntaxFor,
+  nextCodeLine: NextCodeLine,
+  syntaxFor: SyntaxFor,
 ): { violates: boolean; kind: FindingKind; reason: string } {
-  const fullBlock = nextCodeLine
-    ? readFullBlockText(entry.file, entry.headLine, entry.tailLine, nextCodeLine)
-    : entry.addedLines;
+  const fullBlock = readFullBlockText(entry.file, entry.headLine, entry.tailLine, nextCodeLine);
   const head = fullBlock[0];
   const tail = fullBlock.at(-1);
   if (head === undefined || tail === undefined) return { violates: false, kind: 'untagged', reason: '' };
   const addedText = entry.addedLines.map((line) => line.text).join(' ');
 
   const isBuiltinFile = syntaxFor(entry.file) === BUILTIN_SYNTAX;
-  if (head.text.trimStart().startsWith('/**') && nextCodeLine && isBuiltinFile) {
+  if (head.text.trimStart().startsWith('/**') && isBuiltinFile) {
     const identifier = attachedIdentifier(declarationAfter(entry.file, tail.line, nextCodeLine));
     if (identifier !== null) {
       const leak = firstLeak(addedText);
@@ -204,10 +198,10 @@ function judgeBlock(
   return { violates: false, kind: 'untagged', reason: '' };
 }
 
-export function findAddedComments(
+function findAddedComments(
   added: AddedLine[],
-  nextCodeLine?: NextCodeLine,
-  syntaxFor: SyntaxFor = defaultSyntaxFor,
+  nextCodeLine: NextCodeLine,
+  syntaxFor: SyntaxFor,
 ): CommentFinding[] {
   const merged = new Map<string, MergedBlock>();
 
@@ -215,9 +209,7 @@ export function findAddedComments(
     const head = block[0];
     const tail = block.at(-1);
     if (head === undefined || tail === undefined) continue;
-    const range = nextCodeLine
-      ? expandToEnclosingBlock(head.file, head.line, tail.line, nextCodeLine, syntaxFor)
-      : { headLine: head.line, tailLine: tail.line };
+    const range = expandToEnclosingBlock(head.file, head.line, tail.line, nextCodeLine, syntaxFor);
     const key = `${head.file}#${range.headLine}-${range.tailLine}`;
     const entry = merged.get(key);
     if (entry) {
@@ -263,7 +255,7 @@ function diskLineReader(projectDir: string): NextCodeLine {
 export function scanAddedLines(
   added: AddedLine[],
   projectDir: string,
-  syntaxFor: SyntaxFor = defaultSyntaxFor,
+  syntaxFor: SyntaxFor,
 ): CommentFinding[] {
   return findAddedComments(added, diskLineReader(projectDir), syntaxFor);
 }

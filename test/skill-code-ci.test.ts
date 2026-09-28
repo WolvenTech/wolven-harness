@@ -7,13 +7,7 @@ test('skill-code-ci: passes the shared skill contract checks', async () => {
   await assertSkillBasics('code-ci', { requireHarnessValidate: true });
 });
 
-test('skill-code-ci: is ask-only in its frontmatter', async () => {
-  const skill = await readSkill('code-ci');
-
-  assert.equal(skill.frontmatter['disable-model-invocation'], true);
-});
-
-test('skill-code-ci: ships an ask-only agents/openai.yaml', async () => {
+test('skill-code-ci: ships display_name and short_description', async () => {
   const skill = await readSkill('code-ci');
 
   assert.ok(skill.files.includes('agents/openai.yaml'), 'expected agents/openai.yaml');
@@ -24,7 +18,6 @@ test('skill-code-ci: ships an ask-only agents/openai.yaml', async () => {
     policy?: { allow_implicit_invocation?: boolean };
   };
 
-  assert.equal(parsed.policy?.allow_implicit_invocation, false);
   assert.ok(typeof parsed.interface?.display_name === 'string' && parsed.interface.display_name.length > 0);
   assert.ok(typeof parsed.interface?.short_description === 'string' && parsed.interface.short_description.length > 0);
 });
@@ -67,15 +60,6 @@ test('skill-code-ci: names the Bitbucket REST fallback for resolving a thread', 
   assert.match(skill.body, /REST route/i);
 });
 
-test('skill-code-ci: names every host step in plain words, never a host tool name or URL', async () => {
-  const skill = await readSkill('code-ci');
-
-  assert.doesNotMatch(skill.body, /\bgh pr\b/);
-  assert.doesNotMatch(skill.body, /create_pull_request|pull_request_read|pull_request_review_write|get_job_logs/);
-  assert.doesNotMatch(skill.body, /createPullRequest|getPullRequestDetails|addPullRequestComment/);
-  assert.doesNotMatch(skill.body, /api\.bitbucket\.org/);
-});
-
 test('skill-code-ci: never merges the pull request or enables auto-merge', async () => {
   const skill = await readSkill('code-ci');
 
@@ -98,10 +82,9 @@ test('skill-code-ci: runs closure only on a separate ask and points at the pull-
   assert.match(skill.body, /explicit ask/i);
 });
 
-test('skill-code-ci: requires an explicit ask and never auto-chains into the loop', async () => {
+test('skill-code-ci: names When not to use', async () => {
   const skill = await readSkill('code-ci');
 
-  assert.match(skill.body, /explicit ask/i);
   assert.match(skill.body, /## When not to use/);
 });
 

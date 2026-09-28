@@ -1,14 +1,11 @@
-import { execFile } from 'node:child_process';
 import { realpath } from 'node:fs/promises';
 import readline from 'node:readline';
-import { promisify } from 'node:util';
 import type { GitHost, Io, Options, Context, Runtime } from './types.js';
 import { InitError } from './types.js';
 import { isGitHost, isRuntime, readConfig, writeConfig } from './config.js';
 import type { Config } from './config.js';
+import { gitTopLevel } from '../git.js';
 import { resolveOwnPackage } from './own-package.js';
-
-const execFileAsync = promisify(execFile);
 
 /**
  * Guards that `init` runs at the git top-level: `git rev-parse
@@ -17,15 +14,12 @@ const execFileAsync = promisify(execFile);
  * `io.cwd`. Runs before any flag parsing, prompt, or write.
  */
 async function assertGitTopLevel(io: Io): Promise<void> {
-  let stdout: string;
+  let toplevel: string;
   try {
-    const result = await execFileAsync('git', ['rev-parse', '--show-toplevel'], { cwd: io.cwd });
-    stdout = result.stdout;
+    toplevel = await gitTopLevel(io.cwd);
   } catch {
     throw new InitError(`not a git repository: ${io.cwd}`);
   }
-
-  const toplevel = stdout.trim();
 
   const [realToplevel, realCwd] = await Promise.all([realpath(toplevel), realpath(io.cwd)]);
 
@@ -43,7 +37,8 @@ interface Flags {
 
 /**
  * Parses `--git-host <value>` / `--git-host=<value>` and `--runtimes
- * <csv>` / `--runtimes=<csv>`.
+ * <csv>` / `--runtimes=<csv>`. A missing value or any other argument is
+ * an `InitError`.
  */
 function parseFlags(argv: string[]): Flags {
   const flags: Flags = {};
@@ -221,8 +216,8 @@ async function promptMissing(
  * every other existing key (`ignore`, `comments`, and any unknown key)
  * forward untouched.
  */
-export async function resolveOptions(argv: string[], io: Io, ctx: Context): Promise<Options> {
-  await assertGitTopLevel(io);
+export async function resolveOptions(argv: string[], ctx: Context): Promise<Options> {
+  await assertGitTopLevel(ctx.io);
 
   const flags = parseFlags(argv);
   const existing = await readConfig(ctx.root);
@@ -237,12 +232,12 @@ export async function resolveOptions(argv: string[], io: Io, ctx: Context): Prom
   if (runtimes === undefined) missing.push('--runtimes');
 
   if (missing.length > 0) {
-    if (!io.isTTY) {
+    if (!ctx.io.isTTY) {
       const label = missing.length > 1 ? 'flags' : 'flag';
       throw new InitError(`missing required ${label}: ${missing.join(', ')}`);
     }
 
-    const prompted = await promptMissing(io, gitHost === undefined, runtimes === undefined);
+    const prompted = await promptMissing(ctx.io, gitHost === undefined, runtimes === undefined);
     if (gitHost === undefined) gitHost = prompted.gitHost;
     if (runtimes === undefined) runtimes = prompted.runtimes;
   }

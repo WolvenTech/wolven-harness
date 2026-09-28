@@ -62,7 +62,7 @@ export async function runValidate(argv: string[], io: Io): Promise<number> {
     return 1;
   }
 
-  const ctx = await buildRepoContext(root, { ignoreEntries: ignoreConfig.entries, verbose });
+  const ctx = await buildRepoContext(root, { ignoreEntries: ignoreConfig.entries });
 
   const profileFindings = await checkProfile(ctx);
   const spineFindings = await checkSpine(ctx);

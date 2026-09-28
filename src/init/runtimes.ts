@@ -1,5 +1,6 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
+import { pathExists } from '../path-exists.js';
 import { InitError } from './types.js';
 import type { Options, Context, StepResult } from './types.js';
 
@@ -70,13 +71,4 @@ async function wireClaudeMd(ctx: Context, created: string[], skipped: string[]):
 
   await fs.writeFile(claudeMdPath, '@AGENTS.md\n', 'utf8');
   created.push('CLAUDE.md');
-}
-
-async function pathExists(target: string): Promise<boolean> {
-  try {
-    await fs.lstat(target);
-    return true;
-  } catch {
-    return false;
-  }
 }

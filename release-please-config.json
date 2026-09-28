@@ -5,8 +5,7 @@
   "include-component-in-tag": false,
   "packages": {
     ".": {
-      "package-name": "@wolventech/wolven-harness",
-      "initial-version": "0.1.0"
+      "package-name": "@wolven-tech/harness"
     }
   }
 }

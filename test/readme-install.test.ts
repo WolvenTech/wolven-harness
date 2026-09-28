@@ -12,47 +12,45 @@ async function readReadme(): Promise<string> {
   return readFile(readmePath, 'utf8');
 }
 
-test('readme-install: documents both .npmrc lines', async () => {
+test('readme-install: the add and init commands appear, in that order', async () => {
   const readme = await readReadme();
 
-  assert.match(readme, /@wolventech:registry=https:\/\/npm\.pkg\.github\.com/);
-  assert.match(readme, /\/\/npm\.pkg\.github\.com\/:_authToken=\$\{NODE_AUTH_TOKEN\}/);
+  const addIndex = readme.indexOf('pnpm add -D @wolven-tech/harness');
+  const initIndex = readme.indexOf('pnpm exec wolven-harness init');
+
+  assert.ok(addIndex !== -1, 'pnpm add -D @wolven-tech/harness not found');
+  assert.ok(initIndex !== -1, 'pnpm exec wolven-harness init not found');
+  assert.ok(addIndex < initIndex, 'install command must appear before the init command');
 });
 
-test('readme-install: documents the local read:packages token scope', async () => {
+test('readme-install: no GitHub Packages registry residue', async () => {
   const readme = await readReadme();
 
-  assert.match(readme, /read:packages/);
+  assert.doesNotMatch(readme, /\.npmrc/);
+  assert.doesNotMatch(readme, /npm\.pkg\.github\.com/);
+  assert.doesNotMatch(readme, /NODE_AUTH_TOKEN/);
+  assert.doesNotMatch(readme, /packages: read/);
+  assert.doesNotMatch(readme, /read:packages/);
+  assert.doesNotMatch(readme, /@wolventech/);
+  assert.doesNotMatch(readme, /_authToken/);
 });
 
-test('readme-install: documents the CI packages: read permission', async () => {
+test('readme-install: the release section covers trusted publishing, its npm-side setup and the manual re-run', async () => {
   const readme = await readReadme();
 
-  assert.match(readme, /packages: read/);
-});
+  assert.match(readme, /## Release/);
 
-test('readme-install: documents NODE_AUTH_TOKEN', async () => {
-  const readme = await readReadme();
+  const start = readme.indexOf('## Release');
+  const next = readme.indexOf('\n## ', start + 1);
+  const releaseSection = readme.slice(start, next === -1 ? undefined : next);
 
-  assert.match(readme, /NODE_AUTH_TOKEN/);
-});
-
-test('readme-install: documents granting Manage Actions access on the package', async () => {
-  const readme = await readReadme();
-
-  assert.match(readme, /Manage Actions access/);
-});
-
-test('readme-install: documents installing the package with pnpm add -D', async () => {
-  const readme = await readReadme();
-
-  assert.match(readme, /pnpm add -D @wolventech\/wolven-harness/);
-});
-
-test('readme-install: documents running init with pnpm exec', async () => {
-  const readme = await readReadme();
-
-  assert.match(readme, /pnpm exec wolven-harness init/);
+  assert.match(releaseSection, /trusted publish/i);
+  assert.match(releaseSection, /seed/i);
+  assert.match(releaseSection, /workflow `release\.yml`/);
+  assert.match(releaseSection, /disallow tokens/);
+  assert.match(releaseSection, /run the `release` workflow by hand/);
+  assert.match(releaseSection, /Allow direct `npm publish`/);
+  assert.match(releaseSection, /After the first OIDC release succeeds/);
 });
 
 test('readme-install: the release section says to close and reopen the release PR before merging', async () => {

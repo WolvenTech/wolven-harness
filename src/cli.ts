@@ -6,8 +6,6 @@ import { runValidate } from './validate/index.js';
 import { runComments } from './comments/index.js';
 import type { Io } from './init/types.js';
 
-export type { Io };
-
 function printUsage(io: Io): void {
   io.stdout.write(
     [

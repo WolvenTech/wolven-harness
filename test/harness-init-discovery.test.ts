@@ -1,19 +1,13 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readSkill } from './helpers/skill-contract.js';
+import { flatten } from './helpers/prose.js';
 
 const REF = 'references/discovery.md';
 
 async function readDiscovery(): Promise<string> {
   const skill = await readSkill('harness-init');
   return skill.read(REF);
-}
-
-// why: prose in the reference wraps across lines, so a phrase spanning
-// several words is matched against whitespace-collapsed text instead of
-// the raw body, which would otherwise break on an arbitrary line wrap.
-function flatten(text: string): string {
-  return text.replace(/\s+/g, ' ');
 }
 
 function sections(body: string): { discovery: string; research: string; suggestions: string } {
@@ -56,7 +50,7 @@ test('discovery: reads every named source before asking anything', async () => {
   }
 });
 
-test('discovery: carries the adopted local-search-index prompt verbatim, without naming the benchmarked tool', async () => {
+test('discovery: carries the adopted local-search-index prompt verbatim', async () => {
   const { discovery } = sections(await readDiscovery());
   const flat = flatten(discovery.replace(/^>\s?/gm, ''));
 
@@ -64,8 +58,6 @@ test('discovery: carries the adopted local-search-index prompt verbatim, without
     flat,
     /Before reading files by hand, check whether the repository already has a local search index over its own documentation \(for example, a QMD collection\)\. If one exists, query it for relevant documentation and architecture notes before reading further, and note the indexing tool itself as a decided tool\. If none exists, skip this step and read the repository directly\./,
   );
-  assert.doesNotMatch(discovery, /\bkb\b/i);
-  assert.doesNotMatch(discovery, /compozy/i);
 });
 
 test('discovery: asks only two things, one at a time — lifecycle stage and decisions not visible in code', async () => {

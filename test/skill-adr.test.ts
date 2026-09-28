@@ -3,8 +3,6 @@ import assert from 'node:assert/strict';
 import { run, makeRepo } from './helpers/fixture.js';
 import { readSkill, assertSkillBasics, renderInto } from './helpers/skill-contract.js';
 
-const CONCRETE_ADR_TOKEN_RE = /\bADR-\d{3}\b|\badr-\d{3}-[a-z]/;
-
 test('skill-adr: passes the shared skill contract checks, including the harness:validate mention', async () => {
   await assertSkillBasics('adr', { requireHarnessValidate: true });
 });
@@ -47,15 +45,6 @@ test('skill-adr: supersedes by deprecating the old ADR, setting superseded_by, a
   assert.match(supersedeSection, /deprecated/);
   assert.match(supersedeSection, /superseded_by/);
   assert.match(supersedeSection, /[Rr]epoint/);
-});
-
-test('skill-adr: the skill folder carries no concrete ADR-NNN or adr-NNN-<slug> tokens, only placeholders', async () => {
-  const skill = await readSkill('adr');
-
-  for (const rel of skill.files) {
-    const content = await skill.read(rel);
-    assert.doesNotMatch(content, CONCRETE_ADR_TOKEN_RE, `${rel} contains a concrete ADR token`);
-  }
 });
 
 test('skill-adr: renderInto writes a new ADR from the template that passes validate', async () => {

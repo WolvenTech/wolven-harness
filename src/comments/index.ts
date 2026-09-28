@@ -1,9 +1,9 @@
-import type { Io } from '../init/types.js';
+import { InitError, type Io } from '../init/types.js';
 import { resolveGitRoot } from '../validate/repo.js';
 import { listChangedFiles, listAddedLines, resolveDefaultBase } from './diff.js';
 import { scanAddedLines, BUILTIN_SYNTAX } from './rules.js';
 import type { CommentFinding, CommentSyntax, SyntaxFor } from './rules.js';
-import { loadCommentsScope, hasKnownSyntax, isInScope, CommentsConfigError, BUILTIN_EXTENSIONS } from './config.js';
+import { loadCommentsScope, hasKnownSyntax, isInScope, CommentsConfigError, hasBuiltinExtension } from './config.js';
 import type { CommentsScope, LanguageSyntax } from './config.js';
 
 type FileSelection = { files: string[]; skipped: number; syntaxFor: SyntaxFor };
@@ -15,7 +15,7 @@ function toCommentSyntax(syntax: LanguageSyntax): CommentSyntax {
 /** Resolves the `CommentSyntax` a file is scanned with: the built-in syntax for a built-in extension, else its `comments.languages` entry. */
 function syntaxForScope(scope: CommentsScope): SyntaxFor {
   return (file: string): CommentSyntax => {
-    if (BUILTIN_EXTENSIONS.some((ext) => file.endsWith(ext))) return BUILTIN_SYNTAX;
+    if (hasBuiltinExtension(file)) return BUILTIN_SYNTAX;
     for (const [ext, syntax] of scope.languages) {
       if (file.endsWith(ext)) return toCommentSyntax(syntax);
     }
@@ -38,7 +38,7 @@ async function selectFiles(root: string, base: string): Promise<FileSelection> {
   return { files, skipped: scoped.length - files.length, syntaxFor: syntaxForScope(scope) };
 }
 
-export type CommentsScanOptions = { root: string; base: string };
+type CommentsScanOptions = { root: string; base: string };
 
 /** Lists every finding among the lines added since `base`. */
 export async function findCommentFindings(opts: CommentsScanOptions): Promise<CommentFinding[]> {
@@ -104,15 +104,14 @@ export async function runComments(argv: string[], io: Io): Promise<number> {
   try {
     selection = await selectFiles(root, base);
   } catch (err) {
-    if (err instanceof CommentsConfigError) {
+    if (err instanceof CommentsConfigError || err instanceof InitError) {
       io.stderr.write(`wolven-harness comments: ${err.message}\n`);
       return 1;
     }
     throw err;
   }
 
-  const added = await listAddedLines(root, selection.files, base);
-  const findings = scanAddedLines(added, root, selection.syntaxFor);
+  const findings = await findCommentFindings({ root, base });
 
   for (const finding of findings) {
     io.stdout.write(`${finding.file}:${finding.line}: [${finding.kind}] ${finding.reason}\n`);

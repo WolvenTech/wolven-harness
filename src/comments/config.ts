@@ -1,7 +1,6 @@
-import { readFile } from 'node:fs/promises';
-import path from 'node:path';
-import { CONFIG_FILENAME } from '../init/config.js';
-import { loadIgnoreConfig } from '../validate/config.js';
+import { CONFIG_FILENAME, readConfig } from '../init/config.js';
+import { isUnderDir } from '../path-exists.js';
+import { partitionIgnore } from '../validate/config.js';
 
 /** Extensions judged without any config, e.g. `.ts`. */
 export const BUILTIN_EXTENSIONS: readonly string[] = ['.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs'];
@@ -25,13 +24,14 @@ export interface CommentsScope {
 /** Thrown when `.wolven-harness.json`'s `comments` key does not match its shape. */
 export class CommentsConfigError extends Error {}
 
-function isUnderDir(file: string, dir: string): boolean {
-  return file.startsWith(`${dir}/`);
+/** True when `file`'s extension is one of the built-ins. */
+export function hasBuiltinExtension(file: string): boolean {
+  return BUILTIN_EXTENSIONS.some((ext) => file.endsWith(ext));
 }
 
 /** True when `file`'s extension is a built-in or a configured `comments.languages` entry. */
 export function hasKnownSyntax(file: string, scope: CommentsScope): boolean {
-  if (BUILTIN_EXTENSIONS.some((ext) => file.endsWith(ext))) return true;
+  if (hasBuiltinExtension(file)) return true;
   for (const ext of scope.languages.keys()) {
     if (file.endsWith(ext)) return true;
   }
@@ -96,22 +96,6 @@ function parsePaths(value: unknown): string[] | undefined {
   return value;
 }
 
-async function readRawConfig(root: string): Promise<Record<string, unknown> | undefined> {
-  let raw: string;
-  try {
-    raw = await readFile(path.join(root, CONFIG_FILENAME), 'utf8');
-  } catch {
-    return undefined;
-  }
-  try {
-    const parsed: unknown = JSON.parse(raw);
-    if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) return undefined;
-    return parsed as Record<string, unknown>;
-  } catch {
-    return undefined;
-  }
-}
-
 /**
  * Reads `.wolven-harness.json` at `root` and resolves the `comments` scope:
  * configured languages, the path scope (unset means the default), and the
@@ -119,11 +103,9 @@ async function readRawConfig(root: string): Promise<Record<string, unknown> | un
  * when `comments` does not match its shape.
  */
 export async function loadCommentsScope(root: string): Promise<CommentsScope> {
-  const { entries } = await loadIgnoreConfig(root);
-  const ignoreDirs = entries.map((entry) => entry.slice(0, -'/**'.length));
-
-  const config = await readRawConfig(root);
-  const comments = config?.comments;
+  const config = await readConfig(root);
+  const ignoreDirs = partitionIgnore(config?.ignore ?? []).entries.map((entry) => entry.slice(0, -'/**'.length));
+  const comments = config?.extra?.comments;
   if (comments === undefined) {
     return { languages: new Map(), ignoreDirs };
   }

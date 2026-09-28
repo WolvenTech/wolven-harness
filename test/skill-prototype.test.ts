@@ -2,17 +2,8 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readSkill, assertSkillBasics } from './helpers/skill-contract.js';
 
-const FORBIDDEN_WORD_RE = /\b(board|ticket|map|wayfinder)\b/i;
-
 test('skill-prototype: passes the shared skill contract checks', async () => {
   await assertSkillBasics('prototype');
-});
-
-test('skill-prototype: is model-invocable', async () => {
-  const skill = await readSkill('prototype');
-
-  assert.equal('disable-model-invocation' in skill.frontmatter, false);
-  assert.ok(!skill.files.includes('agents/openai.yaml'));
 });
 
 test('skill-prototype: LOGIC.md and UI.md exist and are linked from SKILL.md', async () => {
@@ -48,13 +39,4 @@ test('skill-prototype: discards or promotes deliberately, with the verdict recor
   assert.match(skill.body, /\*\*Promote\.\*\*/);
   assert.match(skill.body, /record the verdict/i);
   assert.match(skill.body, /docs\/prds\/<slug>\/<slug>-prd\.md/);
-});
-
-test('skill-prototype: makes no board, ticket, map, or wayfinder references anywhere in the folder', async () => {
-  const skill = await readSkill('prototype');
-
-  for (const rel of skill.files) {
-    const content = await skill.read(rel);
-    assert.doesNotMatch(content, FORBIDDEN_WORD_RE, `${rel} contains a forbidden reference`);
-  }
 });

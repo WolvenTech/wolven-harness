@@ -3,24 +3,14 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { PassThrough } from 'node:stream';
 import { makeRepo, run } from './helpers/fixture.js';
+import { makeIo } from './helpers/io.js';
 import { renderWolven } from '../src/init/render-wolven.js';
-import type { Context, Io } from '../src/init/types.js';
+import type { Context } from '../src/init/types.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, '..');
 const repoTemplatesDir = path.join(repoRoot, 'templates');
-
-function makeIo(cwd: string): Io {
-  return {
-    cwd,
-    stdin: new PassThrough(),
-    stdout: new PassThrough(),
-    stderr: new PassThrough(),
-    isTTY: false,
-  };
-}
 
 async function freshFixture(): Promise<string> {
   return makeRepo(

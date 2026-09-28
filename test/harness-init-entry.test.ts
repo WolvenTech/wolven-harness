@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 import { readSkill } from './helpers/skill-contract.js';
 import { makeRepo, run } from './helpers/fixture.js';
+import { flatten } from './helpers/prose.js';
 
 const execFileAsync = promisify(execFile);
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -14,13 +15,6 @@ const repoRoot = path.resolve(here, '..');
 
 const MARKDOWN_FENCE_RE = /```markdown\n([\s\S]*?)```/g;
 const RULE_CITATION_RE = /\.agents\/rules\/[A-Za-z0-9._-]+\.md/g;
-
-// why: prose in the reference wraps across lines, so a phrase spanning
-// several words is matched against whitespace-collapsed text instead of
-// the raw body, which would otherwise break on an arbitrary line wrap.
-function flatten(text: string): string {
-  return text.replace(/\s+/g, ' ');
-}
 
 async function readEntryModes(): Promise<string> {
   const skill = await readSkill('harness-init');
@@ -167,9 +161,13 @@ test('step0-fixture: an existing AGENTS.md plus the light block passes validate 
   assert.equal(blocks.length, 2, 'expected exactly two fenced markdown blocks (light block, mention-only line)');
   const [lightBlock] = blocks;
   assert.match(lightBlock, /## Wolven harness/);
+  assert.match(lightBlock, /<standing-rules>/);
 
-  const ruleFiles = await collectCitedRules(lightBlock);
-  assert.ok(Object.keys(ruleFiles).length > 0, 'light block cites no rule files to copy');
+  const wolvenTemplate = await readFile(path.join(repoRoot, 'templates', 'WOLVEN.md'), 'utf8');
+  const standing = wolvenTemplate.split('## Standing rules')[1]?.split('\n## ')[0]?.trim() ?? '';
+  const light = lightBlock.replace('<standing-rules>', standing);
+  const ruleFiles = await collectCitedRules(light);
+  assert.ok(Object.keys(ruleFiles).length > 0, 'WOLVEN.md standing rules cite no rule files to copy');
 
   const priorAgents = [
     '# Agents',
@@ -182,7 +180,7 @@ test('step0-fixture: an existing AGENTS.md plus the light block passes validate 
 
   const cwd = await makeRepo(
     {
-      'AGENTS.md': `${priorAgents}\n${lightBlock}\n`,
+      'AGENTS.md': `${priorAgents}\n${light}\n`,
       ...ruleFiles,
     },
     { git: true },

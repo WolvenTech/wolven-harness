@@ -1,7 +1,7 @@
 ---
 type: spec
 title: <title>
-description: {{description}}
+description: <description>
 status: draft
 ---
 

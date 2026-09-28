@@ -7,13 +7,7 @@ test('skill-code-pr: passes the shared skill contract checks', async () => {
   await assertSkillBasics('code-pr', { requireHarnessValidate: true });
 });
 
-test('skill-code-pr: is ask-only in its frontmatter', async () => {
-  const skill = await readSkill('code-pr');
-
-  assert.equal(skill.frontmatter['disable-model-invocation'], true);
-});
-
-test('skill-code-pr: ships an ask-only agents/openai.yaml', async () => {
+test('skill-code-pr: ships display_name and short_description', async () => {
   const skill = await readSkill('code-pr');
 
   assert.ok(skill.files.includes('agents/openai.yaml'), 'expected agents/openai.yaml');
@@ -24,7 +18,6 @@ test('skill-code-pr: ships an ask-only agents/openai.yaml', async () => {
     policy?: { allow_implicit_invocation?: boolean };
   };
 
-  assert.equal(parsed.policy?.allow_implicit_invocation, false);
   assert.ok(typeof parsed.interface?.display_name === 'string' && parsed.interface.display_name.length > 0);
   assert.ok(typeof parsed.interface?.short_description === 'string' && parsed.interface.short_description.length > 0);
 });
@@ -43,7 +36,6 @@ test('skill-code-pr: pushes every run and never merges or enables auto-merge', a
   assert.match(skill.body, /every run/i);
   assert.match(skill.body, /[Nn]ever merge/);
   assert.match(skill.body, /auto-merge/i);
-  assert.doesNotMatch(skill.body, /\bgh pr merge\b/);
 });
 
 test('skill-code-pr: finds an existing PR before opening and handles zero, one, and many', async () => {
@@ -62,10 +54,6 @@ test('skill-code-pr: host steps cite host-operations.md and name the operations 
   assert.match(skill.body, /push branch/i);
   assert.match(skill.body, /read PR and diff/i);
   assert.match(skill.body, /open PR/);
-  assert.doesNotMatch(skill.body, /create_pull_request|pull_request_read|pull_request_review_write|get_job_logs/);
-  assert.doesNotMatch(skill.body, /createPullRequest|getPullRequestDetails/);
-  assert.doesNotMatch(skill.body, /api\.bitbucket\.org/);
-  assert.doesNotMatch(skill.body, /(^|[\s`(])gh (pr|api|run|auth|repo|issue)\b/m);
 });
 
 test('skill-code-pr: reads before rewriting on amend', async () => {

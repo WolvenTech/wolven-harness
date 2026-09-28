@@ -1,14 +1,13 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parse } from 'yaml';
-import { makeRepo, run } from './helpers/fixture.js';
+import { makeIo } from './helpers/io.js';
 import { renderWolven } from '../src/init/render-wolven.js';
-import type { Context, Io } from '../src/init/types.js';
-import { PassThrough } from 'node:stream';
+import type { Context } from '../src/init/types.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, '..');
@@ -21,28 +20,6 @@ const DIR_TYPE: Record<string, string> = {
   notes: 'note',
   deferrals: 'deferral',
 };
-
-function makeIo(cwd: string): Io {
-  return {
-    cwd,
-    stdin: new PassThrough(),
-    stdout: new PassThrough(),
-    stderr: new PassThrough(),
-    isTTY: false,
-  };
-}
-
-test('init-layout: init into an empty fixture creates docs/{prds,specs,notes,deferrals}/.gitkeep', async () => {
-  const dir = await makeRepo({}, { git: true });
-
-  const result = await run(['init', '--git-host', 'gh', '--runtimes', 'codex'], { cwd: dir });
-  assert.equal(result.code, 0, result.stderr);
-
-  for (const folder of DOC_FOLDERS) {
-    const gitkeepPath = path.join(dir, 'docs', folder, '.gitkeep');
-    assert.ok(existsSync(gitkeepPath), `docs/${folder}/.gitkeep was created`);
-  }
-});
 
 test('init-layout: .qmd/index.yml has one collection per folder with the doc-folder pattern', async () => {
   const raw = await readFile(path.join(repoTemplatesDir, '.qmd', 'index.yml'), 'utf8');

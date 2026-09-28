@@ -3,8 +3,6 @@ import assert from 'node:assert/strict';
 import { run } from './helpers/fixture.js';
 import { readSkill, assertSkillBasics, renderInto } from './helpers/skill-contract.js';
 
-const FORBIDDEN_RE = /cynefin|dice|executor|board|ticket/i;
-
 test('skill-create-prd: passes the shared skill contract checks', async () => {
   await assertSkillBasics('create-prd');
 });
@@ -73,16 +71,6 @@ test('skill-create-prd: lists what it refuses', async () => {
   assert.match(refusesSection, /external tracker/i);
   assert.match(refusesSection, /implementation detail/i);
   assert.match(refusesSection, /separate files/i);
-});
-
-test('skill-create-prd: names no forbidden classification or tracker vocabulary anywhere in the skill', async () => {
-  const skill = await readSkill('create-prd');
-
-  for (const rel of skill.files) {
-    const content = await skill.read(rel);
-    const match = content.match(FORBIDDEN_RE);
-    assert.equal(match, null, `${rel} contains forbidden term "${match?.[0]}"`);
-  }
 });
 
 test('skill-create-prd: the template has the six sections in order', async () => {

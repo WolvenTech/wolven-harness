@@ -12,7 +12,7 @@ Worked example below: a hypothetical avatar-upload feature
 | Stop | After unit | Gate |
 |------|------------|------|
 | **1** | 04 | Structural inspection of units 02–03 + `harness:validate` PASS — **abort before Wave 2** |
-| **2** | 07 | Structural inspection of units 05–06 + `harness:validate` PASS — **abort before Wave 3** |
+| **2** | 07 | Structural inspection of units 05–06 + `harness:validate` PASS — **abort; Wave 2 is the last wave** |
 | **Ship** | closeout unit | Final closeout checks pass; `harness:validate` PASS |
 
 ## Unresolved (typed rows — carry from the locked spec)
@@ -36,7 +36,7 @@ decided.
 | 04 | **Wave 1 gate** | 02, 03 | — | `inline` | Structural inspection satisfies units 02–03's proofs; `harness:validate` PASS; failure → **abort** before Wave 2 |
 | 05 | Wire the avatar into the profile page | 04 | `src/profile/**` | `spawn` | Profile page shows the uploaded avatar after a successful upload; spec-named proof (or gate check) inspectable |
 | 06 | Record disposition `U-example-size-limit` + enforce it | 04 | `src/avatar/upload/**`, `docs/specs/avatar-upload/avatar-upload-plan.md` (Unresolved table) | `inline` | Disposition filled; size limit enforced to match; Wave 2 unblocked **or** escalated and stopped |
-| 07 | **Wave 2 gate** | 05, 06 | — | `inline` | Structural inspection satisfies units 05–06's proofs; `harness:validate` PASS; failure → **abort** before Wave 3 |
+| 07 | **Wave 2 gate** | 05, 06 | — | `inline` | Structural inspection satisfies units 05–06's proofs; `harness:validate` PASS; failure → **abort** |
 
 ## Frontier order
 

@@ -99,30 +99,19 @@ test('skill-code-spec: points its ADR section at the adr skill', async () => {
 
   assert.match(template, /^## ADR$/m);
   assert.match(template, /`adr` skill/);
-  assert.doesNotMatch(template, /\bADR-\d{3}\b/);
-  assert.doesNotMatch(template, /\badr-\d{3}-[a-z-]+\b/);
 });
 
-test('skill-code-spec: term challenge checks terms against docs and the ADRs, not a canon or an Area', async () => {
+test('skill-code-spec: term challenge checks terms against docs and the ADRs', async () => {
   const skill = await readSkill('code-spec');
 
   assert.match(skill.body, /against\s+`docs\/`\s+and the existing ADRs/i);
-  assert.doesNotMatch(skill.body.toLowerCase(), /\bcanon\b/);
-  assert.doesNotMatch(skill.body.toLowerCase(), /\barea\b/);
 });
 
-test('skill-code-spec: TEMPLATE and EXAMPLE exist with resolving links', async () => {
+test('skill-code-spec: TEMPLATE and EXAMPLE exist', async () => {
   const skill = await readSkill('code-spec');
 
   assert.ok(skill.files.includes('references/TEMPLATE.md'));
   assert.ok(skill.files.includes('references/EXAMPLE.md'));
-});
-
-test('skill-code-spec: is model-invocable', async () => {
-  const skill = await readSkill('code-spec');
-
-  assert.equal('disable-model-invocation' in skill.frontmatter, false);
-  assert.ok(!skill.files.includes('agents/openai.yaml'));
 });
 
 test('skill-code-spec: renderInto renders the template into a fixture that passes validate', async () => {

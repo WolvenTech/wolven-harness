@@ -1,6 +1,7 @@
 import { mkdir, readdir, readFile, writeFile, lstat } from 'node:fs/promises';
 import path from 'node:path';
-import type { Options, Context, StepResult } from './types.js';
+import { pathExists } from '../path-exists.js';
+import type { Context, StepResult } from './types.js';
 import { renderWolven } from './render-wolven.js';
 
 /** Relative path (posix, `/`-joined) of the one file `init` must never create or edit. */
@@ -9,16 +10,6 @@ const WOLVEN_MD = 'WOLVEN.md';
 
 function toPosix(relFsPath: string): string {
   return relFsPath.split(path.sep).join('/');
-}
-
-async function pathExists(p: string): Promise<boolean> {
-  try {
-    await lstat(p);
-    return true;
-  } catch (err) {
-    if ((err as NodeJS.ErrnoException).code === 'ENOENT') return false;
-    throw err;
-  }
 }
 
 /**
@@ -76,7 +67,7 @@ async function walkFiles(dir: string): Promise<string[]> {
  * carried one. `WOLVEN.md`'s content comes from `renderWolven(ctx)` rather
  * than being copied verbatim.
  */
-export async function applyTemplates(opts: Options, ctx: Context): Promise<StepResult> {
+export async function applyTemplates(ctx: Context): Promise<StepResult> {
   const created: string[] = [];
   const skipped: string[] = [];
 

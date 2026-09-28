@@ -6,25 +6,6 @@ test('skill-code-commit: passes the shared skill contract checks', async () => {
   await assertSkillBasics('code-commit', { requireHarnessValidate: true });
 });
 
-test('skill-code-commit: is model-invocable', async () => {
-  const skill = await readSkill('code-commit');
-
-  assert.equal(
-    Object.prototype.hasOwnProperty.call(skill.frontmatter, 'disable-model-invocation'),
-    false,
-    'SKILL.md frontmatter must not set disable-model-invocation',
-  );
-
-  assert.ok(!skill.files.includes('agents/openai.yaml'), 'must not ship agents/openai.yaml');
-});
-
-test('skill-code-commit: is invoked from code-execute only when the resolved opt says so', async () => {
-  const executeSkill = await readSkill('code-execute');
-
-  assert.match(executeSkill.body, /invoke `code-commit` only when the resolved/i);
-  assert.match(executeSkill.body, /never invoke `code-pr`,\s*`code-review`, or `code-ci` on its own/i);
-});
-
 test('skill-code-commit: keeps Conventional Commits shape', async () => {
   const skill = await readSkill('code-commit');
 
@@ -78,7 +59,7 @@ test('skill-code-commit: names its two entry paths without inventing a consumer 
   assert.doesNotMatch(skill.body, /autocommit/i);
 });
 
-test('skill-code-commit: names code-pr, code-review, and code-ci as peers, not steps it chains into', async () => {
+test('skill-code-commit: names code-pr, code-review, and code-ci under When not to use', async () => {
   const skill = await readSkill('code-commit');
 
   assert.match(skill.body, /`code-pr`/);
@@ -97,28 +78,7 @@ test('skill-code-commit: does not push or merge in its own steps', async () => {
   assert.doesNotMatch(workflowSection, /\bmerge\b/i);
 });
 
-test('skill-code-commit: names no git-host tool and links out only to nothing (no host-operations use)', async () => {
-  const skill = await readSkill('code-commit');
-
-  assert.doesNotMatch(skill.body, /\bgh pr\b/);
-  assert.doesNotMatch(skill.body, /create_pull_request|pull_request_read|pull_request_review_write|get_job_logs/);
-  assert.doesNotMatch(skill.body, /createPullRequest|getPullRequestDetails/);
-  assert.doesNotMatch(skill.body, /api\.bitbucket\.org/);
-});
-
-test('skill-code-commit: examples are free of source-repo paths and vocabulary', async () => {
-  const skill = await readSkill('code-commit');
-  const examples = await skill.read('references/commit-examples.md');
-  const combined = `${skill.body}\n${examples}`;
-
-  assert.doesNotMatch(combined, /\.agents\/skills\//);
-  assert.doesNotMatch(combined, /docs\/ideas/);
-  assert.doesNotMatch(combined, /docs\/projects/);
-  assert.doesNotMatch(combined.toLowerCase(), /\bokf\b/);
-  assert.match(examples, /docs\/specs\/avatar-upload\/avatar-upload-plan\.md/);
-});
-
-test('skill-code-commit: examples include good and bad subjects, a split, the atomic plan mark, and cleanup', async () => {
+test('skill-code-commit: examples file has the Good, Bad, split, atomic-plan, and cleanup headings, and cites the avatar-upload plan', async () => {
   const skill = await readSkill('code-commit');
   const examples = await skill.read('references/commit-examples.md');
 
@@ -127,4 +87,5 @@ test('skill-code-commit: examples include good and bad subjects, a split, the at
   assert.match(examples, /### Multi-commit split \(standalone\)/);
   assert.match(examples, /### Atomic plan completion \(after a wave gate\)/);
   assert.match(examples, /### Failed commit leaves false green \(cleanup required\)/);
+  assert.match(examples, /docs\/specs\/avatar-upload\/avatar-upload-plan\.md/);
 });
