@@ -33,10 +33,17 @@ evidence supports best first.
 Nothing is written without a yes: show the diff, wait for the Human's yes, then
 write, then run `harness:validate`.
 
-- **(a)** Add a minimal job or step that runs `pnpm install --frozen-lockfile`
-  and then `pnpm harness:validate`, on pull requests — a new workflow file for
-  GitHub Actions, or a step in `bitbucket-pipelines.yml` for Bitbucket
-  Pipelines. Extend an existing file rather than replacing it.
+- **(a)** Add a minimal job or step that runs on pull requests. Hosted
+  runners have no pnpm and may have an older Node, so the job must set up
+  pnpm and Node ≥ 22 before it runs `pnpm install --frozen-lockfile` and then
+  `pnpm harness:validate`. When the repo already has a workflow or pipeline,
+  reuse its setup steps and extend the file rather than replacing it.
+  - GitHub Actions: a new workflow on `pull_request` with `contents: read`
+    permissions; `actions/checkout`, `pnpm/action-setup` (the version from
+    `packageManager` in `package.json` when it names pnpm), `actions/setup-node`
+    with Node ≥ 22 and `cache: pnpm`, then install and validate.
+  - Bitbucket Pipelines: a pull-request step in `bitbucket-pipelines.yml` on an
+    image with Node ≥ 22, running `corepack enable`, then install and validate.
 - **(b)** Append `&& pnpm harness:validate` to the named script's value.
 - **(c)** Write nothing; record the choice.
 

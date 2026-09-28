@@ -54,7 +54,7 @@ export interface RunResult {
  */
 export async function run(
   args: string[],
-  opts: { cwd: string; isTTY?: boolean; input?: string; prompts?: Prompter },
+  opts: { cwd: string; isTTY?: boolean; input?: string; prompts?: Prompter; env?: Record<string, string> },
 ): Promise<RunResult> {
   const stdout = new PassThrough();
   const stderr = new PassThrough();
@@ -80,6 +80,7 @@ export async function run(
     stderr,
     isTTY: opts.isTTY ?? false,
     ...(opts.prompts !== undefined ? { prompts: opts.prompts } : {}),
+    env: opts.env ?? {},
   };
 
   const code = await main(args, io);

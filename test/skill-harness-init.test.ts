@@ -169,6 +169,10 @@ test('skill-harness-init: asks how harness:validate is wired, with three options
   assert.match(ref, /`\.github\/workflows\/\*\.yml`/);
   assert.match(ref, /`bitbucket-pipelines\.yml`/);
   assert.match(ref, /`pnpm install --frozen-lockfile`/);
+  assert.match(ref, /must set up\s+pnpm and Node ≥ 22 before it runs/);
+  assert.match(ref, /`pnpm\/action-setup`/);
+  assert.match(ref, /`actions\/setup-node`/);
+  assert.match(ref, /`corepack enable`/);
   assert.match(ref, /`pnpm harness:validate`/);
   assert.match(ref, /`&& pnpm harness:validate`/);
   assert.match(ref, /Nothing is written without a yes: show the diff, wait for the Human's yes, then write/);

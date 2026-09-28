@@ -6,6 +6,8 @@ export interface Io {
   stdout: NodeJS.WritableStream;
   stderr: NodeJS.WritableStream;
   isTTY: boolean;
+  /** Environment variables; the real CLI passes `process.env`. */
+  env?: Record<string, string | undefined>;
   /** Replaces the interactive prompts; tests inject one, the real CLI leaves it unset. */
   prompts?: Prompter;
 }

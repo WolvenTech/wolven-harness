@@ -28,17 +28,17 @@ Run it at the git top-level of the target repo. In a terminal it opens with a sh
 
 It then shows a progress line per phase (copying skills and rules, wiring your runtimes, adding package scripts), a grouped summary of what it added and what it kept as it was, and numbered next steps. Answers are saved to `.wolven-harness.json`; press Ctrl-C at any prompt to stop with nothing written.
 
-Every question can be answered up front instead — flags beat `.wolven-harness.json`, which beats prompts — and the flags are required when stdout or stdin is not a terminal (CI, pipes). Without a terminal, `init` prints the same summary and next steps as plain text, with no colour or animation.
+Every question can be answered up front instead — flags beat `.wolven-harness.json`, which beats prompts — and `--git-host` and `--runtimes` are required when stdout or stdin is not a terminal (CI, pipes); `--skills` defaults to `ship` there. Without a terminal, `init` prints the same summary and next steps as plain text, with no colour or animation.
 
 | Flag | Effect |
 | --- | --- |
 | `--git-host <gh\|bit>` | Git host, skipping the question. |
 | `--runtimes <claude,codex,cursor>` | Comma-separated runtimes, skipping the question. |
-| `--skills <ship,discovery\|none>` | Extra skill sets, skipping the question; `none` installs core only. Without a terminal and without this flag or a saved choice, `ship` is installed. Re-running never removes an installed set. |
+| `--skills <ship,discovery\|none>` | Extra skill sets, skipping the question; `none` installs core only. Without a terminal and without this flag or a saved choice, `ship` is installed. Re-running never removes an installed set. A saved choice skips the question on later runs, so to add a set later, re-run with the full list, e.g. `--skills ship,discovery`. |
 | `--verbose` | Also list every file created and every file kept. |
 | `--debug` | Trace each step on stderr; same as `WOLVEN_HARNESS_DEBUG=1`. |
 
-`init` creates paths that are missing and leaves every other existing path byte-identical, then summarises what it added and which of your existing files it kept. Two exceptions: it adds `harness:validate` and `harness:comments` to an existing `package.json` when those script keys are absent, and every run rewrites `packageVersion` in `.wolven-harness.json`. It writes `WOLVEN.md`, `docs/` (writing profile, ADR folder with a starter ADR, prds, specs, notes, deferrals), `.qmd/index.yml`, `.agents/` (skills, rules, hooks — including the `comments.md` standing rule), and the runtime wiring below. It never creates or edits `AGENTS.md`: see [Setting up with harness-init](#setting-up-with-harness-init) below.
+`init` creates paths that are missing and leaves every other existing path byte-identical, then summarises what it added and which of your existing files it kept. Two exceptions: it adds `harness:validate` and `harness:comments` to an existing `package.json` when those script keys are absent, and every run rewrites `packageVersion` in `.wolven-harness.json`. It writes `WOLVEN.md`, `docs/` (writing profile, ADR folder with a starter ADR, prds, specs, notes, deferrals), `.qmd/index.yml` and `.qmd/.gitignore` (keeps QMD's local `index.sqlite*` out of git), `.agents/` (skills, rules, hooks — including the `comments.md` standing rule), and the runtime wiring below. It never creates or edits `AGENTS.md`: see [Setting up with harness-init](#setting-up-with-harness-init) below.
 
 ### `wolven-harness validate`
 

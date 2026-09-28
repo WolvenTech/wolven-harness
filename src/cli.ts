@@ -70,6 +70,7 @@ if (isMain()) {
     stdout: process.stdout,
     stderr: process.stderr,
     isTTY: Boolean(process.stdout.isTTY),
+    env: process.env,
   };
 
   main(process.argv.slice(2), io).then((code) => {

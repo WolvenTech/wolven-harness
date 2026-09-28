@@ -183,13 +183,8 @@ test('init-ui: the step trace is hidden by default and shown with --debug or WOL
   assert.match(debug.stderr, /\[wolven-harness:init\] step applyTemplates/);
   assert.doesNotMatch(debug.stdout, /wolven-harness:init\]/);
 
-  process.env.WOLVEN_HARNESS_DEBUG = '1';
-  try {
-    const viaEnv = await run(args, { cwd: await makeRepo({}, { git: true }) });
-    assert.match(viaEnv.stderr, /\[wolven-harness:init\] step wireRuntimes/);
-  } finally {
-    delete process.env.WOLVEN_HARNESS_DEBUG;
-  }
+  const viaEnv = await run(args, { cwd: await makeRepo({}, { git: true }), env: { WOLVEN_HARNESS_DEBUG: '1' } });
+  assert.match(viaEnv.stderr, /\[wolven-harness:init\] step wireRuntimes/);
 });
 
 test('init-ui: non-TTY output is plain text with the summary and next steps', async () => {

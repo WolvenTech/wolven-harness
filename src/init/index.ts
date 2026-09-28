@@ -53,7 +53,7 @@ export async function runInit(argv: string[], io: Io): Promise<number> {
     templatesDir: resolveTemplatesDir(),
     io,
   };
-  const debug = argv.includes('--debug') || process.env.WOLVEN_HARNESS_DEBUG === '1';
+  const debug = argv.includes('--debug') || io.env?.WOLVEN_HARNESS_DEBUG === '1';
   const verbose = argv.includes('--verbose');
   const ui = createUi(io);
 
