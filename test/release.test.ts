@@ -83,7 +83,7 @@ test('release-workflow: the workflow names no secret beyond GITHUB_TOKEN', async
   assert.deepEqual([...new Set(secrets)], ['GITHUB_TOKEN']);
 });
 
-test('release-workflow: the first release from a 0.0.0 manifest is 0.1.0 with minor bumps before 1.0', async () => {
+test('release-workflow: with no release tag yet the first release is 0.1.0, with minor bumps before 1.0', async () => {
   const config = await readJson('release-please-config.json');
   const manifest = await readJson('.release-please-manifest.json');
 
@@ -91,5 +91,7 @@ test('release-workflow: the first release from a 0.0.0 manifest is 0.1.0 with mi
   assert.equal(config['bump-minor-pre-major'], true);
   assert.equal(config['include-component-in-tag'], false);
   assert.ok(config.packages?.['.'], 'root package configured');
+  // why: release-please ignores the manifest's 0.0.0 until a tag exists and defaults the first release to 1.0.0.
+  assert.equal(config.packages['.']['initial-version'], '0.1.0');
   assert.deepEqual(manifest, { '.': '0.0.0' });
 });
