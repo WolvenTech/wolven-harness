@@ -94,6 +94,16 @@ test('init-prompts: unknown option exits without writing config', async () => {
   assert.equal(await configExists(dir), false);
 });
 
+test('init-prompts: a flag without a value does not use a saved default', async () => {
+  const config = JSON.stringify({ version: 1, gitHost: 'gh', runtimes: ['codex'] }) + '\n';
+  const dir = await makeRepo({ '.wolven-harness.json': config }, { git: true });
+  const result = await run(['init', '--runtimes'], { cwd: dir, isTTY: false });
+
+  assert.equal(result.code, 1);
+  assert.match(result.stderr, /missing value for --runtimes/);
+  assert.equal(await readFile(path.join(dir, '.wolven-harness.json'), 'utf8'), config);
+});
+
 test('init-prompts: no-tty missing only --runtimes names just that flag', async () => {
   const dir = await makeRepo({}, { git: true });
 

@@ -52,11 +52,15 @@ function parseFlags(argv: string[]): Flags {
     const arg = argv[i];
 
     if (arg === '--git-host') {
-      flags.gitHost = argv[++i];
+      const value = argv[++i];
+      if (value === undefined) throw new InitError('missing value for --git-host');
+      flags.gitHost = value;
     } else if (arg.startsWith('--git-host=')) {
       flags.gitHost = arg.slice('--git-host='.length);
     } else if (arg === '--runtimes') {
-      flags.runtimes = argv[++i];
+      const value = argv[++i];
+      if (value === undefined) throw new InitError('missing value for --runtimes');
+      flags.runtimes = value;
     } else if (arg.startsWith('--runtimes=')) {
       flags.runtimes = arg.slice('--runtimes='.length);
     } else {
