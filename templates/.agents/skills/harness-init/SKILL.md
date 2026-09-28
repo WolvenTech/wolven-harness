@@ -92,7 +92,9 @@ Fold the entry file into `AGENTS.md` in one of three modes — full, light,
 or mention-only — recommend one from what the repo already has, and let the
 Human pick. This step also checks for existing `AGENTS.md` content, an
 overlapping router or rule, a `CLAUDE.md` that should import `AGENTS.md`,
-and any harness path caught by `.gitignore`. See
+any harness path an ignore rule keeps from other clones (proposing
+re-include rules), and existing content in the five doc folders the
+writing profile governs. See
 [references/entry-modes.md](references/entry-modes.md).
 
 Skipped on a re-run once `WOLVEN.md` is gone or `AGENTS.md` already

@@ -112,7 +112,7 @@ first, but the Human always picks:
 
 ## Before writing
 
-Alongside picking a mode, step 0 runs four checks. Each one is a question
+Alongside picking a mode, step 0 runs five checks. Each one is a question
 to the Human when it finds something — never a silent write.
 
 1. **Existing content stays put.** Whatever `AGENTS.md` already holds is
@@ -125,9 +125,51 @@ to the Human when it finds something — never a silent write.
 3. **`CLAUDE.md` import offer.** When a `CLAUDE.md` exists and does not
    import `AGENTS.md`, the agent offers to add an `@AGENTS.md` line to it.
    The Human's no leaves `CLAUDE.md` untouched.
-4. **`git check-ignore` on harness paths.** Run `git check-ignore` (for
-   example `git check-ignore -v`) against `.agents/`, `docs/`, and the
-   wired runtime paths (for example `.claude/skills` and `CLAUDE.md` for
-   the claude runtime). A harness path caught by `.gitignore` is reported
-   together with the matching `.gitignore` line the check printed, and the
-   Human decides whether to keep or drop the ignore.
+4. **Harness paths must reach other clones.** `harness:validate` fails
+   with `harness-ignored` for each harness path an ignore rule excludes —
+   `.agents/skills`, `.agents/rules`, `docs`, the wired runtime paths such
+   as `.claude/skills` — naming the rule and the file it came from (run
+   `git check-ignore -v <path>` to see it again). An ignored harness path
+   exists on this machine only: teammates and CI clone an `AGENTS.md` that
+   cites skills and rules they don't have. A repo often ignores these
+   folders on purpose, since personal assistant settings live there too,
+   so never delete its ignore lines. Propose re-include rules appended
+   after them — they share the harness paths and keep everything else in
+   those folders ignored — show the diff, and write them only on the
+   Human's yes. If the Human declines, say plainly that `harness:validate`
+   stays red until those paths are shared. See "Re-include rules" below.
+5. **Existing doc folders.** List any content the harness did not write
+   under `docs/adrs/`, `docs/prds/`, `docs/specs/`, `docs/notes/`, or
+   `docs/deferrals/`. `harness:validate` holds those five folders to the
+   writing profile, so a flat or frontmatter-less file there fails; the
+   rest of `docs/` is left alone. For each one, ask the Human whether to
+   reshape it into the doc-folder layout with frontmatter or move it out
+   of those five folders. An ADR already in `docs/adrs/` without
+   frontmatter takes the frontmatter and status rules of step 1, in place.
+   Never move or rewrite one without the Human's answer.
+
+## Re-include rules
+
+Git cannot re-include a path inside a folder it excludes, so the rules
+first re-include the folder, then ignore its contents again, then
+re-include each harness path. For the common case where a repo ignores the
+whole `.agents/` and `.claude/` folders, append:
+
+```gitignore
+# Wolven harness: shared skills and rules stay tracked
+!.agents/
+.agents/*
+!.agents/skills/
+!.agents/rules/
+!.agents/hooks/
+!.claude/
+.claude/*
+!.claude/skills
+```
+
+Adapt it to the paths `harness:validate` named, and keep it after the
+lines it overrides — the last matching rule wins. `!.claude/skills` has no
+trailing slash on purpose: it is a symlink, which git matches as a file.
+A rule from a personal excludes file (`.git/info/exclude`, or the global
+excludes file) lives on the Human's machine, not in the repo: point it out
+rather than editing it.

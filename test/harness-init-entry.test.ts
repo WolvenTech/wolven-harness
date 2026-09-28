@@ -1,11 +1,14 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { execFile } from 'node:child_process';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { promisify } from 'node:util';
 import { readSkill } from './helpers/skill-contract.js';
 import { makeRepo, run } from './helpers/fixture.js';
 
+const execFileAsync = promisify(execFile);
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, '..');
 
@@ -95,15 +98,67 @@ test('step0-modes: the recommendation rule names both signals and leaves the pic
   assert.match(flat, /the human always picks/i);
 });
 
-test('step0-modes: the four before-writing checks are all present', async () => {
+test('step0-modes: the five before-writing checks are all present', async () => {
   const flat = flatten(await readEntryModes());
 
+  assert.match(flat, /step 0 runs five checks/i);
   assert.match(flat, /never removed or rewritten without the human's OK/i);
   assert.match(flat, /overlaps.*(?:questions|question).*one at a time/i);
   assert.match(flat, /`?CLAUDE\.md`? .*does not import `?AGENTS\.md`?.*offers to add an `?@AGENTS\.md`? line/i);
-  assert.match(flat, /`?git check-ignore`?/i);
-  assert.match(flat, /`?\.gitignore`? line/i);
-  assert.match(flat, /the human decides/i);
+  assert.match(flat, /`?git check-ignore -v <path>`?/i);
+  assert.match(flat, /List any content the harness did not write/i);
+});
+
+test('step0-modes: an ignored harness path gets re-include rules on a yes, never a deleted ignore line', async () => {
+  const flat = flatten(await readEntryModes());
+
+  assert.match(flat, /fails with `harness-ignored` for each harness path an ignore rule excludes/i);
+  assert.match(flat, /never delete its ignore lines/i);
+  assert.match(flat, /Propose re-include rules appended after them/i);
+  assert.match(flat, /write them only on the human's yes/i);
+  assert.match(flat, /stays red until those paths are shared/i);
+  assert.match(flat, /## Re-include rules/);
+  assert.match(flat, /point it out rather than editing it/i);
+});
+
+test('step0-modes: existing content in the five doc folders is a question, never a silent move', async () => {
+  const flat = flatten(await readEntryModes());
+
+  assert.match(flat, /`docs\/adrs\/`, `docs\/prds\/`, `docs\/specs\/`, `docs\/notes\/`, or `docs\/deferrals\/`/);
+  assert.match(flat, /the rest of `docs\/` is left alone/i);
+  assert.match(flat, /reshape it into the doc-folder layout with frontmatter or move it out of those five folders/i);
+  assert.match(flat, /never move or rewrite one without the human's answer/i);
+});
+
+test('step0-fixture: the re-include block shares the harness paths and keeps the rest of the folders ignored', async () => {
+  const content = await readEntryModes();
+  const block = content.match(/```gitignore\n([\s\S]*?)```/)?.[1];
+  assert.ok(block, 'expected one fenced gitignore block');
+
+  const skill = '---\nname: foo\ndescription: does stuff\n---\n\n# Foo\n';
+  const files: Record<string, string> = {
+    '.agents/skills/foo/SKILL.md': skill,
+    '.agents/rules/local.md': '# Local rule\n',
+    '.agents/hooks/README.md': '# Hooks\n',
+    '.agents/private/notes.md': 'mine\n',
+    '.claude/skills/foo/SKILL.md': skill,
+    '.claude/settings.local.json': '{}\n',
+  };
+  const ignored = 'node_modules/\n.claude/\n.agents/\n';
+
+  const before = await makeRepo({ '.gitignore': ignored, ...files }, { git: true });
+  const beforeResult = await run(['validate'], { cwd: before });
+  assert.match(beforeResult.stdout + beforeResult.stderr, /harness-ignored\] \.agents\/skills/);
+
+  const after = await makeRepo({ '.gitignore': `${ignored}\n${block}`, ...files }, { git: true });
+  const afterResult = await run(['validate'], { cwd: after });
+  assert.equal(afterResult.code, 0, afterResult.stdout + afterResult.stderr);
+  assert.doesNotMatch(afterResult.stdout + afterResult.stderr, /harness-ignored/);
+
+  const { stdout: tracked } = await execFileAsync('git', ['ls-files'], { cwd: after });
+  assert.match(tracked, /^\.agents\/skills\/foo\/SKILL\.md$/m);
+  assert.match(tracked, /^\.claude\/skills\/foo\/SKILL\.md$/m);
+  assert.doesNotMatch(tracked, /\.agents\/private\/|settings\.local\.json/);
 });
 
 test('step0-fixture: an existing AGENTS.md plus the light block passes validate with no step0-pending or rule-missing', async () => {

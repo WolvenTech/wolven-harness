@@ -182,6 +182,77 @@ test('stub-warn: a stub missing its description raises both skill-frontmatter an
   assert.equal((output.match(/skill-stub-open/g) ?? []).length, 1);
 });
 
+const SKILL = '---\nname: foo\ndescription: does stuff\n---\n\n# Foo\n';
+
+test('harness-ignored: an ignored .agents/ fails once per harness path present, naming the rule', async () => {
+  const dir = await makeRepo(
+    {
+      '.gitignore': 'node_modules/\n.agents/\n',
+      '.agents/skills/foo/SKILL.md': SKILL,
+      '.agents/rules/present.md': '# Present rule\n',
+    },
+    { git: true },
+  );
+
+  const result = await run(['validate'], { cwd: dir });
+  const output = result.stdout + result.stderr;
+
+  assert.notEqual(result.code, 0);
+  assert.equal((output.match(/harness-ignored/g) ?? []).length, 2);
+  assert.match(output, /harness-ignored\] \.agents\/skills: excluded by ignore rule "\.agents\/" \(\.gitignore:2\)/);
+  assert.match(output, /harness-ignored\] \.agents\/rules:/);
+});
+
+test('harness-ignored: re-include rules after the ignore clear it and keep the rest of the folder ignored', async () => {
+  const dir = await makeRepo(
+    {
+      '.gitignore': '.agents/\n.claude/\n\n!.agents/\n.agents/*\n!.agents/skills/\n!.agents/rules/\n!.claude/\n.claude/*\n!.claude/skills\n',
+      '.agents/skills/foo/SKILL.md': SKILL,
+      '.agents/rules/present.md': '# Present rule\n',
+      '.agents/private/notes.md': 'mine\n',
+      '.claude/skills/foo/SKILL.md': SKILL,
+      '.claude/settings.local.json': '{}\n',
+    },
+    { git: true },
+  );
+
+  const result = await run(['validate'], { cwd: dir });
+
+  assert.equal(result.code, 0, result.stdout + result.stderr);
+  assert.doesNotMatch(result.stdout + result.stderr, /harness-ignored/);
+});
+
+test('harness-ignored: an ignored docs/ fails', async () => {
+  const dir = await makeRepo(
+    {
+      '.gitignore': 'docs/\n',
+      'docs/WRITING-PROFILE.md': '# Writing profile\n',
+    },
+    { git: true },
+  );
+
+  const result = await run(['validate'], { cwd: dir });
+  const output = result.stdout + result.stderr;
+
+  assert.notEqual(result.code, 0);
+  assert.match(output, /harness-ignored\] docs: excluded by ignore rule "docs\/" \(\.gitignore:1\)/);
+});
+
+test('harness-ignored: no ignore rules over harness paths raise nothing', async () => {
+  const dir = await makeRepo(
+    {
+      '.gitignore': 'node_modules/\ndist/\n',
+      '.agents/skills/foo/SKILL.md': SKILL,
+    },
+    { git: true },
+  );
+
+  const result = await run(['validate'], { cwd: dir });
+
+  assert.equal(result.code, 0, result.stdout + result.stderr);
+  assert.doesNotMatch(result.stdout + result.stderr, /harness-ignored/);
+});
+
 // --- step0-pending ---
 
 test('step0-pending: fresh init warns, and AGENTS.md mentioning WOLVEN.md clears it', async () => {
