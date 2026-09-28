@@ -43,7 +43,7 @@ pnpm add -D @wolventech/wolven-harness
 pnpm exec wolven-harness init
 ```
 
-`init` warns when the package is missing from `devDependencies`, and records the installed version as `packageVersion` in `.wolven-harness.json`.
+`init` warns when the package is missing from `devDependencies`, and records its own version as `packageVersion` in `.wolven-harness.json` — the version of the `init` that ran, which is the installed one when you run it with `pnpm exec`.
 
 ## Usage
 

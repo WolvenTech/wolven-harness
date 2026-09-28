@@ -115,32 +115,51 @@ export async function readConfig(root: string): Promise<Config | undefined> {
   return config;
 }
 
+/** Top-level keys of the existing `.wolven-harness.json`, in file order; empty when absent or unreadable. */
+async function existingKeyOrder(file: string): Promise<string[]> {
+  try {
+    const parsed: unknown = JSON.parse(await readFile(file, 'utf8'));
+    if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) return [];
+    return Object.keys(parsed);
+  } catch {
+    return [];
+  }
+}
+
 /**
  * Writes `.wolven-harness.json` at `root` as 2-space JSON with a trailing
  * newline: `{ "version", "gitHost", "runtimes" }`, plus `packageVersion` and
  * `ignore` when set, plus every key in `config.extra` (e.g. `comments`).
- * Callers are responsible for carrying an existing `ignore`/`extra` value
- * forward — `writeConfig` never invents or drops them itself, it only
+ * Keys already in the file keep their order; new keys follow in the order
+ * above. Callers are responsible for carrying an existing `ignore`/`extra`
+ * value forward — `writeConfig` never invents or drops them itself, it only
  * writes what it is given.
  */
 export async function writeConfig(root: string, config: Config): Promise<void> {
   const file = path.join(root, CONFIG_FILENAME);
 
-  const body: Record<string, unknown> = {
+  const fresh: Record<string, unknown> = {
     version: config.version,
     gitHost: config.gitHost,
     runtimes: config.runtimes,
   };
   if (config.packageVersion !== undefined) {
-    body.packageVersion = config.packageVersion;
+    fresh.packageVersion = config.packageVersion;
   }
   if (config.ignore !== undefined) {
-    body.ignore = config.ignore;
+    fresh.ignore = config.ignore;
   }
   if (config.extra !== undefined) {
     for (const [key, value] of Object.entries(config.extra)) {
-      body[key] = value;
+      fresh[key] = value;
     }
+  }
+
+  // why: a re-run that only refreshes packageVersion should diff on that line alone.
+  const order = [...(await existingKeyOrder(file)).filter((key) => Object.hasOwn(fresh, key)), ...Object.keys(fresh)];
+  const body: Record<string, unknown> = {};
+  for (const key of order) {
+    if (!Object.hasOwn(body, key)) body[key] = fresh[key];
   }
 
   const json = `${JSON.stringify(body, null, 2)}\n`;

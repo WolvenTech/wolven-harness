@@ -53,6 +53,23 @@ test('init-devdep: no warning when the dep is already in devDependencies', async
   assert.doesNotMatch(result.stderr, /@wolventech\/wolven-harness/);
 });
 
+test('init-devdep: a dep listed under dependencies gets a move hint, not a second add', async () => {
+  const pkg = {
+    name: 'consumer',
+    version: '1.0.0',
+    dependencies: { '@wolventech/wolven-harness': '^0.1.0' },
+  };
+  const dir = await makeRepo({ 'package.json': `${JSON.stringify(pkg, null, 2)}\n` }, { git: true });
+
+  const result = await run(['init', '--git-host', 'gh', '--runtimes', 'claude'], { cwd: dir });
+
+  assert.equal(result.code, 0, result.stderr);
+  assert.match(
+    result.stderr,
+    /@wolventech\/wolven-harness is in dependencies, not devDependencies — run "pnpm remove @wolventech\/wolven-harness && pnpm add -D @wolventech\/wolven-harness"/,
+  );
+});
+
 test('init-devdep: no warning without a package.json', async () => {
   const dir = await makeRepo({}, { git: true });
 
@@ -96,4 +113,26 @@ test('init-config: comments, ignore, and an unknown key survive a re-run unchang
 
   assert.equal(packageVersion, await ownPackageVersion());
   assert.deepEqual(rest, existing);
+});
+
+test('init-config: a re-run keeps the existing key order and adds packageVersion after it', async () => {
+  const existing = {
+    comments: { paths: ['src/**'] },
+    runtimes: ['claude'],
+    someUnknownKey: true,
+    version: 1,
+    ignore: ['test/**'],
+    gitHost: 'gh',
+  };
+  const dir = await makeRepo(
+    { '.wolven-harness.json': `${JSON.stringify(existing)}\n` },
+    { git: true },
+  );
+
+  const result = await run(['init'], { cwd: dir, isTTY: false });
+
+  assert.equal(result.code, 0, result.stderr);
+
+  const config = await readConfigFile(dir);
+  assert.deepEqual(Object.keys(config), [...Object.keys(existing), 'packageVersion']);
 });

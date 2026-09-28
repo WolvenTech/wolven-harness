@@ -9,25 +9,32 @@ export interface OwnPackage {
   version: string;
 }
 
+let ownPackage: Promise<OwnPackage> | undefined;
+
 /**
  * Resolves this package's own `package.json`, relative to this module the
  * same way `resolveTemplatesDir` (in `src/init/index.ts`) resolves
  * `templates/` — both sit two directories below the package root, so this
- * works both under `tsx` and from the built `dist/`.
+ * works both under `tsx` and from the built `dist/`. Read once per process;
+ * later calls share the first result.
  */
-export async function resolveOwnPackage(): Promise<OwnPackage> {
-  const here = path.dirname(fileURLToPath(import.meta.url));
-  const pkgPath = path.resolve(here, '..', '..', 'package.json');
-  const raw = await readFile(pkgPath, 'utf8');
-  const pkg = JSON.parse(raw) as { name: string; version: string };
-  return { name: pkg.name, version: pkg.version };
+export function resolveOwnPackage(): Promise<OwnPackage> {
+  ownPackage ??= (async () => {
+    const here = path.dirname(fileURLToPath(import.meta.url));
+    const pkgPath = path.resolve(here, '..', '..', 'package.json');
+    const raw = await readFile(pkgPath, 'utf8');
+    const pkg = JSON.parse(raw) as { name: string; version: string };
+    return { name: pkg.name, version: pkg.version };
+  })();
+  return ownPackage;
 }
 
 /**
  * Warns on `ctx.io.stderr` when the target root has a `package.json` and
- * this package is not listed in its `devDependencies`. Writes nothing to
- * the file itself — a missing `package.json`, or the dependency already
- * present, is silent.
+ * this package is not in its `devDependencies`: listed under `dependencies`
+ * or `optionalDependencies`, the warning says to move it; absent, to add
+ * it. Writes nothing to the file itself — a missing `package.json`, or the
+ * dependency already in `devDependencies`, is silent.
  */
 export async function warnMissingDevDependency(ctx: Context): Promise<void> {
   const pkgPath = path.join(ctx.root, 'package.json');
@@ -40,10 +47,17 @@ export async function warnMissingDevDependency(ctx: Context): Promise<void> {
     throw err;
   }
 
-  const pkg = JSON.parse(raw) as { devDependencies?: Record<string, unknown> };
+  const pkg = JSON.parse(raw) as Record<string, Record<string, unknown> | undefined>;
   const { name } = await resolveOwnPackage();
+  const has = (field: string): boolean => Object.prototype.hasOwnProperty.call(pkg[field] ?? {}, name);
 
-  if (pkg.devDependencies && Object.prototype.hasOwnProperty.call(pkg.devDependencies, name)) {
+  if (has('devDependencies')) return;
+
+  const otherField = ['dependencies', 'optionalDependencies'].find(has);
+  if (otherField !== undefined) {
+    ctx.io.stderr.write(
+      `wolven-harness init: ${name} is in ${otherField}, not devDependencies — run "pnpm remove ${name} && pnpm add -D ${name}".\n`,
+    );
     return;
   }
 
