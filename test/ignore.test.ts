@@ -69,3 +69,17 @@ test('ignore: the package repo\'s own .wolven-harness.json sets ["templates/**",
 
   assert.deepEqual(config.ignore, ['templates/**', 'test/**']);
 });
+
+test('ignore: an invalid .wolven-harness.json fails validate with one stderr line, not a stack trace', async () => {
+  const dir = await makeRepo(
+    {
+      '.wolven-harness.json': JSON.stringify({ version: 1, gitHost: 'gh', runtimes: ['codex'], packageVersion: 1 }),
+    },
+    { git: true },
+  );
+
+  const result = await run(['validate'], { cwd: dir });
+
+  assert.equal(result.code, 1);
+  assert.equal(result.stderr, 'wolven-harness validate: .wolven-harness.json "packageVersion" must be a string\n');
+});

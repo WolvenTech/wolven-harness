@@ -12,7 +12,17 @@ export interface Config {
   gitHost: GitHost;
   runtimes: Runtime[];
   ignore?: string[];
+  /** This package's own version, resolved and rewritten on every `init` run. */
+  packageVersion?: string;
+  /**
+   * Any other top-level keys present in the file (e.g. `comments`).
+   * `readConfig`/`writeConfig` don't interpret these — they only round-trip
+   * them so a re-run doesn't drop keys other steps or a human added.
+   */
+  extra?: Record<string, unknown>;
 }
+
+const KNOWN_KEYS = new Set(['version', 'gitHost', 'runtimes', 'ignore', 'packageVersion']);
 
 export const CONFIG_FILENAME = '.wolven-harness.json';
 
@@ -35,8 +45,9 @@ function isRuntimeArray(value: unknown): value is Runtime[] {
  * Reads and validates `.wolven-harness.json` from `root`. Returns
  * `undefined` when the file is absent. Throws `InitError` when the file
  * exists but is not valid JSON, or its shape is invalid (`version` is not
- * `1`, `gitHost`/`runtimes` are missing or hold unknown values, or `ignore`
- * is present but not an array of strings).
+ * `1`, `gitHost`/`runtimes` are missing or hold unknown values, `ignore` is
+ * present but not an array of strings, or `packageVersion` is present but
+ * not a string). Any other top-level key is preserved in `extra`, untyped.
  */
 export async function readConfig(root: string): Promise<Config | undefined> {
   const file = path.join(root, CONFIG_FILENAME);
@@ -89,26 +100,66 @@ export async function readConfig(root: string): Promise<Config | undefined> {
     config.ignore = obj.ignore as string[];
   }
 
+  if (obj.packageVersion !== undefined) {
+    if (typeof obj.packageVersion !== 'string') {
+      throw new InitError(`${CONFIG_FILENAME} "packageVersion" must be a string`);
+    }
+    config.packageVersion = obj.packageVersion;
+  }
+
+  const extraEntries = Object.entries(obj).filter(([key]) => !KNOWN_KEYS.has(key));
+  if (extraEntries.length > 0) {
+    config.extra = Object.fromEntries(extraEntries);
+  }
+
   return config;
+}
+
+/** Top-level keys of the existing `.wolven-harness.json`, in file order; empty when absent or unreadable. */
+async function existingKeyOrder(file: string): Promise<string[]> {
+  try {
+    const parsed: unknown = JSON.parse(await readFile(file, 'utf8'));
+    if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) return [];
+    return Object.keys(parsed);
+  } catch {
+    return [];
+  }
 }
 
 /**
  * Writes `.wolven-harness.json` at `root` as 2-space JSON with a trailing
- * newline: `{ "version", "gitHost", "runtimes" }`, plus `ignore` when
- * `config.ignore` is set. Callers are responsible for carrying an existing
- * `ignore` value forward — `writeConfig` never invents or drops it itself,
- * it only writes what it is given.
+ * newline: `{ "version", "gitHost", "runtimes" }`, plus `packageVersion` and
+ * `ignore` when set, plus every key in `config.extra` (e.g. `comments`).
+ * Keys already in the file keep their order; new keys follow in the order
+ * above. Callers are responsible for carrying an existing `ignore`/`extra`
+ * value forward — `writeConfig` never invents or drops them itself, it only
+ * writes what it is given.
  */
 export async function writeConfig(root: string, config: Config): Promise<void> {
   const file = path.join(root, CONFIG_FILENAME);
 
-  const body: Record<string, unknown> = {
+  const fresh: Record<string, unknown> = {
     version: config.version,
     gitHost: config.gitHost,
     runtimes: config.runtimes,
   };
+  if (config.packageVersion !== undefined) {
+    fresh.packageVersion = config.packageVersion;
+  }
   if (config.ignore !== undefined) {
-    body.ignore = config.ignore;
+    fresh.ignore = config.ignore;
+  }
+  if (config.extra !== undefined) {
+    for (const [key, value] of Object.entries(config.extra)) {
+      fresh[key] = value;
+    }
+  }
+
+  // why: a re-run that only refreshes packageVersion should diff on that line alone.
+  const order = [...(await existingKeyOrder(file)).filter((key) => Object.hasOwn(fresh, key)), ...Object.keys(fresh)];
+  const body: Record<string, unknown> = {};
+  for (const key of order) {
+    if (!Object.hasOwn(body, key)) body[key] = fresh[key];
   }
 
   const json = `${JSON.stringify(body, null, 2)}\n`;

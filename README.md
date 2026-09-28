@@ -4,14 +4,46 @@ AI-assisted dev harness: scaffolds an `AGENTS.md`-based `.agents/` skills tree, 
 
 ## Install
 
-Requires Node 22 or later and git. The package is not published yet; until it is, build it from a clone and run the CLI directly:
+Requires Node 22 or later and git.
+
+The package is published privately to GitHub Packages as `@wolventech/wolven-harness`.
+
+Commit these two lines in an `.npmrc` at the root of the target repo; neither line holds a secret:
+
+```
+@wolventech:registry=https://npm.pkg.github.com
+//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}
+```
+
+Locally, `NODE_AUTH_TOKEN` comes from a token with the `read:packages` scope:
 
 ```sh
-git clone https://github.com/WolvenTech/wolven-harness.git
-cd wolven-harness && pnpm install && pnpm build
-# then, inside the target repo:
-node /path/to/wolven-harness/dist/cli.js init
+gh auth refresh -s read:packages
+export NODE_AUTH_TOKEN=$(gh auth token)
 ```
+
+In GitHub Actions, every job that installs the package needs `permissions: packages: read` and `NODE_AUTH_TOKEN` set from `GITHUB_TOKEN`:
+
+```yaml
+permissions:
+  packages: read
+steps:
+  - uses: actions/checkout@v4
+  - run: pnpm install
+    env:
+      NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+```
+
+The target repo also needs Actions read access on the package: from the package's settings page, use "Manage Actions access" to grant it.
+
+Then add the package and run `init`:
+
+```sh
+pnpm add -D @wolventech/wolven-harness
+pnpm exec wolven-harness init
+```
+
+`init` warns when the package is missing from `devDependencies`, and records its own version as `packageVersion` in `.wolven-harness.json` — the version of the `init` that ran, which is the installed one when you run it with `pnpm exec`.
 
 ## Usage
 
@@ -72,3 +104,38 @@ is the exception and stays flat: `docs/adrs/adr-NNN-<slug>.md`. See
 - **Cursor** ([docs](https://cursor.com/docs/context/skills)) also reads `.agents/skills/` natively, so `init` writes nothing for it either. Cursor additionally reads the legacy `.claude/skills/` path, so running `init --runtimes claude,cursor` together can list a skill twice for Cursor — accepted.
 
 v0 supports macOS and Linux only: runtime wiring requires filesystem symlinks, and Windows symlinks need Developer Mode or admin rights, which `init` does not attempt to work around.
+
+## Release
+
+This section is for maintainers of this repo.
+
+PR titles must be Conventional Commits; a PR-title check enforces it.
+
+PRs are squash-merged, with the PR title becoming the commit message on `main`.
+
+release-please watches `main` and keeps a release PR open with the version bump and a `CHANGELOG.md` entry drawn from those commits.
+
+Before 1.0, a `feat` commit or a breaking change bumps the minor version, and a `fix` bumps the patch.
+
+Merging the release PR tags `vX.Y.Z`, creates the GitHub Release, and publishes the package.
+
+Close and reopen the release PR before merging it: it was opened by `GITHUB_TOKEN`, which starts no workflows, so the required title check only runs after the reopen.
+
+## Contributing
+
+Clone the repo, install, build, and test:
+
+```sh
+git clone https://github.com/WolvenTech/wolven-harness.git
+cd wolven-harness
+pnpm install
+pnpm build
+pnpm test
+```
+
+Run the CLI from the clone inside a target repo:
+
+```sh
+cd /path/to/target-repo
+node /path/to/wolven-harness/dist/cli.js init
+```
