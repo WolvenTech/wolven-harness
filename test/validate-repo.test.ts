@@ -84,7 +84,7 @@ test('ignore-guard: ignored files are dropped from ctx.files', async () => {
   );
 
   const root = await resolveGitRoot(dir);
-  const ctx = await buildRepoContext(root, { ignoreEntries: ['vendor/**'], verbose: false });
+  const ctx = await buildRepoContext(root, { ignoreEntries: ['vendor/**'] });
 
   assert.ok(!ctx.files.some((f) => f.startsWith('vendor/')), 'no vendor files in ctx.files');
   assert.ok(ctx.files.includes('README.md'));

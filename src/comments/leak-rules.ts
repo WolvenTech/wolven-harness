@@ -7,13 +7,13 @@ export type LeakKind =
   | 'planning-id'
   | 'todo';
 
-export type LeakRule = {
+type LeakRule = {
   kind: LeakKind;
   pattern: RegExp;
   says: string;
 };
 
-export const LEAK_RULES: readonly LeakRule[] = [
+const LEAK_RULES: readonly LeakRule[] = [
   {
     kind: 'change-narration',
     pattern: /\b(?:used to|previously)\b/i,
@@ -151,9 +151,9 @@ export const LEAK_RULES: readonly LeakRule[] = [
   },
 ] as const;
 
-export type Leak = { kind: LeakKind; says: string; match: string };
+type Leak = { kind: LeakKind; says: string; match: string };
 
-export function findLeaks(blockText: string): Leak[] {
+function findLeaks(blockText: string): Leak[] {
   const leaks: Leak[] = [];
   for (const rule of LEAK_RULES) {
     const found = rule.pattern.exec(blockText);

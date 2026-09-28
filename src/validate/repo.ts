@@ -1,20 +1,17 @@
-import { execFile } from 'node:child_process';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
-import { promisify } from 'node:util';
-
-const execFileAsync = promisify(execFile);
+import { execGit, gitTopLevel } from '../git.js';
+import { isUnderDir } from '../path-exists.js';
 
 /**
  * Everything the check modules need: the git root, the tracked/non-ignored
  * file list, the ignore entries that were applied (and how many files they
- * dropped), the `--verbose` flag, and a root-relative file reader.
+ * dropped), and a root-relative file reader.
  */
 export interface RepoContext {
   root: string;
   files: string[];
   ignore: { entries: string[]; count: number };
-  verbose: boolean;
   read(rel: string): Promise<string>;
 }
 
@@ -24,19 +21,15 @@ export interface RepoContext {
  * tree.
  */
 export async function resolveGitRoot(cwd: string): Promise<string> {
-  const { stdout } = await execFileAsync('git', ['rev-parse', '--show-toplevel'], { cwd });
-  return stdout.trim();
+  return gitTopLevel(cwd);
 }
 
 /**
  * Lists every tracked file under `root` via `git ls-files -z` (no shell),
  * root-relative and sorted.
  */
-export async function listTrackedFiles(root: string): Promise<string[]> {
-  const { stdout } = await execFileAsync('git', ['ls-files', '-z'], {
-    cwd: root,
-    maxBuffer: 64 * 1024 * 1024,
-  });
+async function listTrackedFiles(root: string): Promise<string[]> {
+  const { stdout } = await execGit(root, ['ls-files', '-z']);
 
   return stdout
     .split('\0')
@@ -44,14 +37,9 @@ export async function listTrackedFiles(root: string): Promise<string[]> {
     .sort();
 }
 
-function isUnderIgnoredDir(file: string, dirs: string[]): boolean {
-  return dirs.some((dir) => file.startsWith(`${dir}/`));
-}
-
-export interface BuildRepoContextOptions {
+interface BuildRepoContextOptions {
   /** Valid `ignore` entries, each already checked to end in `/**`. */
   ignoreEntries: string[];
-  verbose: boolean;
 }
 
 /**
@@ -63,14 +51,13 @@ export async function buildRepoContext(root: string, opts: BuildRepoContextOptio
   const allFiles = await listTrackedFiles(root);
   const dirs = opts.ignoreEntries.map((entry) => entry.slice(0, -'/**'.length));
 
-  const files = allFiles.filter((f) => !isUnderIgnoredDir(f, dirs));
+  const files = allFiles.filter((f) => !dirs.some((dir) => isUnderDir(f, dir)));
   const ignoredCount = allFiles.length - files.length;
 
   return {
     root,
     files,
     ignore: { entries: opts.ignoreEntries, count: ignoredCount },
-    verbose: opts.verbose,
     read: (rel: string) => readFile(path.join(root, rel), 'utf8'),
   };
 }

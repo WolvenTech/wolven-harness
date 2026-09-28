@@ -26,6 +26,19 @@ function legacyNumber(rel: string): string | undefined {
   return basename.match(LEGACY_BASENAME_RE)?.[1];
 }
 
+/** Shared scan for {@link detectLegacy} and {@link detectArchivedLegacy}; `archived` selects which side of an `archived` path segment. */
+function collectLegacy(ctx: RepoContext, archived: boolean): LegacyAdr[] {
+  const results: LegacyAdr[] = [];
+
+  for (const rel of ctx.files) {
+    if (isArchivedPath(rel) !== archived) continue;
+    const number = legacyNumber(rel);
+    if (number !== undefined) results.push({ number, path: rel });
+  }
+
+  return results.sort((a, b) => a.path.localeCompare(b.path));
+}
+
 /**
  * Detects legacy ADRs: every entry in `ctx.files`
  * (already tracked, non-ignored, root-relative, POSIX) outside
@@ -36,16 +49,8 @@ function legacyNumber(rel: string): string | undefined {
  * the whole rule. Results are sorted by path. `claims.ts` uses them to
  * downgrade legacy-only claims to warnings.
  */
-export async function detectLegacy(ctx: RepoContext): Promise<LegacyAdr[]> {
-  const results: LegacyAdr[] = [];
-
-  for (const rel of ctx.files) {
-    if (isArchivedPath(rel)) continue;
-    const number = legacyNumber(rel);
-    if (number !== undefined) results.push({ number, path: rel });
-  }
-
-  return results.sort((a, b) => a.path.localeCompare(b.path));
+export function detectLegacy(ctx: RepoContext): LegacyAdr[] {
+  return collectLegacy(ctx, false);
 }
 
 /**
@@ -54,14 +59,6 @@ export async function detectLegacy(ctx: RepoContext): Promise<LegacyAdr[]> {
  * `claims.ts` resolves a claim to one only when no live ADR has its number.
  * Results are sorted by path.
  */
-export async function detectArchivedLegacy(ctx: RepoContext): Promise<LegacyAdr[]> {
-  const results: LegacyAdr[] = [];
-
-  for (const rel of ctx.files) {
-    if (!isArchivedPath(rel)) continue;
-    const number = legacyNumber(rel);
-    if (number !== undefined) results.push({ number, path: rel });
-  }
-
-  return results.sort((a, b) => a.path.localeCompare(b.path));
+export function detectArchivedLegacy(ctx: RepoContext): LegacyAdr[] {
+  return collectLegacy(ctx, true);
 }

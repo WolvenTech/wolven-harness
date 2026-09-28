@@ -1,6 +1,6 @@
 import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
-import { parse } from 'yaml';
+import { classifyFrontmatter, skillIdentity } from '../frontmatter.js';
 import type { Context } from './types.js';
 
 const SKILLS_TABLE_PLACEHOLDER = '{{skills_table}}';
@@ -24,17 +24,9 @@ async function readSkillFrontmatter(skillMdPath: string): Promise<SkillFrontmatt
     return undefined;
   }
 
-  const match = raw.match(/^---\n([\s\S]*?)\n---/);
-  if (!match) return undefined;
-
-  let parsed: Record<string, unknown> | null | undefined;
-  try {
-    parsed = parse(match[1]) as Record<string, unknown> | null | undefined;
-  } catch {
-    return undefined;
-  }
-  const name = typeof parsed?.name === 'string' ? parsed.name : undefined;
-  const description = typeof parsed?.description === 'string' ? parsed.description : undefined;
+  const classified = classifyFrontmatter(raw);
+  if (classified.kind !== 'ok') return undefined;
+  const { name, description } = skillIdentity(classified.value);
   if (!name || !description) return undefined;
 
   return { name, description };

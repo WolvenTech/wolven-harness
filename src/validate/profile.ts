@@ -1,8 +1,8 @@
 import { readdir } from 'node:fs/promises';
 import path from 'node:path';
-import { parse } from 'yaml';
 import type { RepoContext } from './repo.js';
 import type { Finding } from './report.js';
+import { parseFrontmatter } from '../frontmatter.js';
 
 /** Maps each doc-folder to the singular `type` its frontmatter must carry. */
 const DIR_TYPE: Record<string, string> = {
@@ -30,32 +30,10 @@ const KEBAB_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*\.md$/;
 /** `adr-NNN-<kebab-slug>.md` — a three-digit number, dash, kebab slug. */
 const ADR_NAME_RE = /^adr-\d{3}-[a-z0-9]+(?:-[a-z0-9]+)*\.md$/;
 
-const FRONTMATTER_RE = /^---\n([\s\S]*?)\n---/;
-
 const REQUIRED_FIELDS = ['type', 'title', 'description', 'status'] as const;
 
 function isNonEmptyString(value: unknown): value is string {
   return typeof value === 'string' && value.length > 0;
-}
-
-/**
- * Parses the leading `---\n … \n---` frontmatter block. Returns `undefined`
- * when the block is missing, unparseable, or does not parse to an object —
- * all of which count as a `profile-frontmatter` failure at the call site.
- */
-function parseFrontmatter(content: string): Record<string, unknown> | undefined {
-  const match = content.match(FRONTMATTER_RE);
-  if (!match) return undefined;
-
-  let parsed: unknown;
-  try {
-    parsed = parse(match[1]);
-  } catch {
-    return undefined;
-  }
-
-  if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) return undefined;
-  return parsed as Record<string, unknown>;
 }
 
 /** Resolves a `superseded_by` value (an ADR filename without `.md`) to the path it names. */

@@ -1,4 +1,4 @@
-export type Level = 'error' | 'warn';
+type Level = 'error' | 'warn';
 
 /**
  * One check result. `file`/`line` are omitted for repo- or config-level
@@ -21,7 +21,7 @@ export interface Finding {
  * location segment (and its trailing colon) is omitted when `file` is
  * absent.
  */
-export function formatFinding(finding: Finding): string {
+function formatFinding(finding: Finding): string {
   const location =
     finding.file !== undefined
       ? finding.line !== undefined
@@ -34,7 +34,7 @@ export function formatFinding(finding: Finding): string {
 }
 
 /** Formatted, ordered findings plus the counts that drive the exit code. */
-export interface FindingsSummary {
+interface FindingsSummary {
   lines: string[];
   errorCount: number;
   warnCount: number;

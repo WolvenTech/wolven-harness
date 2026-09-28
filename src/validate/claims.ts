@@ -1,11 +1,11 @@
-import { parse } from 'yaml';
+import { parseFrontmatter } from '../frontmatter.js';
 import { detectArchivedLegacy, detectLegacy, isArchivedPath } from './legacy.js';
 import type { LegacyAdr } from './legacy.js';
 import type { RepoContext } from './repo.js';
 import type { Finding } from './report.js';
 
 /** Tallies for the ADR claim gate. */
-export interface ClaimCounts {
+interface ClaimCounts {
   ok: number;
   legacyWarn: number;
   fail: number;
@@ -25,29 +25,6 @@ const BARE_TOKEN_RE = /\bADR-(\d{3})\b/g;
 
 /** Slug-form `adr-NNN-<slug>` token, whole word. */
 const SLUG_TOKEN_RE = /\badr-(\d{3})-([a-z0-9]+(?:-[a-z0-9]+)*)\b/g;
-
-const FRONTMATTER_RE = /^---\n([\s\S]*?)\n---/;
-
-/**
- * Parses the leading `---\n … \n---` frontmatter block. Returns `undefined`
- * when the block is missing, unparseable, or does not parse to an object.
- * Duplicated from `profile.ts`'s idiom — that module can't be imported from
- * here for this purpose.
- */
-function parseFrontmatter(content: string): Record<string, unknown> | undefined {
-  const match = content.match(FRONTMATTER_RE);
-  if (!match) return undefined;
-
-  let parsed: unknown;
-  try {
-    parsed = parse(match[1]);
-  } catch {
-    return undefined;
-  }
-
-  if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) return undefined;
-  return parsed as Record<string, unknown>;
-}
 
 /** One profile ADR, keyed by its 3-digit number. */
 interface ProfileAdrEntry {

@@ -145,16 +145,15 @@ test('release-oidc: the PR gate and the release use the same pnpm and npm pins',
   assert.equal(npmPin(release.jobs.publish.steps), npmPin(ci.jobs['package-gate'].steps));
 });
 
-test('release-workflow: with no release tag yet the first release is 0.1.0, with minor bumps before 1.0', async () => {
+test('release-workflow: releases bump the minor version before 1.0', async () => {
   const config = await readJson('release-please-config.json');
   const manifest = await readJson('.release-please-manifest.json');
 
   assert.equal(config['release-type'], 'node');
   assert.equal(config['bump-minor-pre-major'], true);
   assert.equal(config['include-component-in-tag'], false);
-  assert.ok(config.packages?.['.'], 'root package configured');
-  // why: release-please ignores the manifest's 0.0.0 until a tag exists and defaults the first release to 1.0.0.
-  assert.equal(config.packages['.']['initial-version'], '0.1.0');
+  assert.equal(config.packages?.['.']?.['package-name'], '@wolven-tech/harness');
+  assert.equal(config.packages['.']['initial-version'], undefined);
   // why: release-please rewrites the manifest on every release, so only its shape is stable.
   assert.deepEqual(Object.keys(manifest), ['.']);
   assert.match(manifest['.'], /^\d+\.\d+\.\d+$/);

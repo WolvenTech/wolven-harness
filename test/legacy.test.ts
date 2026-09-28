@@ -70,7 +70,7 @@ test('legacy-detect: detectLegacy matches adr-shaped basenames outside docs/adrs
   );
 
   const root = await resolveGitRoot(dir);
-  const ctx = await buildRepoContext(root, { ignoreEntries: [], verbose: false });
+  const ctx = await buildRepoContext(root, { ignoreEntries: [] });
   const legacyAdrs = await detectLegacy(ctx);
 
   const byPath = new Map(legacyAdrs.map((l) => [l.path, l.number]));

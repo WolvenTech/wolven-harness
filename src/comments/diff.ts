@@ -1,24 +1,21 @@
-import { execFile } from 'node:child_process';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
-import { promisify } from 'node:util';
-
-const execFileAsync = promisify(execFile);
+import { execGit } from '../git.js';
 
 export type AddedLine = { file: string; line: number; text: string };
 
 async function gitLines(root: string, args: string[]): Promise<string[]> {
   try {
-    const { stdout } = await execFileAsync('git', args, { cwd: root, maxBuffer: 64 * 1024 * 1024 });
+    const { stdout } = await execGit(root, args);
     return stdout.split(/\r?\n/).filter(Boolean);
   } catch {
     return [];
   }
 }
 
-export async function refExists(root: string, ref: string): Promise<boolean> {
+async function refExists(root: string, ref: string): Promise<boolean> {
   try {
-    await execFileAsync('git', ['rev-parse', '--verify', '--quiet', ref], { cwd: root });
+    await execGit(root, ['rev-parse', '--verify', '--quiet', ref]);
     return true;
   } catch {
     return false;
@@ -27,7 +24,7 @@ export async function refExists(root: string, ref: string): Promise<boolean> {
 
 async function mergeBaseSha(root: string, a: string, b: string): Promise<string | null> {
   try {
-    const { stdout } = await execFileAsync('git', ['merge-base', a, b], { cwd: root });
+    const { stdout } = await execGit(root, ['merge-base', a, b]);
     return stdout.trim();
   } catch {
     return null;

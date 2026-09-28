@@ -1,11 +1,11 @@
 import { execFile } from 'node:child_process';
-import { access, lstat, readdir, readFile } from 'node:fs/promises';
+import { lstat, readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
-import { parse } from 'yaml';
+import { classifyFrontmatter, skillIdentity } from '../frontmatter.js';
+import { pathExists } from '../path-exists.js';
 import type { RepoContext } from './repo.js';
 import type { Finding } from './report.js';
 
-const FRONTMATTER_RE = /^---\n([\s\S]*?)\n---/;
 const RULE_CITATION_RE = /\.agents\/rules\/[A-Za-z0-9._-]+\.md/g;
 const CITING_FILES = ['WOLVEN.md', 'AGENTS.md'];
 
@@ -21,15 +21,6 @@ const HARNESS_PATHS = [
   'CLAUDE.md',
   '.wolven-harness.json',
 ];
-
-async function fileExists(p: string): Promise<boolean> {
-  try {
-    await access(p);
-    return true;
-  } catch {
-    return false;
-  }
-}
 
 /** Reads `p` as utf8, or `undefined` when it can't be read (missing, not a file, ...). */
 async function readOptional(p: string): Promise<string | undefined> {
@@ -79,16 +70,12 @@ async function checkSkills(root: string): Promise<{ frontmatter: Finding[]; stub
       continue;
     }
 
-    const match = raw.match(FRONTMATTER_RE);
-    if (!match) {
+    const classified = classifyFrontmatter(raw);
+    if (classified.kind === 'missing') {
       findings.push({ level: 'error', rule: 'skill-frontmatter', file: relFile, message: 'missing frontmatter' });
       continue;
     }
-
-    let parsed: Record<string, unknown> | null | undefined;
-    try {
-      parsed = parse(match[1]) as Record<string, unknown> | null | undefined;
-    } catch {
+    if (classified.kind === 'unparseable') {
       findings.push({
         level: 'error',
         rule: 'skill-frontmatter',
@@ -98,9 +85,7 @@ async function checkSkills(root: string): Promise<{ frontmatter: Finding[]; stub
       continue;
     }
 
-    const name = typeof parsed?.name === 'string' && parsed.name.length > 0 ? parsed.name : undefined;
-    const description =
-      typeof parsed?.description === 'string' && parsed.description.length > 0 ? parsed.description : undefined;
+    const { name, description } = skillIdentity(classified.value);
 
     const missing: string[] = [];
     if (!name) missing.push('name');
@@ -115,7 +100,7 @@ async function checkSkills(root: string): Promise<{ frontmatter: Finding[]; stub
       });
     }
 
-    const metadata = parsed?.metadata;
+    const metadata = classified.value.metadata;
     const isOpenStub =
       typeof metadata === 'object' &&
       metadata !== null &&
@@ -150,7 +135,7 @@ async function checkRuleCitations(root: string): Promise<Finding[]> {
     for (let i = 0; i < lines.length; i++) {
       const cited = lines[i].match(RULE_CITATION_RE) ?? [];
       for (const citedPath of cited) {
-        const exists = await fileExists(path.join(root, citedPath));
+        const exists = await pathExists(path.join(root, citedPath));
         if (!exists) {
           findings.push({
             level: 'error',
@@ -172,7 +157,7 @@ async function checkRuleCitations(root: string): Promise<Finding[]> {
  * absent or doesn't mention it, warn (exit 0) rather than fail.
  */
 async function checkStep0Pending(root: string): Promise<Finding[]> {
-  const wolvenExists = await fileExists(path.join(root, 'WOLVEN.md'));
+  const wolvenExists = await pathExists(path.join(root, 'WOLVEN.md'));
   if (!wolvenExists) return [];
 
   const agentsContent = await readOptional(path.join(root, 'AGENTS.md'));

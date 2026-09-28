@@ -40,9 +40,7 @@ export interface IgnoreConfig {
  * entries. A missing file, or a missing `ignore` key, means no entries and
  * no findings.
  */
-export async function loadIgnoreConfig(root: string): Promise<IgnoreConfig> {
-  const config = await readConfig(root);
-  const raw = config?.ignore ?? [];
+export function partitionIgnore(raw: readonly string[]): IgnoreConfig {
 
   const entries: string[] = [];
   const findings: Finding[] = [];
@@ -60,4 +58,10 @@ export async function loadIgnoreConfig(root: string): Promise<IgnoreConfig> {
   }
 
   return { entries, findings };
+}
+
+/** Reads `.wolven-harness.json` at `root` and validates its `ignore` entries. */
+export async function loadIgnoreConfig(root: string): Promise<IgnoreConfig> {
+  const config = await readConfig(root);
+  return partitionIgnore(config?.ignore ?? []);
 }
