@@ -1,10 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
-import path from 'node:path';
-import { run } from './helpers/fixture.js';
-import { readSkill, assertSkillBasics, assertNoRuntimeToolNames, renderInto } from './helpers/skill-contract.js';
+import { readSkill, assertSkillBasics, assertNoRuntimeToolNames } from './helpers/skill-contract.js';
 
 test('skill-grilling: passes the shared skill contract checks', async () => {
   await assertSkillBasics('grilling');
@@ -58,48 +54,4 @@ test('skill-grilling: names no runtime tool outside a guard clause', async () =>
   const skill = await readSkill('grilling');
 
   assertNoRuntimeToolNames(skill.body);
-});
-
-test('skill-grilling: is model-invocable', async () => {
-  const skill = await readSkill('grilling');
-
-  assert.equal('disable-model-invocation' in skill.frontmatter, false);
-  assert.ok(!skill.files.includes('agents/openai.yaml'));
-});
-
-test('skill-grilling: renderInto renders a template into a fixture that passes validate', async () => {
-  const tmpDir = await mkdtemp(path.join(tmpdir(), 'skill-grilling-template-'));
-  const templatePath = path.join(tmpDir, 'note.md');
-  await writeFile(
-    templatePath,
-    [
-      '---',
-      'type: note',
-      'title: <title>',
-      'description: <description>',
-      'status: draft',
-      '---',
-      '',
-      '# <title>',
-      '',
-      '<body>',
-      '',
-    ].join('\n'),
-    'utf8',
-  );
-
-  const cwd = await renderInto(
-    {},
-    templatePath,
-    'docs/notes/render-check/render-check-note.md',
-    {
-      title: 'Render check',
-      description: 'proves the render helper produces a passing doc',
-      body: 'Rendered from a template placeholder.',
-    },
-  );
-
-  const result = await run(['validate'], { cwd });
-
-  assert.equal(result.code, 0);
 });

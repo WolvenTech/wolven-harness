@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readSkill, assertSkillBasics, assertNoRuntimeToolNames } from './helpers/skill-contract.js';
+import { flatten } from './helpers/prose.js';
 
 const STEPS = [
   '0. Entry integration',
@@ -21,13 +22,6 @@ const REFERENCES = [
 ];
 
 const CONSUMER_NAME_RE = /agentic-mkt|compozy/i;
-
-// why: prose in SKILL.md wraps across lines, so a phrase spanning several
-// words is matched against whitespace-collapsed text instead of the raw
-// body, which would otherwise break on an arbitrary line wrap.
-function flatten(text: string): string {
-  return text.replace(/\s+/g, ' ');
-}
 
 test('skill-shape: passes the shared skill contract checks, including the harness:validate mention', async () => {
   await assertSkillBasics('harness-init', { requireHarnessValidate: true });

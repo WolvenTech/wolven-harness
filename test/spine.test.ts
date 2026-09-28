@@ -61,7 +61,7 @@ test('skill-frontmatter: a valid skill passes (exit 0)', async () => {
   assert.equal(result.code, 0);
 });
 
-test('skill-frontmatter: WOLVEN.md citing a missing rule exits 1 with the rule id', async () => {
+test('rule-missing: WOLVEN.md citing a missing rule exits 1 with the rule id', async () => {
   const dir = await makeRepo(
     {
       'WOLVEN.md': 'See .agents/rules/missing.md for details.\n',
@@ -75,7 +75,7 @@ test('skill-frontmatter: WOLVEN.md citing a missing rule exits 1 with the rule i
   assert.match(result.stdout, /rule-missing/);
 });
 
-test('skill-frontmatter: AGENTS.md citing a missing rule exits 1 with the rule id', async () => {
+test('rule-missing: AGENTS.md citing a missing rule exits 1 with the rule id', async () => {
   const dir = await makeRepo(
     {
       'AGENTS.md': 'See .agents/rules/missing.md for details.\n',
@@ -89,7 +89,7 @@ test('skill-frontmatter: AGENTS.md citing a missing rule exits 1 with the rule i
   assert.match(result.stdout, /rule-missing/);
 });
 
-test('skill-frontmatter: an existing cited rule produces no rule-missing finding', async () => {
+test('rule-missing: an existing cited rule produces no rule-missing finding', async () => {
   const dir = await makeRepo(
     {
       'WOLVEN.md': 'See .agents/rules/present.md.\n',

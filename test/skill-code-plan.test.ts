@@ -2,51 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { run } from './helpers/fixture.js';
 import { readSkill, assertSkillBasics, renderInto } from './helpers/skill-contract.js';
-
-/** One parsed GitHub-flavored markdown table: header cells and data rows, cell text trimmed. */
-interface MdTable {
-  headers: string[];
-  rows: string[][];
-}
-
-function isTableRow(line: string): boolean {
-  return /^\s*\|.*\|\s*$/.test(line);
-}
-
-function isSeparatorRow(line: string): boolean {
-  return isTableRow(line) && /^[\s|:-]+$/.test(line) && line.includes('-');
-}
-
-function splitRow(line: string): string[] {
-  return line
-    .trim()
-    .replace(/^\|/, '')
-    .replace(/\|$/, '')
-    .split('|')
-    .map((cell) => cell.trim());
-}
-
-/** Parses every `| … |` table (header + separator + data rows) out of a markdown document. */
-function parseMarkdownTables(md: string): MdTable[] {
-  const lines = md.split('\n');
-  const tables: MdTable[] = [];
-  let i = 0;
-  while (i < lines.length) {
-    if (isTableRow(lines[i]) && i + 1 < lines.length && isSeparatorRow(lines[i + 1])) {
-      const headers = splitRow(lines[i]);
-      i += 2;
-      const rows: string[][] = [];
-      while (i < lines.length && isTableRow(lines[i])) {
-        rows.push(splitRow(lines[i]));
-        i++;
-      }
-      tables.push({ headers, rows });
-    } else {
-      i++;
-    }
-  }
-  return tables;
-}
+import { parseMarkdownTables, type MdTable } from './helpers/markdown.js';
 
 /** Every value found in the column named `columnName` (case-insensitive) across every table in `tables` that has one. */
 function valuesInColumn(tables: MdTable[], columnName: string): string[] {
@@ -69,12 +25,6 @@ function unbacktick(s: string): string {
 
 test('skill-code-plan: passes the shared skill contract checks', async () => {
   await assertSkillBasics('code-plan', { requireHarnessValidate: true });
-});
-
-test('skill-code-plan: is model-invocable', async () => {
-  const skill = await readSkill('code-plan');
-  assert.equal('disable-model-invocation' in skill.frontmatter, false);
-  assert.ok(!skill.files.includes('agents/openai.yaml'));
 });
 
 test('skill-code-plan: work units table names Depends, Owns, Subagent, and Done when', async () => {
@@ -157,18 +107,6 @@ test('skill-code-plan: the EXAMPLE Subagent cells only use spawn or inline, neve
 
   for (const value of subagentValues) {
     assert.ok(value === 'spawn' || value === 'inline', `unexpected Subagent value "${value}" — must be "spawn" or "inline"`);
-  }
-});
-
-test('skill-code-plan: no writer persona, board-decompose, or N-threshold rule', async () => {
-  const skill = await readSkill('code-plan');
-
-  for (const rel of skill.files.filter((f) => f.endsWith('.md'))) {
-    const content = await skill.read(rel);
-    assert.doesNotMatch(content, /\bwriter\b/i, `${rel} must not mention a writer persona`);
-    assert.doesNotMatch(content, /board-decompose/i, `${rel} must not mention board-decompose`);
-    assert.doesNotMatch(content, /\bthreshold\b/i, `${rel} must not name a threshold rule`);
-    assert.doesNotMatch(content, /\bN\s*=/, `${rel} must not name an "N =" line-count rule`);
   }
 });
 

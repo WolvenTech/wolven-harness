@@ -2,21 +2,11 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
-import { PassThrough } from 'node:stream';
 import { makeRepo, run } from './helpers/fixture.js';
+import { makeIo } from './helpers/io.js';
 import { applyTemplates } from '../src/init/apply.js';
 import { addValidateScript } from '../src/init/package-script.js';
-import type { Context, Io } from '../src/init/types.js';
-
-function makeIo(cwd: string): Io {
-  return {
-    cwd,
-    stdin: new PassThrough(),
-    stdout: new PassThrough(),
-    stderr: new PassThrough(),
-    isTTY: false,
-  };
-}
+import type { Context } from '../src/init/types.js';
 
 async function fileExists(p: string): Promise<boolean> {
   try {

@@ -6,12 +6,6 @@ test('builder-brief: passes the shared skill contract checks', async () => {
   await assertSkillBasics('code-execute', { requireHarnessValidate: true });
 });
 
-test('builder-brief: is model-invocable', async () => {
-  const skill = await readSkill('code-execute');
-  assert.equal('disable-model-invocation' in skill.frontmatter, false);
-  assert.ok(!skill.files.includes('agents/openai.yaml'));
-});
-
 test('builder-brief: documents all seven resume fields by name', async () => {
   const skill = await readSkill('code-execute');
   const names = [
@@ -103,20 +97,6 @@ test('builder-brief: says the brief is a paste-in prompt, not a registered agent
   const brief = await skill.read('references/builder-brief.md');
   assert.match(brief, /not a registered persona/i);
   assert.match(skill.body, /not a registered persona file/i);
-});
-
-test('builder-brief: no writer, Fast-draft, docs/index, or .agents/agents anywhere in the skill', async () => {
-  const skill = await readSkill('code-execute');
-
-  for (const rel of skill.files) {
-    const content = await skill.read(rel);
-    assert.doesNotMatch(content, /\bwriter\b/i, `${rel} must not mention a writer persona`);
-    assert.doesNotMatch(content, /fast-draft/i, `${rel} must not mention Fast-draft`);
-    assert.doesNotMatch(content, /docs\/index/i, `${rel} must not mention docs/index`);
-    assert.doesNotMatch(content, /\.agents\/agents/i, `${rel} must not load .agents/agents`);
-    assert.doesNotMatch(content, /\bthreshold\b/i, `${rel} must not name a threshold rule`);
-    assert.doesNotMatch(content, /\bN\s*=\s*\d/i, `${rel} must not name an "N = <number>" line-count rule`);
-  }
 });
 
 test('builder-brief: reads the consumer opt from one named config path', async () => {

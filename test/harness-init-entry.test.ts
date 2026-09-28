@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 import { readSkill } from './helpers/skill-contract.js';
 import { makeRepo, run } from './helpers/fixture.js';
+import { flatten } from './helpers/prose.js';
 
 const execFileAsync = promisify(execFile);
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -14,13 +15,6 @@ const repoRoot = path.resolve(here, '..');
 
 const MARKDOWN_FENCE_RE = /```markdown\n([\s\S]*?)```/g;
 const RULE_CITATION_RE = /\.agents\/rules\/[A-Za-z0-9._-]+\.md/g;
-
-// why: prose in the reference wraps across lines, so a phrase spanning
-// several words is matched against whitespace-collapsed text instead of
-// the raw body, which would otherwise break on an arbitrary line wrap.
-function flatten(text: string): string {
-  return text.replace(/\s+/g, ' ');
-}
 
 async function readEntryModes(): Promise<string> {
   const skill = await readSkill('harness-init');

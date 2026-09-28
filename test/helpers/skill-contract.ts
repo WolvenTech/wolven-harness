@@ -156,12 +156,12 @@ function escapeRegExp(s: string): string {
 
 /**
  * Fails if `text` names a runtime-specific question tool (`AskQuestion`,
- * `AskUserQuestion`, `request_user_input`, or any of `extraNames`) in a
- * paragraph that doesn't also state the condition — a phrase like "when
- * available" or "if your runtime" — under which that name applies.
+ * `AskUserQuestion`, or `request_user_input`) in a paragraph that doesn't
+ * also state the condition — a phrase like "when available" or "if your
+ * runtime" — under which that name applies.
  */
-export function assertNoRuntimeToolNames(text: string, opts: { extraNames?: string[] } = {}): void {
-  const names = [...DEFAULT_RUNTIME_TOOL_NAMES, ...(opts.extraNames ?? [])];
+export function assertNoRuntimeToolNames(text: string): void {
+  const names = DEFAULT_RUNTIME_TOOL_NAMES;
   const paragraphs = text.split(/\n\s*\n/);
   const violations: string[] = [];
 

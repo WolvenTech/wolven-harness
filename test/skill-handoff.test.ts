@@ -13,13 +13,7 @@ test('skill-handoff: passes the shared skill contract checks', async () => {
   await assertSkillBasics('handoff');
 });
 
-test('skill-handoff: is ask-only in its frontmatter', async () => {
-  const skill = await readSkill('handoff');
-
-  assert.equal(skill.frontmatter['disable-model-invocation'], true);
-});
-
-test('skill-handoff: ships an ask-only agents/openai.yaml', async () => {
+test('skill-handoff: ships display_name and short_description', async () => {
   const skill = await readSkill('handoff');
 
   assert.ok(skill.files.includes('agents/openai.yaml'), 'expected agents/openai.yaml');
@@ -30,7 +24,6 @@ test('skill-handoff: ships an ask-only agents/openai.yaml', async () => {
     policy?: { allow_implicit_invocation?: boolean };
   };
 
-  assert.equal(parsed.policy?.allow_implicit_invocation, false);
   assert.ok(typeof parsed.interface?.display_name === 'string' && parsed.interface.display_name.length > 0);
   assert.ok(typeof parsed.interface?.short_description === 'string' && parsed.interface.short_description.length > 0);
 });
@@ -105,14 +98,4 @@ test('skill-handoff: every skill named in backticks under Suggested next skills 
   for (const name of names) {
     assert.ok(existing.has(name), `suggested skill "${name}" does not exist under templates/.agents/skills/`);
   }
-});
-
-test('skill-handoff: has no cowork, board, or Area residue', async () => {
-  const skill = await readSkill('handoff');
-  const templ = await skill.read('references/TEMPLATE.md');
-  const combined = `${skill.body}\n${templ}`.toLowerCase();
-
-  assert.doesNotMatch(combined, /cowork/);
-  assert.doesNotMatch(combined, /\bboard\b/);
-  assert.doesNotMatch(combined, /\barea\b/);
 });

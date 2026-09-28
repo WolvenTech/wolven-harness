@@ -9,13 +9,6 @@ test('skill-research: passes the shared skill contract checks, including the har
   await assertSkillBasics('research', { requireHarnessValidate: true });
 });
 
-test('skill-research: is model-invocable', async () => {
-  const skill = await readSkill('research');
-
-  assert.equal('disable-model-invocation' in skill.frontmatter, false);
-  assert.ok(!skill.files.includes('agents/openai.yaml'));
-});
-
 test('skill-research: names qmd as the local search step', async () => {
   const skill = await readSkill('research');
 

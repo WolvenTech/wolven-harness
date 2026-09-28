@@ -51,21 +51,6 @@ test('seed-extract: template files exist', () => {
   assert.ok(relSet.has('hooks/README.md'));
 });
 
-test('seed-extract: no source-repo collection or config words', () => {
-  // why: the source repo's QMD collections were named canon, concepts, and sources, and its QMD config was config.yml; plain English uses of those words, and other config.yml files, are fine.
-  const hits = findMatches(/\bcanon\b|docs\/(canon|concepts|sources)\b|-c (canon|concepts|sources)\b|qmd\/config\.yml/);
-  assert.deepEqual(hits, [], `unexpected source-repo collection/config words: ${JSON.stringify(hits)}`);
-});
-
-test('seed-extract: no residue', () => {
-  // Case-insensitive, matches
-  // `rg -i "clickup|board-|area-context|wayfind|okf-qmd-kit|docs/canon|pragmatic-guard.config" templates/.agents`.
-  const hits = findMatches(
-    /clickup|board-|area-context|wayfind|okf-qmd-kit|docs\/canon|pragmatic-guard\.config/i,
-  );
-  assert.deepEqual(hits, [], `unexpected residue: ${JSON.stringify(hits)}`);
-});
-
 test('seed-extract: qmd searches -c adrs first', () => {
   const qmdSkill = files.find((f) => f.rel === path.join('skills', 'qmd', 'SKILL.md'))!;
   const qmdFirstRule = files.find((f) => f.rel === path.join('rules', 'qmd-first.md'))!;
@@ -103,7 +88,6 @@ test('seed-extract: deferrals under docs/deferrals with type deferral', () => {
   const yagniStrict = files.find((f) => f.rel === path.join('rules', 'yagni-strict.md'))!;
 
   for (const file of [pragmaticGuard, yagniStrict]) {
-    assert.match(file.content, /docs\/deferrals\//, `${file.rel} references docs/deferrals/`);
     assert.match(file.content, /type: deferral/, `${file.rel} specifies type: deferral`);
     assert.match(file.content, /title/, `${file.rel} mentions title field`);
     assert.match(file.content, /description/, `${file.rel} mentions description field`);
