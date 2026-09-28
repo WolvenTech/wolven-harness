@@ -74,6 +74,14 @@ test('skill-shape: re-run skips step 0, step 1, and resumes a draft session note
   assert.match(flat, /resumed, not replaced/i);
 });
 
+test('skill-shape: an AGENTS.md that already holds the harness section is refreshed, never folded twice', async () => {
+  const flat = flatten((await readSkill('harness-init')).body);
+
+  assert.match(flat, /already holds the harness section was integrated by an earlier run/i);
+  assert.match(flat, /never fold it a second time/i);
+  assert.match(flat, /show the diff, ask whether to refresh the section, then delete `WOLVEN\.md`/i);
+});
+
 test('skill-shape: each writing step runs validate, shows the diff first, and waits for the choice', async () => {
   const flat = flatten((await readSkill('harness-init')).body);
 

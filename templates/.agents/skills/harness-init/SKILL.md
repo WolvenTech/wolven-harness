@@ -77,6 +77,10 @@ A re-run does not redo what an earlier run already finished:
 
 - Step 0 is skipped when `WOLVEN.md` is already gone, or `AGENTS.md`
   already mentions it.
+- An `AGENTS.md` that already holds the harness section was integrated by
+  an earlier run, even when `init` has since brought `WOLVEN.md` back:
+  never fold it a second time; show the diff, ask whether to refresh the
+  section, then delete `WOLVEN.md`.
 - Step 1 is skipped when there are no legacy-ADR warnings left.
 - A `draft` session note from an interrupted run is resumed, not replaced.
 
@@ -92,7 +96,9 @@ and any harness path caught by `.gitignore`. See
 [references/entry-modes.md](references/entry-modes.md).
 
 Skipped on a re-run once `WOLVEN.md` is gone or `AGENTS.md` already
-mentions it.
+mentions it. When `AGENTS.md` already holds the harness section, the step
+offers a refresh instead of a second fold (see "Already integrated" in the
+reference).
 
 ### 1. Legacy ADR migration (optional)
 

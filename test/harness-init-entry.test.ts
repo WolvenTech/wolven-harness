@@ -62,6 +62,24 @@ test('step0-modes: full and light write the WOLVEN.md fold and describe the no-A
   assert.match(flat, /carries no router table and no skills table/i);
 });
 
+test('step0-modes: full mode drops the body H1 and demotes its headings, except with no AGENTS.md', async () => {
+  const flat = flatten(await readEntryModes());
+
+  assert.match(flat, /new `## Wolven harness` heading replaces that H1, so drop it/i);
+  assert.match(flat, /demote every remaining heading one level \(`##` → `###`\)/i);
+  assert.match(flat, /body's H1 stays as the file's title/i);
+});
+
+test('step0-modes: an already-integrated AGENTS.md gets a refresh offer, never a second fold', async () => {
+  const flat = flatten(await readEntryModes());
+
+  assert.match(flat, /## Already integrated/);
+  assert.match(flat, /running it again after a full or light fold .* brings `WOLVEN\.md` back/i);
+  assert.match(flat, /a `## Wolven harness` heading .* or the router's own `# Wolven harness — entry router` title/i);
+  assert.match(flat, /do not fold it a second time/i);
+  assert.match(flat, /show the human the diff .* ask whether to refresh the section .* then delete `WOLVEN\.md`/i);
+});
+
 test('step0-modes: the deletion rule keeps WOLVEN.md only in mention-only, minus its first line', async () => {
   const flat = flatten(await readEntryModes());
 

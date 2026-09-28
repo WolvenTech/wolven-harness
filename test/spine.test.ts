@@ -166,6 +166,22 @@ test('stub-warn: two stubs raise two skill-stub-open warnings', async () => {
   assert.equal(matches.length, 2);
 });
 
+test('stub-warn: a stub missing its description raises both skill-frontmatter and skill-stub-open', async () => {
+  const dir = await makeRepo(
+    {
+      '.agents/skills/foo/SKILL.md': '---\nname: foo\nmetadata:\n  wolven-harness: stub\n---\n\n# Foo\n',
+    },
+    { git: true },
+  );
+
+  const result = await run(['validate'], { cwd: dir });
+  const output = result.stdout + result.stderr;
+
+  assert.notEqual(result.code, 0);
+  assert.equal((output.match(/skill-frontmatter/g) ?? []).length, 1);
+  assert.equal((output.match(/skill-stub-open/g) ?? []).length, 1);
+});
+
 // --- step0-pending ---
 
 test('step0-pending: fresh init warns, and AGENTS.md mentioning WOLVEN.md clears it', async () => {

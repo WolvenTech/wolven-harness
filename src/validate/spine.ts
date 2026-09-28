@@ -27,22 +27,30 @@ async function readOptional(p: string): Promise<string | undefined> {
 }
 
 /**
- * Rule `skill-frontmatter`: every directory directly under
- * `.agents/skills/` must have a `SKILL.md` whose frontmatter parses and
- * carries non-empty string `name` and `description`. A missing skills dir
- * yields no findings.
+ * Walks every directory directly under `.agents/skills/` once and applies
+ * two rules to each `SKILL.md`. A missing skills dir yields no findings.
+ *
+ * - `skill-frontmatter` (error): the `SKILL.md` must exist, and its
+ *   frontmatter must parse and carry non-empty string `name` and
+ *   `description`.
+ * - `skill-stub-open` (warning, exit 0): frontmatter carrying
+ *   `metadata.wolven-harness: stub` is an open stub; the finding names the
+ *   file and tells the reader to define the skill and then remove the
+ *   marker. Any other `metadata` value, or none, raises nothing. It fires
+ *   whenever the frontmatter parses, independent of `skill-frontmatter`.
  */
-async function checkSkillFrontmatter(root: string): Promise<Finding[]> {
+async function checkSkills(root: string): Promise<{ frontmatter: Finding[]; stubs: Finding[] }> {
   const skillsDir = path.join(root, '.agents', 'skills');
 
   let entries;
   try {
     entries = await readdir(skillsDir, { withFileTypes: true });
   } catch {
-    return [];
+    return { frontmatter: [], stubs: [] };
   }
 
   const findings: Finding[] = [];
+  const stubs: Finding[] = [];
   const dirs = entries
     .filter((e) => e.isDirectory())
     .map((e) => e.name)
@@ -92,48 +100,6 @@ async function checkSkillFrontmatter(root: string): Promise<Finding[]> {
         message: `missing or empty frontmatter field(s): ${missing.join(', ')}`,
       });
     }
-  }
-
-  return findings;
-}
-
-/**
- * Rule `skill-stub-open`: warns once per `.agents/skills/<name>/SKILL.md`
- * whose frontmatter carries `metadata.wolven-harness: stub`, naming the
- * file and telling the reader to define the skill and then remove the
- * marker. Any other `metadata` value, or none, raises nothing. This is a
- * warning (exit 0), not an error, and never overlaps `skill-frontmatter`.
- */
-async function checkSkillStubOpen(root: string): Promise<Finding[]> {
-  const skillsDir = path.join(root, '.agents', 'skills');
-
-  let entries;
-  try {
-    entries = await readdir(skillsDir, { withFileTypes: true });
-  } catch {
-    return [];
-  }
-
-  const findings: Finding[] = [];
-  const dirs = entries
-    .filter((e) => e.isDirectory())
-    .map((e) => e.name)
-    .sort();
-
-  for (const dir of dirs) {
-    const relFile = `.agents/skills/${dir}/SKILL.md`;
-    const raw = await readOptional(path.join(skillsDir, dir, 'SKILL.md'));
-    if (raw === undefined) continue;
-
-    const match = raw.match(FRONTMATTER_RE);
-    if (!match) continue;
-
-    let parsed: Record<string, unknown> | null | undefined;
-    try {
-      parsed = parse(match[1]) as Record<string, unknown> | null | undefined;
-    } catch {
-      continue;
-    }
 
     const metadata = parsed?.metadata;
     const isOpenStub =
@@ -142,7 +108,7 @@ async function checkSkillStubOpen(root: string): Promise<Finding[]> {
       (metadata as Record<string, unknown>)['wolven-harness'] === 'stub';
 
     if (isOpenStub) {
-      findings.push({
+      stubs.push({
         level: 'warn',
         rule: 'skill-stub-open',
         file: relFile,
@@ -151,7 +117,7 @@ async function checkSkillStubOpen(root: string): Promise<Finding[]> {
     }
   }
 
-  return findings;
+  return { frontmatter: findings, stubs };
 }
 
 /**
@@ -210,12 +176,11 @@ async function checkStep0Pending(root: string): Promise<Finding[]> {
  * and these checks must still see them.
  */
 export async function checkSpine(ctx: RepoContext): Promise<Finding[]> {
-  const [skillFindings, stubFindings, ruleFindings, step0Findings] = await Promise.all([
-    checkSkillFrontmatter(ctx.root),
-    checkSkillStubOpen(ctx.root),
+  const [skills, ruleFindings, step0Findings] = await Promise.all([
+    checkSkills(ctx.root),
     checkRuleCitations(ctx.root),
     checkStep0Pending(ctx.root),
   ]);
 
-  return [...skillFindings, ...stubFindings, ...ruleFindings, ...step0Findings];
+  return [...skills.frontmatter, ...skills.stubs, ...ruleFindings, ...step0Findings];
 }

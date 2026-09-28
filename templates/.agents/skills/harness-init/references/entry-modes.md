@@ -11,9 +11,15 @@ The `WOLVEN.md` body, without its first line, goes into `AGENTS.md` as a
 new `## Wolven harness` section, added after whatever `AGENTS.md` already
 holds.
 
+**Heading levels:** the body opens with its own H1 title and continues in
+H2 sections. The new `## Wolven harness` heading replaces that H1, so drop
+it, and demote every remaining heading one level (`##` → `###`) so the
+sections nest under `## Wolven harness` instead of sitting beside it.
+
 **No-`AGENTS.md` case:** when the repo has no `AGENTS.md` yet, `WOLVEN.md`
 (without its first line) becomes `AGENTS.md` outright — there is no
-existing content to fold into, so nothing is appended.
+existing content to fold into, so nothing is appended, and the body's H1
+stays as the file's title with its headings unchanged.
 
 `WOLVEN.md` is deleted once the fold lands.
 
@@ -21,8 +27,9 @@ existing content to fold into, so nothing is appended.
 
 `AGENTS.md` gets a short `## Wolven harness` block, appended after whatever
 it already holds. The block says where skills and rules live, cites the
-three standing rules, restates the architecture-claims rule, points at QMD
-before memory or the web, and names the validate command. It carries no
+three standing rules, gives the doc layout and the writing profile,
+restates the architecture-claims rule, points at QMD before memory or the
+web, and names the validate command. It carries no
 router table and no skills table — those stay in `WOLVEN.md`'s full text,
 which this mode does not reuse.
 
@@ -38,6 +45,10 @@ unconditionally:
 - `.agents/rules/qmd-first.md` — QMD before web, ADRs first
 - `.agents/rules/yagni-strict.md` — strict YAGNI; deferrals under `docs/deferrals/` only
 - `.agents/rules/comments.md` — comment style for added lines; run `harness:comments` before handing work back
+
+Docs follow `docs/<folder>/<slug>/<slug>-<type>.md`, except ADRs, which sit
+flat as `docs/adrs/adr-NNN-<slug>.md`; `docs/WRITING-PROFILE.md` holds the
+rules every `docs/**` markdown file follows.
 
 Referencing an ADR as `ADR-NNN` or `adr-NNN-<slug>` anywhere in a tracked
 file is a claim: it must resolve to exactly one `stable` profile ADR under
@@ -71,6 +82,22 @@ mode that keeps it.
 so nothing is left for it to hold. It is kept, minus its first line, in
 mention-only — the line in `AGENTS.md` only points at it, so the file it
 points to has to remain.
+
+## Already integrated
+
+`init` writes every path that is missing, so running it again after a full
+or light fold (to wire another runtime, or after a package upgrade) brings
+`WOLVEN.md` back. Neither the light block nor the full body names
+`WOLVEN.md`, so `harness:validate` reports step 0 as pending again.
+
+Before picking a mode, check whether `AGENTS.md` already holds the harness
+section: a `## Wolven harness` heading (full or light into an existing
+file), or the router's own `# Wolven harness — entry router` title (full
+into a repo that had no `AGENTS.md`). If it does, an earlier run already
+integrated the entry file — do not fold it a second time. Show the Human the
+diff between that section and the new `WOLVEN.md` (a newer skills table,
+say), ask whether to refresh the section from it, write only what the Human
+agrees to, then delete `WOLVEN.md`.
 
 ## Recommending a mode
 
