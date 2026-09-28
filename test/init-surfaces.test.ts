@@ -167,6 +167,21 @@ test('wolven-template: skills table lists every template skill', async () => {
   }
 });
 
+test('wolven-template: a malformed skill is skipped', async () => {
+  const tempTemplatesDir = await makeRepo({
+    'WOLVEN.md': 'intro\n\n{{skills_table}}\n\nend\n',
+    '.agents/skills/broken-skill/SKILL.md': '---\nname: "unterminated\n---\n\nbody\n',
+    '.agents/skills/kept-skill/SKILL.md': '---\nname: kept-skill\ndescription: Still listed.\n---\n\nbody\n',
+  });
+
+  const ctx: Context = { root: '/unused', templatesDir: tempTemplatesDir, io: makeIo('/unused') };
+  const rendered = await renderWolven(ctx);
+
+  assert.equal(rendered.includes('broken-skill'), false);
+  assert.ok(rendered.includes('kept-skill'));
+  assert.ok(rendered.includes('Still listed.'));
+});
+
 test('wolven-template: new skill folder appears without code change', async () => {
   const tempTemplatesDir = await makeRepo({
     'WOLVEN.md': 'intro\n\n{{skills_table}}\n\nend\n',

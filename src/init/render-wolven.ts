@@ -27,7 +27,12 @@ async function readSkillFrontmatter(skillMdPath: string): Promise<SkillFrontmatt
   const match = raw.match(/^---\n([\s\S]*?)\n---/);
   if (!match) return undefined;
 
-  const parsed = parse(match[1]) as Record<string, unknown> | null | undefined;
+  let parsed: Record<string, unknown> | null | undefined;
+  try {
+    parsed = parse(match[1]) as Record<string, unknown> | null | undefined;
+  } catch {
+    return undefined;
+  }
   const name = typeof parsed?.name === 'string' ? parsed.name : undefined;
   const description = typeof parsed?.description === 'string' ? parsed.description : undefined;
   if (!name || !description) return undefined;
