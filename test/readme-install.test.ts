@@ -12,11 +12,19 @@ async function readReadme(): Promise<string> {
   return readFile(readmePath, 'utf8');
 }
 
-test('readme-install: documents both .npmrc lines', async () => {
+test('readme-install: documents the registry line and the token line', async () => {
   const readme = await readReadme();
 
   assert.match(readme, /@wolventech:registry=https:\/\/npm\.pkg\.github\.com/);
   assert.match(readme, /\/\/npm\.pkg\.github\.com\/:_authToken=\$\{NODE_AUTH_TOKEN\}/);
+});
+
+test('readme-install: puts the token line in user-level config, not the committed .npmrc', async () => {
+  const readme = await readReadme();
+
+  assert.match(readme, /~\/\.npmrc/);
+  assert.match(readme, /registry-url: https:\/\/npm\.pkg\.github\.com/);
+  assert.match(readme, /scope: '@wolventech'/);
 });
 
 test('readme-install: documents the local read:packages token scope', async () => {

@@ -8,27 +8,35 @@ Requires Node 22 or later and git.
 
 The package is published privately to GitHub Packages as `@wolventech/wolven-harness`.
 
-Commit these two lines in an `.npmrc` at the root of the target repo; neither line holds a secret:
+Commit this line in an `.npmrc` at the root of the target repo; it holds no secret:
 
 ```
 @wolventech:registry=https://npm.pkg.github.com
-//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}
 ```
+
+Keep the token line out of that file. pnpm won't expand `${NODE_AUTH_TOKEN}` in a committed `.npmrc` (current pnpm ignores the line, and the install fails with 401), so the token line goes in your user-level config instead.
 
 Locally, `NODE_AUTH_TOKEN` comes from a token with the `read:packages` scope:
 
 ```sh
 gh auth refresh -s read:packages
+echo '//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}' >> ~/.npmrc
 export NODE_AUTH_TOKEN=$(gh auth token)
 ```
 
-In GitHub Actions, every job that installs the package needs `permissions: packages: read` and `NODE_AUTH_TOKEN` set from `GITHUB_TOKEN`:
+In GitHub Actions, `actions/setup-node` writes the token line for you when given the registry and scope. Every job that installs the package needs `permissions: packages: read` and `NODE_AUTH_TOKEN` set from `GITHUB_TOKEN`:
 
 ```yaml
 permissions:
   packages: read
 steps:
   - uses: actions/checkout@v4
+  - uses: pnpm/action-setup@v4
+  - uses: actions/setup-node@v4
+    with:
+      node-version: 22
+      registry-url: https://npm.pkg.github.com
+      scope: '@wolventech'
   - run: pnpm install
     env:
       NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
