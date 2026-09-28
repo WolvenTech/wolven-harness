@@ -1,3 +1,5 @@
+import type { SkillSet } from './skill-sets.js';
+
 export interface Io {
   cwd: string;
   stdin: NodeJS.ReadableStream;
@@ -29,6 +31,8 @@ export interface Prompter {
     message: string;
     options: Choice<T>[];
     initialValues: T[];
+    /** Defaults to true: at least one option must stay selected. */
+    required?: boolean;
   }): Promise<T[] | undefined>;
 }
 
@@ -38,6 +42,10 @@ export type Runtime = 'claude' | 'codex' | 'cursor';
 export interface Options {
   gitHost: GitHost;
   runtimes: Runtime[];
+  /** Optional skill sets to install this run (core is always installed). */
+  skillSets: SkillSet[];
+  /** Sets already installed but not chosen this run; `init` never removes them. */
+  keptSets: SkillSet[];
 }
 
 export interface Context {

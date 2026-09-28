@@ -23,7 +23,7 @@ ready for `code-plan` to slice into units.
 
 ## Where this sits
 
-`create-prd` drafts and approves the problem and its user stories. `code-spec` freezes the requirements and design that follow from it. `code-plan` slices the frozen spec into ordered units. `code-execute` implements those units. Any of the four may be invoked directly when the Human asks for it out of order.
+A PRD is optional input: when the `create-prd` skill is installed it drafts and approves the problem and its user stories, and without it `code-spec` starts from the requirements the Human states. `code-spec` freezes the requirements and design that follow. `code-plan` slices the frozen spec into ordered units. `code-execute` implements those units. Any of them may be invoked directly when the Human asks for it out of order.
 
 ## Hard gates
 

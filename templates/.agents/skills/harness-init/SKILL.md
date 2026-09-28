@@ -11,7 +11,7 @@ bare `.agents/skills/` tree) to a working setup: the entry file folded into
 a short list of suggested skills stubbed out, and a session note recording
 what happened. The Human steers every write.
 
-**Consult:** `adr`, `research`, `code-commit`, `qmd`, `grilling`.
+**Consult:** `adr`, `research`, `code-commit` (when installed), `qmd`, `grilling`.
 
 This skill is a runtime playbook, not a scripted fix: it gives the agent
 rules for what it will meet in an unfamiliar repo, not a transcript to
@@ -61,7 +61,10 @@ The run has three writing phases:
 
 At the end of each phase, once `harness:validate` exits 0 — `0 legacy-warn`
 as well, for the migration phase — offer one commit of that phase's paths
-through `code-commit`, and commit only on the Human's yes. Never a single
+through `code-commit`, and commit only on the Human's yes. When `code-commit`
+is not installed (no `.agents/skills/code-commit/`), ask the Human before each
+phase's commit and make it with plain `git commit` of that phase's paths, again
+only on their yes. Never a single
 commit at the end of the whole run, and never a commit per file, ADR,
 claim, or stub. A declined commit leaves that phase uncommitted, and the
 next phase's offer covers only its own paths — the two never merge into

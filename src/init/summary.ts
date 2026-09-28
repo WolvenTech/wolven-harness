@@ -1,4 +1,6 @@
 import type { Runtime, StepResult } from './types.js';
+import { setsOf } from './skill-sets.js';
+import type { SkillSet } from './skill-sets.js';
 
 /**
  * What a finished `init` run reports: things it added, and things it left
@@ -7,6 +9,8 @@ import type { Runtime, StepResult } from './types.js';
 export interface Summary {
   done: string[];
   kept: string[];
+  /** Whole-sentence remarks, shown as they are. */
+  notes: string[];
 }
 
 const RUNTIME_NAMES: Record<Runtime, string> = {
@@ -49,7 +53,7 @@ function describeTree(paths: string[]): string[] {
   const skills = childNames(paths, '.agents/skills/');
   const rules = paths.filter((p) => /^\.agents\/rules\/[^/]+$/.test(p));
   const agentParts: string[] = [];
-  if (skills.length > 0) agentParts.push(plural(skills.length, 'skill'));
+  if (skills.length > 0) agentParts.push(`${plural(skills.length, 'skill')} (${setsOf(skills).join(', ')})`);
   if (rules.length > 0) agentParts.push(plural(rules.length, 'rule'));
   if (agentParts.length > 0) lines.push(`${joinNames(agentParts)} in .agents/`);
 
@@ -85,9 +89,11 @@ export function buildSummary(
   wiring: StepResult,
   scripts: StepResult,
   runtimes: Runtime[],
+  keptSets: SkillSet[] = [],
 ): Summary {
   const done: string[] = [];
   const kept: string[] = [];
+  const notes: string[] = [];
 
   for (const line of describeTree(apply.created)) done.push(line);
 
@@ -110,5 +116,11 @@ export function buildSummary(
   const present = scriptKeys(scripts.skipped);
   if (present.length > 0) kept.push(`package.json scripts: ${present.join(', ')}`);
 
-  return { done, kept };
+  if (keptSets.length > 0) {
+    notes.push(
+      `Left the ${joinNames(keptSets)} skills in place. You did not pick them this time, but init never removes anything.`,
+    );
+  }
+
+  return { done, kept, notes };
 }

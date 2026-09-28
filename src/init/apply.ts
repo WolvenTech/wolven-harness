@@ -65,9 +65,11 @@ async function walkFiles(dir: string): Promise<string[]> {
  * is left byte-identical and reported under `skipped`. `AGENTS.md` is
  * hard-refused: never created or edited, even if the template manifest
  * carried one. `WOLVEN.md`'s content comes from `renderWolven(ctx)` rather
- * than being copied verbatim.
+ * than being copied verbatim. When `skillFolders` is given, only those
+ * skill folders under `.agents/skills/` are considered; the rest are neither
+ * created nor reported.
  */
-export async function applyTemplates(ctx: Context): Promise<StepResult> {
+export async function applyTemplates(ctx: Context, skillFolders?: readonly string[]): Promise<StepResult> {
   const created: string[] = [];
   const skipped: string[] = [];
 
@@ -75,6 +77,9 @@ export async function applyTemplates(ctx: Context): Promise<StepResult> {
 
   for (const relFsPath of templateFiles) {
     const rel = toPosix(relFsPath);
+
+    const skillName = /^\.agents\/skills\/([^/]+)\//.exec(rel)?.[1];
+    if (skillFolders !== undefined && skillName !== undefined && !skillFolders.includes(skillName)) continue;
 
     if (rel === AGENTS_MD) {
       // Hard refuse: AGENTS.md is never created or edited by `init`,
@@ -95,7 +100,7 @@ export async function applyTemplates(ctx: Context): Promise<StepResult> {
 
     const content =
       rel === WOLVEN_MD
-        ? await renderWolven(ctx)
+        ? await renderWolven(ctx, skillFolders)
         : await readFile(path.join(ctx.templatesDir, ...rel.split('/')), 'utf8');
 
     await writeFile(targetPath, content, 'utf8');

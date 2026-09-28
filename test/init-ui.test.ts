@@ -23,9 +23,14 @@ interface Asked {
   selectHints: string[];
   multiInitial?: string[];
   multiLabels: string[];
+  skillsInitial?: string[];
+  skillsRequired?: boolean;
 }
 
-function fakePrompter(answers: { host?: 'gh' | 'bit'; runtimes?: ('claude' | 'codex' | 'cursor')[] }, asked: Asked): Prompter {
+function fakePrompter(
+  answers: { host?: 'gh' | 'bit'; runtimes?: ('claude' | 'codex' | 'cursor')[]; skills?: ('ship' | 'discovery')[] },
+  asked: Asked,
+): Prompter {
   return {
     async select(o) {
       asked.selectInitial = o.initialValue;
@@ -33,6 +38,11 @@ function fakePrompter(answers: { host?: 'gh' | 'bit'; runtimes?: ('claude' | 'co
       return answers.host as never;
     },
     async multiselect(o) {
+      if (o.options.some((c) => c.value === 'ship')) {
+        asked.skillsInitial = o.initialValues;
+        asked.skillsRequired = o.required;
+        return (answers.skills ?? o.initialValues) as never;
+      }
       asked.multiInitial = o.initialValues;
       asked.multiLabels = o.options.map((c) => c.label);
       return answers.runtimes as never;
@@ -104,10 +114,12 @@ test('init-ui: with no remote and no runtime files nothing is preselected', asyn
   assert.equal(result.code, 0, result.stderr);
   assert.equal(asked.selectInitial, undefined);
   assert.deepEqual(asked.multiInitial, []);
+  assert.deepEqual(asked.skillsInitial, ['ship']);
+  assert.equal(asked.skillsRequired, false);
 });
 
 test('init-ui: a flag and saved config win over prompts, which are not shown', async () => {
-  const config = JSON.stringify({ version: 1, gitHost: 'bit', runtimes: ['codex'] }) + '\n';
+  const config = JSON.stringify({ version: 1, gitHost: 'bit', runtimes: ['codex'], skillSets: ['ship'] }) + '\n';
   const dir = await makeRepo({ '.wolven-harness.json': config }, { git: true });
   const boom: Prompter = {
     async select() {
@@ -211,11 +223,11 @@ test('init-ui: summary counts come from what was really written', async () => {
   const skills = (await readdir(path.join(dir, '.agents/skills'), { withFileTypes: true })).filter((e) => e.isDirectory());
   const rules = (await readdir(path.join(dir, '.agents/rules'))).filter((f) => f.endsWith('.md'));
   assert.ok(skills.length > 1);
-  assert.match(result.stdout, new RegExp(`✔ ${skills.length} skills and ${rules.length} rules in \\.agents/`));
+  assert.match(result.stdout, new RegExp(`✔ ${skills.length} skills \\(core, ship\\) and ${rules.length} rules in \\.agents/`));
 
   const again = await run(['init', '--git-host', 'gh', '--runtimes', 'codex'], { cwd: dir });
   assert.doesNotMatch(again.stdout, /✔ \d+ skills/);
-  assert.match(again.stdout, new RegExp(`kept your existing ${skills.length} skills and ${rules.length} rules in \\.agents/, left untouched`));
+  assert.match(again.stdout, new RegExp(`kept your existing ${skills.length} skills \\(core, ship\\) and ${rules.length} rules in \\.agents/, left untouched`));
   assert.doesNotMatch(again.stdout, /skipped/);
 });
 

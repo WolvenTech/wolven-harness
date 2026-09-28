@@ -90,7 +90,7 @@ test('init-config: a fresh run writes this package\'s own version as packageVers
   assert.equal(config.packageVersion, await ownPackageVersion());
 });
 
-test('init-config: comments, ignore, and an unknown key survive a re-run unchanged apart from packageVersion', async () => {
+test('init-config: comments, ignore, and an unknown key survive a re-run unchanged apart from packageVersion and skillSets', async () => {
   const existing = {
     version: 1,
     gitHost: 'gh',
@@ -109,13 +109,14 @@ test('init-config: comments, ignore, and an unknown key survive a re-run unchang
   assert.equal(result.code, 0, result.stderr);
 
   const config = await readConfigFile(dir);
-  const { packageVersion, ...rest } = config;
+  const { packageVersion, skillSets, ...rest } = config;
+  assert.deepEqual(skillSets, ['ship']);
 
   assert.equal(packageVersion, await ownPackageVersion());
   assert.deepEqual(rest, existing);
 });
 
-test('init-config: a re-run keeps the existing key order and adds packageVersion after it', async () => {
+test('init-config: a re-run keeps the existing key order and adds skillSets and packageVersion after it', async () => {
   const existing = {
     comments: { paths: ['src/**'] },
     runtimes: ['claude'],
@@ -134,5 +135,5 @@ test('init-config: a re-run keeps the existing key order and adds packageVersion
   assert.equal(result.code, 0, result.stderr);
 
   const config = await readConfigFile(dir);
-  assert.deepEqual(Object.keys(config), [...Object.keys(existing), 'packageVersion']);
+  assert.deepEqual(Object.keys(config), [...Object.keys(existing), 'skillSets', 'packageVersion']);
 });

@@ -11,7 +11,7 @@ export function clackPrompter(io: Io): Prompter {
       return p.isCancel(answer) ? undefined : (answer as never);
     },
     async multiselect(o) {
-      const answer = await p.multiselect({ ...streams, ...o, required: true } as Parameters<typeof p.multiselect>[0]);
+      const answer = await p.multiselect({ ...streams, required: true, ...o } as Parameters<typeof p.multiselect>[0]);
       return p.isCancel(answer) ? undefined : (answer as never);
     },
   };
@@ -47,10 +47,11 @@ export function plainUi(io: Io): Ui {
   return {
     intro: (title) => out(title),
     phase: async (_label, _doneLabel, fn) => fn(),
-    summary({ done, kept }) {
+    summary({ done, kept, notes }) {
       out('');
       for (const line of done) out(`✔ ${line}`);
       for (const line of kept) out(`• kept your existing ${line}, left untouched`);
+      for (const line of notes) out(`• ${line}`);
     },
     files(created, kept) {
       out('\ncreated:');
@@ -88,8 +89,8 @@ export function clackUi(io: Io): Ui {
         throw err;
       }
     },
-    summary({ done, kept }) {
-      p.note([...done.map((l) => `✔ ${l}`), ...kept.map((l) => `• kept your existing ${l}, left untouched`)].join('\n'), 'What I did', opts);
+    summary({ done, kept, notes }) {
+      p.note([...done.map((l) => `✔ ${l}`), ...kept.map((l) => `• kept your existing ${l}, left untouched`), ...notes.map((l) => `• ${l}`)].join('\n'), 'What I did', opts);
     },
     files(created, kept) {
       const lines = ['created:', ...created.map((f) => `  ${f}`), 'kept (already existed, left untouched):', ...kept.map((f) => `  ${f}`)];

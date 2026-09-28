@@ -24,6 +24,8 @@ Run it at the git top-level of the target repo. In a terminal it opens with a sh
 - **Where is the repo hosted?** GitHub or Bitbucket. The `origin` remote preselects the answer when it points at github.com or bitbucket.org.
 - **Which agent runtimes do you use?** Claude Code, Codex, Cursor (pick at least one). Existing `.claude/` or `CLAUDE.md`, `.codex/`, and `.cursor/` or `.cursorrules` preselect the matching runtime.
 
+- **Which extra skill sets do you want?** The core skills (`harness-init`, `adr`, `grilling`, `pragmatic-guard`, `qmd`, `research`, `code-spec`, `code-plan`, `code-execute`) are always installed. **Ship** (`code-commit`, `code-pr`, `code-review`, `code-ci`) is preselected; **Discovery** (`create-prd`, `prototype`, `handoff`) is opt-in. Zero extra sets is fine.
+
 It then shows a progress line per phase (copying skills and rules, wiring your runtimes, adding package scripts), a grouped summary of what it added and what it kept as it was, and numbered next steps. Answers are saved to `.wolven-harness.json`; press Ctrl-C at any prompt to stop with nothing written.
 
 Every question can be answered up front instead — flags beat `.wolven-harness.json`, which beats prompts — and the flags are required when stdout or stdin is not a terminal (CI, pipes). Without a terminal, `init` prints the same summary and next steps as plain text, with no colour or animation.
@@ -32,6 +34,7 @@ Every question can be answered up front instead — flags beat `.wolven-harness.
 | --- | --- |
 | `--git-host <gh\|bit>` | Git host, skipping the question. |
 | `--runtimes <claude,codex,cursor>` | Comma-separated runtimes, skipping the question. |
+| `--skills <ship,discovery\|none>` | Extra skill sets, skipping the question; `none` installs core only. Without a terminal and without this flag or a saved choice, `ship` is installed. Re-running never removes an installed set. |
 | `--verbose` | Also list every file created and every file kept. |
 | `--debug` | Trace each step on stderr; same as `WOLVEN_HARNESS_DEBUG=1`. |
 

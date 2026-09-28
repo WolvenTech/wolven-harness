@@ -42,7 +42,7 @@ function templateSkillNames(): string[] {
 test('init-surfaces: creates exactly the expected paths', async () => {
   const dir = await makeRepo({}, { git: true });
 
-  const result = await run(['init', '--git-host', 'gh', '--runtimes', 'codex'], { cwd: dir });
+  const result = await run(['init', '--git-host', 'gh', '--runtimes', 'codex', '--skills', 'ship,discovery'], { cwd: dir });
   assert.equal(result.code, 0, result.stderr);
 
   const nonSkillFiles = [

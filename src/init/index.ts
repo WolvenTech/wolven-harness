@@ -7,6 +7,7 @@ import { addValidateScript } from './package-script.js';
 import { devDependencyWarning, resolveOwnPackage } from './own-package.js';
 import { buildSummary, joinNames, runtimeName } from './summary.js';
 import { createUi } from './ui.js';
+import { skillFolders } from './skill-sets.js';
 import { InitCancelled, InitError } from './types.js';
 import type { Io, Context, Runtime } from './types.js';
 
@@ -68,7 +69,7 @@ export async function runInit(argv: string[], io: Io): Promise<number> {
     const wiredNames = opts.runtimes.map(runtimeName).join(' / ');
 
     const applyResult = await ui.phase('Copying skills and rules', 'Copied skills and rules', () =>
-      traced(io, debug, 'applyTemplates', () => applyTemplates(ctx)),
+      traced(io, debug, 'applyTemplates', () => applyTemplates(ctx, skillFolders(opts.skillSets))),
     );
     const runtimeResult = await ui.phase(`Wiring ${wiredNames}`, `Wired ${wiredNames}`, () =>
       traced(io, debug, 'wireRuntimes', () => wireRuntimes(opts, ctx)),
@@ -78,7 +79,7 @@ export async function runInit(argv: string[], io: Io): Promise<number> {
     );
     const warning = await traced(io, debug, 'devDependencyWarning', () => devDependencyWarning(ctx));
 
-    ui.summary(buildSummary(applyResult, runtimeResult, scriptResult, opts.runtimes));
+    ui.summary(buildSummary(applyResult, runtimeResult, scriptResult, opts.runtimes, opts.keptSets));
     if (verbose) {
       const results = [applyResult, runtimeResult, scriptResult];
       ui.files(
