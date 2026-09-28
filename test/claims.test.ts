@@ -263,16 +263,18 @@ test('claim-fail-closed: claim-ok — a stable ADR with a bare and a correct slu
 // --- self-claim ---
 
 test('self-claim: the package repo\'s own ADR-001 doc and AGENTS.md citation pass validate', async () => {
-  const adr001 = await readFile(path.join(repoRoot, 'docs', 'adrs', 'adr-001-claim-path.md'), 'utf8');
-  const agentsMd = await readFile(path.join(repoRoot, 'AGENTS.md'), 'utf8');
+  const paths = [
+    'docs/adrs/adr-000-record-architecture-decisions.md',
+    'docs/adrs/adr-001-claim-path.md',
+    '.agents/rules/comments.md',
+    '.agents/rules/qmd-first.md',
+    '.agents/rules/yagni-strict.md',
+    'AGENTS.md',
+  ];
+  const files: Record<string, string> = {};
+  for (const rel of paths) files[rel] = await readFile(path.join(repoRoot, rel), 'utf8');
 
-  const dir = await makeRepo(
-    {
-      'docs/adrs/adr-001-claim-path.md': adr001,
-      'AGENTS.md': agentsMd,
-    },
-    { git: true },
-  );
+  const dir = await makeRepo(files, { git: true });
 
   const result = await run(['validate'], { cwd: dir });
 
