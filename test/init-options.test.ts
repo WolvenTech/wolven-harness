@@ -82,6 +82,18 @@ test('init-prompts: no-tty missing flag exits 1 naming the flag', async () => {
   assert.equal(await configExists(dir), false);
 });
 
+test('init-prompts: unknown option exits without writing config', async () => {
+  const dir = await makeRepo({}, { git: true });
+  const result = await run(['init', '--git-host', 'gh', '--runtimes', 'codex', '--runtime', 'claude'], {
+    cwd: dir,
+    isTTY: false,
+  });
+
+  assert.equal(result.code, 1);
+  assert.match(result.stderr, /unknown option "--runtime"/);
+  assert.equal(await configExists(dir), false);
+});
+
 test('init-prompts: no-tty missing only --runtimes names just that flag', async () => {
   const dir = await makeRepo({}, { git: true });
 

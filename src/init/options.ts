@@ -43,8 +43,7 @@ interface Flags {
 
 /**
  * Parses `--git-host <value>` / `--git-host=<value>` and `--runtimes
- * <csv>` / `--runtimes=<csv>`. Unknown args are ignored (other steps may
- * add flags later).
+ * <csv>` / `--runtimes=<csv>`.
  */
 function parseFlags(argv: string[]): Flags {
   const flags: Flags = {};
@@ -60,6 +59,8 @@ function parseFlags(argv: string[]): Flags {
       flags.runtimes = argv[++i];
     } else if (arg.startsWith('--runtimes=')) {
       flags.runtimes = arg.slice('--runtimes='.length);
+    } else {
+      throw new InitError(`unknown option "${arg}"`);
     }
   }
 
