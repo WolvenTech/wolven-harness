@@ -91,13 +91,15 @@ Close and reopen the release PR before merging it: it was opened by `GITHUB_TOKE
 
 Merging the release PR tags `vX.Y.Z`, creates the GitHub Release, and the release job publishes to npmjs through OIDC trusted publishing — no stored token, and every published version carries a provenance attestation. Only the job that publishes can mint the token npm trusts; it installs no project dependencies.
 
-If the publish fails after the tag exists, fix the cause and run the `release` workflow by hand with that tag (Actions → release → Run workflow). A version that did publish can't be republished; ship the fix as the next patch.
+If the publish fails after the GitHub Release exists, fix the cause and run the `release` workflow by hand with that release's tag (Actions → release → Run workflow). The retry checks that the Release is published and its tag matches the package version. A version that did publish can't be republished; ship the fix as the next patch.
 
 npm-side setup, done once by an owner of the `wolven-tech` npm org with 2FA on:
 
-1. A trusted publisher can only be attached to a package that already exists, so the first version on npmjs is a manual prerelease seed under a non-`latest` dist-tag, deprecated once the release job publishes.
-2. On the package's settings page on npmjs, add a trusted publisher: GitHub Actions, organization `WolvenTech`, repository `wolven-harness`, workflow `release.yml`, no environment.
-3. On the same page, set publishing access to "Require two-factor authentication and disallow tokens".
+Keep this as a public package on npm's free public-organization plan; it needs no paid private-package feature or additional npm member. The release workflow uses the repository's existing GitHub Actions setup.
+
+1. Merge the workflow to `main` before configuring the npm trusted publisher. A trusted publisher can only be attached to a package that already exists. In a disposable checkout, an npm org owner builds the package, sets an unused prerelease version in `package.json` (below the planned first release), checks `npm pack --dry-run`, then seeds npmjs with `npm login` and `npm publish --tag oidc-seed --access public --ignore-scripts --registry https://registry.npmjs.org/`. Keep the seed version out of `main`.
+2. On the package's settings page on npmjs, add a GitHub Actions trusted publisher: organization `WolvenTech`, repository `wolven-harness`, workflow `release.yml`, no environment. Allow direct `npm publish` for this workflow; new publisher mappings otherwise allow staged publishing by default.
+3. After the first OIDC release succeeds, set publishing access to "Require two-factor authentication and disallow tokens" and deprecate the seed version. No npm token is needed in GitHub Secrets.
 
 ## Contributing
 

@@ -60,8 +60,15 @@ test('release-oidc: build installs, builds and tests the release tag, then hands
   const build = workflow.jobs.build;
 
   assert.match(String(build.if), /needs\.release-please\.outputs\.release_created == 'true'/);
-  const runs = build.steps.filter((s: Record<string, any>) => s.run).map((s: Record<string, any>) => String(s.run));
-  assert.deepEqual(runs, ['pnpm install --frozen-lockfile', 'pnpm build', 'pnpm test']);
+  const runs = build.steps
+    .filter((s: Record<string, any>) => s.run && s.name !== 'Verify manual retry targets a published release')
+    .map((s: Record<string, any>) => String(s.run));
+  assert.deepEqual(runs, [
+    'node -e \'if (`v${require("./package.json").version}` !== process.env.RELEASE_TAG) process.exit(1)\'',
+    'pnpm install --frozen-lockfile',
+    'pnpm build',
+    'pnpm test',
+  ]);
 
   const upload = build.steps.find((s: Record<string, any>) => String(s.uses ?? '').startsWith('actions/upload-artifact@'));
   assert.equal(upload?.with?.path, 'dist');
@@ -94,6 +101,14 @@ test('release-oidc: a failed publish can be re-run by hand for an existing tag',
 
   assert.equal(workflow.on.workflow_dispatch?.inputs?.tag?.required, true);
   assert.match(String(workflow.jobs.build.if), /github\.event_name == 'workflow_dispatch'/);
+  const verifyRelease = workflow.jobs.build.steps.find((s: Record<string, any>) => s.name === 'Verify manual retry targets a published release');
+  assert.match(String(verifyRelease.if), /github\.event_name == 'workflow_dispatch'/);
+  assert.equal(verifyRelease.env.GH_REPO, '${{ github.repository }}');
+  assert.equal(verifyRelease.env.RELEASE_TAG, '${{ inputs.tag }}');
+  assert.match(String(verifyRelease.run), /gh release view "\$RELEASE_TAG" --json tagName,isDraft/);
+  assert.match(String(verifyRelease.run), /test "\$actual" = "\$RELEASE_TAG"/);
+  const verifyVersion = workflow.jobs.build.steps.find((s: Record<string, any>) => s.name === 'Verify release tag matches package version');
+  assert.equal(verifyVersion.env.RELEASE_TAG, '${{ needs.release-please.outputs.tag_name || inputs.tag }}');
   for (const job of ['build', 'publish']) {
     const checkout = workflow.jobs[job].steps.find((s: Record<string, any>) => String(s.uses ?? '').startsWith('actions/checkout@'));
     assert.match(String(checkout?.with?.ref), /inputs\.tag/);

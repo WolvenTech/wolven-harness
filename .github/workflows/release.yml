@@ -36,6 +36,16 @@ jobs:
     if: ${{ !cancelled() && (needs.release-please.outputs.release_created == 'true' || (github.event_name == 'workflow_dispatch' && startsWith(inputs.tag, 'v'))) }}
     runs-on: ubuntu-latest
     steps:
+      - name: Verify manual retry targets a published release
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ inputs.tag }}
+        run: |
+          actual=$(gh release view "$RELEASE_TAG" --json tagName,isDraft --jq 'select(.isDraft == false) | .tagName')
+          test "$actual" = "$RELEASE_TAG"
+
       - uses: actions/checkout@v4
         with:
           ref: ${{ needs.release-please.outputs.tag_name || inputs.tag }}
@@ -48,6 +58,11 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
+
+      - name: Verify release tag matches package version
+        env:
+          RELEASE_TAG: ${{ needs.release-please.outputs.tag_name || inputs.tag }}
+        run: node -e 'if (`v${require("./package.json").version}` !== process.env.RELEASE_TAG) process.exit(1)'
 
       - run: pnpm install --frozen-lockfile
       - run: pnpm build

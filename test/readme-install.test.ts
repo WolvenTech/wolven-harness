@@ -49,6 +49,8 @@ test('readme-install: the release section covers trusted publishing, its npm-sid
   assert.match(releaseSection, /workflow `release\.yml`/);
   assert.match(releaseSection, /disallow tokens/);
   assert.match(releaseSection, /run the `release` workflow by hand/);
+  assert.match(releaseSection, /Allow direct `npm publish`/);
+  assert.match(releaseSection, /After the first OIDC release succeeds/);
 });
 
 test('readme-install: the release section says to close and reopen the release PR before merging', async () => {

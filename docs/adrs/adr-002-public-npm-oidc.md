@@ -30,12 +30,15 @@ Every published version carries a provenance attestation. The command stays `wol
 
 A trusted publisher can only be attached to a package that already exists,
 so the first version on npmjs is a manual prerelease seed under a
-non-`latest` dist-tag, deprecated once the release job publishes.
+non-`latest` dist-tag. The workflow is merged before the npm mapping is set,
+and the mapping permits direct `npm publish`. The seed is deprecated and
+token publishing disabled after the first OIDC release succeeds.
 
 A pull-request job runs the full package gate and packs the tarball with
 the release job's npm, so a broken test or manifest fails on the pull
 request instead of in the release job. If a publish still fails after the
-tag exists, the release workflow can be run by hand for that tag.
+tag exists, the release workflow can be run by hand for that published GitHub
+Release tag, after checking that it matches the package version.
 
 ## Consequences
 
