@@ -2,6 +2,7 @@
   "name": "@wolven-tech/harness",
   "version": "0.1.1",
   "description": "AI-assisted dev harness: init an AGENTS.md-based skills tree, wire runtimes, and validate architecture-decision claims.",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/WolvenTech/wolven-harness.git"
