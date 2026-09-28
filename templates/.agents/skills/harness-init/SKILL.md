@@ -106,9 +106,11 @@ reference).
 
 Offered only when `harness:validate` reports `legacy-adr`. Turns each
 legacy ADR into a profile ADR under `docs/adrs/` — keeping its number,
-moving it, prepending frontmatter, mapping its status — and closes the
-step by recomputing links and working every failing claim with the Human
-until `harness:validate` exits 0 with `0 legacy-warn`. See
+moving it, prepending frontmatter, mapping its status (asking when part
+of a superseded ADR still applies, and searching for the tokens tests pin
+first) — and closes the step by recomputing links, working every failing
+claim with the Human, and checking that each claim to a touched ADR names
+the right decision, until `harness:validate` exits 0 with `0 legacy-warn`. See
 [references/adr-migration.md](references/adr-migration.md).
 
 Skipped on a re-run with no legacy-ADR warnings left.

@@ -35,7 +35,13 @@ status: <status>
 
 ## ADR migration
 
-<ADRs moved, the statuses asked and how each resolved, and any claim worked through with the Human — or "skipped — no legacy ADRs" when step 1 never ran>
+<one row per migrated ADR in the table below — or "skipped — no legacy ADRs" when step 1 never ran, with the table left out>
+
+| Number | Title | Legacy status | Mapped status | Evidence | Decision |
+| --- | --- | --- | --- | --- | --- |
+| <number> | <title of the ADR> | <legacy status as the repo wrote it> | <mapped status> | <where the status and any still-applies language came from> | <"table" for a direct mapping, or the Human's answer> |
+
+<each claim repointed, reworded, or left as is during the claim loop and the meaning check, with the Human's answer>
 
 ## Discovery
 
@@ -63,6 +69,16 @@ skipped — a skipped step fills its section with why, rather than leaving
 the heading empty or dropping it, so the note always shows the full shape
 of the run.
 
+## Naming ADRs in the note
+
+The note sits under `docs/notes/`, and `harness:validate` checks every ADR
+reference there as a claim, code spans and file paths included: a claim to
+a `draft` or `deprecated` ADR fails. So the note names an ADR only by its
+bare number and title ("007, Cache with Memcached"), never in the claim
+forms — the `ADR-NNN` token or its `adr-NNN-<slug>` filename — even in the
+legacy-status and evidence columns. Otherwise the note's own record of a
+deprecation would fail the check it documents.
+
 ## Lifecycle
 
 - **Created.** The note is created with `status: draft` at the very start
@@ -85,3 +101,5 @@ of the run.
 - Leaving every section unfilled until hand-back, instead of adding each
   phase's part before that phase's commit offer.
 - Starting a new note over a `draft` note left by an interrupted run.
+- Naming an ADR in the note by its claim token or filename instead of its
+  bare number and title.

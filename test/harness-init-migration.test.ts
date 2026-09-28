@@ -111,6 +111,33 @@ test('migrate-rules: the status mapping table carries Accepted, Proposed, Supers
   assert.match(flat, /never guesses a status mapping/i);
 });
 
+test('migrate-rules: a superseded ADR that still partly applies is asked about, never deprecated directly', async () => {
+  const raw = await readReference();
+  const table = flatten(raw.split('### Status mapping')[1]?.split('### Before writing')[0] ?? '');
+
+  assert.match(table, /`deprecated`\s*\|\s*only when nothing in the ADR or an index of the legacy folder says part of it still applies/i);
+  assert.match(table, /\|\s*superseded, but the ADR or an index says part of it still applies\s*\|\s*ask the human\s*\|/i);
+  assert.match(table, /split the part that still binds into a new ADR through `adr`, then deprecate this one/i);
+  assert.match(table, /keep this one `stable`.*with that decision recorded in the session note/i);
+});
+
+test('migrate-rules: tokens are searched, tests included, before a status other than stable is written', async () => {
+  const flat = flatten(await readReference());
+
+  assert.match(flat, /### Before writing a status other than `stable`/);
+  assert.match(flat, /search the whole repo, tests included, for the ADR's tokens/i);
+  assert.match(flat, /marking the ones a test or fixture asserts/i);
+  assert.match(flat, /never as a reason to pick a different status/i);
+});
+
+test('migrate-closure: each claim to a touched ADR is read against its title, mismatches asked one at a time', async () => {
+  const flat = flatten(await readReference());
+
+  assert.match(flat, /check what each claim means/i);
+  assert.match(flat, /for every claim to an ADR this migration touched, read the line making the claim next to that ADR's title/i);
+  assert.match(flat, /take each mismatch to the human, one at a time: repoint it, reword it, or leave it as is/i);
+});
+
 test('migrate-closure: recomputes every relative link into and out of a moved file', async () => {
   const flat = flatten(await readReference());
   assert.match(flat, /recompute every relative link/i);

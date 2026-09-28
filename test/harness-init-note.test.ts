@@ -92,6 +92,73 @@ test('session-note: the lifecycle states draft at step 0, a per-phase update bef
   assert.match(flat, /a `?draft`? note left by an interrupted run.*the next run reads it and keeps filling it in, rather than starting a second note over it/i);
 });
 
+test('session-note: the ADR migration section carries a per-ADR table and names ADRs by bare number and title', async () => {
+  const reference = await readReference();
+  const template = extractTemplate(reference);
+  const flat = flatten(reference);
+
+  assert.match(template, /\| Number \| Title \| Legacy status \| Mapped status \| Evidence \| Decision \|/);
+  assert.match(template, /each claim repointed, reworded, or left as is/i);
+  assert.match(flat, /## Naming ADRs in the note/);
+  assert.match(flat, /names an ADR only by its bare number and title/i);
+  assert.match(flat, /never in the claim forms/i);
+});
+
+const DEPRECATED_ADR = [
+  '---',
+  'type: adr',
+  'title: Cache with Memcached',
+  'description: Cache session state in Memcached; replaced by the Redis decision.',
+  'status: deprecated',
+  'superseded_by: adr-008-cache-with-redis',
+  '---',
+  '',
+  '# Cache with Memcached',
+  '',
+].join('\n');
+
+const STABLE_ADR = [
+  '---',
+  'type: adr',
+  'title: Cache with Redis',
+  'description: Cache session state in Redis with append-only persistence.',
+  'status: stable',
+  '---',
+  '',
+  '# Cache with Redis',
+  '',
+].join('\n');
+
+/** Renders the template as `stable` with one table row per ADR, naming each the way `ref` says. */
+function noteWithRows(template: string, ref: (number: string) => string): string {
+  const row = (number: string, title: string, legacy: string, mapped: string) =>
+    `| ${ref(number)} | ${title} | ${legacy} | ${mapped} | status section of the legacy file | table |`;
+  const rows = [
+    row('007', 'Cache with Memcached', `Superseded by ${ref('008')}`, 'deprecated'),
+    row('008', 'Cache with Redis', 'Accepted', 'stable'),
+  ].join('\n');
+  const withRows = template.replace(/^\| <number> \|.*$/m, rows);
+  return fillTemplate(withRows, 'stable');
+}
+
+test('session-note-fixture: a table row for a deprecated ADR passes when named by bare number, fails as a claim token', async () => {
+  const template = extractTemplate(await readReference());
+  const notePath = `docs/notes/harness-init-${DATE}/harness-init-${DATE}-note.md`;
+  const adrs = {
+    'docs/adrs/adr-007-cache-with-memcached.md': DEPRECATED_ADR,
+    'docs/adrs/adr-008-cache-with-redis.md': STABLE_ADR,
+  };
+
+  const bare = await minimalValidateFixture({ ...adrs, [notePath]: noteWithRows(template, (n) => n) });
+  const bareResult = await run(['validate'], { cwd: bare });
+  assert.equal(bareResult.code, 0, bareResult.stdout + bareResult.stderr);
+
+  const tokens = await minimalValidateFixture({ ...adrs, [notePath]: noteWithRows(template, (n) => `ADR-${n}`) });
+  const tokensResult = await run(['validate'], { cwd: tokens });
+  assert.notEqual(tokensResult.code, 0);
+  assert.match(tokensResult.stdout + tokensResult.stderr, /claim-deprecated/);
+});
+
 test('session-note-fixture: a rendered draft note passes validate with no profile findings', async () => {
   const template = extractTemplate(await readReference());
   const rendered = fillTemplate(template, 'draft');
