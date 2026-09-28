@@ -1,6 +1,6 @@
 {
   "name": "@wolventech/wolven-harness",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "AI-assisted dev harness: init an AGENTS.md-based skills tree, wire runtimes, and validate architecture-decision claims.",
   "repository": {
     "type": "git",

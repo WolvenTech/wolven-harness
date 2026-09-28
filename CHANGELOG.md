@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.2](https://github.com/WolvenTech/wolven-harness/compare/v0.1.1...v0.1.2) (2026-09-28)
+
+
+### Bug Fixes
+
+* **init:** reject incomplete and unknown input ([#12](https://github.com/WolvenTech/wolven-harness/issues/12)) ([c262c70](https://github.com/WolvenTech/wolven-harness/commit/c262c70a0d532f0915e886d7bf7fe59cf9a143d0))
+
 ## [0.1.1](https://github.com/WolvenTech/wolven-harness/compare/v0.1.0...v0.1.1) (2026-09-28)
 
 
