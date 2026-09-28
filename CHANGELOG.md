@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.2.0](https://github.com/WolvenTech/wolven-harness/compare/v0.1.1...v0.2.0) (2026-09-28)
+
+
+### Features
+
+* **release:** publish publicly to npmjs as @wolven-tech/harness ([#11](https://github.com/WolvenTech/wolven-harness/issues/11)) ([6b2a362](https://github.com/WolvenTech/wolven-harness/commit/6b2a362299fda4efa904b6ee145549e33919b637))
+
+
+### Bug Fixes
+
+* **init:** reject incomplete and unknown input ([#12](https://github.com/WolvenTech/wolven-harness/issues/12)) ([c262c70](https://github.com/WolvenTech/wolven-harness/commit/c262c70a0d532f0915e886d7bf7fe59cf9a143d0))
+
 ## [0.1.1](https://github.com/WolvenTech/wolven-harness/compare/v0.1.0...v0.1.1) (2026-09-28)
 
 
