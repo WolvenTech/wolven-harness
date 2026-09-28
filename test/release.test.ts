@@ -15,12 +15,15 @@ async function readWorkflow(): Promise<Record<string, any>> {
   return parseYaml(await readFile(path.join(repoRoot, '.github/workflows/release.yml'), 'utf8'));
 }
 
-test('package-manifest: publishes to GitHub Packages from the WolvenTech repository', async () => {
+test('package-name: publishes publicly to npmjs as @wolven/harness from the WolvenTech repository', async () => {
   const pkg = await readJson('package.json');
+  const releaseConfig = await readJson('release-please-config.json');
 
-  assert.equal(pkg.name, '@wolventech/wolven-harness');
-  assert.equal(pkg.publishConfig?.registry, 'https://npm.pkg.github.com');
+  assert.equal(pkg.name, '@wolven/harness');
+  assert.equal(pkg.bin['wolven-harness'], 'dist/cli.js');
+  assert.deepEqual(pkg.publishConfig, { access: 'public' });
   assert.equal(pkg.repository?.url, 'https://github.com/WolvenTech/wolven-harness.git');
+  assert.equal(releaseConfig.packages['.']['package-name'], pkg.name);
 });
 
 test('package-manifest: the tarball ships only dist and templates beside the default files', async () => {
@@ -42,20 +45,20 @@ test('release-workflow: release-please runs on push to main with the manifest co
   assert.equal(release.with['manifest-file'], '.release-please-manifest.json');
 });
 
-test('release-workflow: permissions are exactly contents, pull-requests and packages write', async () => {
+test('release-oidc: permissions are exactly contents, pull-requests write and id-token write', async () => {
   const workflow = await readWorkflow();
 
   assert.deepEqual(workflow.permissions, {
     contents: 'write',
     'pull-requests': 'write',
-    packages: 'write',
+    'id-token': 'write',
   });
   for (const job of Object.values<Record<string, any>>(workflow.jobs)) {
     assert.equal(job.permissions, undefined, 'no job widens the workflow permissions');
   }
 });
 
-test('release-workflow: on a created release it installs, builds, tests, then publishes with GITHUB_TOKEN', async () => {
+test('release-oidc: on a created release it upgrades npm, installs, builds, tests, then publishes with the npm CLI', async () => {
   const workflow = await readWorkflow();
   const steps: Record<string, any>[] = workflow.jobs['release-please'].steps;
   const releaseIndex = steps.findIndex((s) => s.id === 'release');
@@ -66,21 +69,44 @@ test('release-workflow: on a created release it installs, builds, tests, then pu
   }
 
   const runs = after.filter((s) => s.run).map((s) => String(s.run));
-  assert.deepEqual(runs, ['pnpm install --frozen-lockfile', 'pnpm build', 'pnpm test', 'pnpm publish --no-git-checks']);
+  assert.deepEqual(runs, [
+    'npm install -g npm@11.20.0',
+    'pnpm install --frozen-lockfile',
+    'pnpm build',
+    'pnpm test',
+    'npm publish --access public',
+  ]);
 
-  const publish = after.find((s) => String(s.run ?? '').startsWith('pnpm publish'));
-  assert.equal(publish?.env?.NODE_AUTH_TOKEN, '${{ secrets.GITHUB_TOKEN }}');
+  const publish = after.find((s) => String(s.run ?? '').startsWith('npm publish'));
+  assert.equal(publish?.env?.NODE_AUTH_TOKEN, undefined);
 
   const setupNode = after.find((s) => String(s.uses ?? '').startsWith('actions/setup-node@'));
-  assert.equal(setupNode?.with?.['registry-url'], 'https://npm.pkg.github.com');
+  assert.equal(setupNode?.with?.['registry-url'], undefined);
+  assert.equal(setupNode?.with?.scope, undefined);
 });
 
-test('release-workflow: the workflow names no secret beyond GITHUB_TOKEN', async () => {
+test('release-oidc: the workflow stores no secret and names no GitHub Packages registry', async () => {
   const raw = await readFile(path.join(repoRoot, '.github/workflows/release.yml'), 'utf8');
-  const secrets = [...raw.matchAll(/secrets\.([A-Za-z_]+)/g)].map((m) => m[1]);
 
-  assert.ok(secrets.length > 0);
-  assert.deepEqual([...new Set(secrets)], ['GITHUB_TOKEN']);
+  assert.doesNotMatch(raw, /secrets\./);
+  assert.doesNotMatch(raw, /npm\.pkg\.github\.com/);
+  assert.doesNotMatch(raw, /packages:\s*(read|write)/);
+});
+
+test('release-oidc: the npm upgrade pin is at least 11.5.1, the minimum for OIDC trusted publishing', async () => {
+  const workflow = await readWorkflow();
+  const steps: Record<string, any>[] = workflow.jobs['release-please'].steps;
+
+  const npmUpgrade = steps.find((s) => /npm install -g npm@/.test(String(s.run ?? '')));
+  assert.ok(npmUpgrade, 'an npm upgrade step is present');
+
+  const match = String(npmUpgrade!.run).match(/npm@(\d+)\.(\d+)\.(\d+)/);
+  assert.ok(match, 'the pin is an exact semver version');
+  const [, major, minor, patch] = match!.map(Number) as unknown as [never, number, number, number];
+
+  const meetsMinimum =
+    major > 11 || (major === 11 && (minor > 5 || (minor === 5 && patch >= 1)));
+  assert.ok(meetsMinimum, `npm@${major}.${minor}.${patch} must be >= 11.5.1`);
 });
 
 test('release-workflow: with no release tag yet the first release is 0.1.0, with minor bumps before 1.0', async () => {

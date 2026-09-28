@@ -30,8 +30,8 @@ test('init-devdep: warns when package.json exists without the dep in devDependen
   const result = await run(['init', '--git-host', 'gh', '--runtimes', 'claude'], { cwd: dir });
 
   assert.equal(result.code, 0, result.stderr);
-  assert.match(result.stderr, /@wolventech\/wolven-harness/);
-  assert.match(result.stderr, /pnpm add -D @wolventech\/wolven-harness/);
+  assert.match(result.stderr, /@wolven\/harness/);
+  assert.match(result.stderr, /pnpm add -D @wolven\/harness/);
 
   // why: addValidateScript also touches package.json (adds scripts) — only
   // devDependencies must stay untouched by this step.
@@ -43,21 +43,21 @@ test('init-devdep: no warning when the dep is already in devDependencies', async
   const pkg = {
     name: 'consumer',
     version: '1.0.0',
-    devDependencies: { '@wolventech/wolven-harness': '^0.1.0' },
+    devDependencies: { '@wolven/harness': '^0.1.0' },
   };
   const dir = await makeRepo({ 'package.json': `${JSON.stringify(pkg, null, 2)}\n` }, { git: true });
 
   const result = await run(['init', '--git-host', 'gh', '--runtimes', 'claude'], { cwd: dir });
 
   assert.equal(result.code, 0, result.stderr);
-  assert.doesNotMatch(result.stderr, /@wolventech\/wolven-harness/);
+  assert.doesNotMatch(result.stderr, /@wolven\/harness/);
 });
 
 test('init-devdep: a dep listed under dependencies gets a move hint, not a second add', async () => {
   const pkg = {
     name: 'consumer',
     version: '1.0.0',
-    dependencies: { '@wolventech/wolven-harness': '^0.1.0' },
+    dependencies: { '@wolven/harness': '^0.1.0' },
   };
   const dir = await makeRepo({ 'package.json': `${JSON.stringify(pkg, null, 2)}\n` }, { git: true });
 
@@ -66,7 +66,7 @@ test('init-devdep: a dep listed under dependencies gets a move hint, not a secon
   assert.equal(result.code, 0, result.stderr);
   assert.match(
     result.stderr,
-    /@wolventech\/wolven-harness is in dependencies, not devDependencies — run "pnpm remove @wolventech\/wolven-harness && pnpm add -D @wolventech\/wolven-harness"/,
+    /@wolven\/harness is in dependencies, not devDependencies — run "pnpm remove @wolven\/harness && pnpm add -D @wolven\/harness"/,
   );
 });
 
@@ -76,7 +76,7 @@ test('init-devdep: no warning without a package.json', async () => {
   const result = await run(['init', '--git-host', 'gh', '--runtimes', 'claude'], { cwd: dir });
 
   assert.equal(result.code, 0, result.stderr);
-  assert.doesNotMatch(result.stderr, /@wolventech\/wolven-harness/);
+  assert.doesNotMatch(result.stderr, /@wolven\/harness/);
 });
 
 test('init-config: a fresh run writes this package\'s own version as packageVersion', async () => {

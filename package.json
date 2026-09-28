@@ -1,5 +1,5 @@
 {
-  "name": "@wolventech/wolven-harness",
+  "name": "@wolven/harness",
   "version": "0.1.1",
   "description": "AI-assisted dev harness: init an AGENTS.md-based skills tree, wire runtimes, and validate architecture-decision claims.",
   "repository": {
@@ -18,7 +18,7 @@
     "templates"
   ],
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com"
+    "access": "public"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
