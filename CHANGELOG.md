@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.1](https://github.com/WolvenTech/wolven-harness/compare/v0.1.0...v0.1.1) (2026-09-28)
+
+
+### Bug Fixes
+
+* **release:** stop pinning the release manifest version in tests ([#7](https://github.com/WolvenTech/wolven-harness/issues/7)) ([cf6c2ed](https://github.com/WolvenTech/wolven-harness/commit/cf6c2ede59108e1613c322a04c74c99ff19f101a))
+
 ## 0.1.0 (2026-09-28)
 
 
