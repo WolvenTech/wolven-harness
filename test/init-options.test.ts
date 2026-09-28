@@ -73,6 +73,28 @@ test('init-prompts: no-tty missing flag exits 1 naming the flag', async () => {
   assert.equal(await configExists(dir), false);
 });
 
+test('init-prompts: unknown option exits without writing config', async () => {
+  const dir = await makeRepo({}, { git: true });
+  const result = await run(['init', '--git-host', 'gh', '--runtimes', 'codex', '--runtime', 'claude'], {
+    cwd: dir,
+    isTTY: false,
+  });
+
+  assert.equal(result.code, 1);
+  assert.match(result.stderr, /unknown option "--runtime"/);
+  assert.equal(await configExists(dir), false);
+});
+
+test('init-prompts: a flag without a value does not use a saved default', async () => {
+  const config = JSON.stringify({ version: 1, gitHost: 'gh', runtimes: ['codex'] }) + '\n';
+  const dir = await makeRepo({ '.wolven-harness.json': config }, { git: true });
+  const result = await run(['init', '--runtimes'], { cwd: dir, isTTY: false });
+
+  assert.equal(result.code, 1);
+  assert.match(result.stderr, /missing value for --runtimes/);
+  assert.equal(await readFile(path.join(dir, '.wolven-harness.json'), 'utf8'), config);
+});
+
 test('init-prompts: no-tty missing only --runtimes names just that flag', async () => {
   const dir = await makeRepo({}, { git: true });
 
@@ -146,6 +168,19 @@ test('init-prompts: tty re-asks on an invalid runtimes answer', async () => {
 
   const config = await readConfigFile(dir);
   assert.deepEqual(config.runtimes, ['claude']);
+});
+
+test('init-prompts: ended input fails without writing config', async () => {
+  const dir = await makeRepo({}, { git: true });
+  const hostResult = await run(['init'], { cwd: dir, isTTY: true, input: '' });
+  assert.equal(hostResult.code, 1);
+  assert.match(hostResult.stderr, /input ended before --git-host was answered/);
+
+  const result = await run(['init'], { cwd: dir, isTTY: true, input: 'gh\n' });
+
+  assert.equal(result.code, 1);
+  assert.match(result.stderr, /input ended before --runtimes was answered/);
+  assert.equal(await configExists(dir), false);
 });
 
 // --- init-config ---

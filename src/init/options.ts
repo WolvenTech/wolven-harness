@@ -37,7 +37,8 @@ interface Flags {
 
 /**
  * Parses `--git-host <value>` / `--git-host=<value>` and `--runtimes
- * <csv>` / `--runtimes=<csv>`. Any other argument is an `InitError`.
+ * <csv>` / `--runtimes=<csv>`. A missing value or any other argument is
+ * an `InitError`.
  */
 function parseFlags(argv: string[]): Flags {
   const flags: Flags = {};
@@ -46,11 +47,15 @@ function parseFlags(argv: string[]): Flags {
     const arg = argv[i];
 
     if (arg === '--git-host') {
-      flags.gitHost = argv[++i];
+      const value = argv[++i];
+      if (value === undefined) throw new InitError('missing value for --git-host');
+      flags.gitHost = value;
     } else if (arg.startsWith('--git-host=')) {
       flags.gitHost = arg.slice('--git-host='.length);
     } else if (arg === '--runtimes') {
-      flags.runtimes = argv[++i];
+      const value = argv[++i];
+      if (value === undefined) throw new InitError('missing value for --runtimes');
+      flags.runtimes = value;
     } else if (arg.startsWith('--runtimes=')) {
       flags.runtimes = arg.slice('--runtimes='.length);
     } else {
@@ -158,7 +163,9 @@ class LineReader {
 async function promptGitHost(reader: LineReader, io: Io): Promise<GitHost> {
   for (;;) {
     io.stdout.write('Git host — gh or bit: ');
-    const answer = ((await reader.next()) ?? '').trim();
+    const line = await reader.next();
+    if (line === undefined) throw new InitError('input ended before --git-host was answered');
+    const answer = line.trim();
     const value = parseGitHostValue(answer);
     if (value !== undefined) return value;
     io.stdout.write(`Invalid git host "${answer}" — enter "gh" or "bit".\n`);
@@ -168,7 +175,9 @@ async function promptGitHost(reader: LineReader, io: Io): Promise<GitHost> {
 async function promptRuntimes(reader: LineReader, io: Io): Promise<Runtime[]> {
   for (;;) {
     io.stdout.write('Runtimes — comma-separated, one or more of claude, codex, cursor: ');
-    const answer = ((await reader.next()) ?? '').trim();
+    const line = await reader.next();
+    if (line === undefined) throw new InitError('input ended before --runtimes was answered');
+    const answer = line.trim();
     const value = parseRuntimesValue(answer);
     if (value !== undefined) return value;
     io.stdout.write(
