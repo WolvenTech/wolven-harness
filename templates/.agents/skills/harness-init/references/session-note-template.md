@@ -31,7 +31,7 @@ status: <status>
 
 ## Entry integration
 
-<the mode chosen (full, light, or mention-only) and any checks step 0 raised>
+<the mode question as asked, the mode recommended and why, and the Human's answer — plus any checks step 0 raised>
 
 ## ADR migration
 
@@ -61,7 +61,7 @@ status: <status>
 
 ## Validate wiring
 
-<how the Human chose to run `harness:validate` (CI job, chained script, or local only), and what was written — or "nothing written">
+<the wiring question as asked, the option recommended and why, the Human's answer (CI job, chained script, or local only), and what was written — or "nothing written">
 
 ## Next steps for the Human
 

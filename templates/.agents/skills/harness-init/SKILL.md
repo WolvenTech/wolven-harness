@@ -92,8 +92,9 @@ A re-run does not redo what an earlier run already finished:
 ### 0. Entry integration
 
 Fold the entry file into `AGENTS.md` in one of three modes — full, light,
-or mention-only — recommend one from what the repo already has, and let the
-Human pick. This step also checks for existing `AGENTS.md` content, an
+or mention-only. Put the mode to the Human as one question, the recommended
+mode first with the reason and the other two as options; never pick it
+silently. This step also checks for existing `AGENTS.md` content, an
 overlapping router or rule, a `CLAUDE.md` that should import `AGENTS.md`,
 any harness path an ignore rule keeps from other clones (proposing
 re-include rules), and existing content in the five doc folders the

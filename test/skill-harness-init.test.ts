@@ -176,3 +176,17 @@ test('skill-harness-init: asks how harness:validate is wired, with three options
   const note = flatten(await skill.read('references/session-note-template.md'));
   assert.match(note, /## Validate wiring/);
 });
+
+test('skill-harness-init: step 0 puts the entry mode to the Human as a question and the note records question, recommendation and answer', async () => {
+  const skill = await readSkill('harness-init');
+  const step = flatten(skill.body.split(/^### 0\. /m)[1]?.split(/^### /m)[0] ?? '');
+  assert.match(step, /Put the mode to the Human as one question, the recommended mode first with the reason/);
+  assert.match(step, /never pick it silently/i);
+
+  const modes = flatten(await skill.read('references/entry-modes.md'));
+  assert.match(modes, /Never pick a mode silently/);
+
+  const note = flatten(await skill.read('references/session-note-template.md'));
+  assert.match(note, /the mode question as asked, the mode recommended and why, and the Human's answer/);
+  assert.match(note, /the wiring question as asked, the option recommended and why, the Human's answer/);
+});
