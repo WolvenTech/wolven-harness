@@ -26,14 +26,16 @@ stays as the file's title with its headings unchanged.
 ## Light
 
 `AGENTS.md` gets a short `## Wolven harness` block, appended after whatever
-it already holds. The block says where skills and rules live, cites the
-three standing rules, gives the doc layout and the writing profile,
-restates the architecture-claims rule, points at QMD before memory or the
-web, and names the validate command. It carries no
-router table and no skills table — those stay in `WOLVEN.md`'s full text,
-which this mode does not reuse.
+it already holds. The block says where skills and rules live, copies the
+standing-rule bullets from `WOLVEN.md`'s Standing rules section, gives the
+doc layout and the writing profile, restates the architecture-claims rule,
+points at QMD before memory or the web, and names the validate command. It
+carries no router table and no skills table — those stay in `WOLVEN.md`'s
+full text, which this mode does not reuse.
 
-Hold this block verbatim when writing it into `AGENTS.md`:
+Hold this block when writing it into `AGENTS.md`. The `<standing-rules>`
+line is not literal: replace it with the bullet list under `WOLVEN.md`'s
+Standing rules heading.
 
 ```markdown
 ## Wolven harness
@@ -42,9 +44,7 @@ Skills live under `.agents/skills/` (one folder per skill, each with a
 `SKILL.md`); standing rules live under `.agents/rules/` and load
 unconditionally:
 
-- `.agents/rules/qmd-first.md` — QMD before web, ADRs first
-- `.agents/rules/yagni-strict.md` — strict YAGNI; deferrals under `docs/deferrals/` only
-- `.agents/rules/comments.md` — comment style for added lines; run `harness:comments` before handing work back
+<standing-rules>
 
 Docs follow `docs/<folder>/<slug>/<slug>-<type>.md`, except ADRs, which sit
 flat as `docs/adrs/adr-NNN-<slug>.md`; `docs/WRITING-PROFILE.md` holds the

@@ -23,7 +23,9 @@ one file per decision, named `adr-NNN-<kebab-slug>.md`, with frontmatter
 validate` treats every `ADR-NNN` / `adr-NNN-<slug>` reference in a tracked
 file as a claim: it must resolve to exactly one `stable` profile ADR, or the
 check fails closed. A reference resolving only to a legacy ADR (one outside
-`docs/adrs/`) warns until migrated via the `harness-init` skill.
+`docs/adrs/`, and not under `archived/`) warns until migrated via the
+`harness-init` skill. Exactly one archived legacy ADR warns the same way;
+a reference that matches nothing fails.
 
 ## Consequences
 

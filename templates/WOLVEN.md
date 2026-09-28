@@ -42,7 +42,7 @@ Referencing an ADR as `ADR-NNN` or `adr-NNN-<slug>` anywhere in a tracked file
 is a claim, not decoration. Each claim must resolve to exactly one **`stable`**
 profile ADR under `docs/adrs/`:
 
-- No matching profile or legacy ADR at all — the claim **always fails**.
+- No matching profile ADR and no live legacy ADR — the claim **fails**, unless exactly one archived legacy ADR has that number, which **warns**.
 - A **legacy** ADR (an ADR-shaped file outside `docs/adrs/`) — the claim
   **warns** until it is migrated into `docs/adrs/` via the `harness-init`
   skill.

@@ -39,7 +39,7 @@ Prefer few, high-signal blocking findings over a pile of nits.
 |---|---|
 | **Approve with nits** | Every cited obligation is met; only nits remain |
 | **Request changes** | At least one blocking finding |
-| **Needs a human call** | Security, a data-loss risk, or a conflict between two cited refs — outside this skill's judgment |
+| **Needs the Human** | Security, a data-loss risk, or a conflict between two cited refs — outside this skill's judgment |
 
 The verdict is advice. This skill never merges, approves-and-merges, or
 enables auto-merge regardless of the verdict.

@@ -27,9 +27,11 @@ its target's filename slug. Legacy mode softens this for a transition
 period: a legacy ADR (a tracked, non-`docs/adrs/` file named like
 `adr-NNN*.md`) makes a claim to its number a warning instead of a failure,
 reported once per legacy ADR as a migrate-via-`harness-init` line, plus a
-per-claim warning under `--verbose`. A claim matching no ADR at all still
-fails; a number claimed by both a profile and a legacy ADR fails as a
-duplicate. The `ignore` config key is the only escape hatch, restricted to
+per-claim warning under `--verbose`. A claim matching no profile ADR and
+no live legacy ADR still fails, except when exactly one archived legacy
+ADR has that number, which warns the same way a live legacy ADR does.
+More than one archived match fails as a duplicate. A number claimed by
+both a profile and a live legacy ADR fails as a duplicate. The `ignore` config key is the only escape hatch, restricted to
 whole directories (`<dir>/**`) and forbidden from covering `docs/` or
 `.agents/` — the profile and the claim gate can't be switched off wholesale.
 

@@ -187,12 +187,11 @@ export async function minimalValidateFixture(files: Record<string, string> = {})
 }
 
 /**
- * Renders a template file by replacing `<key>` and `{{key}}` placeholders
- * with `vars[key]` (both spellings are supported; a skill's own template
- * may use either), writes the result at `dest` inside a fresh fixture
- * built from `fixtureFiles` plus the spine `makeRepo` provides, and
- * returns the fixture's directory so the caller can `run(['validate'], {
- * cwd })` against it.
+ * Renders a template file by replacing `<key>` placeholders with
+ * `vars[key]`, writes the result at `dest` inside a fresh fixture built
+ * from `fixtureFiles` plus the spine `makeRepo` provides, and returns the
+ * fixture's directory so the caller can `run(['validate'], { cwd })`
+ * against it.
  *
  * `templatePath` is either an absolute path (a caller-built temp file), or
  * a path relative to this package's `templates/` folder — which covers
@@ -210,7 +209,7 @@ export async function renderInto(
 
   let rendered = raw;
   for (const [key, value] of Object.entries(vars)) {
-    rendered = rendered.split(`{{${key}}}`).join(value).split(`<${key}>`).join(value);
+    rendered = rendered.split(`<${key}>`).join(value);
   }
 
   return makeRepo({ ...fixtureFiles, [dest]: rendered }, { git: true });

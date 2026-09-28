@@ -167,9 +167,13 @@ test('step0-fixture: an existing AGENTS.md plus the light block passes validate 
   assert.equal(blocks.length, 2, 'expected exactly two fenced markdown blocks (light block, mention-only line)');
   const [lightBlock] = blocks;
   assert.match(lightBlock, /## Wolven harness/);
+  assert.match(lightBlock, /<standing-rules>/);
 
-  const ruleFiles = await collectCitedRules(lightBlock);
-  assert.ok(Object.keys(ruleFiles).length > 0, 'light block cites no rule files to copy');
+  const wolvenTemplate = await readFile(path.join(repoRoot, 'templates', 'WOLVEN.md'), 'utf8');
+  const standing = wolvenTemplate.split('## Standing rules')[1]?.split('\n## ')[0]?.trim() ?? '';
+  const light = lightBlock.replace('<standing-rules>', standing);
+  const ruleFiles = await collectCitedRules(light);
+  assert.ok(Object.keys(ruleFiles).length > 0, 'WOLVEN.md standing rules cite no rule files to copy');
 
   const priorAgents = [
     '# Agents',
@@ -182,7 +186,7 @@ test('step0-fixture: an existing AGENTS.md plus the light block passes validate 
 
   const cwd = await makeRepo(
     {
-      'AGENTS.md': `${priorAgents}\n${lightBlock}\n`,
+      'AGENTS.md': `${priorAgents}\n${light}\n`,
       ...ruleFiles,
     },
     { git: true },
