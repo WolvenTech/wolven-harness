@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { writeFile } from 'node:fs/promises';
+import { mkdir, symlink, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { makeRepo, run } from './helpers/fixture.js';
 
@@ -87,6 +87,38 @@ test('rule-missing: AGENTS.md citing a missing rule exits 1 with the rule id', a
 
   assert.equal(result.code, 1);
   assert.match(result.stdout, /rule-missing/);
+});
+
+test('rule-missing: a dangling symlink cited as a rule exits 1 with the rule id', async () => {
+  const dir = await makeRepo(
+    {
+      'WOLVEN.md': 'See .agents/rules/missing.md for details.\n',
+    },
+    { git: true },
+  );
+  await mkdir(path.join(dir, '.agents', 'rules'), { recursive: true });
+  await symlink('gone.md', path.join(dir, '.agents', 'rules', 'missing.md'));
+
+  const result = await run(['validate'], { cwd: dir });
+
+  assert.equal(result.code, 1);
+  assert.match(result.stdout, /rule-missing/);
+});
+
+test('rule-missing: a regular-file .agents reports the missing rule instead of throwing', async () => {
+  const dir = await makeRepo(
+    {
+      'WOLVEN.md': 'See .agents/rules/missing.md for details.\n',
+      '.agents': 'not a directory\n',
+    },
+    { git: true },
+  );
+
+  const result = await run(['validate'], { cwd: dir });
+
+  assert.equal(result.code, 1);
+  assert.match(result.stdout, /rule-missing/);
+  assert.doesNotMatch(result.stderr, /ENOTDIR/);
 });
 
 test('rule-missing: an existing cited rule produces no rule-missing finding', async () => {
@@ -270,6 +302,31 @@ test('step0-pending: fresh init warns, and AGENTS.md mentioning WOLVEN.md clears
   const second = await run(['validate'], { cwd: dir });
   assert.equal(second.code, 0);
   assert.doesNotMatch(second.stdout, /harness-init step 0 pending/);
+});
+
+test('step0-pending: a dangling WOLVEN.md symlink is absent, so there is no warning', async () => {
+  const dir = await makeRepo({}, { git: true });
+  await symlink('gone.md', path.join(dir, 'WOLVEN.md'));
+
+  const result = await run(['validate'], { cwd: dir });
+
+  assert.equal(result.code, 0);
+  assert.doesNotMatch(result.stdout + result.stderr, /harness-init step 0 pending/);
+});
+
+test('step0-pending: a dangling AGENTS.md symlink is absent, so the warning stays', async () => {
+  const dir = await makeRepo(
+    {
+      'WOLVEN.md': '# Wolven\n',
+    },
+    { git: true },
+  );
+  await symlink('gone.md', path.join(dir, 'AGENTS.md'));
+
+  const result = await run(['validate'], { cwd: dir });
+
+  assert.equal(result.code, 0);
+  assert.match(result.stdout, /harness-init step 0 pending/);
 });
 
 test('step0-pending: no WOLVEN.md means no warning', async () => {
