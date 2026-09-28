@@ -93,5 +93,7 @@ test('release-workflow: with no release tag yet the first release is 0.1.0, with
   assert.ok(config.packages?.['.'], 'root package configured');
   // why: release-please ignores the manifest's 0.0.0 until a tag exists and defaults the first release to 1.0.0.
   assert.equal(config.packages['.']['initial-version'], '0.1.0');
-  assert.deepEqual(manifest, { '.': '0.0.0' });
+  // why: release-please rewrites the manifest on every release, so only its shape is stable.
+  assert.deepEqual(Object.keys(manifest), ['.']);
+  assert.match(manifest['.'], /^\d+\.\d+\.\d+$/);
 });
