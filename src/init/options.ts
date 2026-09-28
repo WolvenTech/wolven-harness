@@ -6,6 +6,7 @@ import type { GitHost, Io, Options, Context, Runtime } from './types.js';
 import { InitError } from './types.js';
 import { isGitHost, isRuntime, readConfig, writeConfig } from './config.js';
 import type { Config } from './config.js';
+import { resolveOwnPackage } from './own-package.js';
 
 const execFileAsync = promisify(execFile);
 
@@ -206,8 +207,10 @@ async function promptMissing(
  * any prompt or write); then flags override `.wolven-harness.json`
  * defaults, which override interactive prompts (TTY only — no TTY with a
  * value still missing is a named-flag `InitError`). The resolved options
- * are written back to `.wolven-harness.json`, carrying an existing
- * `ignore` key forward untouched.
+ * are written back to `.wolven-harness.json` on every run, refreshing
+ * `packageVersion` to this running package's own version and carrying
+ * every other existing key (`ignore`, `comments`, and any unknown key)
+ * forward untouched.
  */
 export async function resolveOptions(argv: string[], io: Io, ctx: Context): Promise<Options> {
   await assertGitTopLevel(io);
@@ -240,11 +243,15 @@ export async function resolveOptions(argv: string[], io: Io, ctx: Context): Prom
   const resolvedGitHost = gitHost as GitHost;
   const resolvedRuntimes = runtimes as Runtime[];
 
+  const { version: packageVersion } = await resolveOwnPackage();
+
   const config: Config = {
     version: 1,
     gitHost: resolvedGitHost,
     runtimes: resolvedRuntimes,
+    packageVersion,
     ...(existing?.ignore !== undefined ? { ignore: existing.ignore } : {}),
+    ...(existing?.extra !== undefined ? { extra: existing.extra } : {}),
   };
 
   await writeConfig(ctx.root, config);

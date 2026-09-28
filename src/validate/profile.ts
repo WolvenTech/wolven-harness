@@ -56,11 +56,25 @@ function parseFrontmatter(content: string): Record<string, unknown> | undefined 
   return parsed as Record<string, unknown>;
 }
 
+/** Resolves a `superseded_by` value (an ADR filename without `.md`) to the path it names. */
+function supersededByPath(value: string): string {
+  return `docs/adrs/${value}.md`;
+}
+
 /**
  * Checks one main doc (an ADR, or a doc-folder's `<slug>-<type>.md` /
- * `<slug>-plan.md`) and appends its findings.
+ * `<slug>-plan.md`) and appends its findings. `adrFiles` is every
+ * `docs/adrs/*.md` path in the repo; a deprecated ADR's `superseded_by` is
+ * resolved against it.
  */
-function checkFile(rel: string, dir: string, baseName: string, content: string, findings: Finding[]): void {
+function checkFile(
+  rel: string,
+  dir: string,
+  baseName: string,
+  content: string,
+  findings: Finding[],
+  adrFiles: Set<string>,
+): void {
   // (d) kebab-case ASCII filename.
   if (!KEBAB_RE.test(baseName)) {
     findings.push({
@@ -137,14 +151,25 @@ function checkFile(rel: string, dir: string, baseName: string, content: string, 
   }
 
   // ADR-only: superseded_by required when deprecated.
-  if (dir === 'adrs' && status === 'deprecated' && !isNonEmptyString(frontmatter.superseded_by)) {
-    findings.push({
-      level: 'error',
-      rule: 'profile-superseded-by',
-      file: rel,
-      line: 1,
-      message: 'deprecated ADR is missing "superseded_by"',
-    });
+  if (dir === 'adrs' && status === 'deprecated') {
+    if (!isNonEmptyString(frontmatter.superseded_by)) {
+      findings.push({
+        level: 'error',
+        rule: 'profile-superseded-by',
+        file: rel,
+        line: 1,
+        message: 'deprecated ADR is missing "superseded_by"',
+      });
+    } else if (!adrFiles.has(supersededByPath(frontmatter.superseded_by))) {
+      // invariant: superseded_by must name an ADR file present in this repo.
+      findings.push({
+        level: 'error',
+        rule: 'profile-superseded-by',
+        file: rel,
+        line: 1,
+        message: `"superseded_by" names "${frontmatter.superseded_by}", which does not resolve to an existing ADR`,
+      });
+    }
   }
 }
 
@@ -163,11 +188,13 @@ export async function checkProfile(ctx: RepoContext): Promise<Finding[]> {
   const slugsSeen = new Map<string, Set<string>>();
   const mainDocSeen = new Map<string, Set<string>>();
 
+  const adrFiles = new Set(ctx.files.filter((rel) => ADR_FILE_RE.test(rel)));
+
   for (const rel of ctx.files) {
     const adrMatch = rel.match(ADR_FILE_RE);
     if (adrMatch) {
       const content = await ctx.read(rel);
-      checkFile(rel, 'adrs', adrMatch[1], content, findings);
+      checkFile(rel, 'adrs', adrMatch[1], content, findings, adrFiles);
       continue;
     }
 
@@ -205,7 +232,7 @@ export async function checkProfile(ctx: RepoContext): Promise<Finding[]> {
     }
 
     const content = await ctx.read(rel);
-    checkFile(rel, dir, restPath, content, findings);
+    checkFile(rel, dir, restPath, content, findings, adrFiles);
   }
 
   for (const [dir, slugs] of slugsSeen) {

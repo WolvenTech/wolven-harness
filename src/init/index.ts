@@ -4,6 +4,7 @@ import { resolveOptions } from './options.js';
 import { applyTemplates } from './apply.js';
 import { wireRuntimes } from './runtimes.js';
 import { addValidateScript } from './package-script.js';
+import { warnMissingDevDependency } from './own-package.js';
 import { InitError } from './types.js';
 import type { Io, Context, StepResult } from './types.js';
 
@@ -24,7 +25,8 @@ async function traced<T>(io: Io, name: string, fn: () => Promise<T>): Promise<T>
 
 /**
  * Runs `init`'s steps in a fixed order: resolve options, apply templates,
- * wire runtimes, add the validate script.
+ * wire runtimes, add the validate script, warn about a missing
+ * `devDependencies` entry.
  */
 export async function runInit(argv: string[], io: Io): Promise<number> {
   const ctx: Context = {
@@ -39,6 +41,7 @@ export async function runInit(argv: string[], io: Io): Promise<number> {
     const applyResult = await traced(io, 'applyTemplates', () => applyTemplates(opts, ctx));
     const runtimeResult = await traced(io, 'wireRuntimes', () => wireRuntimes(opts, ctx));
     const scriptResult = await traced(io, 'addValidateScript', () => addValidateScript(ctx));
+    await traced(io, 'warnMissingDevDependency', () => warnMissingDevDependency(ctx));
     results = [applyResult, runtimeResult, scriptResult];
   } catch (err) {
     if (!(err instanceof InitError)) throw err;

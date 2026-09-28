@@ -1,4 +1,5 @@
 import type { Io } from '../init/types.js';
+import { checkAdrFolders } from './adr-folders.js';
 import { loadIgnoreConfig } from './config.js';
 import { checkClaims } from './claims.js';
 import { checkProfile } from './profile.js';
@@ -25,8 +26,8 @@ function parseArgs(argv: string[]): ParsedArgs {
 /**
  * Runs `validate`: resolves the git top-level (the claim gate requires
  * git), loads and guards the `ignore` config, builds the `RepoContext`, runs the
- * profile/spine/claims checks, and prints the report. Every path printed
- * is root-relative, so output is identical from any subdirectory.
+ * profile/spine/claims/adr-folder checks, and prints the report. Every path
+ * printed is root-relative, so output is identical from any subdirectory.
  */
 export async function runValidate(argv: string[], io: Io): Promise<number> {
   const parsed = parseArgs(argv);
@@ -57,8 +58,9 @@ export async function runValidate(argv: string[], io: Io): Promise<number> {
   const profileFindings = await checkProfile(ctx);
   const spineFindings = await checkSpine(ctx);
   const claimsResult = await checkClaims(ctx, profileFindings);
+  const adrFolderFindings = await checkAdrFolders(ctx);
 
-  const allFindings: Finding[] = [...profileFindings, ...spineFindings, ...claimsResult.findings];
+  const allFindings: Finding[] = [...profileFindings, ...spineFindings, ...claimsResult.findings, ...adrFolderFindings];
   const summary = summarizeFindings(allFindings, verbose);
 
   for (const line of summary.lines) io.stdout.write(`${line}\n`);
