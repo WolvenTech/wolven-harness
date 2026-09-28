@@ -16,6 +16,9 @@ pnpm validate   # node dist/cli.js validate — run after `pnpm build`
 - `src/` — CLI source (`cli.ts`, `init/`, `validate/`, `comments/`); `pnpm build` compiles it to `dist/`.
 - `templates/` — files `init` copies into a consumer repo.
 - `test/` — `node:test` suites, run in-process against `src/` via `tsx` (no build required).
+- `CONTRIBUTING.md` — contributor entry point: requirements, the local gate, and the PR rules.
+- `assets/` — the Wolven marks the `README.md` header embeds; outside `"files"`, so they do not ship.
+- `site/` — the static GitHub Pages page and its mark; Pages must be pointed at this folder in repo settings.
 
 ## Rules
 

@@ -1,10 +1,36 @@
-# wolven-harness
+# wolven-harness *(@wolven-tech/harness)*
 
-AI-assisted dev harness: scaffolds an `AGENTS.md`-based `.agents/` skills tree, wires supported runtimes, and validates architecture-decision claims against a lightweight ADR profile.
+<img width="128" alt="Wolven" src="assets/wolven-logo-black.png#gh-light-mode-only">
+<img width="128" alt="Wolven" src="assets/wolven-logo-white.png#gh-dark-mode-only">
+
+[![npm version](https://img.shields.io/npm/v/@wolven-tech/harness.svg)](https://www.npmjs.com/package/@wolven-tech/harness)
+[![node](https://img.shields.io/badge/node-%3E%3D22-brightgreen.svg)](https://nodejs.org)
+[![license](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
+
+AI-assisted dev harness: init an AGENTS.md-based skills tree, wire runtimes, and validate architecture-decision claims.
+
+`wolven-harness` is a TypeScript CLI for Node 22 or later. Installing it adds one binary, `wolven-harness`, with three commands: `init` scaffolds the harness into a repo, `validate` checks the result against a writing profile and a claim gate, and `comments` judges the comment lines a change adds.
+
+The reason to run it is to stop re-explaining a repo to an agent. `init` seeds an `AGENTS.md`-based `.agents/` skills tree — sixteen skills, `harness-init` among them — and wires the runtimes you name. `validate` then keeps architecture-decision claims fail-closed: every `ADR-NNN` reference in a tracked file has to resolve to exactly one stable ADR under `docs/adrs/`, or the command exits 1.
+
+With that in place, the default path for a change is spec, then plan, then execute, driven by the `code-spec`, `code-plan`, and `code-execute` skills — see [Suggested workflow](#suggested-workflow).
+
+v0 supports macOS and Linux only: wiring Claude Code means creating a directory symlink, and Windows symlinks need Developer Mode or admin rights. Note also that the repository is named `wolven-harness` while the package it publishes is `@wolven-tech/harness`.
+
+## Table of Contents
+
+- [Install](#install)
+- [Usage](#usage)
+- [Suggested workflow](#suggested-workflow)
+- [Skills](#skills)
+- [Setting up with harness-init](#setting-up-with-harness-init)
+- [Doc layout](#doc-layout)
+- [Runtimes](#runtimes)
+- [Release](#release)
+- [Contributing](#contributing)
+- [License](#license)
 
 ## Install
-
-Requires Node 22 or later and git.
 
 The package is public on npmjs.org as `@wolven-tech/harness`. Install is two commands:
 
@@ -13,15 +39,21 @@ pnpm add -D @wolven-tech/harness
 pnpm exec wolven-harness init
 ```
 
+Run both at the git top level of the repo you are setting up — `init` checks, and fails anywhere else. You need Node 22 or later, git, and macOS or Linux.
+
 `init` warns when the package is missing from `devDependencies`, and records its own version as `packageVersion` in `.wolven-harness.json` — the version of the `init` that ran, which is the installed one when you run it with `pnpm exec`.
+
+Working from a clone of this repository instead is covered under [Contributing](#contributing).
 
 ## Usage
 
+`wolven-harness --help` — or `-h`, or no command at all — prints the command list. An unknown command prints that list and exits 1.
+
 ### `wolven-harness init`
 
-Run it at the git top-level of the target repo. It asks for the git host (`gh` or `bit`) and the runtimes to wire (`claude`, `codex`, `cursor`), or takes them as flags — `--git-host gh --runtimes claude,codex` — which are required when stdin is not a TTY. The answers are saved to `.wolven-harness.json`.
+Run it at the git top-level of the target repo. It asks for the git host (`gh` or `bit`) and the runtimes to wire (`claude`, `codex`, `cursor`), or takes them as flags — `--git-host gh --runtimes claude,codex` — which are required when stdout is not a TTY. An unknown option is an error, and so is an input that ends before a prompt has been answered. The answers are saved to `.wolven-harness.json`.
 
-`init` creates paths that are missing and leaves every other existing path byte-identical, then lists what it created and what it skipped. Two exceptions: it adds `harness:validate` and `harness:comments` to an existing `package.json` when those script keys are absent, and every run rewrites `packageVersion` in `.wolven-harness.json`. It writes `WOLVEN.md`, `docs/` (writing profile, ADR folder with a starter ADR, prds, specs, notes, deferrals), `.qmd/index.yml`, `.agents/` (skills, rules, hooks — including the `comments.md` standing rule), and the runtime wiring below. It never creates or edits `AGENTS.md`: see [Setting up with harness-init](#setting-up-with-harness-init) below.
+`init` creates paths that are missing and leaves every other existing path byte-identical, then lists what it created and what it skipped. Two exceptions: it adds `harness:validate` and `harness:comments` to an existing `package.json` when those script keys are absent, and every run rewrites `packageVersion` in `.wolven-harness.json`. It writes `WOLVEN.md`, `docs/` (writing profile, ADR folder with a starter ADR, prds, specs, notes, deferrals), `.qmd/index.yml`, `.agents/` (skills, rules, and a hooks placeholder — including the `comments.md` standing rule), and the runtime wiring below. It never creates or edits `AGENTS.md`: see [Setting up with harness-init](#setting-up-with-harness-init) below.
 
 ### `wolven-harness validate`
 
@@ -44,6 +76,41 @@ It prints one `<file>:<line>: [<kind>] <message>` line per finding and ends with
 
 By default it judges changed files outside the top-level `ignore` directories. `comments.paths` in `.wolven-harness.json`, a non-empty list of directory prefixes, replaces that scope, `ignore` included. `comments.languages` adds extensions beyond the built-in `.ts`, `.tsx`, `.js`, `.jsx`, `.mjs`, and `.cjs`; each value is an object with a `line` marker and an optional `[open, close]` `block`.
 
+## Suggested workflow
+
+Once `init` has run and the `harness-init` skill has folded the entry file, the default path for a change is three skills, in order:
+
+1. `code-spec` — freeze the ask into a spec of obligation-and-proof pairs.
+2. `code-plan` — turn the locked spec into ordered execute units with dependencies and wave stops.
+3. `code-execute` — implement a wave in-repo and run the gates.
+
+Upstream of that, `create-prd` and `grilling` are the ones to reach for when the problem is not yet a clear ask.
+
+Committing, opening a PR, review, and CI are each a later and separate ask: `code-commit` writes the commits, and `code-pr`, `code-review`, `code-ci`, and `handoff` are ask-only skills that never merge.
+
+## Skills
+
+`init` seeds sixteen skills under `.agents/skills/`. The four marked ask-only are never invoked by a model on its own — you name them, and none of them merges anything.
+
+| Skill | Description |
+| --- | --- |
+| `adr` | Create, promote, and supersede ADRs under docs/adrs/; repoint claims when one supersedes another. |
+| `code-ci` (ask-only) | Drive a PR to merge-ready: conflicts, then comments, then failing checks. Explicit ask; never merge. |
+| `code-commit` | Write Conventional Commits on an explicit ask, or from code-execute when commit-cadence says to. |
+| `code-execute` | Execute a locked plan in-repo (implement, validate, maybe commit). PRs, review, CI are a later ask. |
+| `code-plan` | Turn a locked spec into ordered execute units with dependencies, wave stops, and a Subagent each. |
+| `code-pr` (ask-only) | Push the branch and open or amend a PR from the body template. Ask-only; never merges. |
+| `code-review` (ask-only) | Review an open PR against the refs it cites; post blocking or nit findings. Never merges. |
+| `code-spec` | Freeze a code initiative into a spec from a PRD or confirmed ask, with obligation-proof pairs. |
+| `create-prd` | Grill a problem to one statement, draft a lean PRD, and promote draft to stable only on approval. |
+| `grilling` | Interview one question at a time until every open branch of a plan, decision, or idea is settled. |
+| `handoff` (ask-only) | Save a handoff document to the OS temp directory for a fresh session. Ask-only; never automatic. |
+| `harness-init` | Fold WOLVEN.md into AGENTS.md, migrate legacy ADRs, discover, stub skills, and write a session note. |
+| `pragmatic-guard` | YAGNI: challenge over-build, record docs/deferrals/, refuse scope expansion without a trigger. |
+| `prototype` | Build a throwaway prototype that answers one question, then discard or promote it deliberately. |
+| `qmd` | Search local markdown notes, docs, and wikis with QMD; retrieve documents or set up QMD access. |
+| `research` | Investigate against primary sources, cite every claim, and land the answer as an in-repo note. |
+
 ## Setting up with harness-init
 
 `init` never creates or edits `AGENTS.md` on its own. Once it finishes, ask your agent to run the `harness-init` skill — `init`'s own closing line points you here, and so does `harness:validate` for as long as entry integration hasn't run yet.
@@ -60,12 +127,7 @@ Before writing anything, the agent shows you the diff and waits for your choice,
 
 ## Doc layout
 
-`init` creates `docs/{prds,specs,notes,deferrals}/`, each holding one
-slug folder per document: `docs/<folder>/<slug>/<slug>-<type>.md` (folder →
-type: `prds`→`prd`, `specs`→`spec`, `notes`→`note`, `deferrals`→`deferral`).
-`docs/specs/<slug>/` may also hold `<slug>-plan.md`. `docs/adrs/`
-is the exception and stays flat: `docs/adrs/adr-NNN-<slug>.md`. See
-`docs/WRITING-PROFILE.md` for the full type map and rules.
+`init` creates `docs/{prds,specs,notes,deferrals}/`, each holding one slug folder per document: `docs/<folder>/<slug>/<slug>-<type>.md` (folder → type: `prds`→`prd`, `specs`→`spec`, `notes`→`note`, `deferrals`→`deferral`). `docs/specs/<slug>/` may also hold `<slug>-plan.md`. `docs/adrs/` is the exception and stays flat: `docs/adrs/adr-NNN-<slug>.md`. See `docs/WRITING-PROFILE.md` for the full type map and rules.
 
 ## Runtimes
 
@@ -105,6 +167,8 @@ Keep this as a public package on npm's free public-organization plan; it needs n
 
 ## Contributing
 
+Issues and pull requests belong on this repository. [CONTRIBUTING.md](CONTRIBUTING.md) has the details; the short version is that PR titles are Conventional Commits, and every pull request runs the same gate you can run yourself.
+
 Clone the repo, install, build, and test:
 
 ```sh
@@ -115,9 +179,13 @@ pnpm build
 pnpm test
 ```
 
-Run the CLI from the clone inside a target repo:
+That clone is also the from-source way to run the CLI against another repo, without installing the package there:
 
 ```sh
 cd /path/to/target-repo
 node /path/to/wolven-harness/dist/cli.js init
 ```
+
+## License
+
+MIT © WolvenTech — see [LICENSE](./LICENSE).

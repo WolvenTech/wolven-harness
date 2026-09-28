@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>wolven-harness — AI-assisted dev harness</title>
+<meta name="description" content="AI-assisted dev harness: init an AGENTS.md-based skills tree, wire runtimes, and validate architecture-decision claims.">
+<link rel="icon" href="wolven-logo-black.png">
+<style>
+  :root {
+    --ink: #111111;
+    --body: #3d3d3d;
+    --muted: #6b6b6b;
+    --accent: #e8481f;
+    --line: #e2e2e2;
+    --wash: #f6f6f6;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    margin: 0;
+    background: #ffffff;
+    color: var(--body);
+    font-family: var(--sans);
+    font-size: 17px;
+    line-height: 1.65;
+  }
+
+  .wrap {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  h1, h2, h3 { color: var(--ink); line-height: 1.2; }
+
+  a { color: var(--accent); }
+  a:hover { text-decoration: none; }
+
+  code {
+    font-family: var(--mono);
+    font-size: 0.88em;
+    background: var(--wash);
+    border-radius: 3px;
+    padding: 0.12em 0.36em;
+  }
+
+  pre {
+    font-family: var(--mono);
+    font-size: 14px;
+    line-height: 1.6;
+    background: var(--wash);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 14px 16px;
+    overflow-x: auto;
+  }
+
+  pre code { background: none; padding: 0; font-size: inherit; }
+
+  .eyebrow {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 14px;
+  }
+
+  /* Hero */
+
+  .hero { padding: 72px 0 8px; }
+
+  .hero .mark { display: block; margin: 0 0 28px; }
+
+  .hero h1 {
+    font-size: 54px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin: 0 0 18px;
+  }
+
+  .tagline {
+    font-size: 20px;
+    line-height: 1.5;
+    color: var(--body);
+    max-width: 44em;
+    margin: 0 0 12px;
+  }
+
+  .subline { color: var(--muted); max-width: 44em; margin: 0 0 26px; }
+
+  .hero pre { max-width: 44em; }
+
+  .herolinks {
+    margin: 22px 0 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 22px;
+    font-size: 15px;
+  }
+
+  /* Sections */
+
+  section { padding: 56px 0; border-top: 1px solid var(--line); }
+  section:first-of-type { border-top: 0; }
+
+  section > .wrap > h2 {
+    font-size: 34px;
+    font-weight: 800;
+    letter-spacing: -0.015em;
+    margin: 0 0 10px;
+  }
+
+  .lede { color: var(--muted); max-width: 46em; margin: 0 0 32px; }
+  .lede-gap { margin-top: 34px; }
+
+  /* Command cards */
+
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 18px;
+  }
+
+  .card {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 22px 20px;
+    background: #ffffff;
+  }
+
+  .card .label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 8px;
+  }
+
+  .card h3 {
+    font-family: var(--mono);
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0 0 12px;
+  }
+
+  .card p { font-size: 15px; line-height: 1.6; margin: 0 0 12px; }
+  .card p:last-child { margin-bottom: 0; }
+
+  /* Numbered cycle */
+
+  .cycle { list-style: none; margin: 0; padding: 0; counter-reset: step; }
+
+  .cycle > li {
+    counter-increment: step;
+    display: grid;
+    grid-template-columns: 56px 190px 1fr;
+    gap: 0 20px;
+    padding: 22px 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .cycle > li:first-child { border-top: 0; padding-top: 0; }
+
+  .cycle > li::before {
+    content: counter(step);
+    font-size: 30px;
+    font-weight: 800;
+    line-height: 1.1;
+    color: var(--accent);
+  }
+
+  .cycle .actor {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding-top: 7px;
+  }
+
+  .cycle p { margin: 0; }
+
+  /* Tables */
+
+  .scroller { overflow-x: auto; }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 15px;
+    line-height: 1.55;
+  }
+
+  th, td {
+    text-align: left;
+    vertical-align: top;
+    padding: 11px 14px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  thead th {
+    color: var(--ink);
+    font-weight: 700;
+    border-bottom: 2px solid var(--ink);
+    white-space: nowrap;
+  }
+
+  tbody tr:nth-child(even) { background: #fafafa; }
+
+  td:first-child { font-family: var(--mono); font-size: 13.5px; white-space: nowrap; }
+
+  .note {
+    margin: 22px 0 0;
+    padding: 14px 16px;
+    border-left: 3px solid var(--accent);
+    background: var(--wash);
+    font-size: 15px;
+  }
+
+  .note :last-child { margin-bottom: 0; }
+  .note p { margin: 0 0 8px; }
+
+  /* Query field cards */
+
+  .fields {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    margin-top: 24px;
+  }
+
+  #skills th:last-child, #skills td:last-child { white-space: nowrap; }
+
+  .field {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 16px 18px;
+  }
+
+  .field .key {
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent);
+    margin: 0 0 6px;
+  }
+
+  .field p { font-size: 15px; margin: 0; }
+
+  /* Footer */
+
+  footer {
+    border-top: 1px solid var(--line);
+    padding: 40px 0 64px;
+    color: var(--muted);
+    font-size: 15px;
+  }
+
+  footer p { margin: 0 0 8px; }
+
+  @media (max-width: 640px) {
+    body { font-size: 16px; }
+    .hero { padding: 48px 0 4px; }
+    .hero h1 { font-size: 38px; }
+    .tagline { font-size: 18px; }
+    section { padding: 44px 0; }
+    section > .wrap > h2 { font-size: 27px; }
+    .cycle > li { grid-template-columns: 44px 1fr; gap: 0 16px; }
+    .cycle > li::before { grid-row: span 2; font-size: 26px; }
+    .cycle .actor { padding-top: 0; margin-bottom: 4px; }
+    .fields { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <img class="mark" src="wolven-logo-black.png" alt="Wolven" width="88" height="88">
+    <p class="eyebrow">Wolven &middot; open-source dev tooling</p>
+    <h1>wolven-harness</h1>
+    <p class="tagline">AI-assisted dev harness: init an AGENTS.md-based skills tree, wire runtimes, and validate architecture-decision claims.</p>
+    <p class="subline">A TypeScript CLI for Node 22 or later, published as <code>@wolven-tech/harness</code>. One binary, three commands, and a repo an agent can work in without being re-briefed. macOS and Linux.</p>
+<pre><code>pnpm add -D @wolven-tech/harness
+pnpm exec wolven-harness init</code></pre>
+    <ul class="herolinks">
+      <li><a href="https://github.com/WolvenTech/wolven-harness">Source on GitHub</a></li>
+      <li><a href="https://www.npmjs.com/package/@wolven-tech/harness">Package on npm</a></li>
+      <li><a href="https://github.com/WolvenTech/wolven-harness#readme">Full README</a></li>
+    </ul>
+  </div>
+</header>
+
+<main>
+
+<section id="commands">
+  <div class="wrap">
+    <h2>Three commands</h2>
+    <p class="lede">Run them at, or anywhere inside, the repository you are setting up. <code>init</code> is the only one that writes.</p>
+    <div class="cards">
+
+      <article class="card">
+        <p class="label">Scaffold</p>
+        <h3>wolven-harness init</h3>
+        <p>Runs at the git top level and fails anywhere else. Asks for the git host (<code>gh</code> or <code>bit</code>) and the runtimes to wire (<code>claude</code>, <code>codex</code>, <code>cursor</code>), or takes <code>--git-host</code> and <code>--runtimes</code> — required when stdout is not a TTY.</p>
+        <p>Creates only the paths that are missing, leaves every existing path byte-identical, then lists what it created and what it skipped. It never creates or edits your <code>AGENTS.md</code>.</p>
+      </article>
+
+      <article class="card">
+        <p class="label">Check the docs</p>
+        <h3>wolven-harness validate</h3>
+        <p>Four groups: the writing profile, ADR claims, legacy ADRs, and the skills-and-rules spine. Every <code>ADR-NNN</code> reference in a tracked file has to resolve to exactly one stable decision record.</p>
+        <p>Prints a claim tally and <code>validate: ok</code>, or exits 1 naming the file and line. <code>--verbose</code> lists each legacy reference.</p>
+      </article>
+
+      <article class="card">
+        <p class="label">Check the code</p>
+        <h3>wolven-harness comments</h3>
+        <p>Judges the comment lines a change added since a base ref — by default the merge-base with <code>origin/HEAD</code>, then <code>origin/main</code>, then <code>main</code>. <code>--base &lt;ref&gt;</code> overrides it.</p>
+        <p>Ends with <code>comments: ok (0 findings)</code>, or prints one line per finding and exits 1.</p>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<section id="cycle">
+  <div class="wrap">
+    <h2>The cycle</h2>
+    <p class="lede">What a full pass looks like once the package is installed.</p>
+    <ol class="cycle">
+
+      <li>
+        <p class="actor">A person</p>
+        <p>Runs <code>init</code> at the git top level and answers two questions — the git host, and which runtimes to wire. The command writes the skills tree, the docs skeleton, and the runtime wiring, skipping anything that already exists.</p>
+      </li>
+
+      <li>
+        <p class="actor">The agent</p>
+        <p>Runs the <code>harness-init</code> skill, which folds the entry file: <code>WOLVEN.md</code> is merged into your <code>AGENTS.md</code> in whichever mode you pick. <code>init</code> deliberately leaves that file alone, so a person decides how the harness is introduced. The same skill offers to migrate older decision records and to stub the skills you are missing.</p>
+      </li>
+
+      <li>
+        <p class="actor">The agent</p>
+        <p>Takes work through <code>code-spec</code> → <code>code-plan</code> → <code>code-execute</code>: freeze the ask into a spec of obligations and proofs, turn that spec into ordered units, then execute a unit in the repository. Committing, opening a pull request, and review are each a separate ask afterwards.</p>
+      </li>
+
+      <li>
+        <p class="actor">Your gates</p>
+        <p><code>init</code> adds <code>harness:validate</code> and <code>harness:comments</code> to your <code>package.json</code>. Those two scripts are the gates: the first holds the docs and decision claims to the profile, the second judges the comments a change added. They run wherever you choose to run them — the harness installs no workflow of its own and blocks nothing in your pipeline until you wire it in.</p>
+      </li>
+
+    </ol>
+  </div>
+</section>
+
+<section id="layout">
+  <div class="wrap">
+    <h2>Where each thing lives</h2>
+    <p class="lede">What your repository looks like after <code>init</code>. Documents live one slug folder deep, as <code>docs/&lt;folder&gt;/&lt;slug&gt;/&lt;slug&gt;-&lt;type&gt;.md</code>; decision records are the exception and stay flat.</p>
+    <div class="scroller">
+      <table>
+        <thead>
+          <tr><th scope="col">Path</th><th scope="col">What it holds</th><th scope="col">What <code>validate</code> checks</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>AGENTS.md</td>
+            <td>Your entry file — the first thing an agent reads. <code>init</code> never creates or edits it.</td>
+            <td>Warns until <code>WOLVEN.md</code> has been folded in.</td>
+          </tr>
+          <tr>
+            <td>WOLVEN.md</td>
+            <td>The harness section <code>init</code> writes, ready for <code>harness-init</code> to fold into the entry file.</td>
+            <td>Every rule it cites has to exist.</td>
+          </tr>
+          <tr>
+            <td>.agents/skills/</td>
+            <td>The sixteen seeded skills, one folder each.</td>
+            <td>Each skill carries a <code>name</code> and a <code>description</code>.</td>
+          </tr>
+          <tr>
+            <td>.agents/rules/</td>
+            <td>The three standing rules: <code>comments</code>, <code>qmd-first</code>, <code>yagni-strict</code>.</td>
+            <td>A cited rule file has to exist, and no ignore rule may hide it.</td>
+          </tr>
+          <tr>
+            <td>.agents/hooks/</td>
+            <td>Empty apart from a placeholder note. <code>init</code> creates the folder and stops there — no hooks ship, none are wired, and the harness runs none. It is yours to fill if you ever want one.</td>
+            <td>Only that no ignore rule hides it.</td>
+          </tr>
+          <tr>
+            <td>docs/adrs/</td>
+            <td>Decision records, flat, as <code>adr-NNN-&lt;slug&gt;.md</code>, seeded with one starter record.</td>
+            <td>The profile, plus the claim gate — fail-closed.</td>
+          </tr>
+          <tr>
+            <td>docs/prds/<br>docs/specs/<br>docs/notes/<br>docs/deferrals/</td>
+            <td>One slug folder per document. A spec folder may also hold its <code>&lt;slug&gt;-plan.md</code>.</td>
+            <td>Front matter, a type matching the folder, and a kebab-case name.</td>
+          </tr>
+          <tr>
+            <td>docs/WRITING-PROFILE.md</td>
+            <td>The type map and naming rules the profile check enforces.</td>
+            <td>Reference only.</td>
+          </tr>
+          <tr>
+            <td>.qmd/index.yml</td>
+            <td>The collection index for searching those documents locally.</td>
+            <td>Not checked.</td>
+          </tr>
+          <tr>
+            <td>.wolven-harness.json</td>
+            <td>Your answers, the version of the <code>init</code> that ran, and any <code>ignore</code> or <code>comments</code> scope you add.</td>
+            <td>No harness path may be excluded by an ignore rule.</td>
+          </tr>
+          <tr>
+            <td>.claude/skills<br>CLAUDE.md</td>
+            <td>Written only when you wire the <code>claude</code> runtime, and only when absent: a directory symlink to the skills tree, and an entry file that imports yours.</td>
+            <td>The symlink target counts as a harness path.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note">
+      <p><code>docs/</code> is exactly those five folders — <code>adrs/</code>, <code>prds/</code>, <code>specs/</code>, <code>notes/</code>, <code>deferrals/</code> — and nothing else.</p>
+      <p>This package's own repository is not a consumer of that layout: its <code>docs/</code> holds only decision records.</p>
+    </div>
+  </div>
+</section>
+
+<section id="skills">
+  <div class="wrap">
+    <h2>The skills</h2>
+    <p class="lede">Sixteen folders under <code>.agents/skills/</code>. The four marked ask-only are never invoked by a model on its own — you name them — and none of them merges anything.</p>
+    <div class="scroller">
+      <table>
+        <thead>
+          <tr><th scope="col">Skill</th><th scope="col">What it does</th><th scope="col">Invocation</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>adr</td><td>Create, promote, and supersede ADRs under docs/adrs/; repoint claims when one supersedes another.</td><td>Model or ask</td></tr>
+          <tr><td>code-ci</td><td>Drive a PR to merge-ready: conflicts, then comments, then failing checks. Explicit ask; never merge.</td><td>Ask-only</td></tr>
+          <tr><td>code-commit</td><td>Write Conventional Commits on an explicit ask, or from code-execute when commit-cadence says to.</td><td>Model or ask</td></tr>
+          <tr><td>code-execute</td><td>Execute a locked plan in-repo (implement, validate, maybe commit). PRs, review, CI are a later ask.</td><td>Model or ask</td></tr>
+          <tr><td>code-plan</td><td>Turn a locked spec into ordered execute units with dependencies, wave stops, and a Subagent each.</td><td>Model or ask</td></tr>
+          <tr><td>code-pr</td><td>Push the branch and open or amend a PR from the body template. Ask-only; never merges.</td><td>Ask-only</td></tr>
+          <tr><td>code-review</td><td>Review an open PR against the refs it cites; post blocking or nit findings. Never merges.</td><td>Ask-only</td></tr>
+          <tr><td>code-spec</td><td>Freeze a code initiative into a spec from a PRD or confirmed ask, with obligation-proof pairs.</td><td>Model or ask</td></tr>
+          <tr><td>create-prd</td><td>Grill a problem to one statement, draft a lean PRD, and promote draft to stable only on approval.</td><td>Model or ask</td></tr>
+          <tr><td>grilling</td><td>Interview one question at a time until every open branch of a plan, decision, or idea is settled.</td><td>Model or ask</td></tr>
+          <tr><td>handoff</td><td>Save a handoff document to the OS temp directory for a fresh session. Ask-only; never automatic.</td><td>Ask-only</td></tr>
+          <tr><td>harness-init</td><td>Fold WOLVEN.md into AGENTS.md, migrate legacy ADRs, discover, stub skills, and write a session note.</td><td>Model or ask</td></tr>
+          <tr><td>pragmatic-guard</td><td>YAGNI: challenge over-build, record docs/deferrals/, refuse scope expansion without a trigger.</td><td>Model or ask</td></tr>
+          <tr><td>prototype</td><td>Build a throwaway prototype that answers one question, then discard or promote it deliberately.</td><td>Model or ask</td></tr>
+          <tr><td>qmd</td><td>Search local markdown notes, docs, and wikis with QMD; retrieve documents or set up QMD access.</td><td>Model or ask</td></tr>
+          <tr><td>research</td><td>Investigate against primary sources, cite every claim, and land the answer as an in-repo note.</td><td>Model or ask</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note">
+      <p>Three rules under <code>.agents/rules/</code> apply to every session rather than waiting to be called: <code>comments</code> sets the style for added comment lines and is what <code>harness:comments</code> enforces, <code>qmd-first</code> says to search the repository's own documents before memory or the web, and <code>yagni-strict</code> puts <code>pragmatic-guard</code> on scope expansion and keeps deferrals under <code>docs/deferrals/</code>.</p>
+    </div>
+  </div>
+</section>
+
+<section id="search">
+  <div class="wrap">
+    <h2>Searching your own documents</h2>
+    <p class="lede">The <code>qmd</code> skill wires an agent into QMD, a local markdown search tool, so a question gets answered from your decision records and specs before it is answered from memory or the web. QMD is a separate CLI the skill expects to find installed; the harness only teaches the agent to use it well.</p>
+    <ol class="cycle">
+      <li>
+        <p class="actor">Search decisions</p>
+        <p>Query the decision records first — they are the record an agent is allowed to depend on.</p>
+      </li>
+      <li>
+        <p class="actor">Widen</p>
+        <p>Only on a miss, widen the same question across every indexed collection.</p>
+      </li>
+      <li>
+        <p class="actor">Retrieve in full</p>
+        <p>Pull the whole document rather than working from snippets, which are leads and not evidence.</p>
+      </li>
+      <li>
+        <p class="actor">Answer with citations</p>
+        <p>Answer from the retrieved text, citing the path or document id it came from.</p>
+      </li>
+    </ol>
+    <p class="lede lede-gap">Rather than pasting a bare question, the skill has the agent write the query in four labelled parts:</p>
+    <div class="fields">
+      <div class="field"><p class="key">intent:</p><p>What you are trying to find, and what to avoid.</p></div>
+      <div class="field"><p class="key">lex:</p><p>Exact terms, aliases, titles, and rare words you expect to appear.</p></div>
+      <div class="field"><p class="key">vec:</p><p>The same idea paraphrased in natural language.</p></div>
+      <div class="field"><p class="key">hyde:</p><p>A description of the document that would satisfy the request.</p></div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p><a href="https://github.com/WolvenTech/wolven-harness">WolvenTech/wolven-harness</a> &middot; <code>@wolven-tech/harness</code> on npm &middot; MIT licensed.</p>
+    <p>Built and released from the repository; this page is static and collects nothing.</p>
+  </div>
+</footer>
+
+</body>
+</html>
