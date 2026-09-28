@@ -40,6 +40,16 @@ async function listFiles(dir: string): Promise<string[]> {
 
 // --- init-prompts ---
 
+test('init-prompts: an unknown argument exits 1 and writes nothing', async () => {
+  const dir = await makeRepo({}, { git: true });
+
+  const result = await run(['init', '--help'], { cwd: dir, isTTY: false });
+
+  assert.equal(result.code, 1);
+  assert.match(result.stderr, /unknown option "--help"/);
+  assert.equal(await configExists(dir), false);
+});
+
 test('init-prompts: flags-only', async () => {
   const dir = await makeRepo({}, { git: true });
 
