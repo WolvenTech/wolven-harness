@@ -1,4 +1,5 @@
-import { access, readdir, readFile } from 'node:fs/promises';
+import { execFile } from 'node:child_process';
+import { access, lstat, readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { parse } from 'yaml';
 import type { RepoContext } from './repo.js';
@@ -7,6 +8,19 @@ import type { Finding } from './report.js';
 const FRONTMATTER_RE = /^---\n([\s\S]*?)\n---/;
 const RULE_CITATION_RE = /\.agents\/rules\/[A-Za-z0-9._-]+\.md/g;
 const CITING_FILES = ['WOLVEN.md', 'AGENTS.md'];
+
+/** Harness paths every clone needs; `harness-ignored` checks the ones present on disk. */
+const HARNESS_PATHS = [
+  '.agents/skills',
+  '.agents/rules',
+  '.agents/hooks',
+  '.qmd',
+  'docs',
+  '.claude/skills',
+  'AGENTS.md',
+  'CLAUDE.md',
+  '.wolven-harness.json',
+];
 
 async function fileExists(p: string): Promise<boolean> {
   try {
@@ -27,22 +41,30 @@ async function readOptional(p: string): Promise<string | undefined> {
 }
 
 /**
- * Rule `skill-frontmatter`: every directory directly under
- * `.agents/skills/` must have a `SKILL.md` whose frontmatter parses and
- * carries non-empty string `name` and `description`. A missing skills dir
- * yields no findings.
+ * Walks every directory directly under `.agents/skills/` once and applies
+ * two rules to each `SKILL.md`. A missing skills dir yields no findings.
+ *
+ * - `skill-frontmatter` (error): the `SKILL.md` must exist, and its
+ *   frontmatter must parse and carry non-empty string `name` and
+ *   `description`.
+ * - `skill-stub-open` (warning, exit 0): frontmatter carrying
+ *   `metadata.wolven-harness: stub` is an open stub; the finding names the
+ *   file and tells the reader to define the skill and then remove the
+ *   marker. Any other `metadata` value, or none, raises nothing. It fires
+ *   whenever the frontmatter parses, independent of `skill-frontmatter`.
  */
-async function checkSkillFrontmatter(root: string): Promise<Finding[]> {
+async function checkSkills(root: string): Promise<{ frontmatter: Finding[]; stubs: Finding[] }> {
   const skillsDir = path.join(root, '.agents', 'skills');
 
   let entries;
   try {
     entries = await readdir(skillsDir, { withFileTypes: true });
   } catch {
-    return [];
+    return { frontmatter: [], stubs: [] };
   }
 
   const findings: Finding[] = [];
+  const stubs: Finding[] = [];
   const dirs = entries
     .filter((e) => e.isDirectory())
     .map((e) => e.name)
@@ -92,9 +114,24 @@ async function checkSkillFrontmatter(root: string): Promise<Finding[]> {
         message: `missing or empty frontmatter field(s): ${missing.join(', ')}`,
       });
     }
+
+    const metadata = parsed?.metadata;
+    const isOpenStub =
+      typeof metadata === 'object' &&
+      metadata !== null &&
+      (metadata as Record<string, unknown>)['wolven-harness'] === 'stub';
+
+    if (isOpenStub) {
+      stubs.push({
+        level: 'warn',
+        rule: 'skill-stub-open',
+        file: relFile,
+        message: 'open stub: define the skill, then remove the wolven-harness: stub marker',
+      });
+    }
   }
 
-  return findings;
+  return { frontmatter: findings, stubs };
 }
 
 /**
@@ -146,18 +183,76 @@ async function checkStep0Pending(root: string): Promise<Finding[]> {
 }
 
 /**
- * Checks the harness spine: skill frontmatter, cited-rule
- * existence, and the step-0-pending warning. Reads the working tree
- * directly via `node:fs/promises` against `ctx.root`, not `ctx.files` —
- * `WOLVEN.md` and `.agents/**` stay untracked until someone commits them, and
- * these checks must still see them.
+ * Runs `git check-ignore --stdin -z -v -n` over `paths` and returns its raw
+ * NUL-separated output: four fields per path (source, line, pattern, path),
+ * empty fields when no rule matched.
+ */
+function gitCheckIgnore(root: string, paths: string[]): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const child = execFile(
+      'git',
+      ['check-ignore', '--stdin', '-z', '-v', '-n'],
+      { cwd: root, maxBuffer: 1024 * 1024 },
+      (error, stdout) => {
+        // invariant: exit 1 only means no path matched; any other failure surfaces.
+        if (error && (error as { code?: unknown }).code !== 1) reject(error);
+        else resolve(stdout);
+      },
+    );
+    child.stdin?.end(paths.map((p) => `${p}\0`).join(''));
+  });
+}
+
+/**
+ * Rule `harness-ignored`: every harness path present on disk must be able
+ * to reach other clones. A path excluded by an ignore rule (`.gitignore`,
+ * `.git/info/exclude`, or the global excludes file) is an error naming the
+ * rule. A path whose last matching rule is a `!` re-include is fine, and
+ * tracked files are never reported, since git applies ignore rules only to
+ * untracked ones.
+ */
+async function checkHarnessIgnored(root: string): Promise<Finding[]> {
+  const present: string[] = [];
+  for (const rel of HARNESS_PATHS) {
+    try {
+      await lstat(path.join(root, rel));
+      present.push(rel);
+    } catch {
+      // why: an absent path has nothing to share, so it is not checked.
+    }
+  }
+  if (present.length === 0) return [];
+
+  const fields = (await gitCheckIgnore(root, present)).split('\0');
+  const findings: Finding[] = [];
+  for (let i = 0; i + 3 < fields.length; i += 4) {
+    const [source, line, pattern, rel] = fields.slice(i, i + 4);
+    if (pattern === '' || pattern.startsWith('!')) continue;
+    findings.push({
+      level: 'error',
+      rule: 'harness-ignored',
+      file: rel,
+      message: `excluded by ignore rule "${pattern}" (${source}:${line}), so other clones and CI never get it; add re-include rules after that line`,
+    });
+  }
+  return findings;
+}
+
+/**
+ * Checks the harness spine: skill frontmatter, open skill stubs,
+ * cited-rule existence, harness paths excluded by ignore rules, and the
+ * step-0-pending warning. Reads the working
+ * tree directly via `node:fs/promises` against `ctx.root`, not `ctx.files`
+ * — `WOLVEN.md` and `.agents/**` stay untracked until someone commits them,
+ * and these checks must still see them.
  */
 export async function checkSpine(ctx: RepoContext): Promise<Finding[]> {
-  const [skillFindings, ruleFindings, step0Findings] = await Promise.all([
-    checkSkillFrontmatter(ctx.root),
+  const [skills, ruleFindings, ignoredFindings, step0Findings] = await Promise.all([
+    checkSkills(ctx.root),
     checkRuleCitations(ctx.root),
+    checkHarnessIgnored(ctx.root),
     checkStep0Pending(ctx.root),
   ]);
 
-  return [...skillFindings, ...ruleFindings, ...step0Findings];
+  return [...skills.frontmatter, ...skills.stubs, ...ruleFindings, ...ignoredFindings, ...step0Findings];
 }
