@@ -21,17 +21,21 @@ the package private bought no secrecy.
 
 The package is `@wolven/harness` on npmjs.org, with public access. The
 release job publishes it with the npm CLI through OIDC trusted publishing:
-the job holds `id-token: write`, and npmjs trusts this repository's
-`release.yml` as the only publisher. No npm token is stored anywhere, and
-the package's publishing access disallows tokens. Every published version
-carries a provenance attestation. The command stays `wolven-harness`.
+only the publish job holds `id-token: write`, it installs no project
+dependencies, and npmjs trusts this repository's `release.yml` as the only
+publisher. No npm token is stored anywhere. The package's publishing access
+is set to disallow tokens; that setting and the trusted publisher live on
+npmjs, not in this repository, so the README's Release section lists them.
+Every published version carries a provenance attestation. The command stays `wolven-harness`.
 
 A trusted publisher can only be attached to a package that already exists,
 so the first version on npmjs is a manual prerelease seed under a
 non-`latest` dist-tag, deprecated once the release job publishes.
 
-A pull-request job runs the full package gate, so a broken test fails on
-the pull request instead of in the release job.
+A pull-request job runs the full package gate and packs the tarball with
+the release job's npm, so a broken test or manifest fails on the pull
+request instead of in the release job. If a publish still fails after the
+tag exists, the release workflow can be run by hand for that tag.
 
 ## Consequences
 
@@ -39,7 +43,8 @@ the pull request instead of in the release job.
   `.npmrc`, token, access grant or extra CI permission.
 - Published versions are public and effectively permanent; a bad release is
   fixed by the next patch, never by republishing a version.
-- The release job cannot publish from a fork or another workflow, and a
-  leaked token cannot publish at all.
+- Once both npm settings are in place, nothing but this repository's
+  `release.yml` can publish: not a fork, another workflow, or a leaked
+  token.
 - The earlier private GitHub Packages versions are left in place and are no
   longer updated.

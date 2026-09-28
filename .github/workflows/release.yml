@@ -3,15 +3,27 @@ name: release
 on:
   push:
     branches: [main]
+  # why: publish otherwise runs only in the push that creates the release, so a
+  # failed publish would leave a tag and Release with nothing on npm.
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing release tag to publish, e.g. v0.2.0
+        required: true
 
 permissions:
-  contents: write
-  pull-requests: write
-  id-token: write
+  contents: read
 
 jobs:
   release-please:
+    if: ${{ github.event_name == 'push' }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
     steps:
       - id: release
         uses: googleapis/release-please-action@v4
@@ -19,32 +31,58 @@ jobs:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
 
-      - if: ${{ steps.release.outputs.release_created }}
-        uses: actions/checkout@v4
-
-      - if: ${{ steps.release.outputs.release_created }}
-        uses: pnpm/action-setup@v4
+  build:
+    needs: release-please
+    if: ${{ !cancelled() && (needs.release-please.outputs.release_created == 'true' || (github.event_name == 'workflow_dispatch' && startsWith(inputs.tag, 'v'))) }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
         with:
-          version: 11
+          ref: ${{ needs.release-please.outputs.tag_name || inputs.tag }}
 
-      - if: ${{ steps.release.outputs.release_created }}
-        uses: actions/setup-node@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.28.2
+
+      - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: pnpm
 
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - run: pnpm test
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist
+          if-no-files-found: error
+
+  # invariant: only this job can mint the OIDC token npm trusts, and it never
+  # installs the project's dependencies or runs its lifecycle scripts.
+  publish:
+    needs: [release-please, build]
+    if: ${{ !cancelled() && needs.build.result == 'success' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.release-please.outputs.tag_name || inputs.tag }}
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
       # why: OIDC trusted publishing needs npm CLI >= 11.5.1; Node 22 bundles npm 10.x.
-      - if: ${{ steps.release.outputs.release_created }}
-        run: npm install -g npm@11.20.0
+      - run: npm install -g npm@11.20.0
 
-      - if: ${{ steps.release.outputs.release_created }}
-        run: pnpm install --frozen-lockfile
-
-      - if: ${{ steps.release.outputs.release_created }}
-        run: pnpm build
-
-      - if: ${{ steps.release.outputs.release_created }}
-        run: pnpm test
-
-      - if: ${{ steps.release.outputs.release_created }}
-        run: npm publish --access public
+      - run: npm publish --access public --ignore-scripts

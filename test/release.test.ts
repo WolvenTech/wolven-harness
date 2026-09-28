@@ -35,54 +35,69 @@ test('package-manifest: the tarball ships only dist and templates beside the def
 test('release-workflow: release-please runs on push to main with the manifest config', async () => {
   const workflow = await readWorkflow();
 
-  assert.deepEqual(workflow.on, { push: { branches: ['main'] } });
+  assert.deepEqual(workflow.on.push, { branches: ['main'] });
 
-  const steps: Record<string, any>[] = workflow.jobs['release-please'].steps;
-  const release = steps.find((s) => String(s.uses ?? '').startsWith('googleapis/release-please-action@'));
+  const job = workflow.jobs['release-please'];
+  assert.match(String(job.if), /github\.event_name == 'push'/);
+  const release = job.steps.find((s: Record<string, any>) => String(s.uses ?? '').startsWith('googleapis/release-please-action@'));
   assert.ok(release, 'release-please step present');
   assert.equal(release.id, 'release');
   assert.equal(release.with['config-file'], 'release-please-config.json');
   assert.equal(release.with['manifest-file'], '.release-please-manifest.json');
 });
 
-test('release-oidc: permissions are exactly contents, pull-requests write and id-token write', async () => {
+test('release-oidc: only the publish job can mint an OIDC token; release-please alone writes to the repo', async () => {
   const workflow = await readWorkflow();
 
-  assert.deepEqual(workflow.permissions, {
-    contents: 'write',
-    'pull-requests': 'write',
-    'id-token': 'write',
-  });
-  for (const job of Object.values<Record<string, any>>(workflow.jobs)) {
-    assert.equal(job.permissions, undefined, 'no job widens the workflow permissions');
+  assert.deepEqual(workflow.permissions, { contents: 'read' });
+  assert.deepEqual(workflow.jobs['release-please'].permissions, { contents: 'write', 'pull-requests': 'write' });
+  assert.equal(workflow.jobs.build.permissions, undefined, 'build keeps the read-only default');
+  assert.deepEqual(workflow.jobs.publish.permissions, { contents: 'read', 'id-token': 'write' });
+});
+
+test('release-oidc: build installs, builds and tests the release tag, then hands dist to publish', async () => {
+  const workflow = await readWorkflow();
+  const build = workflow.jobs.build;
+
+  assert.match(String(build.if), /needs\.release-please\.outputs\.release_created == 'true'/);
+  const runs = build.steps.filter((s: Record<string, any>) => s.run).map((s: Record<string, any>) => String(s.run));
+  assert.deepEqual(runs, ['pnpm install --frozen-lockfile', 'pnpm build', 'pnpm test']);
+
+  const upload = build.steps.find((s: Record<string, any>) => String(s.uses ?? '').startsWith('actions/upload-artifact@'));
+  assert.equal(upload?.with?.path, 'dist');
+});
+
+test('release-oidc: publish runs no project install and publishes with the npm CLI', async () => {
+  const workflow = await readWorkflow();
+  const publish = workflow.jobs.publish;
+
+  assert.deepEqual(publish.needs, ['release-please', 'build']);
+  assert.match(String(publish.if), /needs\.build\.result == 'success'/);
+
+  const runs = publish.steps.filter((s: Record<string, any>) => s.run).map((s: Record<string, any>) => String(s.run));
+  assert.deepEqual(runs, ['npm install -g npm@11.20.0', 'npm publish --access public --ignore-scripts']);
+  assert.ok(
+    !publish.steps.some((s: Record<string, any>) => String(s.uses ?? '').startsWith('pnpm/action-setup@')),
+    'no package manager for project dependencies in the publish job',
+  );
+
+  const setupNode = publish.steps.find((s: Record<string, any>) => String(s.uses ?? '').startsWith('actions/setup-node@'));
+  assert.equal(setupNode?.with?.['registry-url'], undefined);
+  assert.equal(setupNode?.with?.scope, undefined);
+  for (const step of publish.steps) {
+    assert.equal(step.env?.NODE_AUTH_TOKEN, undefined);
   }
 });
 
-test('release-oidc: on a created release it upgrades npm, installs, builds, tests, then publishes with the npm CLI', async () => {
+test('release-oidc: a failed publish can be re-run by hand for an existing tag', async () => {
   const workflow = await readWorkflow();
-  const steps: Record<string, any>[] = workflow.jobs['release-please'].steps;
-  const releaseIndex = steps.findIndex((s) => s.id === 'release');
 
-  const after = steps.slice(releaseIndex + 1);
-  for (const step of after) {
-    assert.match(String(step.if), /steps\.release\.outputs\.release_created/);
+  assert.equal(workflow.on.workflow_dispatch?.inputs?.tag?.required, true);
+  assert.match(String(workflow.jobs.build.if), /github\.event_name == 'workflow_dispatch'/);
+  for (const job of ['build', 'publish']) {
+    const checkout = workflow.jobs[job].steps.find((s: Record<string, any>) => String(s.uses ?? '').startsWith('actions/checkout@'));
+    assert.match(String(checkout?.with?.ref), /inputs\.tag/);
   }
-
-  const runs = after.filter((s) => s.run).map((s) => String(s.run));
-  assert.deepEqual(runs, [
-    'npm install -g npm@11.20.0',
-    'pnpm install --frozen-lockfile',
-    'pnpm build',
-    'pnpm test',
-    'npm publish --access public',
-  ]);
-
-  const publish = after.find((s) => String(s.run ?? '').startsWith('npm publish'));
-  assert.equal(publish?.env?.NODE_AUTH_TOKEN, undefined);
-
-  const setupNode = after.find((s) => String(s.uses ?? '').startsWith('actions/setup-node@'));
-  assert.equal(setupNode?.with?.['registry-url'], undefined);
-  assert.equal(setupNode?.with?.scope, undefined);
 });
 
 test('release-oidc: the workflow stores no secret and names no GitHub Packages registry', async () => {
@@ -93,20 +108,26 @@ test('release-oidc: the workflow stores no secret and names no GitHub Packages r
   assert.doesNotMatch(raw, /packages:\s*(read|write)/);
 });
 
-test('release-oidc: the npm upgrade pin is at least 11.5.1, the minimum for OIDC trusted publishing', async () => {
+test('release-oidc: the npm pin is at least 11.5.1, the minimum for OIDC trusted publishing', async () => {
   const workflow = await readWorkflow();
-  const steps: Record<string, any>[] = workflow.jobs['release-please'].steps;
+  const run = String(workflow.jobs.publish.steps.find((s: Record<string, any>) => /npm install -g npm@/.test(String(s.run ?? '')))?.run);
 
-  const npmUpgrade = steps.find((s) => /npm install -g npm@/.test(String(s.run ?? '')));
-  assert.ok(npmUpgrade, 'an npm upgrade step is present');
+  const version = run.match(/npm@(\d+\.\d+\.\d+)$/)?.[1];
+  assert.ok(version, 'the pin is an exact version');
+  assert.ok(version.localeCompare('11.5.1', undefined, { numeric: true }) >= 0, `npm@${version} must be >= 11.5.1`);
+});
 
-  const match = String(npmUpgrade!.run).match(/npm@(\d+)\.(\d+)\.(\d+)/);
-  assert.ok(match, 'the pin is an exact semver version');
-  const [, major, minor, patch] = match!.map(Number) as unknown as [never, number, number, number];
+test('release-oidc: the PR gate and the release use the same pnpm and npm pins', async () => {
+  const release = await readWorkflow();
+  const ci = parseYaml(await readFile(path.join(repoRoot, '.github/workflows/ci.yml'), 'utf8'));
 
-  const meetsMinimum =
-    major > 11 || (major === 11 && (minor > 5 || (minor === 5 && patch >= 1)));
-  assert.ok(meetsMinimum, `npm@${major}.${minor}.${patch} must be >= 11.5.1`);
+  const pnpmPin = (steps: Record<string, any>[]) =>
+    steps.find((s) => String(s.uses ?? '').startsWith('pnpm/action-setup@'))?.with?.version;
+  const npmPin = (steps: Record<string, any>[]) =>
+    steps.find((s) => /npm install -g npm@/.test(String(s.run ?? '')))?.run;
+
+  assert.equal(pnpmPin(release.jobs.build.steps), pnpmPin(ci.jobs['package-gate'].steps));
+  assert.equal(npmPin(release.jobs.publish.steps), npmPin(ci.jobs['package-gate'].steps));
 });
 
 test('release-workflow: with no release tag yet the first release is 0.1.0, with minor bumps before 1.0', async () => {

@@ -35,15 +35,20 @@ test('readme-install: no GitHub Packages registry residue', async () => {
   assert.doesNotMatch(readme, /_authToken/);
 });
 
-test('readme-install: the release section covers trusted publishing and the seed', async () => {
+test('readme-install: the release section covers trusted publishing, its npm-side setup and the manual re-run', async () => {
   const readme = await readReadme();
 
   assert.match(readme, /## Release/);
 
-  const releaseSection = readme.slice(readme.indexOf('## Release'));
+  const start = readme.indexOf('## Release');
+  const next = readme.indexOf('\n## ', start + 1);
+  const releaseSection = readme.slice(start, next === -1 ? undefined : next);
 
   assert.match(releaseSection, /trusted publish/i);
   assert.match(releaseSection, /seed/i);
+  assert.match(releaseSection, /workflow `release\.yml`/);
+  assert.match(releaseSection, /disallow tokens/);
+  assert.match(releaseSection, /run the `release` workflow by hand/);
 });
 
 test('readme-install: the release section says to close and reopen the release PR before merging', async () => {

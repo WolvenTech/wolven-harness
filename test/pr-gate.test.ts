@@ -26,14 +26,22 @@ test('pr-gate: workflow permissions are exactly contents read, with no job widen
   }
 });
 
-test('pr-gate: the package-gate job runs install, build, test, validate, then comments in order', async () => {
+test('pr-gate: the package-gate job runs install, build, test, validate, comments, then packs with the release npm', async () => {
   const workflow = await readWorkflow();
   const job = workflow.jobs['package-gate'];
 
   assert.ok(job, 'package-gate job present');
 
   const runs = job.steps.filter((s: Record<string, any>) => s.run).map((s: Record<string, any>) => String(s.run));
-  assert.deepEqual(runs, ['pnpm install --frozen-lockfile', 'pnpm build', 'pnpm test', 'pnpm validate', 'pnpm comments']);
+  assert.deepEqual(runs, [
+    'pnpm install --frozen-lockfile',
+    'pnpm build',
+    'pnpm test',
+    'pnpm validate',
+    'pnpm comments',
+    'npm install -g npm@11.20.0',
+    'npm pack --dry-run',
+  ]);
 });
 
 test('pr-gate: pnpm is pinned to an exact version and node-version is set', async () => {

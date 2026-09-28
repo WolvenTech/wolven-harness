@@ -89,9 +89,15 @@ Before 1.0, a `feat` commit or a breaking change bumps the minor version, and a 
 
 Close and reopen the release PR before merging it: it was opened by `GITHUB_TOKEN`, which starts no workflows, so the required checks only run after the reopen.
 
-Merging the release PR tags `vX.Y.Z`, creates the GitHub Release, and the release job publishes to npmjs through OIDC trusted publishing — no stored token, and every published version carries a provenance attestation.
+Merging the release PR tags `vX.Y.Z`, creates the GitHub Release, and the release job publishes to npmjs through OIDC trusted publishing — no stored token, and every published version carries a provenance attestation. Only the job that publishes can mint the token npm trusts; it installs no project dependencies.
 
-A trusted publisher can only be attached to a package that already exists, so the first version on npmjs is a manual prerelease seed under a non-`latest` dist-tag, deprecated once the release job publishes.
+If the publish fails after the tag exists, fix the cause and run the `release` workflow by hand with that tag (Actions → release → Run workflow). A version that did publish can't be republished; ship the fix as the next patch.
+
+npm-side setup, done once by an owner of the `wolven` npm org with 2FA on:
+
+1. A trusted publisher can only be attached to a package that already exists, so the first version on npmjs is a manual prerelease seed under a non-`latest` dist-tag, deprecated once the release job publishes.
+2. On the package's settings page on npmjs, add a trusted publisher: GitHub Actions, organization `WolvenTech`, repository `wolven-harness`, workflow `release.yml`, no environment.
+3. On the same page, set publishing access to "Require two-factor authentication and disallow tokens".
 
 ## Contributing
 

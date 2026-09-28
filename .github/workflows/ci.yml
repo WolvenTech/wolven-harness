@@ -32,3 +32,9 @@ jobs:
       - run: pnpm test
       - run: pnpm validate
       - run: pnpm comments
+
+      # why: packs with the release job's npm so a bad manifest fails here, not
+      # after the release tag exists. `npm publish --dry-run` can't be used: npm
+      # 11 fails it once the version on main is already published.
+      - run: npm install -g npm@11.20.0
+      - run: npm pack --dry-run
