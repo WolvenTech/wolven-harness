@@ -163,7 +163,9 @@ class LineReader {
 async function promptGitHost(reader: LineReader, io: Io): Promise<GitHost> {
   for (;;) {
     io.stdout.write('Git host — gh or bit: ');
-    const answer = ((await reader.next()) ?? '').trim();
+    const line = await reader.next();
+    if (line === undefined) throw new InitError('input ended before --git-host was answered');
+    const answer = line.trim();
     const value = parseGitHostValue(answer);
     if (value !== undefined) return value;
     io.stdout.write(`Invalid git host "${answer}" — enter "gh" or "bit".\n`);
@@ -173,7 +175,9 @@ async function promptGitHost(reader: LineReader, io: Io): Promise<GitHost> {
 async function promptRuntimes(reader: LineReader, io: Io): Promise<Runtime[]> {
   for (;;) {
     io.stdout.write('Runtimes — comma-separated, one or more of claude, codex, cursor: ');
-    const answer = ((await reader.next()) ?? '').trim();
+    const line = await reader.next();
+    if (line === undefined) throw new InitError('input ended before --runtimes was answered');
+    const answer = line.trim();
     const value = parseRuntimesValue(answer);
     if (value !== undefined) return value;
     io.stdout.write(

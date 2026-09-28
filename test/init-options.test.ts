@@ -157,6 +157,19 @@ test('init-prompts: tty re-asks on an invalid runtimes answer', async () => {
   assert.deepEqual(config.runtimes, ['claude']);
 });
 
+test('init-prompts: ended input fails without writing config', async () => {
+  const dir = await makeRepo({}, { git: true });
+  const hostResult = await run(['init'], { cwd: dir, isTTY: true, input: '' });
+  assert.equal(hostResult.code, 1);
+  assert.match(hostResult.stderr, /input ended before --git-host was answered/);
+
+  const result = await run(['init'], { cwd: dir, isTTY: true, input: 'gh\n' });
+
+  assert.equal(result.code, 1);
+  assert.match(result.stderr, /input ended before --runtimes was answered/);
+  assert.equal(await configExists(dir), false);
+});
+
 // --- init-config ---
 
 test('init-config: re-run reads .wolven-harness.json without prompting', {
