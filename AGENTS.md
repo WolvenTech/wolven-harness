@@ -1,6 +1,6 @@
 # AGENTS.md — wolven-harness (package repo)
 
-Dev entry for agents working in this repository, which builds and publishes `@wolven/harness`.
+Dev entry for agents working in this repository, which builds and publishes `@wolven-tech/harness`.
 
 ## Build, test, validate
 

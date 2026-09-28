@@ -1,5 +1,5 @@
 {
-  "name": "@wolven/harness",
+  "name": "@wolven-tech/harness",
   "version": "0.1.1",
   "description": "AI-assisted dev harness: init an AGENTS.md-based skills tree, wire runtimes, and validate architecture-decision claims.",
   "repository": {

@@ -6,10 +6,10 @@ AI-assisted dev harness: scaffolds an `AGENTS.md`-based `.agents/` skills tree, 
 
 Requires Node 22 or later and git.
 
-The package is public on npmjs.org as `@wolven/harness`. Install is two commands:
+The package is public on npmjs.org as `@wolven-tech/harness`. Install is two commands:
 
 ```sh
-pnpm add -D @wolven/harness
+pnpm add -D @wolven-tech/harness
 pnpm exec wolven-harness init
 ```
 
@@ -93,7 +93,7 @@ Merging the release PR tags `vX.Y.Z`, creates the GitHub Release, and the releas
 
 If the publish fails after the tag exists, fix the cause and run the `release` workflow by hand with that tag (Actions → release → Run workflow). A version that did publish can't be republished; ship the fix as the next patch.
 
-npm-side setup, done once by an owner of the `wolven` npm org with 2FA on:
+npm-side setup, done once by an owner of the `wolven-tech` npm org with 2FA on:
 
 1. A trusted publisher can only be attached to a package that already exists, so the first version on npmjs is a manual prerelease seed under a non-`latest` dist-tag, deprecated once the release job publishes.
 2. On the package's settings page on npmjs, add a trusted publisher: GitHub Actions, organization `WolvenTech`, repository `wolven-harness`, workflow `release.yml`, no environment.

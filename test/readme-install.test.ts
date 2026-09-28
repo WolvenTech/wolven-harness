@@ -15,10 +15,10 @@ async function readReadme(): Promise<string> {
 test('readme-install: the add and init commands appear, in that order', async () => {
   const readme = await readReadme();
 
-  const addIndex = readme.indexOf('pnpm add -D @wolven/harness');
+  const addIndex = readme.indexOf('pnpm add -D @wolven-tech/harness');
   const initIndex = readme.indexOf('pnpm exec wolven-harness init');
 
-  assert.ok(addIndex !== -1, 'pnpm add -D @wolven/harness not found');
+  assert.ok(addIndex !== -1, 'pnpm add -D @wolven-tech/harness not found');
   assert.ok(initIndex !== -1, 'pnpm exec wolven-harness init not found');
   assert.ok(addIndex < initIndex, 'install command must appear before the init command');
 });

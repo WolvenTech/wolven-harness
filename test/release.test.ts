@@ -15,11 +15,11 @@ async function readWorkflow(): Promise<Record<string, any>> {
   return parseYaml(await readFile(path.join(repoRoot, '.github/workflows/release.yml'), 'utf8'));
 }
 
-test('package-name: publishes publicly to npmjs as @wolven/harness from the WolvenTech repository', async () => {
+test('package-name: publishes publicly to npmjs as @wolven-tech/harness from the WolvenTech repository', async () => {
   const pkg = await readJson('package.json');
   const releaseConfig = await readJson('release-please-config.json');
 
-  assert.equal(pkg.name, '@wolven/harness');
+  assert.equal(pkg.name, '@wolven-tech/harness');
   assert.equal(pkg.bin['wolven-harness'], 'dist/cli.js');
   assert.deepEqual(pkg.publishConfig, { access: 'public' });
   assert.equal(pkg.repository?.url, 'https://github.com/WolvenTech/wolven-harness.git');

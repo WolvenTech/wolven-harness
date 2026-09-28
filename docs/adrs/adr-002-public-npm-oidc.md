@@ -1,7 +1,7 @@
 ---
 type: adr
 title: The package ships publicly on npmjs through OIDC trusted publishing
-description: wolven-harness publishes @wolven/harness to the public npmjs.org registry from its release job through OIDC trusted publishing, with no stored token, so consumer repos install it with no registry configuration or credential.
+description: wolven-harness publishes @wolven-tech/harness to the public npmjs.org registry from its release job through OIDC trusted publishing, with no stored token, so consumer repos install it with no registry configuration or credential.
 status: stable
 ---
 
@@ -19,7 +19,7 @@ the package private bought no secrecy.
 
 ## Decision
 
-The package is `@wolven/harness` on npmjs.org, with public access. The
+The package is `@wolven-tech/harness` on npmjs.org, with public access. The
 release job publishes it with the npm CLI through OIDC trusted publishing:
 only the publish job holds `id-token: write`, it installs no project
 dependencies, and npmjs trusts this repository's `release.yml` as the only
@@ -39,7 +39,7 @@ tag exists, the release workflow can be run by hand for that tag.
 
 ## Consequences
 
-- Consumers install with `pnpm add -D @wolven/harness` and need no
+- Consumers install with `pnpm add -D @wolven-tech/harness` and need no
   `.npmrc`, token, access grant or extra CI permission.
 - Published versions are public and effectively permanent; a bad release is
   fixed by the next patch, never by republishing a version.
