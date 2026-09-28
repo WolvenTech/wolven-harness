@@ -47,30 +47,20 @@ Working from a clone of the repository is covered under [Contributing](#contribu
 
 ## Usage
 
-`wolven-harness --help` (or `-h`, or no command at all) prints the command list. An unknown command prints that list and exits 1. Command cards and edge cases live on the [Pages site](https://wolventech.github.io/wolven-harness/).
+`wolven-harness --help` (or `-h`) prints the command list. Flags, failure modes, and profile rules are on the [Pages site](https://wolventech.github.io/wolven-harness/) (or [`site/index.html`](site/index.html)).
 
 ### `wolven-harness init`
 
-Run it at the git top-level of the target repo. It asks for the git host (`gh` or `bit`) and the runtimes to wire (`claude`, `codex`, `cursor`), or takes `--git-host` and `--runtimes`. When stdout is not a TTY, pass `--git-host` and `--runtimes`. An unknown option is an error, and so is an input that ends before a prompt has been answered. Answers are saved to `.wolven-harness.json`.
-
-`init` creates missing paths and leaves every other existing path byte-identical. Two exceptions: it adds `harness:validate` and `harness:comments` to an existing `package.json` when those script keys are absent, and every run rewrites `packageVersion` in `.wolven-harness.json`. It writes `WOLVEN.md`, `docs/` (writing profile, ADR folder with a starter ADR, prds, specs, notes, deferrals), `.qmd/index.yml`, `.agents/` (skills, rules, and a hooks placeholder, including `comments.md`), and the runtime wiring below. It never creates or edits `AGENTS.md`. See [Setting up with harness-init](#setting-up-with-harness-init).
+Run it at the git top-level of the target repo. It asks for the git host (`gh` or `bit`) and the runtimes to wire (`claude`, `codex`, `cursor`), or takes `--git-host` and `--runtimes`. When stdout is not a TTY, pass `--git-host` and `--runtimes`. It never creates or edits `AGENTS.md`. See [Setting up with harness-init](#setting-up-with-harness-init).
 
 ### `wolven-harness validate`
 
-Run it from anywhere inside the repo. It resolves the git top-level and exits 1 outside a git work tree. `--verbose` lists each legacy reference by file and line. The command exits 1 when any error is found.
-
-- **Writing profile:** `docs/{adrs,prds,specs,notes,deferrals}/` files need `type`, `title`, `description`, `status` (`draft`, `stable`, or `deprecated`), a matching folder type, and a kebab-case name. ADRs stay flat as `docs/adrs/adr-NNN-<slug>.md` and name `superseded_by` when deprecated. Other folders use `docs/<folder>/<slug>/<slug>-<type>.md`. `archived/` is skipped. See `docs/WRITING-PROFILE.md`.
-- **ADR claims:** any `ADR-NNN` or `adr-NNN-<slug>` reference in a tracked file must resolve to exactly one `stable` ADR under `docs/adrs/`. Missing, duplicate, draft, deprecated, or mismatched references fail with file and line. Staging is enough for a new ADR. The scan skips ADR files, `node_modules/`, and `archived/` paths.
-- **Legacy ADRs:** ADR-like files outside `docs/adrs/` and `archived/` (such as `adrs/adr-002.md`) warn until `harness-init` migrates them. A reference with no profile ADR and no live legacy ADR fails, unless exactly one archived legacy ADR has that number, in which case it warns. A folder named `adr`, `adrs`, or `decisions` that holds 4-digit-numbered files warns `adr-unrecognized`.
-- **Spine:** every skill under `.agents/skills/` has `name` and `description`, every `.agents/rules/*.md` cited in `WOLVEN.md` or `AGENTS.md` exists, no harness path is hidden by an ignore rule, and a warning remains while `WOLVEN.md` is not folded into `AGENTS.md`.
-
-To skip vendored or generated trees, add `"ignore": ["<dir>/**"]` to `.wolven-harness.json`. Only whole directories can be ignored, and never `docs/` or `.agents/`.
+Run it from anywhere inside the repo. It checks the writing profile, ADR claims, legacy ADRs, and the skills-and-rules spine. It exits 1 when any error is found.
 
 ### `wolven-harness comments`
 
-Run it from anywhere inside the repo. It judges lines added since a base ref (default: merge-base with `origin/HEAD`, then `origin/main`, then `main`) plus untracked files, against `.agents/rules/comments.md`. An added comment must be a `why:`, `hazard:`, or `invariant:` line (four lines or fewer) or a `/** */` block directly above a declaration. It must not narrate the change, cite something outside the repository, or defer work with `@todo`.
+Run it from anywhere inside the repo. It judges comment lines a change added. It exits 1 on any finding.
 
-It prints `<file>:<line>: [<kind>] <message>` per finding and ends with `comments: ok (0 findings)` or `comments: <n> finding(s)`, exiting 1 on any finding. `--base <ref>` overrides the base. `init` installs the `harness:comments` script. `comments.paths` in `.wolven-harness.json` replaces the default scope (changed files outside `ignore`). `comments.languages` adds extensions beyond `.ts`, `.tsx`, `.js`, `.jsx`, `.mjs`, and `.cjs`; each value has a `line` marker and an optional `[open, close]` `block`.
 ## Suggested workflow
 
 After `init` and `harness-init`, the default path is:
