@@ -1,0 +1,5 @@
+interface:
+  display_name: "release-please"
+  short_description: "Stub for release-please and publishing to GitHub Packages — not yet defined"
+policy:
+  allow_implicit_invocation: false

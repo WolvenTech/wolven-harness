@@ -1,0 +1,5 @@
+interface:
+  display_name: "skill-templates"
+  short_description: "Stub for authoring the skills, rules, and docs this package ships — not yet defined"
+policy:
+  allow_implicit_invocation: false

@@ -1,0 +1,5 @@
+interface:
+  display_name: "node-test"
+  short_description: "Stub for node:test suites run through tsx — not yet defined"
+policy:
+  allow_implicit_invocation: false
