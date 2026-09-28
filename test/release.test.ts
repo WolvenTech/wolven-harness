@@ -32,18 +32,30 @@ test('package-manifest: the tarball ships only dist and templates beside the def
   assert.deepEqual(pkg.files, ['dist', 'templates']);
 });
 
-test('release-workflow: release-please runs on push to main with the manifest config', async () => {
+test('release-workflow: a push to main only opens the release PR; a manual run creates the release', async () => {
   const workflow = await readWorkflow();
 
   assert.deepEqual(workflow.on.push, { branches: ['main'] });
+  assert.equal(workflow.on.workflow_dispatch?.inputs?.tag?.required, false);
+  assert.equal(workflow.on.workflow_dispatch?.inputs?.tag?.default, '');
 
   const job = workflow.jobs['release-please'];
   assert.match(String(job.if), /github\.event_name == 'push'/);
+  assert.match(String(job.if), /github\.event_name == 'workflow_dispatch' && inputs\.tag == ''/);
   const release = job.steps.find((s: Record<string, any>) => String(s.uses ?? '').startsWith('googleapis/release-please-action@'));
   assert.ok(release, 'release-please step present');
   assert.equal(release.id, 'release');
   assert.equal(release.with['config-file'], 'release-please-config.json');
   assert.equal(release.with['manifest-file'], '.release-please-manifest.json');
+  assert.equal(release.with['skip-github-release'], "${{ github.event_name == 'push' }}");
+
+  const readme = await readFile(path.join(repoRoot, 'README.md'), 'utf8');
+  const start = readme.indexOf('## Release');
+  const next = readme.indexOf('\n## ', start + 1);
+  const section = readme.slice(start, next === -1 ? undefined : next);
+  assert.match(section, /push to `main` does not create the GitHub Release and does not publish/);
+  assert.match(section, /Run the `release` workflow by hand with the tag left empty/);
+  assert.doesNotMatch(section, /Merging the release PR tags/);
 });
 
 test('release-oidc: only the publish job can mint an OIDC token; release-please alone writes to the repo', async () => {
@@ -99,10 +111,11 @@ test('release-oidc: publish runs no project install and publishes with the npm C
 test('release-oidc: a failed publish can be re-run by hand for an existing tag', async () => {
   const workflow = await readWorkflow();
 
-  assert.equal(workflow.on.workflow_dispatch?.inputs?.tag?.required, true);
+  assert.equal(workflow.on.workflow_dispatch?.inputs?.tag?.required, false);
   assert.match(String(workflow.jobs.build.if), /github\.event_name == 'workflow_dispatch'/);
   const verifyRelease = workflow.jobs.build.steps.find((s: Record<string, any>) => s.name === 'Verify manual retry targets a published release');
   assert.match(String(verifyRelease.if), /github\.event_name == 'workflow_dispatch'/);
+  assert.match(String(verifyRelease.if), /startsWith\(inputs\.tag, 'v'\)/);
   assert.equal(verifyRelease.env.GH_REPO, '${{ github.repository }}');
   assert.equal(verifyRelease.env.RELEASE_TAG, '${{ inputs.tag }}');
   assert.match(String(verifyRelease.run), /gh release view "\$RELEASE_TAG" --json tagName,isDraft/);

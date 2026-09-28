@@ -3,20 +3,21 @@ name: release
 on:
   push:
     branches: [main]
-  # why: publish otherwise runs only in the push that creates the release, so a
-  # failed publish would leave a tag and Release with nothing on npm.
+  # why: a push only keeps the release PR current. An empty manual run creates
+  # the Release and publishes; a tag republishes one that already exists.
   workflow_dispatch:
     inputs:
       tag:
-        description: Existing release tag to publish, e.g. v0.2.0
-        required: true
+        description: Existing release tag to publish again, e.g. v0.2.0. Leave empty to create the GitHub Release and publish.
+        required: false
+        default: ''
 
 permissions:
   contents: read
 
 jobs:
   release-please:
-    if: ${{ github.event_name == 'push' }}
+    if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.tag == '') }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -30,6 +31,8 @@ jobs:
         with:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
+          # why: the push run must not create the GitHub Release; a manual run does.
+          skip-github-release: ${{ github.event_name == 'push' }}
 
   build:
     needs: release-please
@@ -37,7 +40,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Verify manual retry targets a published release
-        if: ${{ github.event_name == 'workflow_dispatch' }}
+        if: ${{ github.event_name == 'workflow_dispatch' && startsWith(inputs.tag, 'v') }}
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}

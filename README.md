@@ -85,15 +85,15 @@ PR titles must be Conventional Commits; a PR-title check enforces it. Every pull
 
 PRs are squash-merged, with the PR title becoming the commit message on `main`.
 
-release-please watches `main` and keeps a release PR open with the version bump and a `CHANGELOG.md` entry drawn from those commits.
+release-please watches `main` and keeps a release PR open with the version bump and a `CHANGELOG.md` entry drawn from those commits. A push to `main` does not create the GitHub Release and does not publish.
 
 Before 1.0, a `feat` commit or a breaking change bumps the minor version, and a `fix` bumps the patch.
 
 Close and reopen the release PR before merging it: it was opened by `GITHUB_TOKEN`, which starts no workflows, so the required checks only run after the reopen.
 
-Merging the release PR tags `vX.Y.Z`, creates the GitHub Release, and the release job publishes to npmjs through OIDC trusted publishing — no stored token, and every published version carries a provenance attestation. Only the job that publishes can mint the token npm trusts; it installs no project dependencies.
+Merging the release PR does not tag, create the GitHub Release, or publish. Run the `release` workflow by hand with the tag left empty (Actions → release → Run workflow). That run creates the GitHub Release and publishes to npmjs through OIDC trusted publishing — no stored token, and every published version carries a provenance attestation. Only the job that publishes can mint the token npm trusts; it installs no project dependencies.
 
-If the publish fails after the GitHub Release exists, fix the cause and run the `release` workflow by hand with that release's tag (Actions → release → Run workflow). The retry checks that the Release is published and its tag matches the package version. A version that did publish can't be republished; ship the fix as the next patch.
+If the publish fails after the GitHub Release exists, fix the cause and run the `release` workflow by hand with that release's tag. The retry checks that the Release is published and its tag matches the package version. A version that did publish can't be republished; ship the fix as the next patch.
 
 npm-side setup, done once by an owner of the `wolven-tech` npm org with 2FA on:
 
