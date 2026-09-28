@@ -1,4 +1,4 @@
-import type { Io } from '../init/types.js';
+import { InitError, type Io } from '../init/types.js';
 import { resolveGitRoot } from '../validate/repo.js';
 import { listChangedFiles, listAddedLines, resolveDefaultBase } from './diff.js';
 import { scanAddedLines, BUILTIN_SYNTAX } from './rules.js';
@@ -104,7 +104,7 @@ export async function runComments(argv: string[], io: Io): Promise<number> {
   try {
     selection = await selectFiles(root, base);
   } catch (err) {
-    if (err instanceof CommentsConfigError) {
+    if (err instanceof CommentsConfigError || err instanceof InitError) {
       io.stderr.write(`wolven-harness comments: ${err.message}\n`);
       return 1;
     }
