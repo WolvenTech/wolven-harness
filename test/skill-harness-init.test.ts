@@ -19,6 +19,7 @@ const REFERENCES = [
   'references/discovery.md',
   'references/stub-template.md',
   'references/session-note-template.md',
+  'references/validate-wiring.md',
 ];
 
 const CONSUMER_NAME_RE = /agentic-mkt|compozy/i;
@@ -151,4 +152,27 @@ test('runtime-rules: no file in the harness-init folder names a real consumer re
 test('runtime-rules: no unguarded runtime-specific question tool name in the skill body', async () => {
   const skill = await readSkill('harness-init');
   assertNoRuntimeToolNames(skill.body);
+});
+
+test('skill-harness-init: asks how harness:validate is wired, with three options, and writes nothing without a yes', async () => {
+  const skill = await readSkill('harness-init');
+  const step = flatten(skill.body.split(/^### 6\. /m)[1]?.split(/^## /m)[0] ?? '');
+
+  assert.match(step, /how should `harness:validate` be wired/i);
+  assert.match(step, /\(a\) as a CI job on pull requests/);
+  assert.match(step, /\(b\) chained into the repo's existing `validate` or `test` script/);
+  assert.match(step, /\(c\) local only/);
+  assert.match(step, /recommended option first/i);
+  assert.match(step, /Nothing is written without the Human's yes/);
+
+  const ref = flatten(await skill.read('references/validate-wiring.md'));
+  assert.match(ref, /`\.github\/workflows\/\*\.yml`/);
+  assert.match(ref, /`bitbucket-pipelines\.yml`/);
+  assert.match(ref, /`pnpm install --frozen-lockfile`/);
+  assert.match(ref, /`pnpm harness:validate`/);
+  assert.match(ref, /`&& pnpm harness:validate`/);
+  assert.match(ref, /Nothing is written without a yes: show the diff, wait for the Human's yes, then write/);
+
+  const note = flatten(await skill.read('references/session-note-template.md'));
+  assert.match(note, /## Validate wiring/);
 });

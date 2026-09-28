@@ -59,6 +59,10 @@ status: <status>
 
 <the stubs written for the Human's picks>
 
+## Validate wiring
+
+<how the Human chose to run `harness:validate` (CI job, chained script, or local only), and what was written — or "nothing written">
+
 ## Next steps for the Human
 
 <what the Human still has to define in each stub, and anything else left open>

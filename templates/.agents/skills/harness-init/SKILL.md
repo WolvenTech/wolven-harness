@@ -152,7 +152,14 @@ for the Human's instructions. Never overwrite an existing skill folder. See
 
 ### 6. Session note and hand-back
 
-Add the note's final sections, set it `stable`, and hand the run back to
+First put one question to the Human: how should `harness:validate` be wired —
+(a) as a CI job on pull requests, (b) chained into the repo's existing
+`validate` or `test` script, or (c) local only? Detect the CI config and the
+existing scripts first, frame the options with that evidence, and list the
+recommended option first. Nothing is written without the Human's yes. See
+[references/validate-wiring.md](references/validate-wiring.md).
+
+Then add the note's final sections, set it `stable`, and hand the run back to
 the Human with what was done and what is left for them to define. See
 [references/session-note-template.md](references/session-note-template.md).
 
