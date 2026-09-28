@@ -24,7 +24,9 @@
     "build": "tsc -p tsconfig.json",
     "test": "tsx --test \"test/**/*.test.ts\"",
     "validate": "node dist/cli.js validate",
-    "comments": "node dist/cli.js comments"
+    "comments": "node dist/cli.js comments",
+    "harness:validate": "node dist/cli.js validate",
+    "harness:comments": "node dist/cli.js comments"
   },
   "dependencies": {
     "yaml": "^2.6.1"

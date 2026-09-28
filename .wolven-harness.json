@@ -11,6 +11,10 @@
     "test/**"
   ],
   "comments": {
-    "paths": ["src", "test"]
-  }
+    "paths": [
+      "src",
+      "test"
+    ]
+  },
+  "packageVersion": "0.1.1"
 }
