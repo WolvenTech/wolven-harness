@@ -1,5 +1,5 @@
 import { parse } from 'yaml';
-import { detectLegacy } from './legacy.js';
+import { detectArchivedLegacy, detectLegacy, isArchivedPath } from './legacy.js';
 import type { LegacyAdr } from './legacy.js';
 import type { RepoContext } from './repo.js';
 import type { Finding } from './report.js';
@@ -14,8 +14,8 @@ export interface ClaimCounts {
 /** Matches a direct child of `docs/adrs/`: captures its basename. */
 const PROFILE_ADR_DIR_RE = /^docs\/adrs\/([^/]+)$/;
 
-/** Extracts the 3-digit number from a profile-ADR-shaped basename. */
-const ADR_NUMBER_PREFIX_RE = /^adr-(\d{3})/;
+/** Extracts the 3-digit number from a profile-ADR-shaped basename; a fourth digit is not a 3-digit number. */
+const ADR_NUMBER_PREFIX_RE = /^adr-(\d{3})(?!\d)/;
 
 /** Captures the slug from an `adr-NNN-<slug>.md` basename. */
 const ADR_SLUG_FULL_RE = /^adr-\d{3}-([a-z0-9]+(?:-[a-z0-9]+)*)\.md$/;
@@ -140,7 +140,7 @@ function isScanExcluded(rel: string, profile: ProfileIndex, legacy: LegacyIndex)
   if (profile.dirFiles.has(rel)) return true;
   if (legacy.paths.has(rel)) return true;
   if (rel.startsWith('node_modules/')) return true;
-  if (rel === 'archived' || rel.startsWith('archived/') || rel.includes('/archived/')) return true;
+  if (isArchivedPath(rel)) return true;
   return false;
 }
 
@@ -149,12 +149,13 @@ type ClaimOutcome =
   | { kind: 'fail'; rule: string; message: string }
   | { kind: 'legacy-warn'; legacyPath: string };
 
-/** Resolves one claim occurrence against the profile and legacy indexes. */
+/** Resolves one claim occurrence against the profile, legacy and archived-legacy indexes. */
 function resolveClaim(
   number: string,
   tokenSlug: string | undefined,
   profile: ProfileIndex,
   legacy: LegacyIndex,
+  archived: LegacyIndex,
 ): ClaimOutcome {
   const adrId = `ADR-${number}`;
   const profileMatches = profile.byNumber.get(number) ?? [];
@@ -162,6 +163,16 @@ function resolveClaim(
   const total = profileMatches.length + legacyMatches.length;
 
   if (total === 0) {
+    // why: an archived copy only counts when no live ADR has the number, so it never makes a claim-duplicate.
+    const archivedMatches = archived.byNumber.get(number) ?? [];
+    if (archivedMatches.length === 1) return { kind: 'legacy-warn', legacyPath: archivedMatches[0].path };
+    if (archivedMatches.length > 1) {
+      return {
+        kind: 'fail',
+        rule: 'claim-duplicate',
+        message: `${adrId}: matches ${archivedMatches.length} archived legacy ADRs; expected exactly one`,
+      };
+    }
     return { kind: 'fail', rule: 'claim-missing', message: `${adrId}: no profile or legacy ADR found` };
   }
 
@@ -214,7 +225,8 @@ function resolveClaim(
 /**
  * Runs the ADR claim gate: scans tracked, non-ignored,
  * non-ADR files for `ADR-NNN` / `adr-NNN-<slug>` claim tokens and resolves
- * each against the profile ADRs (stable only) and legacy ADRs (warn only).
+ * each against the profile ADRs (stable only) and legacy ADRs (warn only),
+ * falling back to an archived legacy copy (warn only) when neither matches.
  */
 export async function checkClaims(
   ctx: RepoContext,
@@ -223,6 +235,7 @@ export async function checkClaims(
   const profile = await buildProfileIndex(ctx, profileFindings);
   const legacyAdrs = await detectLegacy(ctx);
   const legacy = buildLegacyIndex(legacyAdrs);
+  const archived = buildLegacyIndex(await detectArchivedLegacy(ctx));
 
   const findings: Finding[] = [];
   const counts: ClaimCounts = { ok: 0, legacyWarn: 0, fail: 0 };
@@ -257,7 +270,7 @@ export async function checkClaims(
       }
 
       for (const occurrence of occurrences) {
-        const outcome = resolveClaim(occurrence.number, occurrence.slug, profile, legacy);
+        const outcome = resolveClaim(occurrence.number, occurrence.slug, profile, legacy, archived);
 
         if (outcome.kind === 'ok') {
           counts.ok++;

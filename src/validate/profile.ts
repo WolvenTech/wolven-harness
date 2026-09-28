@@ -1,3 +1,5 @@
+import { readdir } from 'node:fs/promises';
+import path from 'node:path';
 import { parse } from 'yaml';
 import type { RepoContext } from './repo.js';
 import type { Finding } from './report.js';
@@ -62,10 +64,31 @@ function supersededByPath(value: string): string {
 }
 
 /**
+ * Lists `docs/adrs/*.md` files on disk that git doesn't track, so an
+ * unresolved `superseded_by` can say the successor needs staging rather than
+ * that it's missing.
+ */
+async function listUntrackedAdrFiles(root: string, adrFiles: Set<string>): Promise<Set<string>> {
+  let names: string[];
+  try {
+    names = await readdir(path.join(root, 'docs', 'adrs'));
+  } catch {
+    return new Set();
+  }
+  return new Set(
+    names
+      .filter((name) => name.endsWith('.md'))
+      .map((name) => `docs/adrs/${name}`)
+      .filter((rel) => !adrFiles.has(rel)),
+  );
+}
+
+/**
  * Checks one main doc (an ADR, or a doc-folder's `<slug>-<type>.md` /
- * `<slug>-plan.md`) and appends its findings. `adrFiles` is every
- * `docs/adrs/*.md` path in the repo; a deprecated ADR's `superseded_by` is
- * resolved against it.
+ * `<slug>-plan.md`) and appends its findings. `adrFiles` is every tracked
+ * `docs/adrs/*.md` path; a deprecated ADR's `superseded_by` is resolved
+ * against it. `untrackedAdrFiles` holds the ones on disk git doesn't track,
+ * named in the error when the successor is one of them.
  */
 function checkFile(
   rel: string,
@@ -74,6 +97,7 @@ function checkFile(
   content: string,
   findings: Finding[],
   adrFiles: Set<string>,
+  untrackedAdrFiles: Set<string>,
 ): void {
   // (d) kebab-case ASCII filename.
   if (!KEBAB_RE.test(baseName)) {
@@ -162,12 +186,15 @@ function checkFile(
       });
     } else if (!adrFiles.has(supersededByPath(frontmatter.superseded_by))) {
       // invariant: superseded_by must name an ADR file present in this repo.
+      const successor = supersededByPath(frontmatter.superseded_by);
       findings.push({
         level: 'error',
         rule: 'profile-superseded-by',
         file: rel,
         line: 1,
-        message: `"superseded_by" names "${frontmatter.superseded_by}", which does not resolve to an existing ADR`,
+        message: untrackedAdrFiles.has(successor)
+          ? `"superseded_by" names "${frontmatter.superseded_by}", whose file ${successor} is not tracked by git — run "git add ${successor}"`
+          : `"superseded_by" names "${frontmatter.superseded_by}", which does not resolve to an existing ADR`,
       });
     }
   }
@@ -189,12 +216,13 @@ export async function checkProfile(ctx: RepoContext): Promise<Finding[]> {
   const mainDocSeen = new Map<string, Set<string>>();
 
   const adrFiles = new Set(ctx.files.filter((rel) => ADR_FILE_RE.test(rel)));
+  const untrackedAdrFiles = await listUntrackedAdrFiles(ctx.root, adrFiles);
 
   for (const rel of ctx.files) {
     const adrMatch = rel.match(ADR_FILE_RE);
     if (adrMatch) {
       const content = await ctx.read(rel);
-      checkFile(rel, 'adrs', adrMatch[1], content, findings, adrFiles);
+      checkFile(rel, 'adrs', adrMatch[1], content, findings, adrFiles, untrackedAdrFiles);
       continue;
     }
 
@@ -232,7 +260,7 @@ export async function checkProfile(ctx: RepoContext): Promise<Finding[]> {
     }
 
     const content = await ctx.read(rel);
-    checkFile(rel, dir, restPath, content, findings, adrFiles);
+    checkFile(rel, dir, restPath, content, findings, adrFiles, untrackedAdrFiles);
   }
 
   for (const [dir, slugs] of slugsSeen) {

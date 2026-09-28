@@ -1,6 +1,8 @@
+import { InitError } from '../init/types.js';
 import type { Io } from '../init/types.js';
 import { checkAdrFolders } from './adr-folders.js';
 import { loadIgnoreConfig } from './config.js';
+import type { IgnoreConfig } from './config.js';
 import { checkClaims } from './claims.js';
 import { checkProfile } from './profile.js';
 import { buildRepoContext, resolveGitRoot } from './repo.js';
@@ -45,7 +47,14 @@ export async function runValidate(argv: string[], io: Io): Promise<number> {
     return 1;
   }
 
-  const ignoreConfig = await loadIgnoreConfig(root);
+  let ignoreConfig: IgnoreConfig;
+  try {
+    ignoreConfig = await loadIgnoreConfig(root);
+  } catch (err) {
+    if (!(err instanceof InitError)) throw err;
+    io.stderr.write(`wolven-harness validate: ${err.message}\n`);
+    return 1;
+  }
   if (ignoreConfig.findings.length > 0) {
     const summary = summarizeFindings(ignoreConfig.findings, verbose);
     for (const line of summary.lines) io.stdout.write(`${line}\n`);

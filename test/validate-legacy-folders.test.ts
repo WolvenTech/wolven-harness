@@ -89,3 +89,82 @@ test('adr-unrecognized: a valid profile ADR under docs/adrs/ raises none', async
   assert.equal(result.code, 0, result.stdout);
   assert.ok(!result.stdout.includes('adr-unrecognized'), result.stdout);
 });
+
+test('legacy-archived: a claim on a legacy ADR that exists only under archived/ warns instead of failing, with no legacy-adr for the copy', async () => {
+  const dir = await makeRepo(
+    {
+      'adrs/archived/adr-002.md': legacyAdrBody('002', 'Use Redis'),
+      'AGENTS.md': 'See ADR-002 for the decision.\n',
+    },
+    { git: true },
+  );
+
+  const result = await run(['validate', '--verbose'], { cwd: dir });
+
+  assert.equal(result.code, 0, result.stdout);
+  assert.match(result.stdout, /claims: 0 ok, 1 legacy-warn, 0 fail/);
+  assert.match(result.stdout, /ADR-002 matches only legacy ADR \(adrs\/archived\/adr-002\.md\)/);
+  assert.ok(!result.stdout.includes('legacy ADR-002'), result.stdout);
+  assert.ok(!result.stdout.includes('claim-missing'), result.stdout);
+});
+
+test('legacy-archived: two archived copies of one number and no live ADR fail the claim as claim-duplicate', async () => {
+  const dir = await makeRepo(
+    {
+      'adrs/archived/adr-002.md': legacyAdrBody('002', 'Use Redis'),
+      'old/archived/adr-002-redis.md': legacyAdrBody('002', 'Use Redis again'),
+      'AGENTS.md': 'See ADR-002 for the decision.\n',
+    },
+    { git: true },
+  );
+
+  const result = await run(['validate'], { cwd: dir });
+
+  assert.equal(result.code, 1, result.stdout);
+  assert.match(result.stdout, /claim-duplicate/);
+  assert.match(result.stdout, /matches 2 archived legacy ADRs/);
+});
+
+test('adr-unrecognized: adr-prefixed 4-digit files warn and are not read as legacy 3-digit ADRs', async () => {
+  const dir = await makeRepo(
+    {
+      'adr/adr-0001-x.md': fourDigitAdrBody('0001', 'x'),
+      'adr/ADR-0010-y.md': fourDigitAdrBody('0010', 'y'),
+    },
+    { git: true },
+  );
+
+  const result = await run(['validate'], { cwd: dir });
+
+  assert.equal(result.code, 0, result.stdout);
+  assert.match(result.stdout, /adr-unrecognized\] adr: 2 file\(s\)/);
+  assert.ok(!result.stdout.includes('legacy ADR-'), result.stdout);
+});
+
+test('adr-unrecognized: folder names match in any case', async () => {
+  const dir = await makeRepo(
+    {
+      'docs/Decisions/0001-x.md': fourDigitAdrBody('0001', 'x'),
+    },
+    { git: true },
+  );
+
+  const result = await run(['validate'], { cwd: dir });
+
+  assert.equal(result.code, 0, result.stdout);
+  assert.match(result.stdout, /adr-unrecognized\] docs\/Decisions: 1 file\(s\)/);
+});
+
+test('adr-unrecognized: archived folders and docs/adrs/ raise none', async () => {
+  const dir = await makeRepo(
+    {
+      'archived/decisions/0001-x.md': fourDigitAdrBody('0001', 'x'),
+      'docs/adrs/0001-foo.md': fourDigitAdrBody('0001', 'foo'),
+    },
+    { git: true },
+  );
+
+  const result = await run(['validate'], { cwd: dir });
+
+  assert.ok(!result.stdout.includes('adr-unrecognized'), result.stdout);
+});

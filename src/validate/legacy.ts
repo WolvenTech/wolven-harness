@@ -9,17 +9,21 @@ export interface LegacyAdr {
 
 /**
  * Matches a legacy-ADR-shaped basename, case-insensitive: `adr`, an
- * optional dash, three digits, anything, then `.md`.
+ * optional dash, exactly three digits, anything, then `.md`. A fourth digit
+ * (`adr-0001-*.md`) is a 4-digit layout, not a legacy ADR numbered 000.
  */
-const LEGACY_BASENAME_RE = /^adr-?(\d{3}).*\.md$/i;
+const LEGACY_BASENAME_RE = /^adr-?(\d{3})(?!\d).*\.md$/i;
 
-/**
- * True when `rel` has an `archived` path segment — the same test the claim
- * scan applies, so an archived legacy copy is never a second match for its
- * number.
- */
-function hasArchivedSegment(rel: string): boolean {
+/** True when `rel` has an `archived` path segment: the claim scan, legacy detection and the ADR-folder check skip it. */
+export function isArchivedPath(rel: string): boolean {
   return rel === 'archived' || rel.startsWith('archived/') || rel.includes('/archived/');
+}
+
+/** The legacy-ADR number of a root-relative path outside `docs/adrs/`, or `undefined`. */
+function legacyNumber(rel: string): string | undefined {
+  if (rel.startsWith('docs/adrs/')) return undefined;
+  const basename = rel.slice(rel.lastIndexOf('/') + 1);
+  return basename.match(LEGACY_BASENAME_RE)?.[1];
 }
 
 /**
@@ -36,14 +40,27 @@ export async function detectLegacy(ctx: RepoContext): Promise<LegacyAdr[]> {
   const results: LegacyAdr[] = [];
 
   for (const rel of ctx.files) {
-    if (rel.startsWith('docs/adrs/')) continue;
-    if (hasArchivedSegment(rel)) continue;
+    if (isArchivedPath(rel)) continue;
+    const number = legacyNumber(rel);
+    if (number !== undefined) results.push({ number, path: rel });
+  }
 
-    const basename = rel.slice(rel.lastIndexOf('/') + 1);
-    const match = basename.match(LEGACY_BASENAME_RE);
-    if (!match) continue;
+  return results.sort((a, b) => a.path.localeCompare(b.path));
+}
 
-    results.push({ number: match[1], path: rel });
+/**
+ * Detects legacy ADRs that sit under an `archived` path segment, by the same
+ * basename rule as `detectLegacy`. They raise no `legacy-adr` finding;
+ * `claims.ts` resolves a claim to one only when no live ADR has its number.
+ * Results are sorted by path.
+ */
+export async function detectArchivedLegacy(ctx: RepoContext): Promise<LegacyAdr[]> {
+  const results: LegacyAdr[] = [];
+
+  for (const rel of ctx.files) {
+    if (!isArchivedPath(rel)) continue;
+    const number = legacyNumber(rel);
+    if (number !== undefined) results.push({ number, path: rel });
   }
 
   return results.sort((a, b) => a.path.localeCompare(b.path));

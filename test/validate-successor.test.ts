@@ -1,3 +1,5 @@
+import { writeFile } from 'node:fs/promises';
+import path from 'node:path';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { makeRepo, run } from './helpers/fixture.js';
@@ -111,4 +113,36 @@ test('superseded-resolves: chain deprecated -> deprecated -> stable — no profi
 
   assert.equal(result.code, 0, result.stdout);
   assert.doesNotMatch(result.stdout, /profile-superseded-by/);
+});
+
+test('superseded-resolves: an untracked successor is named with the git add to run', async () => {
+  const dir = await makeRepo(
+    {
+      'docs/adrs/adr-001-old-decision.md': [
+        '---',
+        'type: adr',
+        'title: Old decision',
+        'description: superseded by an ADR not yet staged',
+        'status: deprecated',
+        'superseded_by: adr-002-new-decision',
+        '---',
+        '',
+        '# Old decision',
+        '',
+      ].join('\n'),
+    },
+    { git: true },
+  );
+  await writeFile(
+    path.join(dir, 'docs/adrs/adr-002-new-decision.md'),
+    ['---', 'type: adr', 'title: New decision', 'description: not staged yet', 'status: stable', '---', '', '# New decision', ''].join(
+      '\n',
+    ),
+    'utf8',
+  );
+
+  const result = await run(['validate'], { cwd: dir });
+
+  assert.equal(result.code, 1);
+  assert.match(result.stdout, /is not tracked by git — run "git add docs\/adrs\/adr-002-new-decision\.md"/);
 });
