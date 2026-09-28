@@ -66,7 +66,7 @@ test('init-devdep: a dep listed under dependencies gets a move hint, not a secon
   assert.equal(result.code, 0, result.stderr);
   assert.match(
     result.stderr,
-    /@wolven-tech\/harness is in dependencies, not devDependencies — run "pnpm remove @wolven-tech\/harness && pnpm add -D @wolven-tech\/harness"/,
+    /@wolven-tech\/harness is listed under dependencies.*Fix it with: pnpm remove @wolven-tech\/harness && pnpm add -D @wolven-tech\/harness/,
   );
 });
 

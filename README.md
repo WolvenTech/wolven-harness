@@ -19,9 +19,23 @@ pnpm exec wolven-harness init
 
 ### `wolven-harness init`
 
-Run it at the git top-level of the target repo. It asks for the git host (`gh` or `bit`) and the runtimes to wire (`claude`, `codex`, `cursor`), or takes them as flags — `--git-host gh --runtimes claude,codex` — which are required when stdin is not a TTY. The answers are saved to `.wolven-harness.json`.
+Run it at the git top-level of the target repo. In a terminal it opens with a short welcome, then asks two questions:
 
-`init` creates paths that are missing and leaves every other existing path byte-identical, then lists what it created and what it skipped. Two exceptions: it adds `harness:validate` and `harness:comments` to an existing `package.json` when those script keys are absent, and every run rewrites `packageVersion` in `.wolven-harness.json`. It writes `WOLVEN.md`, `docs/` (writing profile, ADR folder with a starter ADR, prds, specs, notes, deferrals), `.qmd/index.yml`, `.agents/` (skills, rules, hooks — including the `comments.md` standing rule), and the runtime wiring below. It never creates or edits `AGENTS.md`: see [Setting up with harness-init](#setting-up-with-harness-init) below.
+- **Where is the repo hosted?** GitHub or Bitbucket. The `origin` remote preselects the answer when it points at github.com or bitbucket.org.
+- **Which agent runtimes do you use?** Claude Code, Codex, Cursor (pick at least one). Existing `.claude/` or `CLAUDE.md`, `.codex/`, and `.cursor/` or `.cursorrules` preselect the matching runtime.
+
+It then shows a progress line per phase (copying skills and rules, wiring your runtimes, adding package scripts), a grouped summary of what it added and what it kept as it was, and numbered next steps. Answers are saved to `.wolven-harness.json`; press Ctrl-C at any prompt to stop with nothing written.
+
+Every question can be answered up front instead — flags beat `.wolven-harness.json`, which beats prompts — and the flags are required when stdout or stdin is not a terminal (CI, pipes). Without a terminal, `init` prints the same summary and next steps as plain text, with no colour or animation.
+
+| Flag | Effect |
+| --- | --- |
+| `--git-host <gh\|bit>` | Git host, skipping the question. |
+| `--runtimes <claude,codex,cursor>` | Comma-separated runtimes, skipping the question. |
+| `--verbose` | Also list every file created and every file kept. |
+| `--debug` | Trace each step on stderr; same as `WOLVEN_HARNESS_DEBUG=1`. |
+
+`init` creates paths that are missing and leaves every other existing path byte-identical, then summarises what it added and which of your existing files it kept. Two exceptions: it adds `harness:validate` and `harness:comments` to an existing `package.json` when those script keys are absent, and every run rewrites `packageVersion` in `.wolven-harness.json`. It writes `WOLVEN.md`, `docs/` (writing profile, ADR folder with a starter ADR, prds, specs, notes, deferrals), `.qmd/index.yml`, `.agents/` (skills, rules, hooks — including the `comments.md` standing rule), and the runtime wiring below. It never creates or edits `AGENTS.md`: see [Setting up with harness-init](#setting-up-with-harness-init) below.
 
 ### `wolven-harness validate`
 

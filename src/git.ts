@@ -18,3 +18,13 @@ export async function gitTopLevel(cwd: string): Promise<string> {
   const { stdout } = await execGit(cwd, ['rev-parse', '--show-toplevel']);
   return stdout.trim();
 }
+
+/** The `origin` remote URL from `cwd`, or `undefined` when there is none. */
+export async function gitOriginUrl(cwd: string): Promise<string | undefined> {
+  try {
+    const { stdout } = await execGit(cwd, ['remote', 'get-url', 'origin']);
+    return stdout.trim() || undefined;
+  } catch {
+    return undefined;
+  }
+}

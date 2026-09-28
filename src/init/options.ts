@@ -1,10 +1,12 @@
 import { realpath } from 'node:fs/promises';
-import readline from 'node:readline';
-import type { GitHost, Io, Options, Context, Runtime } from './types.js';
-import { InitError } from './types.js';
+import path from 'node:path';
+import type { GitHost, Io, Options, Context, Runtime, Prompter } from './types.js';
+import { InitError, InitCancelled } from './types.js';
 import { isGitHost, isRuntime, readConfig, writeConfig } from './config.js';
 import type { Config } from './config.js';
-import { gitTopLevel } from '../git.js';
+import { gitTopLevel, gitOriginUrl } from '../git.js';
+import { pathExists } from '../path-exists.js';
+import { clackPrompter } from './ui.js';
 import { resolveOwnPackage } from './own-package.js';
 
 /**
@@ -18,7 +20,7 @@ async function assertGitTopLevel(io: Io): Promise<void> {
   try {
     toplevel = await gitTopLevel(io.cwd);
   } catch {
-    throw new InitError(`not a git repository: ${io.cwd}`);
+    throw new InitError(`not a git repository: ${io.cwd}`, 'Run "git init" here first, then re-run init.');
   }
 
   const [realToplevel, realCwd] = await Promise.all([realpath(toplevel), realpath(io.cwd)]);
@@ -26,9 +28,12 @@ async function assertGitTopLevel(io: Io): Promise<void> {
   if (realToplevel !== realCwd) {
     throw new InitError(
       `init must run at the git top-level (${realToplevel}), not ${realCwd}`,
+      `Run it from ${realToplevel}.`,
     );
   }
 }
+
+const VALID_OPTIONS = '--git-host <gh|bit>, --runtimes <claude,codex,cursor>, --verbose, --debug';
 
 interface Flags {
   gitHost?: string;
@@ -48,18 +53,21 @@ function parseFlags(argv: string[]): Flags {
 
     if (arg === '--git-host') {
       const value = argv[++i];
-      if (value === undefined) throw new InitError('missing value for --git-host');
+      if (value === undefined) throw new InitError('missing value for --git-host', 'Use --git-host gh or --git-host bit.');
       flags.gitHost = value;
     } else if (arg.startsWith('--git-host=')) {
       flags.gitHost = arg.slice('--git-host='.length);
     } else if (arg === '--runtimes') {
       const value = argv[++i];
-      if (value === undefined) throw new InitError('missing value for --runtimes');
+      if (value === undefined) throw new InitError('missing value for --runtimes', 'Use e.g. --runtimes claude,codex.');
       flags.runtimes = value;
     } else if (arg.startsWith('--runtimes=')) {
       flags.runtimes = arg.slice('--runtimes='.length);
+    } else if (arg === '--debug' || arg === '--verbose') {
+      // why: read by runInit before resolveOptions runs; accepted here so they are not "unknown".
+      continue;
     } else {
-      throw new InitError(`unknown option "${arg}"`);
+      throw new InitError(`unknown option "${arg}"`, `Valid options: ${VALID_OPTIONS}.`);
     }
   }
 
@@ -96,7 +104,7 @@ function parseRuntimesValue(raw: string): Runtime[] | undefined {
 function parseGitHostFlag(raw: string): GitHost {
   const value = parseGitHostValue(raw);
   if (value === undefined) {
-    throw new InitError(`invalid value for --git-host: "${raw}" (expected "gh" or "bit")`);
+    throw new InitError(`invalid value for --git-host: "${raw}"`, 'Use "gh" for GitHub or "bit" for Bitbucket.');
   }
   return value;
 }
@@ -105,112 +113,101 @@ function parseRuntimesFlag(raw: string): Runtime[] {
   const value = parseRuntimesValue(raw);
   if (value === undefined) {
     throw new InitError(
-      `invalid value for --runtimes: "${raw}" (expected a comma-separated list of "claude", "codex", "cursor")`,
+      `invalid value for --runtimes: "${raw}"`,
+      'Use a comma-separated list of "claude", "codex", "cursor", e.g. --runtimes claude,codex.',
     );
   }
   return value;
 }
 
 /**
- * Reads lines from `io.stdin` one at a time. Built on `readline`'s `line`
- * event (queued eagerly) rather than the promises `question()` API,
- * because a piped, already-ended input stream (as fixtures use to supply
- * canned answers) can deliver every line and then close before a second
- * sequential `question()` call attaches its listener — `question()` then
- * throws `ERR_USE_AFTER_CLOSE`. Queuing lines as they arrive avoids that
- * race and still serves each prompt one line at a time.
+ * Guesses the git host from the `origin` remote URL: github.com maps to
+ * `gh`, bitbucket.org to `bit`; no remote or any other host is `undefined`.
  */
-class LineReader {
-  private readonly rl: readline.Interface;
-  private readonly queue: string[] = [];
-  private closed = false;
-  private waiting: ((line: string | undefined) => void) | undefined;
-
-  constructor(io: Io) {
-    this.rl = readline.createInterface({ input: io.stdin, terminal: false });
-    this.rl.on('line', (line) => {
-      if (this.waiting) {
-        const resolve = this.waiting;
-        this.waiting = undefined;
-        resolve(line);
-      } else {
-        this.queue.push(line);
-      }
-    });
-    this.rl.on('close', () => {
-      this.closed = true;
-      if (this.waiting) {
-        const resolve = this.waiting;
-        this.waiting = undefined;
-        resolve(undefined);
-      }
-    });
-  }
-
-  next(): Promise<string | undefined> {
-    if (this.queue.length > 0) return Promise.resolve(this.queue.shift());
-    if (this.closed) return Promise.resolve(undefined);
-    return new Promise((resolve) => {
-      this.waiting = resolve;
-    });
-  }
-
-  close(): void {
-    this.rl.close();
-  }
+export async function detectGitHost(root: string): Promise<GitHost | undefined> {
+  const url = await gitOriginUrl(root);
+  if (url === undefined) return undefined;
+  if (/github\.com/i.test(url)) return 'gh';
+  if (/bitbucket\.org/i.test(url)) return 'bit';
+  return undefined;
 }
 
-async function promptGitHost(reader: LineReader, io: Io): Promise<GitHost> {
-  for (;;) {
-    io.stdout.write('Git host — gh or bit: ');
-    const line = await reader.next();
-    if (line === undefined) throw new InitError('input ended before --git-host was answered');
-    const answer = line.trim();
-    const value = parseGitHostValue(answer);
-    if (value !== undefined) return value;
-    io.stdout.write(`Invalid git host "${answer}" — enter "gh" or "bit".\n`);
-  }
-}
+const RUNTIME_MARKERS: readonly (readonly [Runtime, readonly string[]])[] = [
+  ['claude', ['.claude', 'CLAUDE.md']],
+  ['codex', ['.codex']],
+  ['cursor', ['.cursor', '.cursorrules']],
+];
 
-async function promptRuntimes(reader: LineReader, io: Io): Promise<Runtime[]> {
-  for (;;) {
-    io.stdout.write('Runtimes — comma-separated, one or more of claude, codex, cursor: ');
-    const line = await reader.next();
-    if (line === undefined) throw new InitError('input ended before --runtimes was answered');
-    const answer = line.trim();
-    const value = parseRuntimesValue(answer);
-    if (value !== undefined) return value;
-    io.stdout.write(
-      `Invalid runtimes "${answer}" — enter one or more of "claude", "codex", "cursor", comma-separated.\n`,
-    );
+/** Runtimes whose config files or folders already exist in `root`, in a fixed order. */
+export async function detectRuntimes(root: string): Promise<Runtime[]> {
+  const found: Runtime[] = [];
+  for (const [runtime, markers] of RUNTIME_MARKERS) {
+    for (const marker of markers) {
+      if (await pathExists(path.join(root, marker))) {
+        found.push(runtime);
+        break;
+      }
+    }
   }
+  return found;
 }
 
 /**
- * Prompts for whichever of `gitHost`/`runtimes` is still missing, host
- * first then runtimes, one question at a time over a single
- * `node:readline`-backed reader bound to `io.stdin`/`io.stdout`.
+ * Asks for whichever of `gitHost`/`runtimes` is still missing, host first
+ * then runtimes, preselecting what the repo already shows. A cancelled
+ * prompt throws `InitCancelled` before anything has been written.
  */
 async function promptMissing(
-  io: Io,
+  prompter: Prompter,
+  root: string,
   needGitHost: boolean,
   needRuntimes: boolean,
 ): Promise<{ gitHost?: GitHost; runtimes?: Runtime[] }> {
-  const reader = new LineReader(io);
-  try {
-    const gitHost = needGitHost ? await promptGitHost(reader, io) : undefined;
-    const runtimes = needRuntimes ? await promptRuntimes(reader, io) : undefined;
-    return { gitHost, runtimes };
-  } finally {
-    reader.close();
+  let gitHost: GitHost | undefined;
+  let runtimes: Runtime[] | undefined;
+
+  if (needGitHost) {
+    const detected = await detectGitHost(root);
+    const note = detected === undefined ? '' : ' (detected from origin)';
+    gitHost = await prompter.select<GitHost>({
+      message: 'Where is this repository hosted?',
+      options: [
+        { value: 'gh', label: 'GitHub', hint: `github.com${detected === 'gh' ? note : ''}` },
+        { value: 'bit', label: 'Bitbucket', hint: `bitbucket.org${detected === 'bit' ? note : ''}` },
+      ],
+      initialValue: detected,
+    });
+    if (gitHost === undefined) throw new InitCancelled('git host prompt cancelled');
   }
+
+  if (needRuntimes) {
+    const detected = await detectRuntimes(root);
+    runtimes = await prompter.multiselect<Runtime>({
+      message: 'Which agent runtimes do you use? (space to toggle, enter to confirm)',
+      options: [
+        { value: 'claude', label: 'Claude Code', hint: detected.includes('claude') ? 'detected in this repo' : undefined },
+        { value: 'codex', label: 'Codex', hint: detected.includes('codex') ? 'detected in this repo' : undefined },
+        { value: 'cursor', label: 'Cursor', hint: detected.includes('cursor') ? 'detected in this repo' : undefined },
+      ],
+      initialValues: detected,
+    });
+    if (runtimes === undefined) throw new InitCancelled('runtimes prompt cancelled');
+  }
+
+  return { gitHost, runtimes };
+}
+
+/** True when a person can answer prompts: an interactive stdout plus an injected or real TTY stdin. */
+export function canPrompt(io: Io): boolean {
+  if (!io.isTTY) return false;
+  return io.prompts !== undefined || Boolean((io.stdin as { isTTY?: boolean }).isTTY);
 }
 
 /**
  * Resolves `init`'s options: the git-top-level guard runs first (before
  * any prompt or write); then flags override `.wolven-harness.json`
  * defaults, which override interactive prompts (TTY only — no TTY with a
- * value still missing is a named-flag `InitError`). The resolved options
+ * value still missing is a named-flag `InitError`; a cancelled prompt is `InitCancelled`). The resolved options
  * are written back to `.wolven-harness.json` on every run, refreshing
  * `packageVersion` to this running package's own version and carrying
  * every other existing key (`ignore`, `comments`, and any unknown key)
@@ -232,18 +229,21 @@ export async function resolveOptions(argv: string[], ctx: Context): Promise<Opti
   if (runtimes === undefined) missing.push('--runtimes');
 
   if (missing.length > 0) {
-    if (!ctx.io.isTTY) {
+    if (!canPrompt(ctx.io)) {
       const label = missing.length > 1 ? 'flags' : 'flag';
-      throw new InitError(`missing required ${label}: ${missing.join(', ')}`);
+      throw new InitError(
+        `missing required ${label}: ${missing.join(', ')}`,
+        `Pass ${missing.length > 1 ? 'them' : 'it'} as ${missing.length > 1 ? 'flags' : 'a flag'} (e.g. ${missing.map((f) => (f === '--git-host' ? '--git-host gh' : '--runtimes claude')).join(' ')}) or run init in an interactive terminal to be asked.`,
+      );
     }
 
-    const prompted = await promptMissing(ctx.io, gitHost === undefined, runtimes === undefined);
+    const prompter = ctx.io.prompts ?? clackPrompter(ctx.io);
+    const prompted = await promptMissing(prompter, ctx.root, gitHost === undefined, runtimes === undefined);
     if (gitHost === undefined) gitHost = prompted.gitHost;
     if (runtimes === undefined) runtimes = prompted.runtimes;
   }
 
-  // Both are guaranteed set past this point: either flags/config supplied
-  // them, or promptMissing (TTY) blocked until valid answers were given.
+  // invariant: both are set here, from flags/config or from prompts that only resolve with an answer.
   const resolvedGitHost = gitHost as GitHost;
   const resolvedRuntimes = runtimes as Runtime[];
 

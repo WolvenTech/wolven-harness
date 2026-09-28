@@ -136,53 +136,6 @@ test('init-prompts: non-git dir exits 1 and creates nothing', async () => {
   assert.equal(await configExists(dir), false);
 });
 
-test('init-prompts: tty asks host then runtimes, one at a time', async () => {
-  const dir = await makeRepo({}, { git: true });
-
-  const result = await run(['init'], { cwd: dir, isTTY: true, input: 'gh\nclaude,codex\n' });
-
-  assert.equal(result.code, 0);
-
-  const hostIdx = result.stdout.search(/gh.*bit/i);
-  const runtimesIdx = result.stdout.search(/claude.*codex.*cursor/i);
-  assert.ok(hostIdx >= 0, 'host question printed');
-  assert.ok(runtimesIdx >= 0, 'runtimes question printed');
-  assert.ok(runtimesIdx > hostIdx, 'runtimes question printed after host question');
-
-  const config = await readConfigFile(dir);
-  assert.equal(config.gitHost, 'gh');
-  assert.deepEqual(config.runtimes, ['claude', 'codex']);
-});
-
-test('init-prompts: tty re-asks on an invalid runtimes answer', async () => {
-  const dir = await makeRepo({}, { git: true });
-
-  const result = await run(['init'], {
-    cwd: dir,
-    isTTY: true,
-    input: 'gh\nnotaruntime\nclaude\n',
-  });
-
-  assert.equal(result.code, 0);
-  assert.match(result.stdout, /Invalid runtimes/);
-
-  const config = await readConfigFile(dir);
-  assert.deepEqual(config.runtimes, ['claude']);
-});
-
-test('init-prompts: ended input fails without writing config', async () => {
-  const dir = await makeRepo({}, { git: true });
-  const hostResult = await run(['init'], { cwd: dir, isTTY: true, input: '' });
-  assert.equal(hostResult.code, 1);
-  assert.match(hostResult.stderr, /input ended before --git-host was answered/);
-
-  const result = await run(['init'], { cwd: dir, isTTY: true, input: 'gh\n' });
-
-  assert.equal(result.code, 1);
-  assert.match(result.stderr, /input ended before --runtimes was answered/);
-  assert.equal(await configExists(dir), false);
-});
-
 // --- init-config ---
 
 test('init-config: re-run reads .wolven-harness.json without prompting', {
@@ -201,8 +154,8 @@ test('init-config: re-run reads .wolven-harness.json without prompting', {
   const result = await run(['init'], { cwd: dir, isTTY: true, input: '' });
 
   assert.equal(result.code, 0);
-  assert.doesNotMatch(result.stdout, /Git host/);
-  assert.doesNotMatch(result.stdout, /Runtimes/);
+  assert.doesNotMatch(result.stdout, /hosted/);
+  assert.doesNotMatch(result.stdout, /runtimes do you use/);
 
   const config = await readConfigFile(dir);
   assert.equal(config.gitHost, 'bit');

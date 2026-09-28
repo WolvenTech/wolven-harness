@@ -125,14 +125,10 @@ test('init-skip: closing line names harness-init, and pre-existing files stay by
   const result = await run(['init', '--git-host', 'gh', '--runtimes', 'claude'], { cwd: dir });
 
   assert.equal(result.code, 0);
-  assert.match(result.stdout, /created:/);
-  assert.match(result.stdout, /skipped \(exists\):/);
   assert.match(result.stdout, /harness-init/);
+  assert.doesNotMatch(result.stdout, /skipped \(exists\)/);
 
-  // Pre-existing runtime files are reported as skipped and stay byte-identical.
-  const skippedBlock = result.stdout.split('skipped (exists):')[1] ?? '';
-  assert.match(skippedBlock, /^\s+CLAUDE\.md$/m);
-  assert.match(skippedBlock, /^\s+\.claude\/skills$/m);
+  assert.match(result.stdout, /kept your existing CLAUDE\.md, \.claude\/skills, left untouched/);
   assert.equal(await readFile(path.join(dir, 'AGENTS.md'), 'utf8'), 'AGENTS CONTENT\n');
   assert.equal(await readFile(path.join(dir, 'CLAUDE.md'), 'utf8'), 'CLAUDE CONTENT\n');
   assert.equal(await readFile(path.join(dir, '.claude/skills/foo.md'), 'utf8'), 'SKILL CONTENT\n');
@@ -160,8 +156,7 @@ test('init-skip: second `init` run creates nothing further', async () => {
 
   const secondRun = await run(['init', '--git-host', 'gh', '--runtimes', 'codex'], { cwd: dir });
   assert.equal(secondRun.code, 0);
-  assert.match(secondRun.stdout, /skipped \(exists\):[\s\S]*package\.json#scripts\.harness:validate/);
-  assert.match(secondRun.stdout, /skipped \(exists\):[\s\S]*package\.json#scripts\.harness:comments/);
+  assert.match(secondRun.stdout, /kept your existing package\.json scripts: harness:validate, harness:comments, left untouched/);
 
   const pkgAfterSecond = await readFile(path.join(dir, 'package.json'), 'utf8');
   assert.equal(pkgAfterSecond, pkgAfterFirst, 'second run does not touch package.json again');

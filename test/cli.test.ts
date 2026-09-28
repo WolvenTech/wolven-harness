@@ -30,23 +30,14 @@ test('unknown command exits 1', async () => {
   assert.match(result.stderr, /unknown command/);
 });
 
-test('init runs its steps in order and prints the harness-init closing line', async () => {
+test('init prints a summary and the harness-init next step', async () => {
   const dir = await makeRepo({}, { git: true });
   const result = await run(['init', '--git-host', 'gh', '--runtimes', 'codex'], { cwd: dir });
 
   assert.equal(result.code, 0);
-
-  const order = ['resolveOptions', 'applyTemplates', 'wireRuntimes', 'addValidateScript'];
-  const positions = order.map((name) => result.stderr.indexOf(`step ${name}`));
-  for (const [i, pos] of positions.entries()) {
-    assert.ok(pos >= 0, `step trace for ${order[i]} present`);
-  }
-  for (let i = 1; i < positions.length; i++) {
-    assert.ok(positions[i] > positions[i - 1], `${order[i]} runs after ${order[i - 1]}`);
-  }
-
-  assert.match(result.stdout, /created:/);
-  assert.match(result.stdout, /skipped \(exists\):/);
+  assert.doesNotMatch(result.stderr, /step resolveOptions/);
+  assert.match(result.stdout, /✔ .*skills.*in \.agents\//);
+  assert.match(result.stdout, /Next steps:/);
   assert.match(result.stdout, /harness-init/);
 });
 
