@@ -34,9 +34,8 @@ test('comments-install: init adds exactly harness:validate and harness:comments,
 
   const second = await run(['init', '--git-host', 'gh', '--runtimes', 'claude'], { cwd: dir });
   assert.equal(second.code, 0, second.stderr);
-  assert.doesNotMatch(second.stdout.split('skipped (exists):')[0] ?? '', /package\.json#scripts/);
-  assert.match(second.stdout, /skipped \(exists\):[\s\S]*package\.json#scripts\.harness:validate/);
-  assert.match(second.stdout, /skipped \(exists\):[\s\S]*package\.json#scripts\.harness:comments/);
+  assert.doesNotMatch(second.stdout, /✔ package\.json scripts/);
+  assert.match(second.stdout, /kept your existing package\.json scripts: harness:validate, harness:comments, left untouched/);
 
   const afterSecond = await readFile(path.join(dir, 'package.json'), 'utf8');
   assert.equal(afterSecond, afterFirst, 'second run leaves package.json byte-identical');

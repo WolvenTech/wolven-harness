@@ -8,6 +8,14 @@ import { renderWolven } from './render-wolven.js';
 const AGENTS_MD = 'AGENTS.md';
 const WOLVEN_MD = 'WOLVEN.md';
 
+/**
+ * Template files installed under a different name. why: npm drops every
+ * `.gitignore` from a published tarball, so the template ships without the dot.
+ */
+const INSTALLED_AS: Record<string, string> = {
+  '.qmd/gitignore': '.qmd/.gitignore',
+};
+
 function toPosix(relFsPath: string): string {
   return relFsPath.split(path.sep).join('/');
 }
@@ -64,17 +72,23 @@ async function walkFiles(dir: string): Promise<string[]> {
  * component leading to it) is missing — an existing path, whatever it is,
  * is left byte-identical and reported under `skipped`. `AGENTS.md` is
  * hard-refused: never created or edited, even if the template manifest
- * carried one. `WOLVEN.md`'s content comes from `renderWolven(ctx)` rather
- * than being copied verbatim.
+ * carried one. A template listed in `INSTALLED_AS` is written under its mapped name. `WOLVEN.md`'s content comes from `renderWolven(ctx)` rather
+ * than being copied verbatim. When `skillFolders` is given, only those
+ * skill folders under `.agents/skills/` are considered; the rest are neither
+ * created nor reported.
  */
-export async function applyTemplates(ctx: Context): Promise<StepResult> {
+export async function applyTemplates(ctx: Context, skillFolders?: readonly string[]): Promise<StepResult> {
   const created: string[] = [];
   const skipped: string[] = [];
 
   const templateFiles = await walkFiles(ctx.templatesDir);
 
   for (const relFsPath of templateFiles) {
-    const rel = toPosix(relFsPath);
+    const sourceRel = toPosix(relFsPath);
+    const rel = INSTALLED_AS[sourceRel] ?? sourceRel;
+
+    const skillName = /^\.agents\/skills\/([^/]+)\//.exec(rel)?.[1];
+    if (skillFolders !== undefined && skillName !== undefined && !skillFolders.includes(skillName)) continue;
 
     if (rel === AGENTS_MD) {
       // Hard refuse: AGENTS.md is never created or edited by `init`,
@@ -95,8 +109,8 @@ export async function applyTemplates(ctx: Context): Promise<StepResult> {
 
     const content =
       rel === WOLVEN_MD
-        ? await renderWolven(ctx)
-        : await readFile(path.join(ctx.templatesDir, ...rel.split('/')), 'utf8');
+        ? await renderWolven(ctx, skillFolders)
+        : await readFile(path.join(ctx.templatesDir, ...sourceRel.split('/')), 'utf8');
 
     await writeFile(targetPath, content, 'utf8');
     created.push(rel);

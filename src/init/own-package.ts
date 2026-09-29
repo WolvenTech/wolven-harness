@@ -30,20 +30,21 @@ export function resolveOwnPackage(): Promise<OwnPackage> {
 }
 
 /**
- * Warns on `ctx.io.stderr` when the target root has a `package.json` and
- * this package is not in its `devDependencies`: listed under `dependencies`
- * or `optionalDependencies`, the warning says to move it; absent, to add
- * it. Writes nothing to the file itself — a missing `package.json`, or the
- * dependency already in `devDependencies`, is silent.
+ * Returns a kind, one-line warning (with the exact fix command) when the
+ * target root has a `package.json` and this package is not in its
+ * `devDependencies`: listed under `dependencies` or `optionalDependencies`
+ * the fix is to move it, absent it is to add it. Writes nothing; a missing
+ * `package.json`, or the dependency already in `devDependencies`, gives
+ * `undefined`.
  */
-export async function warnMissingDevDependency(ctx: Context): Promise<void> {
+export async function devDependencyWarning(ctx: Context): Promise<string | undefined> {
   const pkgPath = path.join(ctx.root, 'package.json');
 
   let raw: string;
   try {
     raw = await readFile(pkgPath, 'utf8');
   } catch (err) {
-    if ((err as NodeJS.ErrnoException).code === 'ENOENT') return;
+    if ((err as NodeJS.ErrnoException).code === 'ENOENT') return undefined;
     throw err;
   }
 
@@ -51,17 +52,12 @@ export async function warnMissingDevDependency(ctx: Context): Promise<void> {
   const { name } = await resolveOwnPackage();
   const has = (field: string): boolean => Object.prototype.hasOwnProperty.call(pkg[field] ?? {}, name);
 
-  if (has('devDependencies')) return;
+  if (has('devDependencies')) return undefined;
 
   const otherField = ['dependencies', 'optionalDependencies'].find(has);
   if (otherField !== undefined) {
-    ctx.io.stderr.write(
-      `wolven-harness init: ${name} is in ${otherField}, not devDependencies — run "pnpm remove ${name} && pnpm add -D ${name}".\n`,
-    );
-    return;
+    return `${name} is listed under ${otherField}; it belongs in devDependencies. Fix it with: pnpm remove ${name} && pnpm add -D ${name}`;
   }
 
-  ctx.io.stderr.write(
-    `wolven-harness init: ${name} is not in devDependencies — run "pnpm add -D ${name}".\n`,
-  );
+  return `${name} is not in your devDependencies yet, so teammates and CI will not get it. Fix it with: pnpm add -D ${name}`;
 }

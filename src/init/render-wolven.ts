@@ -37,7 +37,7 @@ async function readSkillFrontmatter(skillMdPath: string): Promise<SkillFrontmatt
  * `SKILL.md`, and returns every skill's frontmatter, sorted by name. A new
  * skill folder is picked up automatically — no code change needed here.
  */
-async function collectSkills(templatesDir: string): Promise<SkillFrontmatter[]> {
+async function collectSkills(templatesDir: string, only?: readonly string[]): Promise<SkillFrontmatter[]> {
   const skillsDir = path.join(templatesDir, '.agents', 'skills');
 
   let entries;
@@ -50,6 +50,7 @@ async function collectSkills(templatesDir: string): Promise<SkillFrontmatter[]> 
   const skills: SkillFrontmatter[] = [];
   for (const entry of entries) {
     if (!entry.isDirectory()) continue;
+    if (only !== undefined && !only.includes(entry.name)) continue;
     const fm = await readSkillFrontmatter(path.join(skillsDir, entry.name, 'SKILL.md'));
     if (fm) skills.push(fm);
   }
@@ -68,13 +69,14 @@ function renderSkillsTable(skills: SkillFrontmatter[]): string {
  * Renders `WOLVEN.md` from `ctx.templatesDir/WOLVEN.md`: builds a skills
  * table from every installed skill's `SKILL.md` frontmatter under the same
  * templates dir (each skill folder under `.agents/skills`), and substitutes
- * it for the `{{skills_table}}` placeholder.
+ * it for the `{{skills_table}}` placeholder. When `only` is given, the
+ * table lists just those skill folders.
  */
-export async function renderWolven(ctx: Context): Promise<string> {
+export async function renderWolven(ctx: Context, only?: readonly string[]): Promise<string> {
   const templatePath = path.join(ctx.templatesDir, 'WOLVEN.md');
   const template = await readFile(templatePath, 'utf8');
 
-  const skills = await collectSkills(ctx.templatesDir);
+  const skills = await collectSkills(ctx.templatesDir, only);
   const table = renderSkillsTable(skills);
 
   return template.split(SKILLS_TABLE_PLACEHOLDER).join(table);

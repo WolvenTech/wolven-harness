@@ -49,7 +49,11 @@ Working from a clone is under [Contributing](#contributing).
 
 ### `wolven-harness init`
 
-Run it at the git top-level of the target repo. It asks for the git host (`gh` or `bit`) and the runtimes to wire (`claude`, `codex`, `cursor`), or takes `--git-host` and `--runtimes`. When stdout is not a TTY, pass `--git-host` and `--runtimes`. It never creates or edits `AGENTS.md`. See [Setting up with harness-init](#setting-up-with-harness-init).
+Run it at the git top-level of the target repo. It asks a few questions, then sets up the harness.
+
+- Adds only what is missing: never edits `AGENTS.md`, never commits.
+- When stdout is not a TTY, pass `--git-host` and `--runtimes`.
+- Add a skill set later with `--skills ship,discovery`; re-runs never remove one.
 
 ### `wolven-harness validate`
 

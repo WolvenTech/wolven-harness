@@ -5,7 +5,7 @@ import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { PassThrough } from 'node:stream';
 import { main } from '../../src/cli.js';
-import type { Io } from '../../src/init/types.js';
+import type { Io, Prompter } from '../../src/init/types.js';
 
 const execFileAsync = promisify(execFile);
 
@@ -54,7 +54,7 @@ export interface RunResult {
  */
 export async function run(
   args: string[],
-  opts: { cwd: string; isTTY?: boolean; input?: string },
+  opts: { cwd: string; isTTY?: boolean; input?: string; prompts?: Prompter; env?: Record<string, string> },
 ): Promise<RunResult> {
   const stdout = new PassThrough();
   const stderr = new PassThrough();
@@ -79,6 +79,8 @@ export async function run(
     stdout,
     stderr,
     isTTY: opts.isTTY ?? false,
+    ...(opts.prompts !== undefined ? { prompts: opts.prompts } : {}),
+    env: opts.env ?? {},
   };
 
   const code = await main(args, io);

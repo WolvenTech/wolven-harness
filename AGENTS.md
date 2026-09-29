@@ -22,7 +22,7 @@ pnpm validate   # node dist/cli.js validate — run after `pnpm build`
 
 ## Rules
 
-- Runtime dependency: `yaml` only. Adding another runtime dependency is a decision, not a default.
+- Runtime dependencies: `yaml` and `@clack/prompts` (the `init` prompts and progress UI, `src/init/ui.ts`) only. Adding another runtime dependency is a decision, not a default.
 - `init` creates only missing paths, and never creates or edits a consumer's `AGENTS.md`. It does add missing `harness:validate` and `harness:comments` scripts to an existing `package.json`, and it rewrites `packageVersion` in `.wolven-harness.json` on every run. The `comments` base, when `--base` is omitted, is the merge-base with `origin/HEAD`, then `origin/main`, then `main`.
 - Architecture claims follow ADR-001 (`docs/adrs/adr-001-claim-path.md`).
 - Added comments under `src/` and `test/` must be `why:`/`hazard:`/`invariant:` (at most 4 lines) or an informative JSDoc comment on the declaration below them, with no narration of what changed and no references outside this repository; `pnpm comments` (`wolven-harness comments`) judges comment lines added since the merge-base with `origin/main` and enforces it.

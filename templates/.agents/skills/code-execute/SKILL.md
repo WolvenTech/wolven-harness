@@ -113,6 +113,9 @@ values, whether they came from the file or from a default.
 | `true` | `unit` | After that unit's validate PASS, invoke `code-commit` once for that unit's work plus its plan-completion mark. |
 | `true` | `wave` | Do not commit per unit. After the wave gate's validate PASS, invoke `code-commit` once for that wave's proven work plus those units' plan-completion marks. |
 
+- `code-commit` not installed (no `.agents/skills/code-commit/`): never
+  commit automatically, whatever the opt says; say so in the pre-start print
+  and leave the work uncommitted.
 - No plan in scope: no automatic commit; an explicit standalone commit ask
   still runs `code-commit` directly, whatever the opt says.
 - A batch's plan-completion marks flip in the worktree immediately before
@@ -284,6 +287,8 @@ parallel commit path here.
   units' plan-completion marks.
 - `autocommit: false` — skip `code-commit`; state that it is ready to be
   asked for; the work stays uncommitted.
+- `code-commit` not installed — skip this step, say it is not installed,
+  and leave the work uncommitted.
 - No plan in scope — no automatic commit; a standalone ask still runs
   `code-commit` directly.
 

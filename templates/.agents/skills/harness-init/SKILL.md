@@ -11,7 +11,7 @@ bare `.agents/skills/` tree) to a working setup: the entry file folded into
 a short list of suggested skills stubbed out, and a session note recording
 what happened. The Human steers every write.
 
-**Consult:** `adr`, `research`, `code-commit`, `qmd`, `grilling`.
+**Consult:** `adr`, `research`, `code-commit` (when installed), `qmd`, `grilling`.
 
 This skill is a runtime playbook, not a scripted fix: it gives the agent
 rules for what it will meet in an unfamiliar repo, not a transcript to
@@ -61,7 +61,10 @@ The run has three writing phases:
 
 At the end of each phase, once `harness:validate` exits 0 — `0 legacy-warn`
 as well, for the migration phase — offer one commit of that phase's paths
-through `code-commit`, and commit only on the Human's yes. Never a single
+through `code-commit`, and commit only on the Human's yes. When `code-commit`
+is not installed (no `.agents/skills/code-commit/`), ask the Human before each
+phase's commit and make it with plain `git commit` of that phase's paths, again
+only on their yes. Never a single
 commit at the end of the whole run, and never a commit per file, ADR,
 claim, or stub. A declined commit leaves that phase uncommitted, and the
 next phase's offer covers only its own paths — the two never merge into
@@ -89,8 +92,9 @@ A re-run does not redo what an earlier run already finished:
 ### 0. Entry integration
 
 Fold the entry file into `AGENTS.md` in one of three modes — full, light,
-or mention-only — recommend one from what the repo already has, and let the
-Human pick. This step also checks for existing `AGENTS.md` content, an
+or mention-only. Put the mode to the Human as one question, the recommended
+mode first with the reason and the other two as options; never pick it
+silently. This step also checks for existing `AGENTS.md` content, an
 overlapping router or rule, a `CLAUDE.md` that should import `AGENTS.md`,
 any harness path an ignore rule keeps from other clones (proposing
 re-include rules), and existing content in the five doc folders the
@@ -149,7 +153,14 @@ for the Human's instructions. Never overwrite an existing skill folder. See
 
 ### 6. Session note and hand-back
 
-Add the note's final sections, set it `stable`, and hand the run back to
+First put one question to the Human: how should `harness:validate` be wired —
+(a) as a CI job on pull requests, (b) chained into the repo's existing
+`validate` or `test` script, or (c) local only? Detect the CI config and the
+existing scripts first, frame the options with that evidence, and list the
+recommended option first. Nothing is written without the Human's yes. See
+[references/validate-wiring.md](references/validate-wiring.md).
+
+Then add the note's final sections, set it `stable`, and hand the run back to
 the Human with what was done and what is left for them to define. See
 [references/session-note-template.md](references/session-note-template.md).
 
