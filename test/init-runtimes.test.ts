@@ -119,12 +119,19 @@ test('runtime-wiring: end-to-end codex,cursor via CLI creates no runtime dirs', 
   }
 });
 
-test('runtime-wiring: README cites three URLs and macOS/Linux', async () => {
+test('runtime-wiring: runtimes page cites three URLs; README install lines cite macOS/Linux', async () => {
   const readme = await readFile(new URL('../README.md', import.meta.url), 'utf8');
+  const installStart = readme.indexOf('## Install');
+  assert.ok(installStart >= 0, 'README missing "## Install"');
+  const installEnd = readme.indexOf('\n## ', installStart + 1);
+  const install = readme.slice(installStart, installEnd === -1 ? undefined : installEnd);
 
-  assert.match(readme, /https:\/\/code\.claude\.com\/docs\/en\/skills/);
-  assert.match(readme, /https:\/\/learn\.chatgpt\.com\/docs\/build-skills/);
-  assert.match(readme, /https:\/\/cursor\.com\/docs\/context\/skills/);
-  assert.match(readme, /macOS/);
-  assert.match(readme, /Linux/);
+  assert.match(install, /macOS/);
+  assert.match(install, /Linux/);
+
+  const runtimes = await readFile(new URL('../site/runtimes.md', import.meta.url), 'utf8');
+
+  assert.match(runtimes, /https:\/\/code\.claude\.com\/docs\/en\/skills/);
+  assert.match(runtimes, /https:\/\/learn\.chatgpt\.com\/docs\/build-skills/);
+  assert.match(runtimes, /https:\/\/cursor\.com\/docs\/context\/skills/);
 });

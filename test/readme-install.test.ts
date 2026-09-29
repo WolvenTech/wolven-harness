@@ -12,6 +12,18 @@ async function readReadme(): Promise<string> {
   return readFile(readmePath, 'utf8');
 }
 
+async function readDoc(rel: string): Promise<string> {
+  return readFile(path.join(here, '..', rel), 'utf8');
+}
+
+function section(doc: string, heading: string): string {
+  const match = new RegExp(`^#{1,2} ${heading}\\s*$`, 'm').exec(doc);
+  assert.ok(match, `missing heading "${heading}"`);
+  const rest = doc.slice(match.index);
+  const next = rest.indexOf('\n## ', 1);
+  return next === -1 ? rest : rest.slice(0, next);
+}
+
 test('readme-install: the add and init commands appear, in that order', async () => {
   const readme = await readReadme();
 
@@ -35,14 +47,8 @@ test('readme-install: no GitHub Packages registry residue', async () => {
   assert.doesNotMatch(readme, /_authToken/);
 });
 
-test('readme-install: the release section covers trusted publishing, its npm-side setup and the manual re-run', async () => {
-  const readme = await readReadme();
-
-  assert.match(readme, /## Release/);
-
-  const start = readme.indexOf('## Release');
-  const next = readme.indexOf('\n## ', start + 1);
-  const releaseSection = readme.slice(start, next === -1 ? undefined : next);
+test('readme-install: the release page covers trusted publishing, its npm-side setup and the manual re-run', async () => {
+  const releaseSection = section(await readDoc('site/release.md'), 'Release');
 
   assert.match(releaseSection, /trusted publish/i);
   assert.match(releaseSection, /seed/i);
@@ -53,18 +59,14 @@ test('readme-install: the release section covers trusted publishing, its npm-sid
   assert.match(releaseSection, /After the first OIDC release succeeds/);
 });
 
-test('readme-install: the release section says to close and reopen the release PR before merging', async () => {
-  const readme = await readReadme();
+test('readme-install: the release page says to close and reopen the release PR before merging', async () => {
+  const release = await readDoc('site/release.md');
 
-  assert.match(readme, /[Cc]lose and reopen the release PR before merging/);
+  assert.match(release, /[Cc]lose and reopen the release PR before merging/);
 });
 
-test('readme-install: a contributor section keeps clone-and-build with pnpm build', async () => {
-  const readme = await readReadme();
-
-  assert.match(readme, /## Contributing/);
-
-  const contributingSection = readme.slice(readme.indexOf('## Contributing'));
+test('readme-install: the contributing page keeps clone-and-build with pnpm build', async () => {
+  const contributingSection = section(await readDoc('site/contributing.md'), 'Contributing');
 
   assert.match(contributingSection, /pnpm build/);
 });

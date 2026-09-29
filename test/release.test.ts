@@ -49,10 +49,12 @@ test('release-workflow: a push to main only opens the release PR; a manual run c
   assert.equal(release.with['manifest-file'], '.release-please-manifest.json');
   assert.equal(release.with['skip-github-release'], "${{ github.event_name == 'push' }}");
 
-  const readme = await readFile(path.join(repoRoot, 'README.md'), 'utf8');
-  const start = readme.indexOf('## Release');
-  const next = readme.indexOf('\n## ', start + 1);
-  const section = readme.slice(start, next === -1 ? undefined : next);
+  const releaseDoc = await readFile(path.join(repoRoot, 'site/release.md'), 'utf8');
+  const match = /^#{1,2} Release\s*$/m.exec(releaseDoc);
+  assert.ok(match, 'missing Release heading');
+  const rest = releaseDoc.slice(match.index);
+  const next = rest.indexOf('\n## ', 1);
+  const section = next === -1 ? rest : rest.slice(0, next);
   assert.match(section, /push to `main` does not create the GitHub Release and does not publish/);
   assert.match(section, /Run the `release` workflow by hand with the tag left empty/);
   assert.doesNotMatch(section, /Merging the release PR tags/);
