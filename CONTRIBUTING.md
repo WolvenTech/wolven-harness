@@ -24,7 +24,9 @@ pnpm lint
 `pnpm build` compiles `src/` to `dist/` with `tsc`. `pnpm test` runs the
 `node:test` suites under `test/` through `tsx`, straight against `src/`, so it
 needs no build. `pnpm lint` runs Biome over `src/`, `test/` and the site config;
-`pnpm exec biome check --write` applies its fixes.
+`pnpm exec biome check --write` applies its fixes. `pnpm install` also installs
+a pre-commit hook that runs Biome on staged files; set `SKIP_SIMPLE_GIT_HOOKS=1`
+to bypass it once.
 
 Two more checks run the CLI against this repo itself, and both need `dist/`, so
 build first:
