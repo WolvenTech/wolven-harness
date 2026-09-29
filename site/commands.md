@@ -12,7 +12,7 @@ Runs at the git top level and fails anywhere else. Asks for the git host (`gh` o
 
 Creates missing harness files and runtime links, preserving existing copies. Lists what it created and skipped. It never creates or edits your `AGENTS.md`, and it never commits.
 
-It also adds missing `harness:validate`, `harness:comments` and `harness:score` scripts to an existing `package.json`, and saves setup choices and refreshes `packageVersion` in `.wolven-harness.json` on each run. It warns, with the install command, when the package or `harness-score` is missing from `devDependencies`.
+It also adds missing `harness:validate`, `harness:comments` and `harness:score` scripts to an existing `package.json`, and saves setup choices and refreshes `packageVersion` in `.wolven-harness.json` on each run. It warns, with the fix command, when the package is not in `devDependencies`, or when `harness-score` is in neither `devDependencies` nor `dependencies`.
 
 `harness:score` runs [harness-score](https://github.com/paladini/harness-score), which rates the repo's agent harness from L0 to L4. `setup` writes a starter `.harness-score.json`, where the repo drops the checks it chooses not to build. The `harness-init` skill walks through them.
 
