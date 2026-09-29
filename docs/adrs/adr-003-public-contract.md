@@ -198,3 +198,9 @@ policy is.
 - Message and prompt text can improve freely, so scripts must not parse them.
 - Every contract item needs a test that fails when it changes.
 - The contract is only binding once this ADR is `stable`. A human promotes it.
+
+## Amendments
+
+- 2026-09-29, before 0.3.0 shipped: `setup` adds a third script,
+  `harness:score`, and never adds or edits a dependency. Approved by the
+  maintainer.

@@ -77,6 +77,7 @@ function parseFlags(argv: string[]): Flags {
     } else if (arg.startsWith('--skills=')) {
       flags.skills = arg.slice('--skills='.length);
     } else if (arg === '--debug' || arg === '--verbose') {
+      // why: read by runSetup before resolveOptions runs; accepted here so they are not "unknown".
     } else {
       throw new SetupError(`unknown option "${arg}"`, `Valid options: ${VALID_OPTIONS}.`);
     }

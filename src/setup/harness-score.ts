@@ -1,5 +1,4 @@
-import { readFile } from 'node:fs/promises';
-import path from 'node:path';
+import { readPackageJson } from './own-package.js';
 import type { Context } from './types.js';
 
 /**
@@ -14,22 +13,21 @@ const HARNESS_SCORE = 'harness-score';
 
 /**
  * Returns a one-line warning with the exact fix command when the target
- * root has a `package.json` that lists `harness-score` in neither
- * `devDependencies` nor `dependencies`, so its `harness:score` script
- * cannot run. Writes nothing; a missing `package.json` gives `undefined`.
+ * root has a `package.json` whose `harness:score` script calls
+ * `harness-score` (or is absent) while `harness-score` is in neither
+ * `devDependencies` nor `dependencies`. A kept `harness:score` script that
+ * runs something else gets no warning. Writes nothing; a missing
+ * `package.json` gives `undefined`.
  */
 export async function harnessScoreWarning(ctx: Context): Promise<string | undefined> {
-  let raw: string;
-  try {
-    raw = await readFile(path.join(ctx.root, 'package.json'), 'utf8');
-  } catch (err) {
-    if ((err as NodeJS.ErrnoException).code === 'ENOENT') return undefined;
-    throw err;
-  }
+  const pkg = await readPackageJson(ctx.root);
+  if (pkg === undefined) return undefined;
 
-  const pkg = JSON.parse(raw) as Record<string, Record<string, unknown> | undefined>;
+  const script = pkg.scripts?.['harness:score'];
+  if (typeof script === 'string' && !script.includes(HARNESS_SCORE)) return undefined;
+
   const listed = ['devDependencies', 'dependencies'].some((field) => Object.hasOwn(pkg[field] ?? {}, HARNESS_SCORE));
   if (listed) return undefined;
 
-  return `${HARNESS_SCORE} is not in your devDependencies, so harness:score cannot run. Fix it with: pnpm add -D -E ${HARNESS_SCORE}@${HARNESS_SCORE_VERSION}`;
+  return `${HARNESS_SCORE} is not in your dependencies, so harness:score cannot run. Fix it with: pnpm add -D -E ${HARNESS_SCORE}@${HARNESS_SCORE_VERSION}`;
 }

@@ -38,7 +38,8 @@ pnpm score      # harness-score; fails below L3
 `pnpm validate` passes when it prints `validate: ok`. `pnpm comments` passes
 when it prints `comments: ok (0 findings)`. `pnpm score` passes while the repo
 stays at L3 or above; the checks this repo chooses not to build are dropped in
-`.harness-score.json`. An added comment has to be a
+`.harness-score.json`. harness-score also reads untracked and ignored files, so
+a local `.env` or local agent files can make your score differ from CI's. An added comment has to be a
 `why:`, `hazard:`, or `invariant:` line of at most four lines, or a `/** */`
 block directly above a declaration; it must not narrate the change, cite
 anything outside this repository, or defer work with `@todo`. The rule itself

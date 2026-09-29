@@ -1,7 +1,7 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { applyTemplates } from './apply.js';
-import { harnessScoreWarning } from './harness-score.js';
+import { HARNESS_SCORE_VERSION, harnessScoreWarning } from './harness-score.js';
 import { resolveOptions } from './options.js';
 import { devDependencyWarning, resolveOwnPackage } from './own-package.js';
 import { addValidateScript } from './package-script.js';
@@ -34,7 +34,7 @@ async function traced<T>(io: Io, debug: boolean, name: string, fn: () => Promise
 function nextSteps(runtimes: Runtime[], hasScripts: boolean): string[] {
   const names = joinNames(runtimes.map(runtimeName));
   const validate = hasScripts ? 'pnpm harness:validate' : 'pnpm exec wolven-harness validate';
-  const score = hasScripts ? 'pnpm harness:score' : 'pnpm dlx harness-score';
+  const score = hasScripts ? 'pnpm harness:score' : `pnpm dlx harness-score@${HARNESS_SCORE_VERSION}`;
   return [
     'Review and commit the new files (git status shows them all).',
     `Open a fresh ${names} session in this repo and run the "harness-init" skill. It integrates WOLVEN.md into AGENTS.md, migrates any legacy ADRs, scores the harness, and asks before anything ambiguous.`,

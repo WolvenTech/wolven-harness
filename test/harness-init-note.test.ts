@@ -48,7 +48,7 @@ test('session-note: the path rule names the dated slug and the same-day -2 fallb
   assert.match(flat, /docs\/<folder>\/<slug>\/<slug>-<type>\.md/);
 });
 
-test('session-note: the seven section headings appear in order inside the template', async () => {
+test('session-note: every section heading appears in order inside the template', async () => {
   const template = extractTemplate(await readReference());
   const headings = [
     'Entry integration',
@@ -57,6 +57,8 @@ test('session-note: the seven section headings appear in order inside the templa
     'Research',
     'Suggestions',
     'Stubs',
+    'Harness score',
+    'Validate wiring',
     'Next steps for the human',
   ];
 

@@ -47,7 +47,7 @@ test('harness-score: no warning when harness-score is already a dependency', asy
   const result = await run(['setup', '--git-host', 'gh', '--runtimes', 'claude'], { cwd: dir });
 
   assert.equal(result.code, 0, result.stderr);
-  assert.doesNotMatch(result.stderr, /harness-score is not in your devDependencies/);
+  assert.doesNotMatch(result.stderr, /harness-score is not in your dependencies/);
 });
 
 test('harness-score: no package.json means no warning and no script', async () => {
@@ -56,8 +56,8 @@ test('harness-score: no package.json means no warning and no script', async () =
   const result = await run(['setup', '--git-host', 'gh', '--runtimes', 'claude'], { cwd: dir });
 
   assert.equal(result.code, 0, result.stderr);
-  assert.doesNotMatch(result.stderr, /harness-score is not in your devDependencies/);
-  assert.match(result.stdout, /pnpm dlx harness-score/);
+  assert.doesNotMatch(result.stderr, /harness-score is not in your dependencies/);
+  assert.ok(result.stdout.includes(`pnpm dlx harness-score@${HARNESS_SCORE_VERSION}`), 'pins the dlx version');
 });
 
 test('harness-score: an existing .harness-score.json is kept', async () => {
@@ -68,4 +68,26 @@ test('harness-score: an existing .harness-score.json is kept', async () => {
 
   assert.equal(result.code, 0, result.stderr);
   assert.equal(await readFile(path.join(dir, '.harness-score.json'), 'utf8'), mine);
+});
+
+test('harness-score: a kept harness:score script that runs something else gets no warning', async () => {
+  const dir = await makeRepo(
+    { 'package.json': packageJson({ scripts: { 'harness:score': 'node scripts/score.js' } }) },
+    { git: true },
+  );
+
+  const result = await run(['setup', '--git-host', 'gh', '--runtimes', 'claude'], { cwd: dir });
+
+  assert.equal(result.code, 0, result.stderr);
+  assert.doesNotMatch(result.stderr, /harness-score is not in your dependencies/);
+  const pkg = JSON.parse(await readFile(path.join(dir, 'package.json'), 'utf8'));
+  assert.equal(pkg.scripts['harness:score'], 'node scripts/score.js');
+});
+
+test('harness-score: the harness-init reference names the pinned version its check IDs come from', async () => {
+  const ref = await readFile(
+    path.join(repoRoot, 'templates', '.agents', 'skills', 'harness-init', 'references', 'harness-score.md'),
+    'utf8',
+  );
+  assert.ok(ref.includes(`harness-score ${HARNESS_SCORE_VERSION}`), 'bumping the pin means re-checking the reference');
 });
