@@ -28,6 +28,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "test": "tsx --test \"test/**/*.test.ts\"",
+    "lint": "biome check",
     "validate": "node dist/cli.js validate",
     "comments": "node dist/cli.js comments",
     "score": "harness-score --min-level 3",
@@ -40,6 +41,7 @@
     "yaml": "^2.6.1"
   },
   "devDependencies": {
+    "@biomejs/biome": "2.5.14",
     "@types/node": "^22.10.2",
     "harness-score": "1.6.5",
     "tsx": "^4.19.2",

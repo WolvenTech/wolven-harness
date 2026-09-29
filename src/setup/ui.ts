@@ -1,6 +1,6 @@
 import * as p from '@clack/prompts';
-import type { Prompter, Io } from './types.js';
 import type { Summary } from './summary.js';
+import type { Io, Prompter } from './types.js';
 
 /** The real prompts, drawn by `@clack/prompts` on `io`'s streams; cancel maps to `undefined`. */
 export function clackPrompter(io: Io): Prompter {
@@ -90,10 +90,23 @@ export function clackUi(io: Io): Ui {
       }
     },
     summary({ done, kept, notes }) {
-      p.note([...done.map((l) => `✔ ${l}`), ...kept.map((l) => `• kept your existing ${l}, left untouched`), ...notes.map((l) => `• ${l}`)].join('\n'), 'What I did', opts);
+      p.note(
+        [
+          ...done.map((l) => `✔ ${l}`),
+          ...kept.map((l) => `• kept your existing ${l}, left untouched`),
+          ...notes.map((l) => `• ${l}`),
+        ].join('\n'),
+        'What I did',
+        opts,
+      );
     },
     files(created, kept) {
-      const lines = ['created:', ...created.map((f) => `  ${f}`), 'kept (already existed, left untouched):', ...kept.map((f) => `  ${f}`)];
+      const lines = [
+        'created:',
+        ...created.map((f) => `  ${f}`),
+        'kept (already existed, left untouched):',
+        ...kept.map((f) => `  ${f}`),
+      ];
       p.note(lines.join('\n'), 'Files', opts);
     },
     warn: (message) => p.log.warn(message, opts),

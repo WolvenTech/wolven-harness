@@ -1,11 +1,11 @@
-import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import { test } from 'node:test';
 import { promisify } from 'node:util';
-import { makeRepo } from './helpers/fixture.js';
 import { findCommentFindings } from '../src/comments/index.js';
+import { makeRepo } from './helpers/fixture.js';
 
 const execFileAsync = promisify(execFile);
 
@@ -88,12 +88,7 @@ test('comments-rules: flags a dead citation', async () => {
 
 test('comments-rules: flags a planning id shaped like R3.1', async () => {
   const { dir, base } = await setupRepo({ 'src/e.ts': ['export const a = 1;', ''].join('\n') });
-  await putFile(dir, 'src/e.ts', [
-    'export const a = 1;',
-    '',
-    '// why: implements R3.1 exactly',
-    'export const b = 2;',
-  ]);
+  await putFile(dir, 'src/e.ts', ['export const a = 1;', '', '// why: implements R3.1 exactly', 'export const b = 2;']);
 
   const hits = await findCommentFindings({ root: dir, base });
 

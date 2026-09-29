@@ -1,12 +1,12 @@
-import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
-import { makeRepo, run } from './helpers/fixture.js';
-import { makeIo } from './helpers/io.js';
+import { test } from 'node:test';
 import { applyTemplates } from '../src/setup/apply.js';
 import { addValidateScript } from '../src/setup/package-script.js';
 import type { Context } from '../src/setup/types.js';
+import { makeRepo, run } from './helpers/fixture.js';
+import { makeIo } from './helpers/io.js';
 
 async function fileExists(p: string): Promise<boolean> {
   try {
@@ -59,7 +59,10 @@ test('setup-apply: creates missing nested paths, sorted, WOLVEN.md rendered not 
   assert.deepEqual(result.skipped, []);
 
   const wolven = await readFile(path.join(root, 'WOLVEN.md'), 'utf8');
-  assert.ok(!wolven.includes('{{skills_table}}'), 'WOLVEN.md content comes from renderWolven(ctx), not the template file');
+  assert.ok(
+    !wolven.includes('{{skills_table}}'),
+    'WOLVEN.md content comes from renderWolven(ctx), not the template file',
+  );
   assert.match(wolven, /\| qmd \|/, 'renderWolven filled the skills table');
 
   const skill = await readFile(path.join(root, '.agents/skills/qmd/SKILL.md'), 'utf8');
@@ -152,7 +155,10 @@ test('setup-skip: second `setup` run creates nothing further', async () => {
 
   const secondRun = await run(['setup', '--git-host', 'gh', '--runtimes', 'codex'], { cwd: dir });
   assert.equal(secondRun.code, 0);
-  assert.match(secondRun.stdout, /kept your existing package\.json scripts: harness:validate, harness:comments, harness:score, left untouched/);
+  assert.match(
+    secondRun.stdout,
+    /kept your existing package\.json scripts: harness:validate, harness:comments, harness:score, left untouched/,
+  );
 
   const pkgAfterSecond = await readFile(path.join(dir, 'package.json'), 'utf8');
   assert.equal(pkgAfterSecond, pkgAfterFirst, 'second run does not touch package.json again');
@@ -165,7 +171,11 @@ test('setup-script: adds harness:validate, harness:comments and harness:score on
 
   const result = await addValidateScript(ctx);
 
-  assert.deepEqual(result.created, ['package.json#scripts.harness:validate', 'package.json#scripts.harness:comments', 'package.json#scripts.harness:score']);
+  assert.deepEqual(result.created, [
+    'package.json#scripts.harness:validate',
+    'package.json#scripts.harness:comments',
+    'package.json#scripts.harness:score',
+  ]);
   assert.deepEqual(result.skipped, []);
 
   const pkg = JSON.parse(await readFile(path.join(root, 'package.json'), 'utf8'));
@@ -195,7 +205,11 @@ test('setup-script: no change when all three are present', async () => {
   const result = await addValidateScript(ctx);
 
   assert.deepEqual(result.created, []);
-  assert.deepEqual(result.skipped, ['package.json#scripts.harness:validate', 'package.json#scripts.harness:comments', 'package.json#scripts.harness:score']);
+  assert.deepEqual(result.skipped, [
+    'package.json#scripts.harness:validate',
+    'package.json#scripts.harness:comments',
+    'package.json#scripts.harness:score',
+  ]);
 
   const after = await readFile(path.join(root, 'package.json'), 'utf8');
   assert.equal(after, raw, 'file is untouched byte-for-byte when every key is already present');
@@ -233,7 +247,11 @@ test('setup-script: preserves other keys, key order, indentation, and trailing n
   const ctx: Context = { root, templatesDir: path.join(root, 'unused'), io: makeIo(root) };
 
   const result = await addValidateScript(ctx);
-  assert.deepEqual(result.created, ['package.json#scripts.harness:validate', 'package.json#scripts.harness:comments', 'package.json#scripts.harness:score']);
+  assert.deepEqual(result.created, [
+    'package.json#scripts.harness:validate',
+    'package.json#scripts.harness:comments',
+    'package.json#scripts.harness:score',
+  ]);
 
   const after = await readFile(path.join(root, 'package.json'), 'utf8');
   const pkg = JSON.parse(after);

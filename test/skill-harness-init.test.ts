@@ -1,7 +1,7 @@
-import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readSkill, assertSkillBasics, assertNoRuntimeToolNames } from './helpers/skill-contract.js';
+import { test } from 'node:test';
 import { flatten } from './helpers/prose.js';
+import { assertNoRuntimeToolNames, assertSkillBasics, readSkill } from './helpers/skill-contract.js';
 
 const STEPS = [
   '0. Entry integration',
@@ -118,7 +118,7 @@ test('skill-shape: names the other skills it consults only in backticks, never a
   const skill = await readSkill('harness-init');
 
   for (const name of ['adr', 'research', 'code-commit', 'qmd', 'grilling']) {
-    assert.match(skill.body, new RegExp('`' + name + '`'));
+    assert.match(skill.body, new RegExp(`\`${name}\``));
     assert.doesNotMatch(skill.body, new RegExp(`\\]\\(\\.\\./${name}/`));
   }
 });
@@ -203,7 +203,10 @@ test('skill-harness-init: step 6 scores the harness, asks per dimension, and nev
   assert.match(step, /run `harness:score`/i);
   assert.match(step, /For each dimension with a failing check, ask one question/);
   assert.match(step, /never drop one without the Human's yes/);
-  assert.ok(step.indexOf('harness:score') < step.indexOf('harness:validate'), 'scoring comes before the wiring question');
+  assert.ok(
+    step.indexOf('harness:score') < step.indexOf('harness:validate'),
+    'scoring comes before the wiring question',
+  );
 
   const ref = flatten(await skill.read('references/harness-score.md'));
   assert.match(ref, /`HYG-03`, `HYG-04` and `HYG-06` detect leaked credentials and can never be dropped/);
@@ -213,5 +216,8 @@ test('skill-harness-init: step 6 scores the harness, asks per dimension, and nev
 
   const note = flatten(await skill.read('references/session-note-template.md'));
   assert.ok(note.indexOf('## Stubs') < note.indexOf('## Harness score'), 'Harness score follows Stubs');
-  assert.ok(note.indexOf('## Harness score') < note.indexOf('## Validate wiring'), 'Harness score precedes Validate wiring');
+  assert.ok(
+    note.indexOf('## Harness score') < note.indexOf('## Validate wiring'),
+    'Harness score precedes Validate wiring',
+  );
 });

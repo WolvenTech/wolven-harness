@@ -1,7 +1,7 @@
-import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { test } from 'node:test';
 import { parse as parseYaml } from 'yaml';
-import { readSkill, assertSkillBasics } from './helpers/skill-contract.js';
+import { assertSkillBasics, readSkill } from './helpers/skill-contract.js';
 
 test('skill-code-ci: passes the shared skill contract checks', async () => {
   await assertSkillBasics('code-ci', { requireHarnessValidate: true });

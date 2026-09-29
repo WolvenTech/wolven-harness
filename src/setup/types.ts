@@ -24,11 +24,7 @@ export interface Choice<T extends string> {
  * person cancels (Ctrl-C), so callers never see a library-specific symbol.
  */
 export interface Prompter {
-  select<T extends string>(o: {
-    message: string;
-    options: Choice<T>[];
-    initialValue?: T;
-  }): Promise<T | undefined>;
+  select<T extends string>(o: { message: string; options: Choice<T>[]; initialValue?: T }): Promise<T | undefined>;
   multiselect<T extends string>(o: {
     message: string;
     options: Choice<T>[];

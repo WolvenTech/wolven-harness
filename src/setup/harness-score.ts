@@ -28,9 +28,7 @@ export async function harnessScoreWarning(ctx: Context): Promise<string | undefi
   }
 
   const pkg = JSON.parse(raw) as Record<string, Record<string, unknown> | undefined>;
-  const listed = ['devDependencies', 'dependencies'].some((field) =>
-    Object.prototype.hasOwnProperty.call(pkg[field] ?? {}, HARNESS_SCORE),
-  );
+  const listed = ['devDependencies', 'dependencies'].some((field) => Object.hasOwn(pkg[field] ?? {}, HARNESS_SCORE));
   if (listed) return undefined;
 
   return `${HARNESS_SCORE} is not in your devDependencies, so harness:score cannot run. Fix it with: pnpm add -D -E ${HARNESS_SCORE}@${HARNESS_SCORE_VERSION}`;

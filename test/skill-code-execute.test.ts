@@ -1,6 +1,6 @@
-import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readSkill, assertSkillBasics } from './helpers/skill-contract.js';
+import { test } from 'node:test';
+import { assertSkillBasics, readSkill } from './helpers/skill-contract.js';
 
 test('builder-brief: passes the shared skill contract checks', async () => {
   await assertSkillBasics('code-execute', { requireHarnessValidate: true });
@@ -24,7 +24,10 @@ test('builder-brief: documents all seven resume fields by name', async () => {
 
 test('builder-brief: documents a pre-start print before mutate', async () => {
   const skill = await readSkill('code-execute');
-  assert.ok(skill.headings.some((h) => /pre-start print/i.test(h)), 'expected a pre-start print section');
+  assert.ok(
+    skill.headings.some((h) => /pre-start print/i.test(h)),
+    'expected a pre-start print section',
+  );
   assert.match(skill.body, /before (editing files|any mutate)/i);
 });
 

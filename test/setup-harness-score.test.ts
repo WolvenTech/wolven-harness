@@ -1,10 +1,10 @@
-import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
+import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { makeRepo, run } from './helpers/fixture.js';
 import { HARNESS_SCORE_VERSION } from '../src/setup/harness-score.js';
+import { makeRepo, run } from './helpers/fixture.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, '..');

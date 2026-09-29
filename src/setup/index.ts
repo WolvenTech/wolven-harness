@@ -1,16 +1,16 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { resolveOptions } from './options.js';
 import { applyTemplates } from './apply.js';
-import { wireRuntimes } from './runtimes.js';
-import { addValidateScript } from './package-script.js';
-import { devDependencyWarning, resolveOwnPackage } from './own-package.js';
 import { harnessScoreWarning } from './harness-score.js';
-import { buildSummary, joinNames, runtimeName } from './summary.js';
-import { createUi } from './ui.js';
+import { resolveOptions } from './options.js';
+import { devDependencyWarning, resolveOwnPackage } from './own-package.js';
+import { addValidateScript } from './package-script.js';
+import { wireRuntimes } from './runtimes.js';
 import { skillFolders } from './skill-sets.js';
+import { buildSummary, joinNames, runtimeName } from './summary.js';
+import type { Context, Io, Runtime } from './types.js';
 import { SetupCancelled, SetupError } from './types.js';
-import type { Io, Context, Runtime } from './types.js';
+import { createUi } from './ui.js';
 
 /**
  * Resolves `templates/` relative to this package, working both when run

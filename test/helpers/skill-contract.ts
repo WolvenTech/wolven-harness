@@ -1,8 +1,8 @@
+import assert from 'node:assert/strict';
 import { existsSync } from 'node:fs';
-import { readFile, readdir } from 'node:fs/promises';
+import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import assert from 'node:assert/strict';
 import { parse as parseYaml } from 'yaml';
 import { makeRepo } from './fixture.js';
 
@@ -127,7 +127,10 @@ export async function assertSkillBasics(name: string, opts: SkillBasicsOptions =
   assert.equal(skill.frontmatter.name, name, `frontmatter "name" must equal "${name}"`);
 
   const description = skill.frontmatter.description;
-  assert.ok(typeof description === 'string' && description.length > 0, 'frontmatter "description" must be a non-empty string');
+  assert.ok(
+    typeof description === 'string' && description.length > 0,
+    'frontmatter "description" must be a non-empty string',
+  );
   assert.ok(!(description as string).includes('|'), 'frontmatter "description" must not contain "|"');
 
   const mdFiles = skill.files.filter((f) => f.endsWith('.md'));
@@ -136,7 +139,10 @@ export async function assertSkillBasics(name: string, opts: SkillBasicsOptions =
   for (const rel of mdFiles) {
     const content = await skill.read(rel);
     assertLocalLinksResolve(skill.dir, rel, content);
-    assert.ok(!content.includes('pnpm validate'), `${rel} must not say "pnpm validate" (say "harness:validate" instead)`);
+    assert.ok(
+      !content.includes('pnpm validate'),
+      `${rel} must not say "pnpm validate" (say "harness:validate" instead)`,
+    );
     if (content.includes('harness:validate')) mentionsHarnessValidate = true;
   }
 
@@ -169,7 +175,9 @@ export function assertNoRuntimeToolNames(text: string): void {
     for (const name of names) {
       const nameRe = new RegExp(`\\b${escapeRegExp(name)}\\b`);
       if (nameRe.test(paragraph) && !GUARD_RE.test(paragraph)) {
-        violations.push(`"${name}" appears without a "when available" / "if your runtime" guard: ${paragraph.trim().slice(0, 120)}`);
+        violations.push(
+          `"${name}" appears without a "when available" / "if your runtime" guard: ${paragraph.trim().slice(0, 120)}`,
+        );
       }
     }
   }

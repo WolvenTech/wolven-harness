@@ -1,10 +1,10 @@
-import { SetupError, type Io } from '../setup/types.js';
+import { type Io, SetupError } from '../setup/types.js';
 import { resolveGitRoot } from '../validate/repo.js';
-import { listChangedFiles, listAddedLines, resolveDefaultBase } from './diff.js';
-import { scanAddedLines, BUILTIN_SYNTAX } from './rules.js';
-import type { CommentFinding, CommentSyntax, SyntaxFor } from './rules.js';
-import { loadCommentsScope, hasKnownSyntax, isInScope, CommentsConfigError, hasBuiltinExtension } from './config.js';
 import type { CommentsScope, LanguageSyntax } from './config.js';
+import { CommentsConfigError, hasBuiltinExtension, hasKnownSyntax, isInScope, loadCommentsScope } from './config.js';
+import { listAddedLines, listChangedFiles, resolveDefaultBase } from './diff.js';
+import type { CommentFinding, CommentSyntax, SyntaxFor } from './rules.js';
+import { BUILTIN_SYNTAX, scanAddedLines } from './rules.js';
 
 type FileSelection = { files: string[]; skipped: number; syntaxFor: SyntaxFor };
 

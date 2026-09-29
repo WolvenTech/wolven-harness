@@ -1,7 +1,7 @@
-import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readSkill } from './helpers/skill-contract.js';
+import { test } from 'node:test';
 import { flatten } from './helpers/prose.js';
+import { readSkill } from './helpers/skill-contract.js';
 
 const REF = 'references/discovery.md';
 
@@ -88,7 +88,7 @@ test('research-cap: searches the repo and qmd before any web fetch', async () =>
   assert.match(flat, /search the repo and `qmd` first/i);
 });
 
-test('research-cap: the web only runs on the human\'s ok', async () => {
+test("research-cap: the web only runs on the human's ok", async () => {
   const { research } = sections(await readDiscovery());
   const flat = flatten(research);
 
@@ -128,7 +128,10 @@ test('research-cap: an unavailable or declined web pass falls back to repo-only,
   const { research } = sections(await readDiscovery());
   const flat = flatten(research);
 
-  assert.match(flat, /if the web is unavailable, or the human declines it, this step continues repo-only and says so in the note/i);
+  assert.match(
+    flat,
+    /if the web is unavailable, or the human declines it, this step continues repo-only and says so in the note/i,
+  );
 });
 
 test('suggest: two to four skills, each named for a decided tool or field and citing its evidence', async () => {

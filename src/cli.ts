@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 import { realpathSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
-import { runSetup } from './setup/index.js';
-import { runValidate } from './validate/index.js';
 import { runComments } from './comments/index.js';
+import { runSetup } from './setup/index.js';
 import { resolveOwnPackage } from './setup/own-package.js';
 import type { Io } from './setup/types.js';
+import { runValidate } from './validate/index.js';
 
 function printUsage(io: Io): void {
   io.stdout.write(

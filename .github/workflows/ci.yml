@@ -41,6 +41,9 @@ jobs:
       - name: Build
         run: pnpm build
 
+      - name: Lint and format
+        run: pnpm lint
+
       - name: Validate harness
         run: pnpm validate
 

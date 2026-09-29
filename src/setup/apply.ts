@@ -1,8 +1,9 @@
-import { mkdir, readdir, readFile, writeFile, lstat } from 'node:fs/promises';
+import type { Dirent } from 'node:fs';
+import { lstat, mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { pathExists } from '../path-exists.js';
-import type { Context, StepResult } from './types.js';
 import { renderWolven } from './render-wolven.js';
+import type { Context, StepResult } from './types.js';
 
 /** Relative path (posix, `/`-joined) of the one file `setup` must never create or edit. */
 const AGENTS_MD = 'AGENTS.md';
@@ -44,7 +45,7 @@ async function isBlockedByAncestor(root: string, relPosix: string): Promise<bool
 
 /** Recursively lists every regular file under `dir`, relative to `dir`, posix-joined. */
 async function walkFiles(dir: string): Promise<string[]> {
-  let entries;
+  let entries: Dirent[];
   try {
     entries = await readdir(dir, { withFileTypes: true });
   } catch (err) {

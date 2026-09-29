@@ -1,8 +1,8 @@
-import { defineConfig } from 'vitepress'
+import { defineConfig } from 'vitepress';
 
 // why: GitHub Pages serves this repo at /wolven-harness/, so local preview
 // and the published site share one base and one URL shape.
-const base = '/wolven-harness/'
+const base = '/wolven-harness/';
 
 export default defineConfig({
   title: 'wolven-harness',
@@ -49,8 +49,6 @@ export default defineConfig({
         ],
       },
     ],
-    socialLinks: [
-      { icon: 'github', link: 'https://github.com/WolvenTech/wolven-harness' },
-    ],
+    socialLinks: [{ icon: 'github', link: 'https://github.com/WolvenTech/wolven-harness' }],
   },
-})
+});

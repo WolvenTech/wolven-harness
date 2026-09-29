@@ -1,7 +1,7 @@
-import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readdir } from 'node:fs/promises';
 import path from 'node:path';
+import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { CORE_SKILLS, SET_SKILLS, skillFolders } from '../src/setup/skill-sets.js';
 import { readSkill } from './helpers/skill-contract.js';
@@ -9,7 +9,10 @@ import { readSkill } from './helpers/skill-contract.js';
 const skillsDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', 'templates', '.agents', 'skills');
 
 test('skill-sets: core and the optional sets partition the template skill folders exactly', async () => {
-  const onDisk = (await readdir(skillsDir, { withFileTypes: true })).filter((e) => e.isDirectory()).map((e) => e.name).sort();
+  const onDisk = (await readdir(skillsDir, { withFileTypes: true }))
+    .filter((e) => e.isDirectory())
+    .map((e) => e.name)
+    .sort();
   const listed = [...CORE_SKILLS, ...Object.values(SET_SKILLS).flat()];
 
   assert.deepEqual([...listed].sort(), onDisk, 'every skill folder is in exactly one set and every set entry exists');

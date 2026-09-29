@@ -1,8 +1,8 @@
-import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readSkill, minimalValidateFixture } from './helpers/skill-contract.js';
+import { test } from 'node:test';
 import { run } from './helpers/fixture.js';
 import { flatten } from './helpers/prose.js';
+import { minimalValidateFixture, readSkill } from './helpers/skill-contract.js';
 
 const REF = 'references/session-note-template.md';
 const DATE = '2026-01-01';
@@ -28,7 +28,9 @@ function extractTemplate(content: string): string {
 function fillTemplate(template: string, status: string): string {
   let out = template;
   out = out.split('<title>').join(`Harness init session — ${DATE}`);
-  out = out.split('<one-sentence description of what this run did>').join('Folded WOLVEN.md into AGENTS.md and stubbed two skills.');
+  out = out
+    .split('<one-sentence description of what this run did>')
+    .join('Folded WOLVEN.md into AGENTS.md and stubbed two skills.');
   out = out.split('<status>').join(status);
   out = out.replace(/<[^>\n]+>/g, (m) => `Filled in for the run: ${m.slice(1, -1)}.`);
   return out;
@@ -38,7 +40,10 @@ test('session-note: the path rule names the dated slug and the same-day -2 fallb
   const flat = flatten(await readReference());
 
   assert.match(flat, /`?docs\/notes\/harness-init-<yyyy-mm-dd>\/harness-init-<yyyy-mm-dd>-note\.md`?/);
-  assert.match(flat, /second run on the same day.*uses `?harness-init-<yyyy-mm-dd>-2`? as the slug, for both the folder and the file/i);
+  assert.match(
+    flat,
+    /second run on the same day.*uses `?harness-init-<yyyy-mm-dd>-2`? as the slug, for both the folder and the file/i,
+  );
   assert.match(flat, /`?docs\/notes\/harness-init-<yyyy-mm-dd>-2\/harness-init-<yyyy-mm-dd>-2-note\.md`?/);
   assert.match(flat, /docs\/<folder>\/<slug>\/<slug>-<type>\.md/);
 });
@@ -83,7 +88,10 @@ test('session-note: the lifecycle states draft at step 0, a per-phase update bef
   assert.match(flat, /each phase.*adds its own section.*before that phase's commit offer/i);
   assert.match(flat, /every phase commit carries its own part of the note/i);
   assert.match(flat, /step 6 fills in whatever sections are still open and sets `?status: stable`? at hand-back/i);
-  assert.match(flat, /a `?draft`? note left by an interrupted run.*the next run reads it and keeps filling it in, rather than starting a second note over it/i);
+  assert.match(
+    flat,
+    /a `?draft`? note left by an interrupted run.*the next run reads it and keeps filling it in, rather than starting a second note over it/i,
+  );
 });
 
 test('session-note: the ADR migration section carries a per-ADR table and names ADRs by bare number and title', async () => {

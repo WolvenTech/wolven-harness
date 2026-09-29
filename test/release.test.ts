@@ -1,7 +1,7 @@
-import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
+import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { parse as parseYaml } from 'yaml';
 
@@ -42,7 +42,9 @@ test('release-workflow: a push to main only opens the release PR; a manual run c
   const job = workflow.jobs['release-please'];
   assert.match(String(job.if), /github\.event_name == 'push'/);
   assert.match(String(job.if), /github\.event_name == 'workflow_dispatch' && inputs\.tag == ''/);
-  const release = job.steps.find((s: Record<string, any>) => String(s.uses ?? '').startsWith('googleapis/release-please-action@'));
+  const release = job.steps.find((s: Record<string, any>) =>
+    String(s.uses ?? '').startsWith('googleapis/release-please-action@'),
+  );
   assert.ok(release, 'release-please step present');
   assert.equal(release.id, 'release');
   assert.equal(release.with['config-file'], 'release-please-config.json');
@@ -79,7 +81,9 @@ test('release-oidc: build installs, builds and tests the release tag, then hands
     'pnpm test',
   ]);
 
-  const upload = build.steps.find((s: Record<string, any>) => String(s.uses ?? '').startsWith('actions/upload-artifact@'));
+  const upload = build.steps.find((s: Record<string, any>) =>
+    String(s.uses ?? '').startsWith('actions/upload-artifact@'),
+  );
   assert.equal(upload?.with?.path, 'dist');
 });
 
@@ -97,7 +101,9 @@ test('release-oidc: publish runs no project install and publishes with the npm C
     'no package manager for project dependencies in the publish job',
   );
 
-  const setupNode = publish.steps.find((s: Record<string, any>) => String(s.uses ?? '').startsWith('actions/setup-node@'));
+  const setupNode = publish.steps.find((s: Record<string, any>) =>
+    String(s.uses ?? '').startsWith('actions/setup-node@'),
+  );
   assert.equal(setupNode?.with?.['registry-url'], undefined);
   assert.equal(setupNode?.with?.scope, undefined);
   for (const step of publish.steps) {
@@ -110,17 +116,23 @@ test('release-oidc: a failed publish can be re-run by hand for an existing tag',
 
   assert.equal(workflow.on.workflow_dispatch?.inputs?.tag?.required, false);
   assert.match(String(workflow.jobs.build.if), /github\.event_name == 'workflow_dispatch'/);
-  const verifyRelease = workflow.jobs.build.steps.find((s: Record<string, any>) => s.name === 'Verify manual retry targets a published release');
+  const verifyRelease = workflow.jobs.build.steps.find(
+    (s: Record<string, any>) => s.name === 'Verify manual retry targets a published release',
+  );
   assert.match(String(verifyRelease.if), /github\.event_name == 'workflow_dispatch'/);
   assert.match(String(verifyRelease.if), /startsWith\(inputs\.tag, 'v'\)/);
   assert.equal(verifyRelease.env.GH_REPO, '${{ github.repository }}');
   assert.equal(verifyRelease.env.RELEASE_TAG, '${{ inputs.tag }}');
   assert.match(String(verifyRelease.run), /gh release view "\$RELEASE_TAG" --json tagName,isDraft/);
   assert.match(String(verifyRelease.run), /test "\$actual" = "\$RELEASE_TAG"/);
-  const verifyVersion = workflow.jobs.build.steps.find((s: Record<string, any>) => s.name === 'Verify release tag matches package version');
+  const verifyVersion = workflow.jobs.build.steps.find(
+    (s: Record<string, any>) => s.name === 'Verify release tag matches package version',
+  );
   assert.equal(verifyVersion.env.RELEASE_TAG, '${{ needs.release-please.outputs.tag_name || inputs.tag }}');
   for (const job of ['build', 'publish']) {
-    const checkout = workflow.jobs[job].steps.find((s: Record<string, any>) => String(s.uses ?? '').startsWith('actions/checkout@'));
+    const checkout = workflow.jobs[job].steps.find((s: Record<string, any>) =>
+      String(s.uses ?? '').startsWith('actions/checkout@'),
+    );
     assert.match(String(checkout?.with?.ref), /inputs\.tag/);
   }
 });
@@ -135,7 +147,9 @@ test('release-oidc: the workflow stores no secret and names no GitHub Packages r
 
 test('release-oidc: the npm pin is at least 11.5.1, the minimum for OIDC trusted publishing', async () => {
   const workflow = await readWorkflow();
-  const run = String(workflow.jobs.publish.steps.find((s: Record<string, any>) => /npm install -g npm@/.test(String(s.run ?? '')))?.run);
+  const run = String(
+    workflow.jobs.publish.steps.find((s: Record<string, any>) => /npm install -g npm@/.test(String(s.run ?? '')))?.run,
+  );
 
   const version = run.match(/npm@(\d+\.\d+\.\d+)$/)?.[1];
   assert.ok(version, 'the pin is an exact version');

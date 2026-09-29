@@ -1,9 +1,9 @@
-import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { test } from 'node:test';
 import { parse as parseYaml } from 'yaml';
-import { readSkill, minimalValidateFixture } from './helpers/skill-contract.js';
 import { run } from './helpers/fixture.js';
 import { flatten } from './helpers/prose.js';
+import { minimalValidateFixture, readSkill } from './helpers/skill-contract.js';
 
 const REF = 'references/stub-template.md';
 const INVENTED_NAME = 'payments-gateway';
@@ -34,7 +34,12 @@ function substituteName(text: string): string {
   return text.split('<name>').join(INVENTED_NAME);
 }
 
-async function loadRenderedFiles(): Promise<{ skillPath: string; skillMd: string; yamlPath: string; openaiYaml: string }> {
+async function loadRenderedFiles(): Promise<{
+  skillPath: string;
+  skillMd: string;
+  yamlPath: string;
+  openaiYaml: string;
+}> {
   const raw = await readReference();
   const files = parseFiles(raw);
   const rawSkillEntry = Object.entries(files).find(([p]) => p.endsWith('SKILL.md'));
@@ -71,7 +76,7 @@ test('stub-template: harness:validate warns skill-stub-open until the marker is 
   assert.match(flat, /only if the human wants the skill model-invocable/i);
 });
 
-test('stub-template: every stub lands in the setup phase\'s single commit offer, never one per stub', async () => {
+test("stub-template: every stub lands in the setup phase's single commit offer, never one per stub", async () => {
   const flat = flatten(await readReference());
   assert.match(flat, /setup phase's single commit offer/i);
   assert.match(flat, /never a commit per stub/i);

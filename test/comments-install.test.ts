@@ -1,12 +1,12 @@
-import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
+import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { makeRepo, run } from './helpers/fixture.js';
-import { makeIo } from './helpers/io.js';
 import { renderWolven } from '../src/setup/render-wolven.js';
 import type { Context } from '../src/setup/types.js';
+import { makeRepo, run } from './helpers/fixture.js';
+import { makeIo } from './helpers/io.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, '..');
@@ -35,7 +35,10 @@ test('comments-install: setup adds exactly harness:validate, harness:comments an
   const second = await run(['setup', '--git-host', 'gh', '--runtimes', 'claude'], { cwd: dir });
   assert.equal(second.code, 0, second.stderr);
   assert.doesNotMatch(second.stdout, /✔ package\.json scripts/);
-  assert.match(second.stdout, /kept your existing package\.json scripts: harness:validate, harness:comments, harness:score, left untouched/);
+  assert.match(
+    second.stdout,
+    /kept your existing package\.json scripts: harness:validate, harness:comments, harness:score, left untouched/,
+  );
 
   const afterSecond = await readFile(path.join(dir, 'package.json'), 'utf8');
   assert.equal(afterSecond, afterFirst, 'second run leaves package.json byte-identical');

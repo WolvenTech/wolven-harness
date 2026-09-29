@@ -1,8 +1,8 @@
 import { readdir } from 'node:fs/promises';
 import path from 'node:path';
+import { parseFrontmatter } from '../frontmatter.js';
 import type { RepoContext } from './repo.js';
 import type { Finding } from './report.js';
-import { parseFrontmatter } from '../frontmatter.js';
 
 /** Maps each doc-folder to the singular `type` its frontmatter must carry. */
 const DIR_TYPE: Record<string, string> = {
@@ -178,6 +178,16 @@ function checkFile(
   }
 }
 
+/** Adds `value` to the set stored under `key`, creating the set on first use. */
+function addTo(map: Map<string, Set<string>>, key: string, value: string): void {
+  let set = map.get(key);
+  if (!set) {
+    set = new Set();
+    map.set(key, set);
+  }
+  set.add(value);
+}
+
 /**
  * Enforces the writing profile on `docs/adrs/*.md` (flat, unchanged) and on
  * the doc-folder layout `docs/{prds,specs,notes,deferrals}/<slug>/<slug>-<type>.md`
@@ -223,8 +233,7 @@ export async function checkProfile(ctx: RepoContext): Promise<Finding[]> {
     if (slug === 'archived') continue; // docs/<dir>/archived/** is skipped entirely.
     if (!restPath.endsWith('.md')) continue;
 
-    if (!slugsSeen.has(dir)) slugsSeen.set(dir, new Set());
-    slugsSeen.get(dir)!.add(slug);
+    addTo(slugsSeen, dir, slug);
 
     const expectedType = DIR_TYPE[dir];
     const isDirectChild = !restPath.includes('/');
@@ -233,8 +242,7 @@ export async function checkProfile(ctx: RepoContext): Promise<Finding[]> {
     if (!isMainDoc && !isPlanDoc) continue; // other files in the folder are not checked.
 
     if (isMainDoc) {
-      if (!mainDocSeen.has(dir)) mainDocSeen.set(dir, new Set());
-      mainDocSeen.get(dir)!.add(slug);
+      addTo(mainDocSeen, dir, slug);
     }
 
     const content = await ctx.read(rel);

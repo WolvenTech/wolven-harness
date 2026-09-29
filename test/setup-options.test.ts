@@ -1,7 +1,7 @@
-import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
+import { test } from 'node:test';
 import { makeRepo, run } from './helpers/fixture.js';
 import { walkFiles } from './helpers/walk.js';
 
@@ -84,7 +84,7 @@ test('setup-prompts: unknown option exits without writing config', async () => {
 });
 
 test('setup-prompts: a flag without a value does not use a saved default', async () => {
-  const config = JSON.stringify({ version: 1, gitHost: 'gh', runtimes: ['codex'] }) + '\n';
+  const config = `${JSON.stringify({ version: 1, gitHost: 'gh', runtimes: ['codex'] })}\n`;
   const dir = await makeRepo({ '.wolven-harness.json': config }, { git: true });
   const result = await run(['setup', '--runtimes'], { cwd: dir, isTTY: false });
 
@@ -139,7 +139,7 @@ test('setup-config: re-run reads .wolven-harness.json without prompting', {
 }, async () => {
   const dir = await makeRepo(
     {
-      '.wolven-harness.json': JSON.stringify({ version: 1, gitHost: 'bit', runtimes: ['codex'] }) + '\n',
+      '.wolven-harness.json': `${JSON.stringify({ version: 1, gitHost: 'bit', runtimes: ['codex'] })}\n`,
     },
     { git: true },
   );
@@ -159,7 +159,7 @@ test('setup-config: re-run reads .wolven-harness.json without prompting', {
 test('setup-config: a flag overrides the file default', async () => {
   const dir = await makeRepo(
     {
-      '.wolven-harness.json': JSON.stringify({ version: 1, gitHost: 'bit', runtimes: ['codex'] }) + '\n',
+      '.wolven-harness.json': `${JSON.stringify({ version: 1, gitHost: 'bit', runtimes: ['codex'] })}\n`,
     },
     { git: true },
   );
@@ -176,13 +176,12 @@ test('setup-config: a flag overrides the file default', async () => {
 test('setup-config: a hand-added ignore key survives the re-run', async () => {
   const dir = await makeRepo(
     {
-      '.wolven-harness.json':
-        JSON.stringify({
-          version: 1,
-          gitHost: 'gh',
-          runtimes: ['claude'],
-          ignore: ['templates/**', 'test/**'],
-        }) + '\n',
+      '.wolven-harness.json': `${JSON.stringify({
+        version: 1,
+        gitHost: 'gh',
+        runtimes: ['claude'],
+        ignore: ['templates/**', 'test/**'],
+      })}\n`,
     },
     { git: true },
   );

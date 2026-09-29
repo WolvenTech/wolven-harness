@@ -1,7 +1,7 @@
-import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
+import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { parse as parseYaml } from 'yaml';
 
@@ -36,7 +36,14 @@ test('pr-gate: the lint job builds, validates the harness, checks comments on fu
   const job = workflow.jobs.lint;
 
   assert.ok(job, 'lint job present');
-  assert.deepEqual(runsOf(job), ['pnpm install --frozen-lockfile', 'pnpm build', 'pnpm validate', 'pnpm comments', 'pnpm score']);
+  assert.deepEqual(runsOf(job), [
+    'pnpm install --frozen-lockfile',
+    'pnpm build',
+    'pnpm lint',
+    'pnpm validate',
+    'pnpm comments',
+    'pnpm score',
+  ]);
 
   const checkout = job.steps.find((s: Record<string, any>) => String(s.uses ?? '').startsWith('actions/checkout@'));
   assert.equal(checkout?.with?.['fetch-depth'], 0);

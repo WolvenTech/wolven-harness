@@ -1,7 +1,7 @@
-import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { run, makeRepo } from './helpers/fixture.js';
-import { readSkill, assertSkillBasics, renderInto } from './helpers/skill-contract.js';
+import { test } from 'node:test';
+import { makeRepo, run } from './helpers/fixture.js';
+import { assertSkillBasics, readSkill, renderInto } from './helpers/skill-contract.js';
 
 test('skill-adr: passes the shared skill contract checks, including the harness:validate mention', async () => {
   await assertSkillBasics('adr', { requireHarnessValidate: true });
@@ -48,18 +48,13 @@ test('skill-adr: supersedes by deprecating the old ADR, setting superseded_by, a
 });
 
 test('skill-adr: renderInto writes a new ADR from the template that passes validate', async () => {
-  const cwd = await renderInto(
-    {},
-    '.agents/skills/adr/references/adr-template.md',
-    'docs/adrs/adr-001-use-x.md',
-    {
-      title: 'Use X',
-      description: 'records the decision to use X',
-      context: 'A choice needed a durable record.',
-      decision: 'We use X.',
-      consequences: 'Future work builds on X.',
-    },
-  );
+  const cwd = await renderInto({}, '.agents/skills/adr/references/adr-template.md', 'docs/adrs/adr-001-use-x.md', {
+    title: 'Use X',
+    description: 'records the decision to use X',
+    context: 'A choice needed a durable record.',
+    decision: 'We use X.',
+    consequences: 'Future work builds on X.',
+  });
 
   const result = await run(['validate'], { cwd });
 

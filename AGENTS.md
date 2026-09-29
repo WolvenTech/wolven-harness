@@ -8,6 +8,7 @@ Dev entry for agents working in this repository, which builds and publishes `@wo
 pnpm install
 pnpm build      # tsc -p tsconfig.json -> dist/
 pnpm test       # tsx --test "test/**/*.test.ts"
+pnpm lint       # biome check: lint and format src/, test/ and the site config
 pnpm validate   # node dist/cli.js validate — run after `pnpm build`
 pnpm score      # harness-score --min-level 3, with drops in .harness-score.json
 ```

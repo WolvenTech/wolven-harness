@@ -1,7 +1,7 @@
-import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdir, symlink, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import { test } from 'node:test';
 import { makeRepo, run } from './helpers/fixture.js';
 
 // --- skill-frontmatter ---
@@ -168,8 +168,7 @@ test('stub-warn: removing the marker clears the warning', async () => {
 test('stub-warn: an unrelated metadata value raises no warning', async () => {
   const dir = await makeRepo(
     {
-      '.agents/skills/foo/SKILL.md':
-        '---\nname: foo\ndescription: does stuff\nmetadata:\n  other: x\n---\n\n# Foo\n',
+      '.agents/skills/foo/SKILL.md': '---\nname: foo\ndescription: does stuff\nmetadata:\n  other: x\n---\n\n# Foo\n',
     },
     { git: true },
   );
@@ -238,7 +237,8 @@ test('harness-ignored: an ignored .agents/ fails once per harness path present, 
 test('harness-ignored: re-include rules after the ignore clear it and keep the rest of the folder ignored', async () => {
   const dir = await makeRepo(
     {
-      '.gitignore': '.agents/\n.claude/\n\n!.agents/\n.agents/*\n!.agents/skills/\n!.agents/rules/\n!.claude/\n.claude/*\n!.claude/skills\n',
+      '.gitignore':
+        '.agents/\n.claude/\n\n!.agents/\n.agents/*\n!.agents/skills/\n!.agents/rules/\n!.claude/\n.claude/*\n!.claude/skills\n',
       '.agents/skills/foo/SKILL.md': SKILL,
       '.agents/rules/present.md': '# Present rule\n',
       '.agents/private/notes.md': 'mine\n',

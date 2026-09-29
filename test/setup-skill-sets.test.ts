@@ -1,9 +1,9 @@
-import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
-import { makeRepo, run } from './helpers/fixture.js';
+import { test } from 'node:test';
 import { CORE_SKILLS, SET_SKILLS } from '../src/setup/skill-sets.js';
+import { makeRepo, run } from './helpers/fixture.js';
 
 const BASE = ['setup', '--git-host', 'gh', '--runtimes', 'codex'];
 
@@ -49,7 +49,7 @@ test('setup-skill-sets: --skills ship,discovery installs all sixteen', async () 
 });
 
 test('setup-skill-sets: a flag beats saved config, and saved config beats the default', async () => {
-  const saved = JSON.stringify({ version: 1, gitHost: 'gh', runtimes: ['codex'], skillSets: ['discovery'] }) + '\n';
+  const saved = `${JSON.stringify({ version: 1, gitHost: 'gh', runtimes: ['codex'], skillSets: ['discovery'] })}\n`;
 
   const fromConfig = await makeRepo({ '.wolven-harness.json': saved }, { git: true });
   const a = await run(['setup'], { cwd: fromConfig });
@@ -107,7 +107,10 @@ test('setup-skill-sets: re-running with none after ship removes nothing and says
   assert.equal(again.code, 0, again.stderr);
   assert.deepEqual(await installed(dir), [...CORE_SKILLS, ...SET_SKILLS.ship].sort());
   assert.deepEqual((await config(dir)).skillSets, ['ship']);
-  assert.match(again.stdout, /Left the ship skills in place\. You did not pick them this time, but setup never removes anything\./);
+  assert.match(
+    again.stdout,
+    /Left the ship skills in place\. You did not pick them this time, but setup never removes anything\./,
+  );
 });
 
 test('setup-skill-sets: WOLVEN.md lists exactly the installed skills', async () => {
@@ -120,7 +123,9 @@ test('setup-skill-sets: WOLVEN.md lists exactly the installed skills', async () 
 
     const wolven = await readFile(path.join(dir, 'WOLVEN.md'), 'utf8');
     const known = [...CORE_SKILLS, ...Object.values(SET_SKILLS).flat()];
-    const skillRows = [...wolven.matchAll(/^\| ([a-z-]+) \| .+ \|$/gm)].map((m) => m[1]).filter((n) => known.includes(n));
+    const skillRows = [...wolven.matchAll(/^\| ([a-z-]+) \| .+ \|$/gm)]
+      .map((m) => m[1])
+      .filter((n) => known.includes(n));
     assert.deepEqual(skillRows.sort(), [...expected].sort());
   }
 });
@@ -134,7 +139,10 @@ test('setup-skill-sets: invalid values fail with a hint and write nothing', asyn
     assert.match(result.stderr, /--skills/);
     assert.match(result.stderr, /Hint: /);
   }
-  assert.deepEqual((await readdir(dir)).filter((f) => !f.startsWith('.git')), []);
+  assert.deepEqual(
+    (await readdir(dir)).filter((f) => !f.startsWith('.git')),
+    [],
+  );
 
   const unknown = await run(['setup', '--nope'], { cwd: dir });
   assert.match(unknown.stderr, /--skills <ship,discovery\|none>/);

@@ -49,7 +49,7 @@ export async function addValidateScript(ctx: Context): Promise<StepResult> {
   const skipped: string[] = [];
 
   for (const { key, value } of HARNESS_SCRIPTS) {
-    if (pkg.scripts && Object.prototype.hasOwnProperty.call(pkg.scripts, key)) {
+    if (pkg.scripts && Object.hasOwn(pkg.scripts, key)) {
       skipped.push(reportId(key));
       continue;
     }

@@ -1,8 +1,8 @@
-import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import { test } from 'node:test';
 import { promisify } from 'node:util';
 import { makeRepo, run } from './helpers/fixture.js';
 

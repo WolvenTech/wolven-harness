@@ -1,13 +1,13 @@
-import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
+import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { parse } from 'yaml';
-import { makeIo } from './helpers/io.js';
 import { renderWolven } from '../src/setup/render-wolven.js';
 import type { Context } from '../src/setup/types.js';
+import { makeIo } from './helpers/io.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, '..');
@@ -35,10 +35,7 @@ test('setup-layout: .qmd/index.yml has one collection per folder with the doc-fo
     assert.equal(collection.pattern, '!(archived)/**/*.md', `collection "${folder}" uses the doc-folder pattern`);
   }
 
-  assert.deepEqual(
-    Object.keys(parsed.collections).sort(),
-    ['adrs', ...DOC_FOLDERS].sort(),
-  );
+  assert.deepEqual(Object.keys(parsed.collections).sort(), ['adrs', ...DOC_FOLDERS].sort());
 });
 
 test('setup-layout: WRITING-PROFILE.md documents the layout, the type map, and stays <= 80 lines', async () => {

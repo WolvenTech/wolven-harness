@@ -18,11 +18,13 @@ cd wolven-harness
 pnpm install
 pnpm build
 pnpm test
+pnpm lint
 ```
 
 `pnpm build` compiles `src/` to `dist/` with `tsc`. `pnpm test` runs the
 `node:test` suites under `test/` through `tsx`, straight against `src/`, so it
-needs no build.
+needs no build. `pnpm lint` runs Biome over `src/`, `test/` and the site config;
+`pnpm exec biome check --write` applies its fixes.
 
 Two more checks run the CLI against this repo itself, and both need `dist/`, so
 build first:
@@ -57,7 +59,7 @@ format, and since PRs are squash-merged the title becomes the commit message on
 `main`, which is what release-please reads to work out the next version.
 
 Every pull request runs the same gate you just ran locally, on Linux. Lint runs
-`pnpm validate`, `pnpm comments` and `pnpm score` on Node 22. Test runs
+`pnpm lint`, `pnpm validate`, `pnpm comments` and `pnpm score` on Node 22. Test runs
 `pnpm test` on Node 22 and 24. Package packs the tarball, installs it into an
 empty repo and runs `setup` and `validate` there. Run the gate yourself before
 pushing and CI should hold no surprises.

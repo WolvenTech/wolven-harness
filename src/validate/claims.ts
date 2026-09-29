@@ -1,6 +1,6 @@
 import { parseFrontmatter } from '../frontmatter.js';
-import { detectArchivedLegacy, detectLegacy, isArchivedPath } from './legacy.js';
 import type { LegacyAdr } from './legacy.js';
+import { detectArchivedLegacy, detectLegacy, isArchivedPath } from './legacy.js';
 import type { RepoContext } from './repo.js';
 import type { Finding } from './report.js';
 
@@ -49,7 +49,9 @@ interface ProfileIndex {
  * error at that path).
  */
 async function buildProfileIndex(ctx: RepoContext, profileFindings: Finding[]): Promise<ProfileIndex> {
-  const errorFiles = new Set(profileFindings.filter((f) => f.level === 'error' && f.file !== undefined).map((f) => f.file));
+  const errorFiles = new Set(
+    profileFindings.filter((f) => f.level === 'error' && f.file !== undefined).map((f) => f.file),
+  );
 
   const byNumber = new Map<string, ProfileAdrEntry[]>();
   const dirFiles = new Set<string>();

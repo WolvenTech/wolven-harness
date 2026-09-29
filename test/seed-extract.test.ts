@@ -1,7 +1,7 @@
-import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import path from 'node:path';
+import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -29,17 +29,6 @@ const files = relFiles.map((rel) => ({
   abs: path.join(templatesAgentsDir, rel),
   content: readFileSync(path.join(templatesAgentsDir, rel), 'utf8'),
 }));
-
-function findMatches(regex: RegExp): { rel: string; match: string }[] {
-  const hits: { rel: string; match: string }[] = [];
-  for (const file of files) {
-    const found = file.content.match(regex);
-    if (found) {
-      hits.push({ rel: file.rel, match: found[0] });
-    }
-  }
-  return hits;
-}
 
 test('seed-extract: template files exist', () => {
   assert.ok(files.length > 0, 'templates/.agents has at least one file');
@@ -82,9 +71,7 @@ test('seed-extract: qmd searches -c adrs first', () => {
 });
 
 test('seed-extract: deferrals under docs/deferrals with type deferral', () => {
-  const pragmaticGuard = files.find(
-    (f) => f.rel === path.join('skills', 'pragmatic-guard', 'SKILL.md'),
-  )!;
+  const pragmaticGuard = files.find((f) => f.rel === path.join('skills', 'pragmatic-guard', 'SKILL.md'))!;
   const yagniStrict = files.find((f) => f.rel === path.join('rules', 'yagni-strict.md'))!;
 
   for (const file of [pragmaticGuard, yagniStrict]) {

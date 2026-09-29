@@ -1,6 +1,6 @@
-import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readSkill, assertSkillBasics } from './helpers/skill-contract.js';
+import { test } from 'node:test';
+import { assertSkillBasics, readSkill } from './helpers/skill-contract.js';
 
 test('skill-code-commit: passes the shared skill contract checks', async () => {
   await assertSkillBasics('code-commit', { requireHarnessValidate: true });
@@ -19,7 +19,10 @@ test('skill-code-commit: keeps the atomic plan-completion mark', async () => {
   assert.match(skill.body, /same commit/i);
   assert.match(skill.body, /plan-completion mark/i);
   assert.match(skill.body, /docs\/specs\/<slug>\/<slug>-plan\.md/);
-  assert.match(skill.body, /never\s+flip\s+another\s+unit's\s+checkbox|never\s+leave\s+the\s+plan-completion\s+mark\s+for\s+a\s+later\s+commit/i);
+  assert.match(
+    skill.body,
+    /never\s+flip\s+another\s+unit's\s+checkbox|never\s+leave\s+the\s+plan-completion\s+mark\s+for\s+a\s+later\s+commit/i,
+  );
 });
 
 test('skill-code-commit: keeps split heuristics for unrelated contexts', async () => {

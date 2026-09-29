@@ -1,6 +1,6 @@
-import type { Runtime, StepResult } from './types.js';
-import { setsOf } from './skill-sets.js';
 import type { SkillSet } from './skill-sets.js';
+import { setsOf } from './skill-sets.js';
+import type { Runtime, StepResult } from './types.js';
 
 /**
  * What a finished `setup` run reports: things it added, and things it left
@@ -117,7 +117,9 @@ export function buildSummary(
   }
   const native = runtimes.filter((r) => r !== 'claude').map(runtimeName);
   if (native.length > 0) {
-    done.push(`${joinNames(native)} ${native.length === 1 ? 'reads' : 'read'} .agents/skills/ natively, so nothing extra is needed`);
+    done.push(
+      `${joinNames(native)} ${native.length === 1 ? 'reads' : 'read'} .agents/skills/ natively, so nothing extra is needed`,
+    );
   }
 
   const added = scriptKeys(scripts.created);

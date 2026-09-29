@@ -1,6 +1,6 @@
-import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readSkill, assertSkillBasics } from './helpers/skill-contract.js';
+import { test } from 'node:test';
+import { assertSkillBasics, readSkill } from './helpers/skill-contract.js';
 
 test('skill-prototype: passes the shared skill contract checks', async () => {
   await assertSkillBasics('prototype');

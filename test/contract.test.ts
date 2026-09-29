@@ -1,11 +1,11 @@
-import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFile, readdir } from 'node:fs/promises';
+import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
+import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { makeRepo, run } from './helpers/fixture.js';
-import { readConfig, writeConfig, CONFIG_FILENAME } from '../src/setup/config.js';
+import { CONFIG_FILENAME, readConfig, writeConfig } from '../src/setup/config.js';
 import { SetupError } from '../src/setup/types.js';
+import { makeRepo, run } from './helpers/fixture.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const ADR = path.join(ROOT, 'docs', 'adrs', 'adr-003-public-contract.md');
@@ -89,7 +89,7 @@ test('contract: setup flags match ADR-003', async () => {
   const documented = new Set(backticked(table, /^--[a-z-]+$/));
 
   const source = await readFile(path.join(ROOT, 'src', 'setup', 'options.ts'), 'utf8');
-  const line = source.match(/const VALID_OPTIONS = '([^']*)'/);
+  const line = source.match(/const VALID_OPTIONS =\s*'([^']*)'/);
   assert.ok(line, 'VALID_OPTIONS not found in src/setup/options.ts');
   const actual = new Set(line[1].match(/--[a-z-]+/g) ?? []);
 

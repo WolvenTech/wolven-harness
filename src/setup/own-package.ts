@@ -50,7 +50,7 @@ export async function devDependencyWarning(ctx: Context): Promise<string | undef
 
   const pkg = JSON.parse(raw) as Record<string, Record<string, unknown> | undefined>;
   const { name } = await resolveOwnPackage();
-  const has = (field: string): boolean => Object.prototype.hasOwnProperty.call(pkg[field] ?? {}, name);
+  const has = (field: string): boolean => Object.hasOwn(pkg[field] ?? {}, name);
 
   if (has('devDependencies')) return undefined;
 

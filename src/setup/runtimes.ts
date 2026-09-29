@@ -1,8 +1,8 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { pathExists } from '../path-exists.js';
+import type { Context, Options, StepResult } from './types.js';
 import { SetupError } from './types.js';
-import type { Options, Context, StepResult } from './types.js';
 
 /**
  * Injectable indirection over `fs.symlink`, so the forced-failure test can
