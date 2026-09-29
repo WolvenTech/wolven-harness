@@ -85,7 +85,7 @@ points to has to remain.
 
 ## Already integrated
 
-`init` writes every path that is missing, so running it again after a full
+`setup` writes every path that is missing, so running it again after a full
 or light fold (to wire another runtime, or after a package upgrade) brings
 `WOLVEN.md` back. Neither the light block nor the full body names
 `WOLVEN.md`, so `harness:validate` reports step 0 as pending again.

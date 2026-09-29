@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 import { realpathSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
-import { runInit } from './init/index.js';
+import { runSetup } from './setup/index.js';
 import { runValidate } from './validate/index.js';
 import { runComments } from './comments/index.js';
-import type { Io } from './init/types.js';
+import type { Io } from './setup/types.js';
 
 function printUsage(io: Io): void {
   io.stdout.write(
@@ -12,7 +12,7 @@ function printUsage(io: Io): void {
       'Usage: wolven-harness <command> [options]',
       '',
       'Commands:',
-      '  init       Scaffold WOLVEN.md, the .agents/ source tree, and wire runtimes',
+      '  setup      Scaffold WOLVEN.md, the .agents/ source tree, and wire runtimes',
       '             [--git-host <gh|bit>] [--runtimes <claude,codex,cursor>]',
       '             [--skills <ship,discovery|none>]  extra skill sets (core is always installed)',
       '             [--verbose] list every file created or kept',
@@ -35,8 +35,8 @@ export async function main(argv: string[], io: Io): Promise<number> {
   }
 
   switch (command) {
-    case 'init':
-      return runInit(rest, io);
+    case 'setup':
+      return runSetup(rest, io);
     case 'validate':
       return runValidate(rest, io);
     case 'comments':

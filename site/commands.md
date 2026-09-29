@@ -1,12 +1,12 @@
 ---
-description: Reference for init, validate, and comments — flags and failure modes.
+description: Reference for setup, validate, and comments — flags and failure modes.
 ---
 
 # Commands
 
-`wolven-harness --help` (or `-h`) prints the command list. Run the commands at, or anywhere inside, the repository you are setting up. `init` is the only one that writes. The GitHub README is the short how-to-run.
+`wolven-harness --help` (or `-h`) prints the command list. Run the commands at, or anywhere inside, the repository you are setting up. `setup` is the only one that writes. The GitHub README is the short how-to-run.
 
-## `wolven-harness init`
+## `wolven-harness setup`
 
 Runs at the git top level and fails anywhere else. Asks for the git host (`gh` or `bit`) and the runtimes to wire (`claude`, `codex`, `cursor`), or takes `--git-host` and `--runtimes`. Those two flags are required when stdout is not a TTY.
 

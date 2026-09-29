@@ -1,5 +1,5 @@
 ---
-description: Tutorial for the harness-init skill after init finishes.
+description: Tutorial for the harness-init skill after setup finishes.
 ---
 
 # Setting up with harness-init

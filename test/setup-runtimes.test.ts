@@ -4,9 +4,9 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { PassThrough } from 'node:stream';
 import { readFile } from 'node:fs/promises';
-import { wireRuntimes, setSymlinkImpl } from '../src/init/runtimes.js';
-import { InitError } from '../src/init/types.js';
-import type { Context, Io, Options } from '../src/init/types.js';
+import { wireRuntimes, setSymlinkImpl } from '../src/setup/runtimes.js';
+import { SetupError } from '../src/setup/types.js';
+import type { Context, Io, Options } from '../src/setup/types.js';
 import { makeRepo, run } from './helpers/fixture.js';
 
 function makeCtx(root: string): Context {
@@ -40,7 +40,6 @@ test('runtime-wiring: claude creates skills symlink to .agents/skills', async ()
   const target = await fs.readlink(linkPath);
   assert.equal(target, '../.agents/skills');
 
-  // Resolves through the symlink to the real .agents/skills content.
   const resolved = await readFile(path.join(linkPath, 'qmd', 'marker.txt'), 'utf8');
   assert.equal(resolved, 'marker\n');
 
@@ -98,7 +97,7 @@ test('runtime-wiring: symlink failure exits 1 naming macOS/Linux', async () => {
     await assert.rejects(
       wireRuntimes(opts(['claude']), ctx),
       (err: unknown) => {
-        assert.ok(err instanceof InitError, 'throws InitError');
+        assert.ok(err instanceof SetupError, 'throws SetupError');
         assert.match((err as Error).message, /macOS/);
         assert.match((err as Error).message, /Linux/);
         return true;
@@ -112,7 +111,7 @@ test('runtime-wiring: symlink failure exits 1 naming macOS/Linux', async () => {
 test('runtime-wiring: end-to-end codex,cursor via CLI creates no runtime dirs', async () => {
   const dir = await makeRepo({ 'AGENTS.md': '# AGENTS\n' }, { git: true });
 
-  await run(['init', '--git-host', 'gh', '--runtimes', 'codex,cursor'], { cwd: dir });
+  await run(['setup', '--git-host', 'gh', '--runtimes', 'codex,cursor'], { cwd: dir });
 
   for (const rel of ['.claude', '.codex', '.cursor']) {
     await assert.rejects(fs.lstat(path.join(dir, rel)), `${rel} does not exist`);

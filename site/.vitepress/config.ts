@@ -7,7 +7,7 @@ const base = '/wolven-harness/'
 export default defineConfig({
   title: 'wolven-harness',
   description:
-    'AI-assisted dev harness: init an AGENTS.md-based skills tree, wire runtimes, and validate architecture-decision claims.',
+    'AI-assisted dev harness: setup an AGENTS.md-based skills tree, wire runtimes, and validate architecture-decision claims.',
   base,
   appearance: false,
   head: [

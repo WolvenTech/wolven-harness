@@ -3,9 +3,9 @@ import assert from 'node:assert/strict';
 import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { makeRepo, run } from './helpers/fixture.js';
-import { CORE_SKILLS, SET_SKILLS } from '../src/init/skill-sets.js';
+import { CORE_SKILLS, SET_SKILLS } from '../src/setup/skill-sets.js';
 
-const BASE = ['init', '--git-host', 'gh', '--runtimes', 'codex'];
+const BASE = ['setup', '--git-host', 'gh', '--runtimes', 'codex'];
 
 async function installed(dir: string): Promise<string[]> {
   return (await readdir(path.join(dir, '.agents/skills'))).sort();
@@ -15,7 +15,7 @@ async function config(dir: string): Promise<Record<string, unknown>> {
   return JSON.parse(await readFile(path.join(dir, '.wolven-harness.json'), 'utf8'));
 }
 
-test('init-skill-sets: default without a terminal installs core and ship', async () => {
+test('setup-skill-sets: default without a terminal installs core and ship', async () => {
   const dir = await makeRepo({}, { git: true });
 
   const result = await run(BASE, { cwd: dir });
@@ -26,7 +26,7 @@ test('init-skill-sets: default without a terminal installs core and ship', async
   assert.match(result.stdout, /✔ 13 skills \(core, ship\) and 3 rules in \.agents\//);
 });
 
-test('init-skill-sets: --skills none installs core only', async () => {
+test('setup-skill-sets: --skills none installs core only', async () => {
   const dir = await makeRepo({}, { git: true });
 
   const result = await run([...BASE, '--skills', 'none'], { cwd: dir });
@@ -38,7 +38,7 @@ test('init-skill-sets: --skills none installs core only', async () => {
   assert.match(result.stdout, /✔ 9 skills \(core\) and 3 rules/);
 });
 
-test('init-skill-sets: --skills ship,discovery installs all sixteen', async () => {
+test('setup-skill-sets: --skills ship,discovery installs all sixteen', async () => {
   const dir = await makeRepo({}, { git: true });
 
   const result = await run([...BASE, '--skills=ship,discovery'], { cwd: dir });
@@ -48,25 +48,25 @@ test('init-skill-sets: --skills ship,discovery installs all sixteen', async () =
   assert.deepEqual((await config(dir)).skillSets, ['ship', 'discovery']);
 });
 
-test('init-skill-sets: a flag beats saved config, and saved config beats the default', async () => {
+test('setup-skill-sets: a flag beats saved config, and saved config beats the default', async () => {
   const saved = JSON.stringify({ version: 1, gitHost: 'gh', runtimes: ['codex'], skillSets: ['discovery'] }) + '\n';
 
   const fromConfig = await makeRepo({ '.wolven-harness.json': saved }, { git: true });
-  const a = await run(['init'], { cwd: fromConfig });
+  const a = await run(['setup'], { cwd: fromConfig });
   assert.equal(a.code, 0, a.stderr);
   assert.deepEqual(await installed(fromConfig), [...CORE_SKILLS, ...SET_SKILLS.discovery].sort());
 
   const fromFlag = await makeRepo({ '.wolven-harness.json': saved }, { git: true });
-  const b = await run(['init', '--skills', 'ship'], { cwd: fromFlag });
+  const b = await run(['setup', '--skills', 'ship'], { cwd: fromFlag });
   assert.equal(b.code, 0, b.stderr);
   assert.deepEqual(await installed(fromFlag), [...CORE_SKILLS, ...SET_SKILLS.ship].sort());
 });
 
-test('init-skill-sets: a TTY prompt is asked only when neither flag nor config decides', async () => {
+test('setup-skill-sets: a TTY prompt is asked only when neither flag nor config decides', async () => {
   const dir = await makeRepo({}, { git: true });
   const seen: string[][] = [];
 
-  const result = await run(['init', '--git-host', 'gh', '--runtimes', 'codex'], {
+  const result = await run(['setup', '--git-host', 'gh', '--runtimes', 'codex'], {
     cwd: dir,
     isTTY: true,
     prompts: {
@@ -85,7 +85,7 @@ test('init-skill-sets: a TTY prompt is asked only when neither flag nor config d
   assert.deepEqual(await installed(dir), [...CORE_SKILLS, ...SET_SKILLS.discovery].sort());
 });
 
-test('init-skill-sets: re-running with discovery keeps ship and adds discovery', async () => {
+test('setup-skill-sets: re-running with discovery keeps ship and adds discovery', async () => {
   const dir = await makeRepo({}, { git: true });
   await run(BASE, { cwd: dir });
 
@@ -98,7 +98,7 @@ test('init-skill-sets: re-running with discovery keeps ship and adds discovery',
   assert.match(again.stdout, /Left the ship skills in place/);
 });
 
-test('init-skill-sets: re-running with none after ship removes nothing and says so', async () => {
+test('setup-skill-sets: re-running with none after ship removes nothing and says so', async () => {
   const dir = await makeRepo({}, { git: true });
   await run(BASE, { cwd: dir });
 
@@ -107,10 +107,10 @@ test('init-skill-sets: re-running with none after ship removes nothing and says 
   assert.equal(again.code, 0, again.stderr);
   assert.deepEqual(await installed(dir), [...CORE_SKILLS, ...SET_SKILLS.ship].sort());
   assert.deepEqual((await config(dir)).skillSets, ['ship']);
-  assert.match(again.stdout, /Left the ship skills in place\. You did not pick them this time, but init never removes anything\./);
+  assert.match(again.stdout, /Left the ship skills in place\. You did not pick them this time, but setup never removes anything\./);
 });
 
-test('init-skill-sets: WOLVEN.md lists exactly the installed skills', async () => {
+test('setup-skill-sets: WOLVEN.md lists exactly the installed skills', async () => {
   for (const [flag, expected] of [
     ['none', [...CORE_SKILLS]],
     ['ship', [...CORE_SKILLS, ...SET_SKILLS.ship]],
@@ -125,7 +125,7 @@ test('init-skill-sets: WOLVEN.md lists exactly the installed skills', async () =
   }
 });
 
-test('init-skill-sets: invalid values fail with a hint and write nothing', async () => {
+test('setup-skill-sets: invalid values fail with a hint and write nothing', async () => {
   const dir = await makeRepo({}, { git: true });
 
   for (const bad of ['bogus', 'none,ship', '']) {
@@ -136,11 +136,11 @@ test('init-skill-sets: invalid values fail with a hint and write nothing', async
   }
   assert.deepEqual((await readdir(dir)).filter((f) => !f.startsWith('.git')), []);
 
-  const unknown = await run(['init', '--nope'], { cwd: dir });
+  const unknown = await run(['setup', '--nope'], { cwd: dir });
   assert.match(unknown.stderr, /--skills <ship,discovery\|none>/);
 });
 
-test('init-skill-sets: --help lists --skills', async () => {
+test('setup-skill-sets: --help lists --skills', async () => {
   const result = await run(['--help'], { cwd: await makeRepo({}) });
   assert.ok(result.stdout.includes('--skills'));
 });

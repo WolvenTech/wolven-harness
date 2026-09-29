@@ -2,22 +2,24 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { makeRepo, run } from './helpers/fixture.js';
 
-test('--help lists init, validate, and comments', async () => {
+test('--help lists setup, validate, and comments', async () => {
   const dir = await makeRepo({});
   const result = await run(['--help'], { cwd: dir });
 
   assert.equal(result.code, 0);
-  assert.match(result.stdout, /\binit\b/);
+  assert.match(result.stdout, /\bsetup\b/);
+  assert.doesNotMatch(result.stdout, /\binit\b/);
   assert.match(result.stdout, /\bvalidate\b/);
   assert.match(result.stdout, /\bcomments\b/);
 });
 
-test('no args prints usage listing init, validate, and comments', async () => {
+test('no args prints usage listing setup, validate, and comments', async () => {
   const dir = await makeRepo({});
   const result = await run([], { cwd: dir });
 
   assert.equal(result.code, 0);
-  assert.match(result.stdout, /\binit\b/);
+  assert.match(result.stdout, /\bsetup\b/);
+  assert.doesNotMatch(result.stdout, /\binit\b/);
   assert.match(result.stdout, /\bvalidate\b/);
   assert.match(result.stdout, /\bcomments\b/);
 });
@@ -30,9 +32,18 @@ test('unknown command exits 1', async () => {
   assert.match(result.stderr, /unknown command/);
 });
 
-test('init prints a summary and the harness-init next step', async () => {
+test('setup-dispatch: init is an unknown command and exits 1', async () => {
+  const dir = await makeRepo({});
+  const result = await run(['init'], { cwd: dir });
+
+  assert.equal(result.code, 1);
+  assert.match(result.stderr, /unknown command "init"/);
+  assert.doesNotMatch(result.stdout, /^\s+init\s/m);
+});
+
+test('setup prints a summary and the harness-init next step', async () => {
   const dir = await makeRepo({}, { git: true });
-  const result = await run(['init', '--git-host', 'gh', '--runtimes', 'codex'], { cwd: dir });
+  const result = await run(['setup', '--git-host', 'gh', '--runtimes', 'codex'], { cwd: dir });
 
   assert.equal(result.code, 0);
   assert.doesNotMatch(result.stderr, /step resolveOptions/);

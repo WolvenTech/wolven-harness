@@ -4,9 +4,9 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { makeRepo, run } from './helpers/fixture.js';
 import { makeIo } from './helpers/io.js';
-import { applyTemplates } from '../src/init/apply.js';
-import { addValidateScript } from '../src/init/package-script.js';
-import type { Context } from '../src/init/types.js';
+import { applyTemplates } from '../src/setup/apply.js';
+import { addValidateScript } from '../src/setup/package-script.js';
+import type { Context } from '../src/setup/types.js';
 
 async function fileExists(p: string): Promise<boolean> {
   try {
@@ -17,9 +17,7 @@ async function fileExists(p: string): Promise<boolean> {
   }
 }
 
-// --- applyTemplates: direct unit tests against a test template root ---
-
-test('init-skip: existing files byte-identical', async () => {
+test('setup-skip: existing files byte-identical', async () => {
   const templatesDir = await makeRepo({ '.agents/rules/qmd-first.md': 'TEMPLATE CONTENT\n' });
   const root = await makeRepo({ '.agents/rules/qmd-first.md': 'EXISTING CONTENT\n' });
   const ctx: Context = { root, templatesDir, io: makeIo(root) };
@@ -33,7 +31,7 @@ test('init-skip: existing files byte-identical', async () => {
   assert.equal(after, 'EXISTING CONTENT\n');
 });
 
-test('init-skip: AGENTS.md never created', async () => {
+test('setup-skip: AGENTS.md never created', async () => {
   const templatesDir = await makeRepo({ 'AGENTS.md': 'TEMPLATE AGENTS CONTENT\n' });
   const root = await makeRepo({});
   const ctx: Context = { root, templatesDir, io: makeIo(root) };
@@ -45,7 +43,7 @@ test('init-skip: AGENTS.md never created', async () => {
   assert.equal(await fileExists(path.join(root, 'AGENTS.md')), false, 'AGENTS.md was not written to disk');
 });
 
-test('init-apply: creates missing nested paths, sorted, WOLVEN.md rendered not copied', async () => {
+test('setup-apply: creates missing nested paths, sorted, WOLVEN.md rendered not copied', async () => {
   const templatesDir = await makeRepo({
     'WOLVEN.md': 'RAW TEMPLATE TEXT {{skills_table}} SHOULD NOT APPEAR VERBATIM',
     '.agents/skills/qmd/SKILL.md': '---\nname: qmd\ndescription: search docs\n---\nbody\n',
@@ -71,7 +69,7 @@ test('init-apply: creates missing nested paths, sorted, WOLVEN.md rendered not c
   assert.equal(gitkeep, '');
 });
 
-test('init-apply: a file blocking a path component is skipped, not thrown on', async () => {
+test('setup-apply: a file blocking a path component is skipped, not thrown on', async () => {
   const templatesDir = await makeRepo({ '.agents/rules/foo.md': 'x' });
   const root = await makeRepo({ '.agents': 'this is a plain file, not a directory\n' });
   const ctx: Context = { root, templatesDir, io: makeIo(root) };
@@ -84,7 +82,7 @@ test('init-apply: a file blocking a path component is skipped, not thrown on', a
   assert.equal(blocker, 'this is a plain file, not a directory\n');
 });
 
-test('init-apply: missing templatesDir returns empty lists', async () => {
+test('setup-apply: missing templatesDir returns empty lists', async () => {
   const root = await makeRepo({});
   const ctx: Context = { root, templatesDir: path.join(root, 'does-not-exist'), io: makeIo(root) };
 
@@ -93,7 +91,7 @@ test('init-apply: missing templatesDir returns empty lists', async () => {
   assert.deepEqual(result, { created: [], skipped: [] });
 });
 
-test('init-skip: second run creates nothing', async () => {
+test('setup-skip: second run creates nothing', async () => {
   const templatesDir = await makeRepo({
     '.agents/rules/qmd-first.md': 'template\n',
     'docs/notes/.gitkeep': '',
@@ -109,9 +107,7 @@ test('init-skip: second run creates nothing', async () => {
   assert.deepEqual(second.skipped, ['.agents/rules/qmd-first.md', 'docs/notes/.gitkeep'].sort());
 });
 
-// --- end-to-end: full `init` run through the CLI ---
-
-test('init-skip: closing line names harness-init, and pre-existing files stay byte-identical', async () => {
+test('setup-skip: closing line names harness-init, and pre-existing files stay byte-identical', async () => {
   const dir = await makeRepo(
     {
       'AGENTS.md': 'AGENTS CONTENT\n',
@@ -122,7 +118,7 @@ test('init-skip: closing line names harness-init, and pre-existing files stay by
     { git: true },
   );
 
-  const result = await run(['init', '--git-host', 'gh', '--runtimes', 'claude'], { cwd: dir });
+  const result = await run(['setup', '--git-host', 'gh', '--runtimes', 'claude'], { cwd: dir });
 
   assert.equal(result.code, 0);
   assert.match(result.stdout, /harness-init/);
@@ -141,7 +137,7 @@ test('init-skip: closing line names harness-init, and pre-existing files stay by
   assert.equal(pkg.version, '1.0.0');
 });
 
-test('init-skip: second `init` run creates nothing further', async () => {
+test('setup-skip: second `setup` run creates nothing further', async () => {
   const dir = await makeRepo(
     {
       'AGENTS.md': 'AGENTS CONTENT\n',
@@ -150,11 +146,11 @@ test('init-skip: second `init` run creates nothing further', async () => {
     { git: true },
   );
 
-  const firstRun = await run(['init', '--git-host', 'gh', '--runtimes', 'codex'], { cwd: dir });
+  const firstRun = await run(['setup', '--git-host', 'gh', '--runtimes', 'codex'], { cwd: dir });
   assert.equal(firstRun.code, 0);
   const pkgAfterFirst = await readFile(path.join(dir, 'package.json'), 'utf8');
 
-  const secondRun = await run(['init', '--git-host', 'gh', '--runtimes', 'codex'], { cwd: dir });
+  const secondRun = await run(['setup', '--git-host', 'gh', '--runtimes', 'codex'], { cwd: dir });
   assert.equal(secondRun.code, 0);
   assert.match(secondRun.stdout, /kept your existing package\.json scripts: harness:validate, harness:comments, left untouched/);
 
@@ -163,9 +159,7 @@ test('init-skip: second `init` run creates nothing further', async () => {
   assert.equal(await readFile(path.join(dir, 'AGENTS.md'), 'utf8'), 'AGENTS CONTENT\n');
 });
 
-// --- addValidateScript: direct unit tests ---
-
-test('init-script: adds harness:validate and harness:comments only when absent', async () => {
+test('setup-script: adds harness:validate and harness:comments only when absent', async () => {
   const root = await makeRepo({ 'package.json': '{\n  "name": "pkg",\n  "version": "1.0.0"\n}\n' });
   const ctx: Context = { root, templatesDir: path.join(root, 'unused'), io: makeIo(root) };
 
@@ -181,7 +175,7 @@ test('init-script: adds harness:validate and harness:comments only when absent',
   assert.equal(pkg.version, '1.0.0');
 });
 
-test('init-script: no change when both present', async () => {
+test('setup-script: no change when both present', async () => {
   const raw = `${JSON.stringify(
     {
       name: 'pkg',
@@ -202,7 +196,7 @@ test('init-script: no change when both present', async () => {
   assert.equal(after, raw, 'file is untouched byte-for-byte when both keys are already present');
 });
 
-test('init-script: adds only the missing key when one is already present', async () => {
+test('setup-script: adds only the missing key when one is already present', async () => {
   const raw = `${JSON.stringify({ name: 'pkg', scripts: { 'harness:validate': 'wolven-harness validate' } }, null, 2)}\n`;
   const root = await makeRepo({ 'package.json': raw });
   const ctx: Context = { root, templatesDir: path.join(root, 'unused'), io: makeIo(root) };
@@ -217,7 +211,7 @@ test('init-script: adds only the missing key when one is already present', async
   assert.equal(pkg.scripts['harness:comments'], 'wolven-harness comments');
 });
 
-test('init-script: preserves other keys, key order, indentation, and trailing newline', async () => {
+test('setup-script: preserves other keys, key order, indentation, and trailing newline', async () => {
   const raw =
     '{\n' +
     '  "name": "pkg",\n' +
@@ -250,7 +244,7 @@ test('init-script: preserves other keys, key order, indentation, and trailing ne
   assert.ok(after.endsWith('}\n'), 'trailing newline preserved');
 });
 
-test('init-script: no package.json means no change', async () => {
+test('setup-script: no package.json means no change', async () => {
   const root = await makeRepo({});
   const ctx: Context = { root, templatesDir: path.join(root, 'unused'), io: makeIo(root) };
 

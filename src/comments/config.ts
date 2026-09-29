@@ -1,4 +1,4 @@
-import { CONFIG_FILENAME, readConfig } from '../init/config.js';
+import { CONFIG_FILENAME, readConfig } from '../setup/config.js';
 import { isUnderDir } from '../path-exists.js';
 import { partitionIgnore } from '../validate/config.js';
 

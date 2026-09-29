@@ -1,5 +1,5 @@
 ---
-description: Clone this repo, build it, and run init from source.
+description: Clone this repo, build it, and run setup from source.
 ---
 
 # Contributing
@@ -14,9 +14,9 @@ pnpm build
 pnpm test
 ```
 
-From-source init, without installing the package in the target repo:
+From-source setup, without installing the package in the target repo:
 
 ```sh
 cd /path/to/target-repo
-node /path/to/wolven-harness/dist/cli.js init
+node /path/to/wolven-harness/dist/cli.js setup
 ```

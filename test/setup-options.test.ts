@@ -19,22 +19,20 @@ async function configExists(dir: string): Promise<boolean> {
   }
 }
 
-// --- init-prompts ---
-
-test('init-prompts: an unknown argument exits 1 and writes nothing', async () => {
+test('setup-prompts: an unknown argument exits 1 and writes nothing', async () => {
   const dir = await makeRepo({}, { git: true });
 
-  const result = await run(['init', '--help'], { cwd: dir, isTTY: false });
+  const result = await run(['setup', '--help'], { cwd: dir, isTTY: false });
 
   assert.equal(result.code, 1);
   assert.match(result.stderr, /unknown option "--help"/);
   assert.equal(await configExists(dir), false);
 });
 
-test('init-prompts: flags-only', async () => {
+test('setup-prompts: flags-only', async () => {
   const dir = await makeRepo({}, { git: true });
 
-  const result = await run(['init', '--git-host', 'gh', '--runtimes', 'claude,codex'], {
+  const result = await run(['setup', '--git-host', 'gh', '--runtimes', 'claude,codex'], {
     cwd: dir,
     isTTY: false,
   });
@@ -47,10 +45,10 @@ test('init-prompts: flags-only', async () => {
   assert.deepEqual(config.runtimes, ['claude', 'codex']);
 });
 
-test('init-prompts: flags-only accepts --flag=value form', async () => {
+test('setup-prompts: flags-only accepts --flag=value form', async () => {
   const dir = await makeRepo({}, { git: true });
 
-  const result = await run(['init', '--git-host=bit', '--runtimes=cursor'], {
+  const result = await run(['setup', '--git-host=bit', '--runtimes=cursor'], {
     cwd: dir,
     isTTY: false,
   });
@@ -62,10 +60,10 @@ test('init-prompts: flags-only accepts --flag=value form', async () => {
   assert.deepEqual(config.runtimes, ['cursor']);
 });
 
-test('init-prompts: no-tty missing flag exits 1 naming the flag', async () => {
+test('setup-prompts: no-tty missing flag exits 1 naming the flag', async () => {
   const dir = await makeRepo({}, { git: true });
 
-  const result = await run(['init'], { cwd: dir, isTTY: false });
+  const result = await run(['setup'], { cwd: dir, isTTY: false });
 
   assert.equal(result.code, 1);
   assert.match(result.stderr, /--git-host/);
@@ -73,9 +71,9 @@ test('init-prompts: no-tty missing flag exits 1 naming the flag', async () => {
   assert.equal(await configExists(dir), false);
 });
 
-test('init-prompts: unknown option exits without writing config', async () => {
+test('setup-prompts: unknown option exits without writing config', async () => {
   const dir = await makeRepo({}, { git: true });
-  const result = await run(['init', '--git-host', 'gh', '--runtimes', 'codex', '--runtime', 'claude'], {
+  const result = await run(['setup', '--git-host', 'gh', '--runtimes', 'codex', '--runtime', 'claude'], {
     cwd: dir,
     isTTY: false,
   });
@@ -85,33 +83,33 @@ test('init-prompts: unknown option exits without writing config', async () => {
   assert.equal(await configExists(dir), false);
 });
 
-test('init-prompts: a flag without a value does not use a saved default', async () => {
+test('setup-prompts: a flag without a value does not use a saved default', async () => {
   const config = JSON.stringify({ version: 1, gitHost: 'gh', runtimes: ['codex'] }) + '\n';
   const dir = await makeRepo({ '.wolven-harness.json': config }, { git: true });
-  const result = await run(['init', '--runtimes'], { cwd: dir, isTTY: false });
+  const result = await run(['setup', '--runtimes'], { cwd: dir, isTTY: false });
 
   assert.equal(result.code, 1);
   assert.match(result.stderr, /missing value for --runtimes/);
   assert.equal(await readFile(path.join(dir, '.wolven-harness.json'), 'utf8'), config);
 });
 
-test('init-prompts: no-tty missing only --runtimes names just that flag', async () => {
+test('setup-prompts: no-tty missing only --runtimes names just that flag', async () => {
   const dir = await makeRepo({}, { git: true });
 
-  const result = await run(['init', '--git-host', 'gh'], { cwd: dir, isTTY: false });
+  const result = await run(['setup', '--git-host', 'gh'], { cwd: dir, isTTY: false });
 
   assert.equal(result.code, 1);
   assert.match(result.stderr, /--runtimes/);
   assert.doesNotMatch(result.stderr, /--git-host/);
 });
 
-test('init-prompts: subdir exits 1 and creates nothing', async () => {
+test('setup-prompts: subdir exits 1 and creates nothing', async () => {
   const dir = await makeRepo({ 'README.md': '# fixture\n' }, { git: true });
   const subdir = path.join(dir, 'sub');
   await mkdir(subdir);
 
   const before = (await walkFiles(dir)).sort();
-  const result = await run(['init', '--git-host', 'gh', '--runtimes', 'claude'], {
+  const result = await run(['setup', '--git-host', 'gh', '--runtimes', 'claude'], {
     cwd: subdir,
     isTTY: false,
   });
@@ -121,11 +119,11 @@ test('init-prompts: subdir exits 1 and creates nothing', async () => {
   assert.deepEqual(after, before);
 });
 
-test('init-prompts: non-git dir exits 1 and creates nothing', async () => {
+test('setup-prompts: non-git dir exits 1 and creates nothing', async () => {
   const dir = await makeRepo({ 'README.md': '# fixture\n' });
 
   const before = (await walkFiles(dir)).sort();
-  const result = await run(['init', '--git-host', 'gh', '--runtimes', 'claude'], {
+  const result = await run(['setup', '--git-host', 'gh', '--runtimes', 'claude'], {
     cwd: dir,
     isTTY: false,
   });
@@ -136,9 +134,7 @@ test('init-prompts: non-git dir exits 1 and creates nothing', async () => {
   assert.equal(await configExists(dir), false);
 });
 
-// --- init-config ---
-
-test('init-config: re-run reads .wolven-harness.json without prompting', {
+test('setup-config: re-run reads .wolven-harness.json without prompting', {
   timeout: 5000,
 }, async () => {
   const dir = await makeRepo(
@@ -148,10 +144,8 @@ test('init-config: re-run reads .wolven-harness.json without prompting', {
     { git: true },
   );
 
-  // isTTY: true with no input — if the implementation tried to prompt it
-  // would hang waiting on stdin; the bounded timeout above turns that
-  // regression into a fast failure instead of hanging the whole run.
-  const result = await run(['init'], { cwd: dir, isTTY: true, input: '' });
+  // why: a prompt here would block on empty stdin; the test timeout turns that hang into a failure.
+  const result = await run(['setup'], { cwd: dir, isTTY: true, input: '' });
 
   assert.equal(result.code, 0);
   assert.doesNotMatch(result.stdout, /hosted/);
@@ -162,7 +156,7 @@ test('init-config: re-run reads .wolven-harness.json without prompting', {
   assert.deepEqual(config.runtimes, ['codex']);
 });
 
-test('init-config: a flag overrides the file default', async () => {
+test('setup-config: a flag overrides the file default', async () => {
   const dir = await makeRepo(
     {
       '.wolven-harness.json': JSON.stringify({ version: 1, gitHost: 'bit', runtimes: ['codex'] }) + '\n',
@@ -170,7 +164,7 @@ test('init-config: a flag overrides the file default', async () => {
     { git: true },
   );
 
-  const result = await run(['init', '--git-host', 'gh'], { cwd: dir, isTTY: false });
+  const result = await run(['setup', '--git-host', 'gh'], { cwd: dir, isTTY: false });
 
   assert.equal(result.code, 0);
 
@@ -179,7 +173,7 @@ test('init-config: a flag overrides the file default', async () => {
   assert.deepEqual(config.runtimes, ['codex']);
 });
 
-test('init-config: a hand-added ignore key survives the re-run', async () => {
+test('setup-config: a hand-added ignore key survives the re-run', async () => {
   const dir = await makeRepo(
     {
       '.wolven-harness.json':
@@ -193,7 +187,7 @@ test('init-config: a hand-added ignore key survives the re-run', async () => {
     { git: true },
   );
 
-  const result = await run(['init'], { cwd: dir, isTTY: false });
+  const result = await run(['setup'], { cwd: dir, isTTY: false });
 
   assert.equal(result.code, 0);
 
@@ -201,10 +195,10 @@ test('init-config: a hand-added ignore key survives the re-run', async () => {
   assert.deepEqual(config.ignore, ['templates/**', 'test/**']);
 });
 
-test('init-config: version is 1', async () => {
+test('setup-config: version is 1', async () => {
   const dir = await makeRepo({}, { git: true });
 
-  const result = await run(['init', '--git-host', 'gh', '--runtimes', 'claude'], {
+  const result = await run(['setup', '--git-host', 'gh', '--runtimes', 'claude'], {
     cwd: dir,
     isTTY: false,
   });
@@ -215,10 +209,10 @@ test('init-config: version is 1', async () => {
   assert.equal(config.version, 1);
 });
 
-test('init-config: invalid --git-host value exits 1 naming the flag', async () => {
+test('setup-config: invalid --git-host value exits 1 naming the flag', async () => {
   const dir = await makeRepo({}, { git: true });
 
-  const result = await run(['init', '--git-host', 'bogus', '--runtimes', 'claude'], {
+  const result = await run(['setup', '--git-host', 'bogus', '--runtimes', 'claude'], {
     cwd: dir,
     isTTY: false,
   });
@@ -228,10 +222,10 @@ test('init-config: invalid --git-host value exits 1 naming the flag', async () =
   assert.equal(await configExists(dir), false);
 });
 
-test('init-config: invalid --runtimes value exits 1 naming the flag', async () => {
+test('setup-config: invalid --runtimes value exits 1 naming the flag', async () => {
   const dir = await makeRepo({}, { git: true });
 
-  const result = await run(['init', '--git-host', 'gh', '--runtimes', 'not-a-runtime'], {
+  const result = await run(['setup', '--git-host', 'gh', '--runtimes', 'not-a-runtime'], {
     cwd: dir,
     isTTY: false,
   });

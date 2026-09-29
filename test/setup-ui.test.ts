@@ -6,8 +6,8 @@ import { promisify } from 'node:util';
 import path from 'node:path';
 import { makeRepo, run } from './helpers/fixture.js';
 import { walkFiles } from './helpers/walk.js';
-import { detectGitHost, detectRuntimes } from '../src/init/options.js';
-import type { Prompter } from '../src/init/types.js';
+import { detectGitHost, detectRuntimes } from '../src/setup/options.js';
+import type { Prompter } from '../src/setup/types.js';
 
 const execFileAsync = promisify(execFile);
 const ANSI = /\u001b\[/;
@@ -57,7 +57,7 @@ function newAsked(): Asked {
   return { selectHints: [], multiLabels: [] };
 }
 
-test('init-ui: origin remote maps to a default git host', async () => {
+test('setup-ui: origin remote maps to a default git host', async () => {
   assert.equal(await detectGitHost(await withOrigin('https://github.com/acme/app.git')), 'gh');
   assert.equal(await detectGitHost(await withOrigin('git@github.com:acme/app.git')), 'gh');
   assert.equal(await detectGitHost(await withOrigin('git@bitbucket.org:acme/app.git')), 'bit');
@@ -65,7 +65,7 @@ test('init-ui: origin remote maps to a default git host', async () => {
   assert.equal(await detectGitHost(await makeRepo({}, { git: true })), undefined);
 });
 
-test('init-ui: runtimes are detected from existing repo files', async () => {
+test('setup-ui: runtimes are detected from existing repo files', async () => {
   assert.deepEqual(await detectRuntimes(await makeRepo({}, { git: true })), []);
   assert.deepEqual(await detectRuntimes(await makeRepo({ 'CLAUDE.md': 'x\n' })), ['claude']);
   assert.deepEqual(await detectRuntimes(await makeRepo({ '.claude/settings.json': '{}' })), ['claude']);
@@ -77,12 +77,12 @@ test('init-ui: runtimes are detected from existing repo files', async () => {
   );
 });
 
-test('init-ui: prompts are preselected from the origin remote and existing files, and answers are saved', async () => {
+test('setup-ui: prompts are preselected from the origin remote and existing files, and answers are saved', async () => {
   const dirWithCursor = await makeRepo({ '.cursorrules': 'x\n' }, { git: true });
   await execFileAsync('git', ['remote', 'add', 'origin', 'git@bitbucket.org:acme/app.git'], { cwd: dirWithCursor });
 
   const asked = newAsked();
-  const result = await run(['init'], {
+  const result = await run(['setup'], {
     cwd: dirWithCursor,
     isTTY: true,
     prompts: fakePrompter({ host: 'bit', runtimes: ['cursor', 'codex'] }, asked),
@@ -104,11 +104,11 @@ test('init-ui: prompts are preselected from the origin remote and existing files
   assert.match(result.stdout, /Cursor and Codex/);
 });
 
-test('init-ui: with no remote and no runtime files nothing is preselected', async () => {
+test('setup-ui: with no remote and no runtime files nothing is preselected', async () => {
   const dir = await makeRepo({}, { git: true });
   const asked = newAsked();
 
-  const result = await run(['init'], {
+  const result = await run(['setup'], {
     cwd: dir,
     isTTY: true,
     prompts: fakePrompter({ host: 'gh', runtimes: ['claude'] }, asked),
@@ -121,7 +121,7 @@ test('init-ui: with no remote and no runtime files nothing is preselected', asyn
   assert.equal(asked.skillsRequired, false);
 });
 
-test('init-ui: a flag and saved config win over prompts, which are not shown', async () => {
+test('setup-ui: a flag and saved config win over prompts, which are not shown', async () => {
   const config = JSON.stringify({ version: 1, gitHost: 'bit', runtimes: ['codex'], skillSets: ['ship'] }) + '\n';
   const dir = await makeRepo({ '.wolven-harness.json': config }, { git: true });
   const boom: Prompter = {
@@ -133,7 +133,7 @@ test('init-ui: a flag and saved config win over prompts, which are not shown', a
     },
   };
 
-  const result = await run(['init', '--git-host', 'gh'], { cwd: dir, isTTY: true, prompts: boom });
+  const result = await run(['setup', '--git-host', 'gh'], { cwd: dir, isTTY: true, prompts: boom });
 
   assert.equal(result.code, 0, result.stderr);
   const saved = JSON.parse(await readFile(path.join(dir, '.wolven-harness.json'), 'utf8'));
@@ -141,16 +141,16 @@ test('init-ui: a flag and saved config win over prompts, which are not shown', a
   assert.deepEqual(saved.runtimes, ['codex']);
 });
 
-test('init-ui: cancelling a prompt writes nothing and exits non-zero', async () => {
+test('setup-ui: cancelling a prompt writes nothing and exits non-zero', async () => {
   const dir = await makeRepo({ 'README.md': '# x\n' }, { git: true });
   const before = (await walkFiles(dir)).sort();
 
-  const cancelHost = await run(['init'], {
+  const cancelHost = await run(['setup'], {
     cwd: dir,
     isTTY: true,
     prompts: fakePrompter({ host: undefined }, newAsked()),
   });
-  const cancelRuntimes = await run(['init'], {
+  const cancelRuntimes = await run(['setup'], {
     cwd: dir,
     isTTY: true,
     prompts: fakePrompter({ host: 'gh', runtimes: undefined }, newAsked()),
@@ -163,10 +163,10 @@ test('init-ui: cancelling a prompt writes nothing and exits non-zero', async () 
   assert.deepEqual((await walkFiles(dir)).sort(), before);
 });
 
-test('init-ui: a TTY without a real stdin and no missing values still needs flags', async () => {
+test('setup-ui: a TTY without a real stdin and no missing values still needs flags', async () => {
   const dir = await makeRepo({}, { git: true });
 
-  const result = await run(['init'], { cwd: dir, isTTY: true, input: '' });
+  const result = await run(['setup'], { cwd: dir, isTTY: true, input: '' });
 
   assert.equal(result.code, 1);
   assert.match(result.stderr, /missing required flags: --git-host, --runtimes/);
@@ -174,29 +174,29 @@ test('init-ui: a TTY without a real stdin and no missing values still needs flag
   assert.deepEqual(await readdir(dir).then((n) => n.filter((f) => !f.startsWith('.git'))), []);
 });
 
-test('init-ui: the step trace is hidden by default and shown with --debug or WOLVEN_HARNESS_DEBUG=1', async () => {
-  const args = ['init', '--git-host', 'gh', '--runtimes', 'codex'];
+test('setup-ui: the step trace is hidden by default and shown with --debug or WOLVEN_HARNESS_DEBUG=1', async () => {
+  const args = ['setup', '--git-host', 'gh', '--runtimes', 'codex'];
 
   const quiet = await run(args, { cwd: await makeRepo({}, { git: true }) });
-  assert.doesNotMatch(quiet.stderr + quiet.stdout, /wolven-harness:init\]/);
+  assert.doesNotMatch(quiet.stderr + quiet.stdout, /wolven-harness:setup\]/);
 
   const debug = await run([...args, '--debug'], { cwd: await makeRepo({}, { git: true }) });
   assert.equal(debug.code, 0);
-  assert.match(debug.stderr, /\[wolven-harness:init\] step resolveOptions/);
-  assert.match(debug.stderr, /\[wolven-harness:init\] step applyTemplates/);
-  assert.doesNotMatch(debug.stdout, /wolven-harness:init\]/);
+  assert.match(debug.stderr, /\[wolven-harness:setup\] step resolveOptions/);
+  assert.match(debug.stderr, /\[wolven-harness:setup\] step applyTemplates/);
+  assert.doesNotMatch(debug.stdout, /wolven-harness:setup\]/);
 
   const viaEnv = await run(args, { cwd: await makeRepo({}, { git: true }), env: { WOLVEN_HARNESS_DEBUG: '1' } });
-  assert.match(viaEnv.stderr, /\[wolven-harness:init\] step wireRuntimes/);
+  assert.match(viaEnv.stderr, /\[wolven-harness:setup\] step wireRuntimes/);
 });
 
-test('init-ui: non-TTY output is plain text with the summary and next steps', async () => {
+test('setup-ui: non-TTY output is plain text with the summary and next steps', async () => {
   const dir = await makeRepo(
     { 'package.json': `${JSON.stringify({ name: 'consumer', version: '1.0.0' }, null, 2)}\n` },
     { git: true },
   );
 
-  const result = await run(['init', '--git-host', 'gh', '--runtimes', 'claude,codex'], { cwd: dir });
+  const result = await run(['setup', '--git-host', 'gh', '--runtimes', 'claude,codex'], { cwd: dir });
 
   assert.equal(result.code, 0, result.stderr);
   assert.doesNotMatch(result.stdout, ANSI);
@@ -213,24 +213,24 @@ test('init-ui: non-TTY output is plain text with the summary and next steps', as
   assert.doesNotMatch(result.stdout, /\.agents\/skills\/adr\/SKILL\.md/);
 });
 
-test('init-ui: summary counts come from what was really written', async () => {
+test('setup-ui: summary counts come from what was really written', async () => {
   const dir = await makeRepo({}, { git: true });
 
-  const result = await run(['init', '--git-host', 'gh', '--runtimes', 'codex'], { cwd: dir });
+  const result = await run(['setup', '--git-host', 'gh', '--runtimes', 'codex'], { cwd: dir });
 
   const skills = (await readdir(path.join(dir, '.agents/skills'), { withFileTypes: true })).filter((e) => e.isDirectory());
   const rules = (await readdir(path.join(dir, '.agents/rules'))).filter((f) => f.endsWith('.md'));
   assert.ok(skills.length > 1);
   assert.match(result.stdout, new RegExp(`✔ ${skills.length} skills \\(core, ship\\) and ${rules.length} rules in \\.agents/`));
 
-  const again = await run(['init', '--git-host', 'gh', '--runtimes', 'codex'], { cwd: dir });
+  const again = await run(['setup', '--git-host', 'gh', '--runtimes', 'codex'], { cwd: dir });
   assert.doesNotMatch(again.stdout, /✔ \d+ skills/);
   assert.match(again.stdout, new RegExp(`kept your existing ${skills.length} skills \\(core, ship\\) and ${rules.length} rules in \\.agents/, left untouched`));
   assert.doesNotMatch(again.stdout, /skipped/);
 });
 
-test('init-ui: --verbose lists every created file and default output does not', async () => {
-  const args = ['init', '--git-host', 'gh', '--runtimes', 'claude'];
+test('setup-ui: --verbose lists every created file and default output does not', async () => {
+  const args = ['setup', '--git-host', 'gh', '--runtimes', 'claude'];
   const plain = await run(args, { cwd: await makeRepo({}, { git: true }) });
   assert.doesNotMatch(plain.stdout, /\.agents\/rules\/qmd-first\.md/);
 
@@ -243,19 +243,19 @@ test('init-ui: --verbose lists every created file and default output does not', 
   assert.match(verbose.stdout, /^kept \(already existed, left untouched\):\n {2}CLAUDE\.md$/m);
 });
 
-test('init-ui: errors show a one-line message plus a hint', async () => {
+test('setup-ui: errors show a one-line message plus a hint', async () => {
   const dir = await makeRepo({}, { git: true });
 
-  const unknown = await run(['init', '--bogus'], { cwd: dir });
+  const unknown = await run(['setup', '--bogus'], { cwd: dir });
   assert.equal(unknown.code, 1);
-  assert.match(unknown.stderr, /^wolven-harness init: unknown option "--bogus"$/m);
+  assert.match(unknown.stderr, /^wolven-harness setup: unknown option "--bogus"$/m);
   assert.match(unknown.stderr, /Hint: Valid options: --git-host .*--runtimes .*--verbose, --debug/);
 
-  const badHost = await run(['init', '--git-host', 'svn', '--runtimes', 'claude'], { cwd: dir });
+  const badHost = await run(['setup', '--git-host', 'svn', '--runtimes', 'claude'], { cwd: dir });
   assert.match(badHost.stderr, /Hint: Use "gh" for GitHub or "bit" for Bitbucket\./);
 });
 
-test('init-ui: --help lists init flags including --debug and --verbose', async () => {
+test('setup-ui: --help lists setup flags including --debug and --verbose', async () => {
   const result = await run(['--help'], { cwd: await makeRepo({}) });
 
   for (const flag of ['--git-host', '--runtimes', '--verbose', '--debug']) {
@@ -263,10 +263,10 @@ test('init-ui: --help lists init flags including --debug and --verbose', async (
   }
 });
 
-test('init-ui: an invalid flag value in a terminal opens its menu instead of failing', async () => {
+test('setup-ui: an invalid flag value in a terminal opens its menu instead of failing', async () => {
   const asked = newAsked();
   const dir = await makeRepo({}, { git: true });
-  const result = await run(['init', '--git-host', 'gitlab', '--runtimes', 'vim', '--skills', 'extras'], {
+  const result = await run(['setup', '--git-host', 'gitlab', '--runtimes', 'vim', '--skills', 'extras'], {
     cwd: dir,
     isTTY: true,
     prompts: fakePrompter({ host: 'gh', runtimes: ['claude'], skills: ['ship'] }, asked),
@@ -282,9 +282,9 @@ test('init-ui: an invalid flag value in a terminal opens its menu instead of fai
   assert.deepEqual(config.runtimes, ['claude']);
 });
 
-test('init-ui: an invalid flag value off a terminal still fails with a hint', async () => {
+test('setup-ui: an invalid flag value off a terminal still fails with a hint', async () => {
   const dir = await makeRepo({}, { git: true });
-  const result = await run(['init', '--git-host', 'gh', '--runtimes', 'vim'], { cwd: dir });
+  const result = await run(['setup', '--git-host', 'gh', '--runtimes', 'vim'], { cwd: dir });
   assert.equal(result.code, 1);
   assert.match(result.stderr, /invalid value for --runtimes: "vim"/);
   assert.match(result.stderr, /Hint: /);

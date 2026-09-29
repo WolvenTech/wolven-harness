@@ -5,7 +5,7 @@ import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { PassThrough } from 'node:stream';
 import { main } from '../../src/cli.js';
-import type { Io, Prompter } from '../../src/init/types.js';
+import type { Io, Prompter } from '../../src/setup/types.js';
 
 const execFileAsync = promisify(execFile);
 

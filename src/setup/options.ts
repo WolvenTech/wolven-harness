@@ -1,7 +1,7 @@
 import { realpath } from 'node:fs/promises';
 import path from 'node:path';
 import type { GitHost, Io, Options, Context, Runtime, Prompter } from './types.js';
-import { InitError, InitCancelled } from './types.js';
+import { SetupError, SetupCancelled } from './types.js';
 import { isGitHost, isRuntime, readConfig, writeConfig } from './config.js';
 import { SKILL_SETS, SET_SKILLS, isSkillSet, orderSets } from './skill-sets.js';
 import type { SkillSet } from './skill-sets.js';
@@ -12,7 +12,7 @@ import { clackPrompter } from './ui.js';
 import { resolveOwnPackage } from './own-package.js';
 
 /**
- * Guards that `init` runs at the git top-level: `git rev-parse
+ * Guards that `setup` runs at the git top-level: `git rev-parse
  * --show-toplevel` from `io.cwd` must succeed and resolve (via `realpath`,
  * so symlinked temp dirs compare correctly) to the same directory as
  * `io.cwd`. Runs before any flag parsing, prompt, or write.
@@ -22,14 +22,14 @@ async function assertGitTopLevel(io: Io): Promise<void> {
   try {
     toplevel = await gitTopLevel(io.cwd);
   } catch {
-    throw new InitError(`not a git repository: ${io.cwd}`, 'Run "git init" here first, then re-run init.');
+    throw new SetupError(`not a git repository: ${io.cwd}`, 'Run "git init" here first, then re-run setup.');
   }
 
   const [realToplevel, realCwd] = await Promise.all([realpath(toplevel), realpath(io.cwd)]);
 
   if (realToplevel !== realCwd) {
-    throw new InitError(
-      `init must run at the git top-level (${realToplevel}), not ${realCwd}`,
+    throw new SetupError(
+      `setup must run at the git top-level (${realToplevel}), not ${realCwd}`,
       `Run it from ${realToplevel}.`,
     );
   }
@@ -46,7 +46,7 @@ interface Flags {
 /**
  * Parses `--git-host <value>` / `--git-host=<value>` and `--runtimes
  * <csv>` / `--runtimes=<csv>`. A missing value or any other argument is
- * an `InitError`.
+ * a `SetupError`.
  */
 function parseFlags(argv: string[]): Flags {
   const flags: Flags = {};
@@ -56,27 +56,27 @@ function parseFlags(argv: string[]): Flags {
 
     if (arg === '--git-host') {
       const value = argv[++i];
-      if (value === undefined) throw new InitError('missing value for --git-host', 'Use --git-host gh or --git-host bit.');
+      if (value === undefined) throw new SetupError('missing value for --git-host', 'Use --git-host gh or --git-host bit.');
       flags.gitHost = value;
     } else if (arg.startsWith('--git-host=')) {
       flags.gitHost = arg.slice('--git-host='.length);
     } else if (arg === '--runtimes') {
       const value = argv[++i];
-      if (value === undefined) throw new InitError('missing value for --runtimes', 'Use e.g. --runtimes claude,codex.');
+      if (value === undefined) throw new SetupError('missing value for --runtimes', 'Use e.g. --runtimes claude,codex.');
       flags.runtimes = value;
     } else if (arg.startsWith('--runtimes=')) {
       flags.runtimes = arg.slice('--runtimes='.length);
     } else if (arg === '--skills') {
       const value = argv[++i];
-      if (value === undefined) throw new InitError('missing value for --skills', 'Use e.g. --skills ship,discovery or --skills none.');
+      if (value === undefined) throw new SetupError('missing value for --skills', 'Use e.g. --skills ship,discovery or --skills none.');
       flags.skills = value;
     } else if (arg.startsWith('--skills=')) {
       flags.skills = arg.slice('--skills='.length);
     } else if (arg === '--debug' || arg === '--verbose') {
-      // why: read by runInit before resolveOptions runs; accepted here so they are not "unknown".
+      // why: read by runSetup before resolveOptions runs; accepted here so they are not "unknown".
       continue;
     } else {
-      throw new InitError(`unknown option "${arg}"`, `Valid options: ${VALID_OPTIONS}.`);
+      throw new SetupError(`unknown option "${arg}"`, `Valid options: ${VALID_OPTIONS}.`);
     }
   }
 
@@ -121,15 +121,15 @@ function parseSkillsFlag(raw: string): SkillSet[] {
     .filter((s) => s.length > 0);
   const hint = 'Use a comma-separated list of "ship", "discovery", or "none" for core skills only.';
 
-  if (parts.length === 0) throw new InitError(`invalid value for --skills: "${raw}"`, hint);
+  if (parts.length === 0) throw new SetupError(`invalid value for --skills: "${raw}"`, hint);
   if (parts.includes('none')) {
     if (parts.length > 1) {
-      throw new InitError(`--skills none cannot be combined with other values: "${raw}"`, 'Use --skills none alone, or list the sets you want, e.g. --skills ship.');
+      throw new SetupError(`--skills none cannot be combined with other values: "${raw}"`, 'Use --skills none alone, or list the sets you want, e.g. --skills ship.');
     }
     return [];
   }
   for (const part of parts) {
-    if (!isSkillSet(part)) throw new InitError(`invalid value for --skills: "${part}"`, hint);
+    if (!isSkillSet(part)) throw new SetupError(`invalid value for --skills: "${part}"`, hint);
   }
   return orderSets(parts as SkillSet[]);
 }
@@ -137,7 +137,7 @@ function parseSkillsFlag(raw: string): SkillSet[] {
 function parseGitHostFlag(raw: string): GitHost {
   const value = parseGitHostValue(raw);
   if (value === undefined) {
-    throw new InitError(`invalid value for --git-host: "${raw}"`, 'Use "gh" for GitHub or "bit" for Bitbucket.');
+    throw new SetupError(`invalid value for --git-host: "${raw}"`, 'Use "gh" for GitHub or "bit" for Bitbucket.');
   }
   return value;
 }
@@ -145,7 +145,7 @@ function parseGitHostFlag(raw: string): GitHost {
 function parseRuntimesFlag(raw: string): Runtime[] {
   const value = parseRuntimesValue(raw);
   if (value === undefined) {
-    throw new InitError(
+    throw new SetupError(
       `invalid value for --runtimes: "${raw}"`,
       'Use a comma-separated list of "claude", "codex", "cursor", e.g. --runtimes claude,codex.',
     );
@@ -200,13 +200,13 @@ function withNote(note: string | undefined, message: string): string {
 /**
  * Parses a flag value. When a person can answer prompts, an invalid value
  * is recorded in `setNote` and returns `undefined`, so the question is
- * asked instead; otherwise the `InitError` stands.
+ * asked instead; otherwise the `SetupError` stands.
  */
 function parseOrAsk<T>(parse: () => T, interactive: boolean, setNote: (note: string) => void): T | undefined {
   try {
     return parse();
   } catch (err) {
-    if (!interactive || !(err instanceof InitError)) throw err;
+    if (!interactive || !(err instanceof SetupError)) throw err;
     setNote(`${err.message.charAt(0).toUpperCase()}${err.message.slice(1)}; pick from the list instead.`);
     return undefined;
   }
@@ -215,7 +215,7 @@ function parseOrAsk<T>(parse: () => T, interactive: boolean, setNote: (note: str
 /**
  * Asks for whichever of `gitHost`/`runtimes` is still missing, host first
  * then runtimes, preselecting what the repo already shows. A cancelled
- * prompt throws `InitCancelled` before anything has been written.
+ * prompt throws `SetupCancelled` before anything has been written.
  */
 async function promptMissing(
   prompter: Prompter,
@@ -238,7 +238,7 @@ async function promptMissing(
       ],
       initialValue: detected,
     });
-    if (gitHost === undefined) throw new InitCancelled('git host prompt cancelled');
+    if (gitHost === undefined) throw new SetupCancelled('git host prompt cancelled');
   }
 
   if (needRuntimes) {
@@ -252,7 +252,7 @@ async function promptMissing(
       ],
       initialValues: detected,
     });
-    if (runtimes === undefined) throw new InitCancelled('runtimes prompt cancelled');
+    if (runtimes === undefined) throw new SetupCancelled('runtimes prompt cancelled');
   }
 
   return { gitHost, runtimes };
@@ -283,7 +283,7 @@ async function promptSkillSets(prompter: Prompter, installed: SkillSet[], note?:
     initialValues: orderSets(['ship', ...installed]),
     required: false,
   });
-  if (answer === undefined) throw new InitCancelled('skill sets prompt cancelled');
+  if (answer === undefined) throw new SetupCancelled('skill sets prompt cancelled');
   return orderSets(answer);
 }
 
@@ -294,10 +294,10 @@ export function canPrompt(io: Io): boolean {
 }
 
 /**
- * Resolves `init`'s options: the git-top-level guard runs first (before
+ * Resolves `setup`'s options: the git-top-level guard runs first (before
  * any prompt or write); then flags override `.wolven-harness.json`
  * defaults, which override interactive prompts (TTY only — no TTY with a
- * value still missing is a named-flag `InitError`; a cancelled prompt is `InitCancelled`). The resolved options
+ * value still missing is a named-flag `SetupError`; a cancelled prompt is `SetupCancelled`). The resolved options
  * are written back to `.wolven-harness.json` on every run, refreshing
  * `packageVersion` to this running package's own version and carrying
  * every other existing key (`ignore`, `comments`, and any unknown key)
@@ -329,9 +329,9 @@ export async function resolveOptions(argv: string[], ctx: Context): Promise<Opti
   if (missing.length > 0) {
     if (!interactive) {
       const label = missing.length > 1 ? 'flags' : 'flag';
-      throw new InitError(
+      throw new SetupError(
         `missing required ${label}: ${missing.join(', ')}`,
-        `Pass ${missing.length > 1 ? 'them' : 'it'} as ${missing.length > 1 ? 'flags' : 'a flag'} (e.g. ${missing.map((f) => (f === '--git-host' ? '--git-host gh' : '--runtimes claude')).join(' ')}) or run init in an interactive terminal to be asked.`,
+        `Pass ${missing.length > 1 ? 'them' : 'it'} as ${missing.length > 1 ? 'flags' : 'a flag'} (e.g. ${missing.map((f) => (f === '--git-host' ? '--git-host gh' : '--runtimes claude')).join(' ')}) or run setup in an interactive terminal to be asked.`,
       );
     }
 

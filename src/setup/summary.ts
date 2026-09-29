@@ -3,7 +3,7 @@ import { setsOf } from './skill-sets.js';
 import type { SkillSet } from './skill-sets.js';
 
 /**
- * What a finished `init` run reports: things it added, and things it left
+ * What a finished `setup` run reports: things it added, and things it left
  * alone (each `kept` entry completes "kept your existing ...").
  */
 export interface Summary {
@@ -121,7 +121,7 @@ export function buildSummary(
 
   if (keptSets.length > 0) {
     notes.push(
-      `Left the ${joinNames(keptSets)} skills in place. You did not pick them this time, but init never removes anything.`,
+      `Left the ${joinNames(keptSets)} skills in place. You did not pick them this time, but setup never removes anything.`,
     );
   }
 

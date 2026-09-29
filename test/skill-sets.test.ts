@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readdir } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { CORE_SKILLS, SET_SKILLS, skillFolders } from '../src/init/skill-sets.js';
+import { CORE_SKILLS, SET_SKILLS, skillFolders } from '../src/setup/skill-sets.js';
 import { readSkill } from './helpers/skill-contract.js';
 
 const skillsDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', 'templates', '.agents', 'skills');

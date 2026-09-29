@@ -1,4 +1,4 @@
-import { readConfig } from '../init/config.js';
+import { readConfig } from '../setup/config.js';
 import type { Finding } from './report.js';
 
 const GLOB_CHARS = /[*?[\]{}]/;

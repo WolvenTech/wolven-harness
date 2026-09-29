@@ -5,7 +5,7 @@ description: Guide a repo through initial harness setup — fold the entry file 
 
 # Harness Init
 
-One guided session that takes a repo from a fresh `wolven-harness init` (or a
+One guided session that takes a repo from a fresh `wolven-harness setup` (or a
 bare `.agents/skills/` tree) to a working setup: the entry file folded into
 `AGENTS.md`, any legacy ADRs migrated into `docs/adrs/`, the repo understood,
 a short list of suggested skills stubbed out, and a session note recording
@@ -81,7 +81,7 @@ A re-run does not redo what an earlier run already finished:
 - Step 0 is skipped when `WOLVEN.md` is already gone, or `AGENTS.md`
   already mentions it.
 - An `AGENTS.md` that already holds the harness section was integrated by
-  an earlier run, even when `init` has since brought `WOLVEN.md` back:
+  an earlier run, even when `setup` has since brought `WOLVEN.md` back:
   never fold it a second time; show the diff, ask whether to refresh the
   section, then delete `WOLVEN.md`.
 - Step 1 is skipped when there are no legacy-ADR warnings left.

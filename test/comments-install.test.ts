@@ -5,8 +5,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { makeRepo, run } from './helpers/fixture.js';
 import { makeIo } from './helpers/io.js';
-import { renderWolven } from '../src/init/render-wolven.js';
-import type { Context } from '../src/init/types.js';
+import { renderWolven } from '../src/setup/render-wolven.js';
+import type { Context } from '../src/setup/types.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, '..');
@@ -19,10 +19,10 @@ async function freshFixture(): Promise<string> {
   );
 }
 
-test('comments-install: init adds exactly harness:validate and harness:comments, and a re-run adds nothing', async () => {
+test('comments-install: setup adds exactly harness:validate and harness:comments, and a re-run adds nothing', async () => {
   const dir = await freshFixture();
 
-  const first = await run(['init', '--git-host', 'gh', '--runtimes', 'claude'], { cwd: dir });
+  const first = await run(['setup', '--git-host', 'gh', '--runtimes', 'claude'], { cwd: dir });
   assert.equal(first.code, 0, first.stderr);
 
   const pkg = JSON.parse(await readFile(path.join(dir, 'package.json'), 'utf8'));
@@ -32,7 +32,7 @@ test('comments-install: init adds exactly harness:validate and harness:comments,
 
   const afterFirst = await readFile(path.join(dir, 'package.json'), 'utf8');
 
-  const second = await run(['init', '--git-host', 'gh', '--runtimes', 'claude'], { cwd: dir });
+  const second = await run(['setup', '--git-host', 'gh', '--runtimes', 'claude'], { cwd: dir });
   assert.equal(second.code, 0, second.stderr);
   assert.doesNotMatch(second.stdout, /✔ package\.json scripts/);
   assert.match(second.stdout, /kept your existing package\.json scripts: harness:validate, harness:comments, left untouched/);
@@ -44,7 +44,7 @@ test('comments-install: init adds exactly harness:validate and harness:comments,
 test('comments-install: rule file is created with the style hints and names the command', async () => {
   const dir = await freshFixture();
 
-  const result = await run(['init', '--git-host', 'gh', '--runtimes', 'claude'], { cwd: dir });
+  const result = await run(['setup', '--git-host', 'gh', '--runtimes', 'claude'], { cwd: dir });
   assert.equal(result.code, 0, result.stderr);
 
   const rule = await readFile(path.join(dir, '.agents/rules/comments.md'), 'utf8');
@@ -72,7 +72,7 @@ test('comments-install: WOLVEN.md cites .agents/rules/comments.md under Standing
 test('comments-install: validate (spine included) passes on the fixture', async () => {
   const dir = await freshFixture();
 
-  const initResult = await run(['init', '--git-host', 'gh', '--runtimes', 'claude'], { cwd: dir });
+  const initResult = await run(['setup', '--git-host', 'gh', '--runtimes', 'claude'], { cwd: dir });
   assert.equal(initResult.code, 0, initResult.stderr);
 
   const validateResult = await run(['validate'], { cwd: dir });

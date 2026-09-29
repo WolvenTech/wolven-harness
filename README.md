@@ -7,7 +7,7 @@
 [![node](https://img.shields.io/badge/node-%3E%3D22-brightgreen.svg)](https://nodejs.org)
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 
-`wolven-harness` is a TypeScript CLI for Node 22 or later. The binary is `wolven-harness`. `init` seeds an `AGENTS.md`-based `.agents/` tree (sixteen skills, including `harness-init`) and wires runtimes. `validate` keeps `ADR-NNN` claims fail-closed against `docs/adrs/`. `comments` judges comment lines a change adds. v0 is macOS and Linux only, because Claude wiring uses a directory symlink. The repository is `wolven-harness`. The package is `@wolven-tech/harness`.
+`wolven-harness` is a TypeScript CLI for Node 22 or later. The binary is `wolven-harness`. `setup` seeds an `AGENTS.md`-based `.agents/` tree (sixteen skills, including `harness-init`) and wires runtimes. `validate` keeps `ADR-NNN` claims fail-closed against `docs/adrs/`. `comments` judges comment lines a change adds. v0 is macOS and Linux only, because Claude wiring uses a directory symlink. The repository is `wolven-harness`. The package is `@wolven-tech/harness`.
 
 Docs: [wolventech.github.io/wolven-harness](https://wolventech.github.io/wolven-harness/).
 
@@ -17,20 +17,20 @@ The package is public on npmjs.org as `@wolven-tech/harness`. Install is two com
 
 ```sh
 pnpm add -D @wolven-tech/harness
-pnpm exec wolven-harness init
+pnpm exec wolven-harness setup
 ```
 
-Run both at the git top level of the repo you are setting up. `init` fails anywhere else. You need Node 22 or later, git, and macOS or Linux.
+Run both at the git top level of the repo you are setting up. `setup` fails anywhere else. You need Node 22 or later, git, and macOS or Linux.
 
-## Init
+## Setup
 
-`init` asks a few questions, then adds only what is missing. It never edits `AGENTS.md`, and it never commits.
+`setup` asks a few questions, then adds only what is missing. It never edits `AGENTS.md`, and it never commits.
 
 When stdout is not a TTY, pass `--git-host` and `--runtimes`. Add a skill set later with `--skills` (for example `--skills ship,discovery`). Re-runs never remove one.
 
 ## What to do next
 
-After `init` and `harness-init`:
+After `setup` and `harness-init`:
 
 1. `code-spec`: freeze the ask into obligation-and-proof pairs.
 2. `code-plan`: turn the spec into ordered execute units.
@@ -42,7 +42,7 @@ Commit, PR, review, and CI are later, separate asks. `code-pr`, `code-review`, `
 
 ## Skills
 
-`init` seeds sixteen skills under `.agents/skills/`. Ask-only rows are never started by a model, and none of them merges. The same table, plus the standing rules, is on the [skills page](https://wolventech.github.io/wolven-harness/skills).
+`setup` seeds sixteen skills under `.agents/skills/`. Ask-only rows are never started by a model, and none of them merges. The same table, plus the standing rules, is on the [skills page](https://wolventech.github.io/wolven-harness/skills).
 
 | Skill | Description |
 | --- | --- |

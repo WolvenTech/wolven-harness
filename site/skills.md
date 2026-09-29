@@ -1,5 +1,5 @@
 ---
-description: The sixteen skills init seeds, and the three standing rules.
+description: The sixteen skills setup seeds, and the three standing rules.
 ---
 
 # Skills

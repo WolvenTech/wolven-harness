@@ -17,7 +17,7 @@ export function clackPrompter(io: Io): Prompter {
   };
 }
 
-/** Everything `runInit` says to the person; one implementation is styled, one is plain text. */
+/** Everything `runSetup` says to the person; one implementation is styled, one is plain text. */
 export interface Ui {
   intro(title: string, lines: string[]): void;
   /** Runs `fn` under a progress indicator labelled `label`, then marks it done as `doneLabel`. */
@@ -35,7 +35,7 @@ function numbered(steps: string[]): string[] {
 }
 
 function formatError(message: string, hint?: string): string {
-  return `wolven-harness init: ${message}\n${hint === undefined ? '' : `  Hint: ${hint}\n`}`;
+  return `wolven-harness setup: ${message}\n${hint === undefined ? '' : `  Hint: ${hint}\n`}`;
 }
 
 /**
@@ -59,7 +59,7 @@ export function plainUi(io: Io): Ui {
       out('kept (already existed, left untouched):');
       for (const file of kept) out(`  ${file}`);
     },
-    warn: (message) => void io.stderr.write(`wolven-harness init: note: ${message}\n`),
+    warn: (message) => void io.stderr.write(`wolven-harness setup: note: ${message}\n`),
     nextSteps(steps) {
       out('\nNext steps:');
       for (const line of numbered(steps)) out(`  ${line}`);

@@ -290,7 +290,7 @@ test('harness-ignored: no ignore rules over harness paths raise nothing', async 
 test('step0-pending: fresh init warns, and AGENTS.md mentioning WOLVEN.md clears it', async () => {
   const dir = await makeRepo({}, { git: true });
 
-  const initResult = await run(['init', '--git-host', 'gh', '--runtimes', 'codex'], { cwd: dir });
+  const initResult = await run(['setup', '--git-host', 'gh', '--runtimes', 'codex'], { cwd: dir });
   assert.equal(initResult.code, 0);
 
   const first = await run(['validate'], { cwd: dir });
