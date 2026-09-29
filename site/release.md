@@ -8,6 +8,8 @@ Maintainer notes. PR titles are Conventional Commits. CI runs build, test, valid
 
 release-please watches `main` and keeps a release PR open. A push to `main` does not create the GitHub Release and does not publish.
 
+**Stability.** From 0.3.0 the public contract is stable: commands, flags, exit codes, finding codes, and the `.wolven-harness.json` schema. Breaking changes follow the policy in the [Contract](./contract) page and [ADR-003](https://github.com/WolvenTech/wolven-harness/blob/main/docs/adrs/adr-003-public-contract.md).
+
 Before 1.0, `feat` or a breaking change bumps minor, and `fix` bumps patch.
 
 Close and reopen the release PR before merging it: `GITHUB_TOKEN` starts no workflows, so checks run only after the reopen.

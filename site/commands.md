@@ -4,7 +4,7 @@ description: Reference for setup, validate, and comments — flags and failure m
 
 # Commands
 
-`wolven-harness --help` (or `-h`) prints the command list. Run `setup` at the git top level; `validate` and `comments` work from anywhere inside the repo. `setup` is the only one that writes. With a local install, prefix each command below with `pnpm exec`.
+`wolven-harness --help` (or `-h`) prints the command list. `wolven-harness --version` (or `-v`) prints the package name and version. Flags, exit codes, and finding codes are stable; see the [Contract](./contract). Run `setup` at the git top level; `validate` and `comments` work from anywhere inside the repo. `setup` is the only one that writes. With a local install, prefix each command below with `pnpm exec`.
 
 ## `wolven-harness setup`
 

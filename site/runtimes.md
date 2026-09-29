@@ -10,7 +10,7 @@ description: How to wire Claude Code, Codex, and Cursor.
 | Codex | `.agents/skills/` |
 | Cursor | `.agents/skills/` |
 
-Choose agents with `setup` as `--runtimes claude,codex,cursor`, or answer the question when `setup` asks. v0 is macOS and Linux only.
+Choose agents with `setup` as `--runtimes claude,codex,cursor`, or answer the question when `setup` asks. Only macOS and Linux are supported.
 
 ## Claude Code
 

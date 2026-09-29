@@ -39,6 +39,8 @@ export default defineConfig({
           { text: 'Skills', link: '/skills' },
           { text: 'Agents', link: '/runtimes' },
           { text: 'Commands', link: '/commands' },
+          { text: 'Upgrade', link: '/upgrade' },
+          { text: 'Contract', link: '/contract' },
         ],
       },
       {
