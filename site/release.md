@@ -12,7 +12,7 @@ Maintainer notes for getting a change from a merged PR to a published version of
 2. **release-please keeps a release PR open.** On every push to `main`, it updates that PR with the next version and the changelog.
 3. **A maintainer merges the release PR**, then **runs the `release` workflow by hand**. That run creates the tag and the GitHub Release, and publishes to npm.
 
-**Stability.** From 0.3.0 the public contract is stable: commands, flags, exit codes, finding codes, and the `.wolven-harness.json` schema. Breaking changes follow the policy in the [Contract](./contract) page and [ADR-003](https://github.com/WolvenTech/wolven-harness/blob/main/docs/adrs/adr-003-public-contract.md).
+**Stability.** From 0.3.0 the public contract is stable: commands, flags, exit codes, finding codes, and the `.wolven-harness.json` schema. Breaking changes follow the policy in [ADR-003](https://github.com/WolvenTech/wolven-harness/blob/main/docs/adrs/adr-003-public-contract.md).
 
 ::: warning Nothing publishes on its own
 A push to `main` does not create the GitHub Release and does not publish. Merging the release PR doesn't either. Only the manual `release` run creates the tag and the GitHub Release, and publishes.
