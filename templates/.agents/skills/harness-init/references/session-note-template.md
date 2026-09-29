@@ -59,6 +59,10 @@ status: <status>
 
 <the stubs written for the Human's picks>
 
+## Harness score
+
+<the level and score before and after, each dimension question with the Human's answer, and every check dropped in `.harness-score.json` with its reason>
+
 ## Validate wiring
 
 <the wiring question as asked, the option recommended and why, the Human's answer (CI job, chained script, or local only), and what was written — or "nothing written">

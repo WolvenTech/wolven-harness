@@ -5,6 +5,7 @@ import { applyTemplates } from './apply.js';
 import { wireRuntimes } from './runtimes.js';
 import { addValidateScript } from './package-script.js';
 import { devDependencyWarning, resolveOwnPackage } from './own-package.js';
+import { harnessScoreWarning } from './harness-score.js';
 import { buildSummary, joinNames, runtimeName } from './summary.js';
 import { createUi } from './ui.js';
 import { skillFolders } from './skill-sets.js';
@@ -33,10 +34,11 @@ async function traced<T>(io: Io, debug: boolean, name: string, fn: () => Promise
 function nextSteps(runtimes: Runtime[], hasScripts: boolean): string[] {
   const names = joinNames(runtimes.map(runtimeName));
   const validate = hasScripts ? 'pnpm harness:validate' : 'pnpm exec wolven-harness validate';
+  const score = hasScripts ? 'pnpm harness:score' : 'pnpm dlx harness-score';
   return [
     'Review and commit the new files (git status shows them all).',
-    `Open a fresh ${names} session in this repo and run the "harness-init" skill. It integrates WOLVEN.md into AGENTS.md, migrates any legacy ADRs, and asks before anything ambiguous.`,
-    `Run \`${validate}\` any time to check the repo.`,
+    `Open a fresh ${names} session in this repo and run the "harness-init" skill. It integrates WOLVEN.md into AGENTS.md, migrates any legacy ADRs, scores the harness, and asks before anything ambiguous.`,
+    `Run \`${validate}\` any time to check the repo, and \`${score}\` to see how mature its harness is.`,
   ];
 }
 
@@ -60,7 +62,7 @@ export async function runSetup(argv: string[], io: Io): Promise<number> {
   const { name, version } = await resolveOwnPackage();
   ui.intro(`${name} ${version}`, [
     "I'll set up the .agents/ source tree (skills and rules), the docs/ folders and WOLVEN.md,",
-    'wire your agent runtimes, and add harness:validate and harness:comments scripts.',
+    'wire your agent runtimes, and add harness:validate, harness:comments and harness:score scripts.',
     'Nothing is committed, and existing files are never overwritten.',
   ]);
 
@@ -78,6 +80,7 @@ export async function runSetup(argv: string[], io: Io): Promise<number> {
       traced(io, debug, 'addValidateScript', () => addValidateScript(ctx)),
     );
     const warning = await traced(io, debug, 'devDependencyWarning', () => devDependencyWarning(ctx));
+    const scoreWarning = await traced(io, debug, 'harnessScoreWarning', () => harnessScoreWarning(ctx));
 
     ui.summary(buildSummary(applyResult, runtimeResult, scriptResult, opts.runtimes, opts.keptSets));
     if (verbose) {
@@ -88,6 +91,7 @@ export async function runSetup(argv: string[], io: Io): Promise<number> {
       );
     }
     if (warning !== undefined) ui.warn(warning);
+    if (scoreWarning !== undefined) ui.warn(scoreWarning);
     const hasScripts = scriptResult.created.length + scriptResult.skipped.length > 0;
     ui.nextSteps(nextSteps(opts.runtimes, hasScripts));
   } catch (err) {

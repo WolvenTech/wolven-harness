@@ -12,7 +12,9 @@ Runs at the git top level and fails anywhere else. Asks for the git host (`gh` o
 
 Creates missing harness files and runtime links, preserving existing copies. Lists what it created and skipped. It never creates or edits your `AGENTS.md`, and it never commits.
 
-It also adds missing `harness:validate` and `harness:comments` scripts to an existing `package.json`, and saves setup choices and refreshes `packageVersion` in `.wolven-harness.json` on each run. It warns when the package is missing from `devDependencies`.
+It also adds missing `harness:validate`, `harness:comments` and `harness:score` scripts to an existing `package.json`, and saves setup choices and refreshes `packageVersion` in `.wolven-harness.json` on each run. It warns, with the install command, when the package or `harness-score` is missing from `devDependencies`.
+
+`harness:score` runs [harness-score](https://github.com/paladini/harness-score), which rates the repo's agent harness from L0 to L4. `setup` writes a starter `.harness-score.json`, where the repo drops the checks it chooses not to build. The `harness-init` skill walks through them.
 
 Add a skill set later with `--skills` (for example `--skills ship,discovery`). Re-runs never remove one.
 
@@ -36,5 +38,6 @@ When the script names are absent, `setup` adds:
 | --- | --- |
 | `pnpm harness:validate` | `wolven-harness validate` |
 | `pnpm harness:comments` | `wolven-harness comments` |
+| `pnpm harness:score` | `harness-score` |
 
 Existing scripts with those names are left unchanged, so check their definitions before assuming they are aliases. Without a `package.json`, no scripts are added; use `pnpm exec wolven-harness validate` or `pnpm exec wolven-harness comments` when the package is installed locally.

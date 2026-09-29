@@ -10,7 +10,7 @@ const STEPS = [
   '3. Research',
   '4. Suggest',
   '5. Write stubs',
-  '6. Session note and hand-back',
+  '6. Score, session note and hand-back',
 ];
 
 const REFERENCES = [
@@ -20,6 +20,7 @@ const REFERENCES = [
   'references/stub-template.md',
   'references/session-note-template.md',
   'references/validate-wiring.md',
+  'references/harness-score.md',
 ];
 
 const CONSUMER_NAME_RE = /agentic-mkt|compozy/i;
@@ -193,4 +194,24 @@ test('skill-harness-init: step 0 puts the entry mode to the Human as a question 
   const note = flatten(await skill.read('references/session-note-template.md'));
   assert.match(note, /the mode question as asked, the mode recommended and why, and the Human's answer/);
   assert.match(note, /the wiring question as asked, the option recommended and why, the Human's answer/);
+});
+
+test('skill-harness-init: step 6 scores the harness, asks per dimension, and never drops a check without a yes', async () => {
+  const skill = await readSkill('harness-init');
+  const step = flatten(skill.body.split(/^### 6\. /m)[1]?.split(/^## /m)[0] ?? '');
+
+  assert.match(step, /run `harness:score`/i);
+  assert.match(step, /For each dimension with a failing check, ask one question/);
+  assert.match(step, /never drop one without the Human's yes/);
+  assert.ok(step.indexOf('harness:score') < step.indexOf('harness:validate'), 'scoring comes before the wiring question');
+
+  const ref = flatten(await skill.read('references/harness-score.md'));
+  assert.match(ref, /`HYG-03`, `HYG-04` and `HYG-06` detect leaked credentials and can never be dropped/);
+  assert.match(ref, /add `"no-hooks"` to `extends`/);
+  assert.match(ref, /Never build a failing check inside this run/);
+  assert.match(ref, /Nothing is written without a yes/);
+
+  const note = flatten(await skill.read('references/session-note-template.md'));
+  assert.ok(note.indexOf('## Stubs') < note.indexOf('## Harness score'), 'Harness score follows Stubs');
+  assert.ok(note.indexOf('## Harness score') < note.indexOf('## Validate wiring'), 'Harness score precedes Validate wiring');
 });

@@ -7,6 +7,7 @@ type ScriptEntry = { key: string; value: string };
 const HARNESS_SCRIPTS: readonly ScriptEntry[] = [
   { key: 'harness:validate', value: 'wolven-harness validate' },
   { key: 'harness:comments', value: 'wolven-harness comments' },
+  { key: 'harness:score', value: 'harness-score' },
 ];
 
 function reportId(key: string): string {

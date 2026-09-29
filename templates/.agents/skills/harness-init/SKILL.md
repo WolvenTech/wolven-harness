@@ -1,6 +1,6 @@
 ---
 name: harness-init
-description: Guide a repo through initial harness setup — fold the entry file into AGENTS.md, offer legacy ADR migration, discover the repo, research its decided tools, suggest skills, write stubs, and close with a session note
+description: Guide a repo through initial harness setup — fold the entry file into AGENTS.md, offer legacy ADR migration, discover the repo, research its decided tools, suggest skills, write stubs, score the harness, and close with a session note
 ---
 
 # Harness Init
@@ -8,8 +8,8 @@ description: Guide a repo through initial harness setup — fold the entry file 
 One guided session that takes a repo from a fresh `wolven-harness setup` (or a
 bare `.agents/skills/` tree) to a working setup: the entry file folded into
 `AGENTS.md`, any legacy ADRs migrated into `docs/adrs/`, the repo understood,
-a short list of suggested skills stubbed out, and a session note recording
-what happened. The Human steers every write.
+a short list of suggested skills stubbed out, the harness scored, and a
+session note recording what happened. The Human steers every write.
 
 **Consult:** `adr`, `research`, `code-commit` (when installed), `qmd`, `grilling`.
 
@@ -151,9 +151,16 @@ Render each skill the Human picked as an ask-only stub — a `SKILL.md` plus
 for the Human's instructions. Never overwrite an existing skill folder. See
 [references/stub-template.md](references/stub-template.md).
 
-### 6. Session note and hand-back
+### 6. Score, session note and hand-back
 
-First put one question to the Human: how should `harness:validate` be wired —
+First run `harness:score` and record the level and score. For each dimension
+with a failing check, ask one question: keep its checks as gaps to build
+later, or drop them in `.harness-score.json`. Never build a check in this run,
+and never drop one without the Human's yes. Score again and record the level,
+the score and every drop. See
+[references/harness-score.md](references/harness-score.md).
+
+Then put one question to the Human: how should `harness:validate` be wired —
 (a) as a CI job on pull requests, (b) chained into the repo's existing
 `validate` or `test` script, or (c) local only? Detect the CI config and the
 existing scripts first, frame the options with that evidence, and list the

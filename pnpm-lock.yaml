@@ -18,6 +18,9 @@ importers:
       '@types/node':
         specifier: ^22.10.2
         version: 22.20.4
+      harness-score:
+        specifier: 1.6.5
+        version: 1.6.5
       tsx:
         specifier: ^4.19.2
         version: 4.23.15
@@ -818,6 +821,11 @@ packages:
     resolution: {integrity: sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==}
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
     os: [darwin]
+
+  harness-score@1.6.5:
+    resolution: {integrity: sha512-CgFsjZhqLgrJXOGNYQB/fGZ4u84eEk3XV3If5vUklTV29k7jGkX0Y/oJoEbLxZkYc4fbPu1/dhD62TEA1zHldw==}
+    engines: {node: '>=18'}
+    hasBin: true
 
   hast-util-to-html@9.0.5:
     resolution: {integrity: sha512-OguPdidb+fbHQSU4Q4ZiLKnzWo8Wwsf5bZfbvu7//a9oTYoqD/fWpe96NuHkoS9h0ccGOTe0C4NGXdtS0iObOw==}
@@ -1717,6 +1725,8 @@ snapshots:
 
   fsevents@2.3.3:
     optional: true
+
+  harness-score@1.6.5: {}
 
   hast-util-to-html@9.0.5:
     dependencies:

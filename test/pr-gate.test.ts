@@ -31,12 +31,12 @@ function runsOf(job: Record<string, any>): string[] {
   return job.steps.filter((s: Record<string, any>) => s.run).map((s: Record<string, any>) => String(s.run));
 }
 
-test('pr-gate: the lint job builds, validates the harness, and checks comments on full history', async () => {
+test('pr-gate: the lint job builds, validates the harness, checks comments on full history, and scores the harness', async () => {
   const workflow = await readWorkflow();
   const job = workflow.jobs.lint;
 
   assert.ok(job, 'lint job present');
-  assert.deepEqual(runsOf(job), ['pnpm install --frozen-lockfile', 'pnpm build', 'pnpm validate', 'pnpm comments']);
+  assert.deepEqual(runsOf(job), ['pnpm install --frozen-lockfile', 'pnpm build', 'pnpm validate', 'pnpm comments', 'pnpm score']);
 
   const checkout = job.steps.find((s: Record<string, any>) => String(s.uses ?? '').startsWith('actions/checkout@'));
   assert.equal(checkout?.with?.['fetch-depth'], 0);
@@ -70,6 +70,7 @@ test('pr-gate: the package job runs after lint and test, packs with the release 
   assert.match(joined, /npm pack/);
   assert.match(joined, /wolven-harness setup/);
   assert.match(joined, /wolven-harness validate/);
+  assert.match(joined, /pnpm harness:score/);
 });
 
 test('pr-gate: every job pins pnpm to an exact version, sets node-version, and names every step', async () => {

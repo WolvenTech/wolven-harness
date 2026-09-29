@@ -47,6 +47,9 @@ jobs:
       - name: Check comments
         run: pnpm comments
 
+      - name: Score harness
+        run: pnpm score
+
   test:
     name: Test (Node ${{ matrix.node }})
     runs-on: ubuntu-latest
@@ -127,3 +130,6 @@ jobs:
           [[ "$version" == "@wolven-tech/harness "* ]]
           pnpm exec wolven-harness setup --git-host gh --runtimes claude,codex --skills ship < /dev/null
           pnpm exec wolven-harness validate
+          score_version="$(node -p "require('$GITHUB_WORKSPACE/package.json').devDependencies['harness-score']")"
+          pnpm add --save-dev --save-exact "harness-score@$score_version"
+          pnpm harness:score

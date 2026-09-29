@@ -66,13 +66,19 @@ function describeTree(paths: string[]): string[] {
   if (docFiles.length > 0) lines.push(docFiles.join(', '));
 
   if (paths.includes('WOLVEN.md')) lines.push('WOLVEN.md');
+  if (paths.includes('.harness-score.json')) lines.push('.harness-score.json (harness-score config)');
   const qmd: string[] = [];
   if (paths.includes('.qmd/index.yml')) qmd.push('.qmd/index.yml (search index config)');
   if (paths.includes('.qmd/.gitignore')) qmd.push('.qmd/.gitignore (keeps the local index out of git)');
   if (qmd.length > 0) lines.push(joinNames(qmd));
 
   const rest = paths.filter(
-    (p) => !p.startsWith('.agents/') && !p.startsWith('docs/') && !p.startsWith('.qmd/') && p !== 'WOLVEN.md',
+    (p) =>
+      !p.startsWith('.agents/') &&
+      !p.startsWith('docs/') &&
+      !p.startsWith('.qmd/') &&
+      p !== 'WOLVEN.md' &&
+      p !== '.harness-score.json',
   );
   if (rest.length > 0) lines.push(rest.join(', '));
 

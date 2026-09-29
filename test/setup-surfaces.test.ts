@@ -58,6 +58,7 @@ test('setup-surfaces: creates exactly the expected paths', async () => {
     '.qmd/index.yml',
     '.qmd/.gitignore',
     '.wolven-harness.json',
+    '.harness-score.json',
   ];
 
   const expected = [...nonSkillFiles, ...(await templateSkillFiles())].sort();

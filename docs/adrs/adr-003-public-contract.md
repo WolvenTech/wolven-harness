@@ -60,9 +60,11 @@ Flags. Each value flag takes `--flag value` or `--flag=value`.
   - It creates only missing paths and never overwrites or edits an existing
     file.
   - It never creates or edits `AGENTS.md`.
-  - It adds `harness:validate` and `harness:comments` to an existing
-    `package.json` only when the script key is absent, and keeps every other
-    key. With no `package.json` it does nothing there.
+  - It adds `harness:validate`, `harness:comments` and `harness:score` to
+    an existing `package.json` only when the script key is absent, and keeps
+    every other key. With no `package.json` it does nothing there.
+  - It never adds or edits a dependency. When `harness-score` is missing
+    from `package.json`, it prints the install command instead.
   - It never commits.
   - It rewrites `.wolven-harness.json` on every run.
 
