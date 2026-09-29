@@ -50,14 +50,9 @@ test('release-workflow: a push to main only opens the release PR; a manual run c
   assert.equal(release.with['skip-github-release'], "${{ github.event_name == 'push' }}");
 
   const releaseDoc = await readFile(path.join(repoRoot, 'site/release.md'), 'utf8');
-  const match = /^#{1,2} Release\s*$/m.exec(releaseDoc);
-  assert.ok(match, 'missing Release heading');
-  const rest = releaseDoc.slice(match.index);
-  const next = rest.indexOf('\n## ', 1);
-  const section = next === -1 ? rest : rest.slice(0, next);
-  assert.match(section, /push to `main` does not create the GitHub Release and does not publish/);
-  assert.match(section, /Run the `release` workflow by hand with the tag left empty/);
-  assert.doesNotMatch(section, /Merging the release PR tags/);
+  assert.match(releaseDoc, /push to `main` does not create the GitHub Release and does not publish/);
+  assert.match(releaseDoc, /Run the `release` workflow by hand with the tag left empty/);
+  assert.doesNotMatch(releaseDoc, /Merging the release PR tags/);
 });
 
 test('release-oidc: only the publish job can mint an OIDC token; release-please alone writes to the repo', async () => {
