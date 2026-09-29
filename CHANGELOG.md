@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.3.0](https://github.com/WolvenTech/wolven-harness/compare/v0.2.0...v0.3.0) (2026-09-29)
+
+
+### ⚠ BREAKING CHANGES
+
+* **cli:** rename the scaffold command to setup ([#15](https://github.com/WolvenTech/wolven-harness/issues/15))
+
+### Features
+
+* **cli:** freeze the public contract, add --version and harness:score ([#18](https://github.com/WolvenTech/wolven-harness/issues/18)) ([fc98bba](https://github.com/WolvenTech/wolven-harness/commit/fc98bba2fbff79e3dd5cb07df071af1dcd6f4fa8))
+* **cli:** rename the scaffold command to setup ([#15](https://github.com/WolvenTech/wolven-harness/issues/15)) ([60df456](https://github.com/WolvenTech/wolven-harness/commit/60df4569a0846c09f654f71448b9337892218ee9))
+
+
+### Bug Fixes
+
+* **init:** guided setup, skill sets and harness-init fixes from the first brownfield run ([#16](https://github.com/WolvenTech/wolven-harness/issues/16)) ([cd7a19c](https://github.com/WolvenTech/wolven-harness/commit/cd7a19c512b2939895c8c46189a783f5a2ee165f))
+
 ## [0.2.0](https://github.com/WolvenTech/wolven-harness/compare/v0.1.1...v0.2.0) (2026-09-28)
 
 
