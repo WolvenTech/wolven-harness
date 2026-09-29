@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0](https://github.com/WolvenTech/wolven-harness/compare/v0.3.0...v0.4.0) (2026-09-29)
+
+
+### Features
+
+* **validate:** catch superseded ADRs kept stable in migration ([#20](https://github.com/WolvenTech/wolven-harness/issues/20)) ([9c993fd](https://github.com/WolvenTech/wolven-harness/commit/9c993fd234caf181642c347e2d9ffe1ba9c9824c))
+
 ## [0.3.0](https://github.com/WolvenTech/wolven-harness/compare/v0.2.0...v0.3.0) (2026-09-29)
 
 
