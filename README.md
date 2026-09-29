@@ -23,7 +23,7 @@ Run at the git top level. You need Node 22 or later, git, pnpm, and macOS or Lin
 
 `setup` creates only paths that are missing. It never creates or edits `AGENTS.md`, and it never commits. It also:
 
-- adds missing `harness:validate` and `harness:comments` scripts to an existing `package.json`;
+- adds missing `harness:validate`, `harness:comments` and `harness:score` scripts to an existing `package.json`, and writes a starter `.harness-score.json`;
 - rewrites `.wolven-harness.json` on every run, with your setup choices and `packageVersion`.
 
 To be asked questions, stdin and stdout must both be a TTY. Otherwise pass `--git-host gh|bit` and `--runtimes` (a comma list of `claude`, `codex`, `cursor`), unless `.wolven-harness.json` already records them.

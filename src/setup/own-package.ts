@@ -29,6 +29,21 @@ export function resolveOwnPackage(): Promise<OwnPackage> {
   return ownPackage;
 }
 
+/** A consumer `package.json`, parsed; only the object-valued fields setup reads are typed. */
+export type PackageJson = Record<string, Record<string, unknown> | undefined>;
+
+/** Reads and parses `<root>/package.json`; a missing file gives `undefined`. */
+export async function readPackageJson(root: string): Promise<PackageJson | undefined> {
+  let raw: string;
+  try {
+    raw = await readFile(path.join(root, 'package.json'), 'utf8');
+  } catch (err) {
+    if ((err as NodeJS.ErrnoException).code === 'ENOENT') return undefined;
+    throw err;
+  }
+  return JSON.parse(raw) as PackageJson;
+}
+
 /**
  * Returns a kind, one-line warning (with the exact fix command) when the
  * target root has a `package.json` and this package is not in its
@@ -38,19 +53,11 @@ export function resolveOwnPackage(): Promise<OwnPackage> {
  * `undefined`.
  */
 export async function devDependencyWarning(ctx: Context): Promise<string | undefined> {
-  const pkgPath = path.join(ctx.root, 'package.json');
+  const pkg = await readPackageJson(ctx.root);
+  if (pkg === undefined) return undefined;
 
-  let raw: string;
-  try {
-    raw = await readFile(pkgPath, 'utf8');
-  } catch (err) {
-    if ((err as NodeJS.ErrnoException).code === 'ENOENT') return undefined;
-    throw err;
-  }
-
-  const pkg = JSON.parse(raw) as Record<string, Record<string, unknown> | undefined>;
   const { name } = await resolveOwnPackage();
-  const has = (field: string): boolean => Object.prototype.hasOwnProperty.call(pkg[field] ?? {}, name);
+  const has = (field: string): boolean => Object.hasOwn(pkg[field] ?? {}, name);
 
   if (has('devDependencies')) return undefined;
 

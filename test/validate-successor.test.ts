@@ -1,7 +1,7 @@
+import assert from 'node:assert/strict';
 import { writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { test } from 'node:test';
-import assert from 'node:assert/strict';
 import { makeRepo, run } from './helpers/fixture.js';
 
 test('superseded-resolves: missing successor — one profile-superseded-by error naming the value, exit 1', async () => {
@@ -135,9 +135,17 @@ test('superseded-resolves: an untracked successor is named with the git add to r
   );
   await writeFile(
     path.join(dir, 'docs/adrs/adr-002-new-decision.md'),
-    ['---', 'type: adr', 'title: New decision', 'description: not staged yet', 'status: stable', '---', '', '# New decision', ''].join(
-      '\n',
-    ),
+    [
+      '---',
+      'type: adr',
+      'title: New decision',
+      'description: not staged yet',
+      'status: stable',
+      '---',
+      '',
+      '# New decision',
+      '',
+    ].join('\n'),
     'utf8',
   );
 

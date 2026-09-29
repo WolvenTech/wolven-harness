@@ -1,9 +1,9 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import type { SkillSet } from './skill-sets.js';
+import { isSkillSet } from './skill-sets.js';
 import type { GitHost, Runtime } from './types.js';
 import { SetupError } from './types.js';
-import { isSkillSet } from './skill-sets.js';
-import type { SkillSet } from './skill-sets.js';
 
 /**
  * Shape of `.wolven-harness.json`. `version` is the config schema version
@@ -86,9 +86,7 @@ export async function readConfig(root: string): Promise<Config | undefined> {
     throw new SetupError(`${CONFIG_FILENAME} "gitHost" must be "gh" or "bit"`);
   }
   if (!isRuntimeArray(obj.runtimes)) {
-    throw new SetupError(
-      `${CONFIG_FILENAME} "runtimes" must be a non-empty array of "claude", "codex", "cursor"`,
-    );
+    throw new SetupError(`${CONFIG_FILENAME} "runtimes" must be a non-empty array of "claude", "codex", "cursor"`);
   }
 
   const config: Config = {

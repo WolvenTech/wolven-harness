@@ -1,8 +1,8 @@
+import assert from 'node:assert/strict';
 import { readdir } from 'node:fs/promises';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { test } from 'node:test';
-import assert from 'node:assert/strict';
+import { fileURLToPath } from 'node:url';
 import { parse as parseYaml } from 'yaml';
 import { readSkill } from './helpers/skill-contract.js';
 
@@ -51,10 +51,7 @@ for (const name of EXPECTED_SKILLS) {
         `${name}: SKILL.md frontmatter must set disable-model-invocation: true`,
       );
 
-      assert.ok(
-        skill.files.includes('agents/openai.yaml'),
-        `${name}: expected agents/openai.yaml`,
-      );
+      assert.ok(skill.files.includes('agents/openai.yaml'), `${name}: expected agents/openai.yaml`);
 
       const raw = await skill.read('agents/openai.yaml');
       const parsed = parseYaml(raw) as { policy?: { allow_implicit_invocation?: boolean } };
@@ -70,15 +67,12 @@ for (const name of EXPECTED_SKILLS) {
       const skill = await readSkill(name);
 
       assert.equal(
-        Object.prototype.hasOwnProperty.call(skill.frontmatter, 'disable-model-invocation'),
+        Object.hasOwn(skill.frontmatter, 'disable-model-invocation'),
         false,
         `${name}: SKILL.md frontmatter must not set disable-model-invocation`,
       );
 
-      assert.ok(
-        !skill.files.includes('agents/openai.yaml'),
-        `${name}: must not ship agents/openai.yaml`,
-      );
+      assert.ok(!skill.files.includes('agents/openai.yaml'), `${name}: must not ship agents/openai.yaml`);
     });
   }
 }

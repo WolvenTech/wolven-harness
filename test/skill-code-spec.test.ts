@@ -1,7 +1,7 @@
-import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { test } from 'node:test';
 import { run } from './helpers/fixture.js';
-import { readSkill, assertSkillBasics, renderInto } from './helpers/skill-contract.js';
+import { assertSkillBasics, readSkill, renderInto } from './helpers/skill-contract.js';
 
 const NINE_DIMENSIONS = [
   'validation',
@@ -56,7 +56,11 @@ test('skill-code-spec: names all nine dimensions in the template', async () => {
 
   assert.match(template, /## Nine-dimension landings/);
   for (const dimension of NINE_DIMENSIONS) {
-    assert.match(template, new RegExp(`\\|\\s*${dimension}\\s*\\|`, 'i'), `template must land the "${dimension}" dimension`);
+    assert.match(
+      template,
+      new RegExp(`\\|\\s*${dimension}\\s*\\|`, 'i'),
+      `template must land the "${dimension}" dimension`,
+    );
   }
 });
 

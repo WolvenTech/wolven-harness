@@ -1,13 +1,13 @@
-import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
 import { readdir, readFile } from 'node:fs/promises';
-import { promisify } from 'node:util';
 import path from 'node:path';
-import { makeRepo, run } from './helpers/fixture.js';
-import { walkFiles } from './helpers/walk.js';
+import { test } from 'node:test';
+import { promisify } from 'node:util';
 import { detectGitHost, detectRuntimes } from '../src/setup/options.js';
 import type { Prompter } from '../src/setup/types.js';
+import { makeRepo, run } from './helpers/fixture.js';
+import { walkFiles } from './helpers/walk.js';
 
 const execFileAsync = promisify(execFile);
 const ANSI = /\u001b\[/;
@@ -71,10 +71,10 @@ test('setup-ui: runtimes are detected from existing repo files', async () => {
   assert.deepEqual(await detectRuntimes(await makeRepo({ '.claude/settings.json': '{}' })), ['claude']);
   assert.deepEqual(await detectRuntimes(await makeRepo({ '.codex/config.toml': 'x' })), ['codex']);
   assert.deepEqual(await detectRuntimes(await makeRepo({ '.cursorrules': 'x' })), ['cursor']);
-  assert.deepEqual(
-    await detectRuntimes(await makeRepo({ '.cursor/rules/a.mdc': 'x', 'CLAUDE.md': 'x' })),
-    ['claude', 'cursor'],
-  );
+  assert.deepEqual(await detectRuntimes(await makeRepo({ '.cursor/rules/a.mdc': 'x', 'CLAUDE.md': 'x' })), [
+    'claude',
+    'cursor',
+  ]);
 });
 
 test('setup-ui: prompts are preselected from the origin remote and existing files, and answers are saved', async () => {
@@ -90,7 +90,10 @@ test('setup-ui: prompts are preselected from the origin remote and existing file
 
   assert.equal(result.code, 0, result.stderr);
   assert.equal(asked.selectInitial, 'bit');
-  assert.deepEqual(asked.selectHints.map((h) => h.split('|')[0]), ['GitHub', 'Bitbucket']);
+  assert.deepEqual(
+    asked.selectHints.map((h) => h.split('|')[0]),
+    ['GitHub', 'Bitbucket'],
+  );
   assert.ok(asked.selectHints.some((h) => h.startsWith('Bitbucket') && h.includes('(detected from origin)')));
   assert.ok(!asked.selectHints.some((h) => h.startsWith('GitHub') && h.includes('detected')));
   assert.deepEqual(asked.multiInitial, ['cursor']);
@@ -122,7 +125,7 @@ test('setup-ui: with no remote and no runtime files nothing is preselected', asy
 });
 
 test('setup-ui: a flag and saved config win over prompts, which are not shown', async () => {
-  const config = JSON.stringify({ version: 1, gitHost: 'bit', runtimes: ['codex'], skillSets: ['ship'] }) + '\n';
+  const config = `${JSON.stringify({ version: 1, gitHost: 'bit', runtimes: ['codex'], skillSets: ['ship'] })}\n`;
   const dir = await makeRepo({ '.wolven-harness.json': config }, { git: true });
   const boom: Prompter = {
     async select() {
@@ -218,14 +221,24 @@ test('setup-ui: summary counts come from what was really written', async () => {
 
   const result = await run(['setup', '--git-host', 'gh', '--runtimes', 'codex'], { cwd: dir });
 
-  const skills = (await readdir(path.join(dir, '.agents/skills'), { withFileTypes: true })).filter((e) => e.isDirectory());
+  const skills = (await readdir(path.join(dir, '.agents/skills'), { withFileTypes: true })).filter((e) =>
+    e.isDirectory(),
+  );
   const rules = (await readdir(path.join(dir, '.agents/rules'))).filter((f) => f.endsWith('.md'));
   assert.ok(skills.length > 1);
-  assert.match(result.stdout, new RegExp(`✔ ${skills.length} skills \\(core, ship\\) and ${rules.length} rules in \\.agents/`));
+  assert.match(
+    result.stdout,
+    new RegExp(`✔ ${skills.length} skills \\(core, ship\\) and ${rules.length} rules in \\.agents/`),
+  );
 
   const again = await run(['setup', '--git-host', 'gh', '--runtimes', 'codex'], { cwd: dir });
   assert.doesNotMatch(again.stdout, /✔ \d+ skills/);
-  assert.match(again.stdout, new RegExp(`kept your existing ${skills.length} skills \\(core, ship\\) and ${rules.length} rules in \\.agents/, left untouched`));
+  assert.match(
+    again.stdout,
+    new RegExp(
+      `kept your existing ${skills.length} skills \\(core, ship\\) and ${rules.length} rules in \\.agents/, left untouched`,
+    ),
+  );
   assert.doesNotMatch(again.stdout, /skipped/);
 });
 
@@ -274,9 +287,23 @@ test('setup-ui: an invalid flag value in a terminal opens its menu instead of fa
 
   assert.equal(result.code, 0);
   const messages = asked.messages ?? [];
-  assert.ok(messages.some((m) => /^Invalid value for --git-host: "gitlab"; pick from the list instead\.\nWhere is this repository hosted\?/.test(m)));
-  assert.ok(messages.some((m) => /^Invalid value for --runtimes: "vim"; pick from the list instead\.\nWhich agent runtimes/.test(m)));
-  assert.ok(messages.some((m) => /^Invalid value for --skills: "extras"; pick from the list instead\.\nWhich extra skill sets/.test(m)));
+  assert.ok(
+    messages.some((m) =>
+      /^Invalid value for --git-host: "gitlab"; pick from the list instead\.\nWhere is this repository hosted\?/.test(
+        m,
+      ),
+    ),
+  );
+  assert.ok(
+    messages.some((m) =>
+      /^Invalid value for --runtimes: "vim"; pick from the list instead\.\nWhich agent runtimes/.test(m),
+    ),
+  );
+  assert.ok(
+    messages.some((m) =>
+      /^Invalid value for --skills: "extras"; pick from the list instead\.\nWhich extra skill sets/.test(m),
+    ),
+  );
   const config = JSON.parse(await readFile(path.join(dir, '.wolven-harness.json'), 'utf8'));
   assert.equal(config.gitHost, 'gh');
   assert.deepEqual(config.runtimes, ['claude']);

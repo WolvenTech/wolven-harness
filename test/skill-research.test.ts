@@ -1,7 +1,7 @@
-import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { test } from 'node:test';
 import { run } from './helpers/fixture.js';
-import { readSkill, assertSkillBasics, renderInto } from './helpers/skill-contract.js';
+import { assertSkillBasics, readSkill, renderInto } from './helpers/skill-contract.js';
 
 const STEPS = ['1. Frame', '2. QMD first', '3. Primary sources', '4. Cited note', '5. Verify', '6. Finalize'];
 
@@ -96,7 +96,8 @@ test('skill-research: renderInto renders the note template into a fixture that p
 test('skill-research: a sources.md extra with no frontmatter beside the note still passes validate', async () => {
   const cwd = await renderInto(
     {
-      'docs/notes/widget-latency/sources.md': '# Saved excerpts\n\nRaw text pulled while researching, kept for reference.\n',
+      'docs/notes/widget-latency/sources.md':
+        '# Saved excerpts\n\nRaw text pulled while researching, kept for reference.\n',
     },
     '.agents/skills/research/references/note-template.md',
     'docs/notes/widget-latency/widget-latency-note.md',

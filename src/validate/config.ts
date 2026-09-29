@@ -41,7 +41,6 @@ export interface IgnoreConfig {
  * no findings.
  */
 export function partitionIgnore(raw: readonly string[]): IgnoreConfig {
-
   const entries: string[] = [];
   const findings: Finding[] = [];
 

@@ -1,8 +1,8 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import type { AddedLine } from './diff.js';
-import { firstLeak, leakReason } from './leak-rules.js';
 import type { LeakKind } from './leak-rules.js';
+import { firstLeak, leakReason } from './leak-rules.js';
 
 type FindingKind = 'untagged' | 'over-length' | LeakKind;
 
@@ -27,8 +27,7 @@ export const BUILTIN_SYNTAX: CommentSyntax = {
   middle: ['*'],
 };
 
-const TOOL_DIRECTIVE =
-  /^\s*(?:\/\/|\/\*|\*|#)\s*(?:biome-ignore|eslint|@ts-|prettier-ignore|noqa|type:|shellcheck|!)/;
+const TOOL_DIRECTIVE = /^\s*(?:\/\/|\/\*|\*|#)\s*(?:biome-ignore|eslint|@ts-|prettier-ignore|noqa|type:|shellcheck|!)/;
 const GENERATED_PRAGMA = /^@generated\b/i;
 const GENERATED_NEAR_START = /^.{0,20}?\bgenerat\w*\b/i;
 const GENERATED_DO_NOT_EDIT = /\bgenerat\w*\b.{0,20}\bdo[\s-]?not[\s-]?edit\b/i;
@@ -46,9 +45,7 @@ function matchesSyntax(text: string, syntax: CommentSyntax): boolean {
     if (trimmed.startsWith(open)) return true;
     if (open !== close && trimmed.startsWith(close)) return false;
   }
-  return syntax.middle.some(
-    (middle) => trimmed.startsWith(middle) && !trimmed.startsWith(middle + middle),
-  );
+  return syntax.middle.some((middle) => trimmed.startsWith(middle) && !trimmed.startsWith(middle + middle));
 }
 
 function isGeneratedFileBanner(text: string): boolean {
@@ -138,12 +135,7 @@ function expandToEnclosingBlock(
 }
 
 /** Reads disk lines `headLine..tailLine` of `file` as a synthetic comment block. */
-function readFullBlockText(
-  file: string,
-  headLine: number,
-  tailLine: number,
-  nextCodeLine: NextCodeLine,
-): AddedLine[] {
+function readFullBlockText(file: string, headLine: number, tailLine: number, nextCodeLine: NextCodeLine): AddedLine[] {
   const lines: AddedLine[] = [];
   for (let line = headLine; line <= tailLine; line += 1) {
     const text = nextCodeLine(file, line);
@@ -198,11 +190,7 @@ function judgeBlock(
   return { violates: false, kind: 'untagged', reason: '' };
 }
 
-function findAddedComments(
-  added: AddedLine[],
-  nextCodeLine: NextCodeLine,
-  syntaxFor: SyntaxFor,
-): CommentFinding[] {
+function findAddedComments(added: AddedLine[], nextCodeLine: NextCodeLine, syntaxFor: SyntaxFor): CommentFinding[] {
   const merged = new Map<string, MergedBlock>();
 
   for (const block of groupCommentBlocks(added, syntaxFor)) {
@@ -252,10 +240,6 @@ function diskLineReader(projectDir: string): NextCodeLine {
 }
 
 /** Scans already-collected added lines, resolving JSDoc declarations from disk. */
-export function scanAddedLines(
-  added: AddedLine[],
-  projectDir: string,
-  syntaxFor: SyntaxFor,
-): CommentFinding[] {
+export function scanAddedLines(added: AddedLine[], projectDir: string, syntaxFor: SyntaxFor): CommentFinding[] {
   return findAddedComments(added, diskLineReader(projectDir), syntaxFor);
 }

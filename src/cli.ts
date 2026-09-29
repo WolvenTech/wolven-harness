@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 import { realpathSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
-import { runSetup } from './setup/index.js';
-import { runValidate } from './validate/index.js';
 import { runComments } from './comments/index.js';
+import { runSetup } from './setup/index.js';
+import { resolveOwnPackage } from './setup/own-package.js';
 import type { Io } from './setup/types.js';
+import { runValidate } from './validate/index.js';
 
 function printUsage(io: Io): void {
   io.stdout.write(
@@ -20,6 +21,8 @@ function printUsage(io: Io): void {
       '  validate   Check the repo against the writing profile and claim gate',
       '  comments   Judge comment lines added since a base ref [--base <ref>]',
       '',
+      '  --version, -v  Print the package name and version',
+      '',
       'Run "wolven-harness --help" to see this message.',
       '',
     ].join('\n'),
@@ -31,6 +34,12 @@ export async function main(argv: string[], io: Io): Promise<number> {
 
   if (!command || command === '--help' || command === '-h') {
     printUsage(io);
+    return 0;
+  }
+
+  if (command === '--version' || command === '-v') {
+    const { name, version } = await resolveOwnPackage();
+    io.stdout.write(`${name} ${version}\n`);
     return 0;
   }
 

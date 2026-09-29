@@ -1,15 +1,15 @@
 import { realpath } from 'node:fs/promises';
 import path from 'node:path';
-import type { GitHost, Io, Options, Context, Runtime, Prompter } from './types.js';
-import { SetupError, SetupCancelled } from './types.js';
-import { isGitHost, isRuntime, readConfig, writeConfig } from './config.js';
-import { SKILL_SETS, SET_SKILLS, isSkillSet, orderSets } from './skill-sets.js';
-import type { SkillSet } from './skill-sets.js';
-import type { Config } from './config.js';
-import { gitTopLevel, gitOriginUrl } from '../git.js';
+import { gitOriginUrl, gitTopLevel } from '../git.js';
 import { pathExists } from '../path-exists.js';
-import { clackPrompter } from './ui.js';
+import type { Config } from './config.js';
+import { isGitHost, isRuntime, readConfig, writeConfig } from './config.js';
 import { resolveOwnPackage } from './own-package.js';
+import type { SkillSet } from './skill-sets.js';
+import { isSkillSet, orderSets, SET_SKILLS, SKILL_SETS } from './skill-sets.js';
+import type { Context, GitHost, Io, Options, Prompter, Runtime } from './types.js';
+import { SetupCancelled, SetupError } from './types.js';
+import { clackPrompter } from './ui.js';
 
 /**
  * Guards that `setup` runs at the git top-level: `git rev-parse
@@ -35,7 +35,8 @@ async function assertGitTopLevel(io: Io): Promise<void> {
   }
 }
 
-const VALID_OPTIONS = '--git-host <gh|bit>, --runtimes <claude,codex,cursor>, --skills <ship,discovery|none>, --verbose, --debug';
+const VALID_OPTIONS =
+  '--git-host <gh|bit>, --runtimes <claude,codex,cursor>, --skills <ship,discovery|none>, --verbose, --debug';
 
 interface Flags {
   gitHost?: string;
@@ -56,25 +57,27 @@ function parseFlags(argv: string[]): Flags {
 
     if (arg === '--git-host') {
       const value = argv[++i];
-      if (value === undefined) throw new SetupError('missing value for --git-host', 'Use --git-host gh or --git-host bit.');
+      if (value === undefined)
+        throw new SetupError('missing value for --git-host', 'Use --git-host gh or --git-host bit.');
       flags.gitHost = value;
     } else if (arg.startsWith('--git-host=')) {
       flags.gitHost = arg.slice('--git-host='.length);
     } else if (arg === '--runtimes') {
       const value = argv[++i];
-      if (value === undefined) throw new SetupError('missing value for --runtimes', 'Use e.g. --runtimes claude,codex.');
+      if (value === undefined)
+        throw new SetupError('missing value for --runtimes', 'Use e.g. --runtimes claude,codex.');
       flags.runtimes = value;
     } else if (arg.startsWith('--runtimes=')) {
       flags.runtimes = arg.slice('--runtimes='.length);
     } else if (arg === '--skills') {
       const value = argv[++i];
-      if (value === undefined) throw new SetupError('missing value for --skills', 'Use e.g. --skills ship,discovery or --skills none.');
+      if (value === undefined)
+        throw new SetupError('missing value for --skills', 'Use e.g. --skills ship,discovery or --skills none.');
       flags.skills = value;
     } else if (arg.startsWith('--skills=')) {
       flags.skills = arg.slice('--skills='.length);
     } else if (arg === '--debug' || arg === '--verbose') {
       // why: read by runSetup before resolveOptions runs; accepted here so they are not "unknown".
-      continue;
     } else {
       throw new SetupError(`unknown option "${arg}"`, `Valid options: ${VALID_OPTIONS}.`);
     }
@@ -124,7 +127,10 @@ function parseSkillsFlag(raw: string): SkillSet[] {
   if (parts.length === 0) throw new SetupError(`invalid value for --skills: "${raw}"`, hint);
   if (parts.includes('none')) {
     if (parts.length > 1) {
-      throw new SetupError(`--skills none cannot be combined with other values: "${raw}"`, 'Use --skills none alone, or list the sets you want, e.g. --skills ship.');
+      throw new SetupError(
+        `--skills none cannot be combined with other values: "${raw}"`,
+        'Use --skills none alone, or list the sets you want, e.g. --skills ship.',
+      );
     }
     return [];
   }
@@ -246,7 +252,11 @@ async function promptMissing(
     runtimes = await prompter.multiselect<Runtime>({
       message: withNote(notes.runtimes, 'Which agent runtimes do you use? (space to toggle, enter to confirm)'),
       options: [
-        { value: 'claude', label: 'Claude Code', hint: detected.includes('claude') ? 'detected in this repo' : undefined },
+        {
+          value: 'claude',
+          label: 'Claude Code',
+          hint: detected.includes('claude') ? 'detected in this repo' : undefined,
+        },
         { value: 'codex', label: 'Codex', hint: detected.includes('codex') ? 'detected in this repo' : undefined },
         { value: 'cursor', label: 'Cursor', hint: detected.includes('cursor') ? 'detected in this repo' : undefined },
       ],
@@ -275,7 +285,10 @@ export async function detectInstalledSets(root: string): Promise<SkillSet[]> {
 /** Asks which optional skill sets to add; ship is preselected, zero selections is allowed. */
 async function promptSkillSets(prompter: Prompter, installed: SkillSet[], note?: string): Promise<SkillSet[]> {
   const answer = await prompter.multiselect<SkillSet>({
-    message: withNote(note, 'Which extra skill sets do you want? Core is always included (spec, plan, execute, ADRs, grilling…).'),
+    message: withNote(
+      note,
+      'Which extra skill sets do you want? Core is always included (spec, plan, execute, ADRs, grilling…).',
+    ),
     options: [
       { value: 'ship', label: 'Ship — commit, PR, review, CI', hint: 'for getting changes merged' },
       { value: 'discovery', label: 'Discovery — PRD, prototype, handoff', hint: 'for shaping what to build' },
@@ -315,11 +328,19 @@ export async function resolveOptions(argv: string[], ctx: Context): Promise<Opti
 
   let gitHost: GitHost | undefined =
     hostFlag !== undefined
-      ? parseOrAsk(() => parseGitHostFlag(hostFlag), interactive, (n) => (notes.gitHost = n))
+      ? parseOrAsk(
+          () => parseGitHostFlag(hostFlag),
+          interactive,
+          (n) => (notes.gitHost = n),
+        )
       : existing?.gitHost;
   let runtimes: Runtime[] | undefined =
     runtimesFlag !== undefined
-      ? parseOrAsk(() => parseRuntimesFlag(runtimesFlag), interactive, (n) => (notes.runtimes = n))
+      ? parseOrAsk(
+          () => parseRuntimesFlag(runtimesFlag),
+          interactive,
+          (n) => (notes.runtimes = n),
+        )
       : existing?.runtimes;
 
   const missing: string[] = [];
@@ -344,7 +365,11 @@ export async function resolveOptions(argv: string[], ctx: Context): Promise<Opti
   const installed = await detectInstalledSets(ctx.root);
   let skillSets: SkillSet[] | undefined =
     skillsFlag !== undefined
-      ? parseOrAsk(() => parseSkillsFlag(skillsFlag), interactive, (n) => (notes.skills = n))
+      ? parseOrAsk(
+          () => parseSkillsFlag(skillsFlag),
+          interactive,
+          (n) => (notes.skills = n),
+        )
       : existing?.skillSets;
   if (skillSets === undefined) {
     skillSets = interactive

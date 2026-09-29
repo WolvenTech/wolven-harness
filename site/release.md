@@ -12,6 +12,8 @@ Maintainer notes for getting a change from a merged PR to a published version of
 2. **release-please keeps a release PR open.** On every push to `main`, it updates that PR with the next version and the changelog.
 3. **A maintainer merges the release PR**, then **runs the `release` workflow by hand**. That run creates the tag and the GitHub Release, and publishes to npm.
 
+**Stability.** From 0.3.0 the public contract is stable: commands, flags, exit codes, finding codes, and the `.wolven-harness.json` schema. Breaking changes follow the policy in [ADR-003](https://github.com/WolvenTech/wolven-harness/blob/main/docs/adrs/adr-003-public-contract.md).
+
 ::: warning Nothing publishes on its own
 A push to `main` does not create the GitHub Release and does not publish. Merging the release PR doesn't either. Only the manual `release` run creates the tag and the GitHub Release, and publishes.
 :::
@@ -30,7 +32,7 @@ PR titles must be [Conventional Commits](https://www.conventionalcommits.org/). 
 1. **Open the release PR** that release-please maintains, and check its version and changelog.
 2. **Close and reopen the release PR before merging it.** release-please pushes with `GITHUB_TOKEN`, and pushes made with that token start no workflows. Reopening the PR is what makes the checks run.
 3. **Wait for checks to pass, then merge.**
-4. **Run the `release` workflow by hand with the tag left empty:** Actions → **release** → **Run workflow**, on `main`. The run:
+4. **Run the `release` workflow by hand with the tag left empty:** Actions → **Release** → **Run workflow**, on `main`. The run:
    - creates the tag and the GitHub Release,
    - checks that the tag matches `package.json`'s version, then builds and tests,
    - publishes to npmjs through OIDC trusted publishing, with provenance. It uses no stored token.

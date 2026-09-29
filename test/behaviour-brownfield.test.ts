@@ -1,9 +1,9 @@
-import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
 import { mkdir, rm, writeFile } from 'node:fs/promises';
-import { promisify } from 'node:util';
 import path from 'node:path';
+import { test } from 'node:test';
+import { promisify } from 'node:util';
 import { makeRepo, run } from './helpers/fixture.js';
 
 const execFileAsync = promisify(execFile);
@@ -119,12 +119,18 @@ test('behaviour: a legacy index file left beside migrated ADRs is invisible to v
     'docs/adrs/adr-004-storage-v2.md': adr({ status: 'stable' }),
   };
 
-  const plainIndex = await makeRepo({ ...migrated, 'adrs/README.md': '# Decisions\n\nSee the decision records.\n' }, { git: true });
+  const plainIndex = await makeRepo(
+    { ...migrated, 'adrs/README.md': '# Decisions\n\nSee the decision records.\n' },
+    { git: true },
+  );
   const quiet = await validate(plainIndex);
   assert.equal(quiet.code, 0, quiet.out);
   assert.doesNotMatch(quiet.out, /legacy-adr|adr-unrecognized/);
 
-  const citingIndex = await makeRepo({ ...migrated, 'adrs/README.md': '# Decisions\n\n- ADR-001 storage\n' }, { git: true });
+  const citingIndex = await makeRepo(
+    { ...migrated, 'adrs/README.md': '# Decisions\n\n- ADR-001 storage\n' },
+    { git: true },
+  );
   const stale = await validate(citingIndex);
   assert.equal(stale.code, 1);
   assert.match(stale.out, /claim-deprecated.*adrs\/README\.md:3/);

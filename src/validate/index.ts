@@ -1,13 +1,13 @@
-import { SetupError } from '../setup/types.js';
 import type { Io } from '../setup/types.js';
+import { SetupError } from '../setup/types.js';
 import { checkAdrFolders } from './adr-folders.js';
-import { loadIgnoreConfig } from './config.js';
-import type { IgnoreConfig } from './config.js';
 import { checkClaims } from './claims.js';
+import type { IgnoreConfig } from './config.js';
+import { loadIgnoreConfig } from './config.js';
 import { checkProfile } from './profile.js';
 import { buildRepoContext, resolveGitRoot } from './repo.js';
-import { summarizeFindings } from './report.js';
 import type { Finding } from './report.js';
+import { summarizeFindings } from './report.js';
 import { checkSpine } from './spine.js';
 
 type ParsedArgs = { verbose: boolean } | { error: string };

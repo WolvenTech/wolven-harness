@@ -7,6 +7,7 @@ type ScriptEntry = { key: string; value: string };
 const HARNESS_SCRIPTS: readonly ScriptEntry[] = [
   { key: 'harness:validate', value: 'wolven-harness validate' },
   { key: 'harness:comments', value: 'wolven-harness comments' },
+  { key: 'harness:score', value: 'harness-score' },
 ];
 
 function reportId(key: string): string {
@@ -48,7 +49,7 @@ export async function addValidateScript(ctx: Context): Promise<StepResult> {
   const skipped: string[] = [];
 
   for (const { key, value } of HARNESS_SCRIPTS) {
-    if (pkg.scripts && Object.prototype.hasOwnProperty.call(pkg.scripts, key)) {
+    if (pkg.scripts && Object.hasOwn(pkg.scripts, key)) {
       skipped.push(reportId(key));
       continue;
     }

@@ -1,9 +1,9 @@
-import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
+import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { parseMarkdownTables, type MdTable } from './helpers/markdown.js';
+import { type MdTable, parseMarkdownTables } from './helpers/markdown.js';
 import { walkFiles } from './helpers/walk.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -117,7 +117,10 @@ test('host-contract: no other skill file names a gh command, a table tool name, 
     const content = await readFile(path.join(skillsRoot, rel), 'utf8');
 
     assert.doesNotMatch(content, ghCommandRe, `${rel}: must not name a gh CLI command outside host-operations.md`);
-    assert.ok(!content.includes('api.bitbucket.org'), `${rel}: must not name api.bitbucket.org outside host-operations.md`);
+    assert.ok(
+      !content.includes('api.bitbucket.org'),
+      `${rel}: must not name api.bitbucket.org outside host-operations.md`,
+    );
 
     for (const name of toolNames) {
       const nameRe = new RegExp(`\\b${name}\\b`);

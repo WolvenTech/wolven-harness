@@ -1,8 +1,8 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { pathExists } from '../path-exists.js';
+import type { Context, Options, StepResult } from './types.js';
 import { SetupError } from './types.js';
-import type { Options, Context, StepResult } from './types.js';
 
 /**
  * Injectable indirection over `fs.symlink`, so the forced-failure test can
@@ -53,7 +53,7 @@ async function wireClaudeSkillsSymlink(ctx: Context, created: string[], skipped:
     await symlinkImpl('../.agents/skills', skillsLink, 'dir');
   } catch {
     throw new SetupError(
-      'could not create the .claude/skills symlink: symlinks are required to wire the claude runtime, and v0 supports macOS and Linux only.',
+      'could not create the .claude/skills symlink: symlinks are required to wire the claude runtime, and only macOS and Linux are supported.',
     );
   }
 

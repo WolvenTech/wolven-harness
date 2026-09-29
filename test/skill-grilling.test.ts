@@ -1,6 +1,6 @@
-import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readSkill, assertSkillBasics, assertNoRuntimeToolNames } from './helpers/skill-contract.js';
+import { test } from 'node:test';
+import { assertNoRuntimeToolNames, assertSkillBasics, readSkill } from './helpers/skill-contract.js';
 
 test('skill-grilling: passes the shared skill contract checks', async () => {
   await assertSkillBasics('grilling');

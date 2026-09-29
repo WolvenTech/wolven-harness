@@ -1,9 +1,9 @@
-import { mkdtemp, mkdir, writeFile } from 'node:fs/promises';
+import { execFile } from 'node:child_process';
+import { mkdir, mkdtemp, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { execFile } from 'node:child_process';
-import { promisify } from 'node:util';
 import { PassThrough } from 'node:stream';
+import { promisify } from 'node:util';
 import { main } from '../../src/cli.js';
 import type { Io, Prompter } from '../../src/setup/types.js';
 

@@ -26,10 +26,13 @@
     "access": "public"
   },
   "scripts": {
+    "prepare": "simple-git-hooks",
     "build": "tsc -p tsconfig.json",
     "test": "tsx --test \"test/**/*.test.ts\"",
+    "lint": "biome check",
     "validate": "node dist/cli.js validate",
     "comments": "node dist/cli.js comments",
+    "score": "harness-score --min-level 3",
     "docs:dev": "vitepress dev site",
     "docs:build": "vitepress build site",
     "docs:preview": "vitepress preview site"
@@ -39,9 +42,15 @@
     "yaml": "^2.6.1"
   },
   "devDependencies": {
-    "typescript": "^5.7.2",
-    "tsx": "^4.19.2",
+    "@biomejs/biome": "2.5.14",
     "@types/node": "^22.10.2",
+    "harness-score": "1.6.5",
+    "simple-git-hooks": "2.14.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
     "vitepress": "^1.6.4"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "pnpm exec biome check --staged --no-errors-on-unmatched --files-ignore-unknown=true"
   }
 }

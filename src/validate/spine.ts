@@ -1,4 +1,5 @@
 import { execFile } from 'node:child_process';
+import type { Dirent } from 'node:fs';
 import { lstat, readdir, readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { classifyFrontmatter, skillIdentity } from '../frontmatter.js';
@@ -62,7 +63,7 @@ async function readOptional(p: string): Promise<string | undefined> {
 async function checkSkills(root: string): Promise<{ frontmatter: Finding[]; stubs: Finding[] }> {
   const skillsDir = path.join(root, '.agents', 'skills');
 
-  let entries;
+  let entries: Dirent[];
   try {
     entries = await readdir(skillsDir, { withFileTypes: true });
   } catch {
@@ -176,7 +177,7 @@ async function checkStep0Pending(root: string): Promise<Finding[]> {
   if (!wolvenExists) return [];
 
   const agentsContent = await readOptional(path.join(root, 'AGENTS.md'));
-  const mentioned = agentsContent !== undefined && agentsContent.includes('WOLVEN.md');
+  const mentioned = agentsContent?.includes('WOLVEN.md') ?? false;
   if (mentioned) return [];
 
   return [{ level: 'warn', rule: 'step0-pending', file: 'WOLVEN.md', message: 'harness-init step 0 pending' }];

@@ -1,8 +1,8 @@
-import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import path from 'node:path';
-import { makeRepo, run } from './helpers/fixture.js';
+import { test } from 'node:test';
 import { buildRepoContext, resolveGitRoot } from '../src/validate/repo.js';
+import { makeRepo, run } from './helpers/fixture.js';
 
 test('claim-no-git: non-git dir exits 1 with "claim gate requires git"', async () => {
   const dir = await makeRepo({ 'README.md': '# hi\n' });

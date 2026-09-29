@@ -36,6 +36,12 @@ qmd query "<question>"
 - `.agents/rules/yagni-strict.md` — strict YAGNI; deferrals under `docs/deferrals/` only
 - `.agents/rules/comments.md` — comment style for added lines; run `harness:comments` before handing work back
 
+## Harness score
+
+`harness:score` rates this repo's agent harness from its files alone, from L0
+to L4. Checks the repo chooses not to build are dropped in
+`.harness-score.json`, and every drop shows in the report.
+
 ## Architecture claims
 
 Referencing an ADR as `ADR-NNN` or `adr-NNN-<slug>` anywhere in a tracked file

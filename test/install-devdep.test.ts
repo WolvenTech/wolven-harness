@@ -1,7 +1,7 @@
-import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
+import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { makeRepo, run } from './helpers/fixture.js';
 
@@ -79,7 +79,7 @@ test('install-devdep: no warning without a package.json', async () => {
   assert.doesNotMatch(result.stderr, /@wolven-tech\/harness/);
 });
 
-test('setup-config: a fresh run writes this package\'s own version as packageVersion', async () => {
+test("setup-config: a fresh run writes this package's own version as packageVersion", async () => {
   const dir = await makeRepo({}, { git: true });
 
   const result = await run(['setup', '--git-host', 'gh', '--runtimes', 'claude'], { cwd: dir });
@@ -99,10 +99,7 @@ test('setup-config: comments, ignore, and an unknown key survive a re-run unchan
     comments: { paths: ['src/**'] },
     someUnknownKey: { nested: [1, 2, 3] },
   };
-  const dir = await makeRepo(
-    { '.wolven-harness.json': `${JSON.stringify(existing)}\n` },
-    { git: true },
-  );
+  const dir = await makeRepo({ '.wolven-harness.json': `${JSON.stringify(existing)}\n` }, { git: true });
 
   const result = await run(['setup'], { cwd: dir, isTTY: false });
 
@@ -125,10 +122,7 @@ test('setup-config: a re-run keeps the existing key order and adds skillSets and
     ignore: ['test/**'],
     gitHost: 'gh',
   };
-  const dir = await makeRepo(
-    { '.wolven-harness.json': `${JSON.stringify(existing)}\n` },
-    { git: true },
-  );
+  const dir = await makeRepo({ '.wolven-harness.json': `${JSON.stringify(existing)}\n` }, { git: true });
 
   const result = await run(['setup'], { cwd: dir, isTTY: false });
 

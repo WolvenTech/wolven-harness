@@ -1,8 +1,8 @@
-import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { test } from 'node:test';
 import { run } from './helpers/fixture.js';
-import { readSkill, assertSkillBasics, renderInto } from './helpers/skill-contract.js';
-import { parseMarkdownTables, type MdTable } from './helpers/markdown.js';
+import { type MdTable, parseMarkdownTables } from './helpers/markdown.js';
+import { assertSkillBasics, readSkill, renderInto } from './helpers/skill-contract.js';
 
 /** Every value found in the column named `columnName` (case-insensitive) across every table in `tables` that has one. */
 function valuesInColumn(tables: MdTable[], columnName: string): string[] {
@@ -33,7 +33,9 @@ test('skill-code-plan: work units table names Depends, Owns, Subagent, and Done 
 
   const unitsTable = tables.find((t) => {
     const lower = t.headers.map((h) => h.toLowerCase());
-    return lower.includes('depends') && lower.includes('owns') && lower.includes('subagent') && lower.includes('done when');
+    return (
+      lower.includes('depends') && lower.includes('owns') && lower.includes('subagent') && lower.includes('done when')
+    );
   });
 
   assert.ok(unitsTable, 'expected a work-units table with #, Unit, Depends, Owns, Subagent, Done when columns');
@@ -106,7 +108,10 @@ test('skill-code-plan: the EXAMPLE Subagent cells only use spawn or inline, neve
   assert.ok(subagentValues.length > 0, 'expected at least one Subagent cell in the EXAMPLE');
 
   for (const value of subagentValues) {
-    assert.ok(value === 'spawn' || value === 'inline', `unexpected Subagent value "${value}" — must be "spawn" or "inline"`);
+    assert.ok(
+      value === 'spawn' || value === 'inline',
+      `unexpected Subagent value "${value}" — must be "spawn" or "inline"`,
+    );
   }
 });
 
@@ -116,7 +121,7 @@ test('skill-code-plan: TEMPLATE-plan.md renders next to a spec and passes valida
     '---',
     'type: spec',
     'title: Sample feature',
-    'description: A minimal locked spec, present only to satisfy the plan folder\'s main-doc rule.',
+    "description: A minimal locked spec, present only to satisfy the plan folder's main-doc rule.",
     'status: draft',
     '---',
     '',

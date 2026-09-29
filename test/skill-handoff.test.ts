@@ -1,10 +1,10 @@
-import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readdir } from 'node:fs/promises';
 import path from 'node:path';
+import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { parse as parseYaml } from 'yaml';
-import { readSkill, assertSkillBasics } from './helpers/skill-contract.js';
+import { assertSkillBasics, readSkill } from './helpers/skill-contract.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const skillsRoot = path.join(here, '..', 'templates', '.agents', 'skills');

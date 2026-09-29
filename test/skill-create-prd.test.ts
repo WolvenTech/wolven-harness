@@ -1,7 +1,7 @@
-import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { test } from 'node:test';
 import { run } from './helpers/fixture.js';
-import { readSkill, assertSkillBasics, renderInto } from './helpers/skill-contract.js';
+import { assertSkillBasics, readSkill, renderInto } from './helpers/skill-contract.js';
 
 test('skill-create-prd: passes the shared skill contract checks', async () => {
   await assertSkillBasics('create-prd');

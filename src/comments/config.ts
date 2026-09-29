@@ -1,5 +1,5 @@
-import { CONFIG_FILENAME, readConfig } from '../setup/config.js';
 import { isUnderDir } from '../path-exists.js';
+import { CONFIG_FILENAME, readConfig } from '../setup/config.js';
 import { partitionIgnore } from '../validate/config.js';
 
 /** Extensions judged without any config, e.g. `.ts`. */

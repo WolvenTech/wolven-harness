@@ -1,4 +1,4 @@
-name: release
+name: Release
 
 on:
   push:
@@ -17,6 +17,7 @@ permissions:
 
 jobs:
   release-please:
+    name: Release PR
     if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.tag == '') }}
     runs-on: ubuntu-latest
     permissions:
@@ -27,7 +28,7 @@ jobs:
       tag_name: ${{ steps.release.outputs.tag_name }}
     steps:
       - id: release
-        uses: googleapis/release-please-action@v4
+        uses: googleapis/release-please-action@v5
         with:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
@@ -35,6 +36,7 @@ jobs:
           skip-github-release: ${{ github.event_name == 'push' }}
 
   build:
+    name: Build
     needs: release-please
     if: ${{ !cancelled() && (needs.release-please.outputs.release_created == 'true' || (github.event_name == 'workflow_dispatch' && startsWith(inputs.tag, 'v'))) }}
     runs-on: ubuntu-latest
@@ -49,15 +51,15 @@ jobs:
           actual=$(gh release view "$RELEASE_TAG" --json tagName,isDraft --jq 'select(.isDraft == false) | .tagName')
           test "$actual" = "$RELEASE_TAG"
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ needs.release-please.outputs.tag_name || inputs.tag }}
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
         with:
           version: 11.28.2
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: pnpm
@@ -71,7 +73,7 @@ jobs:
       - run: pnpm build
       - run: pnpm test
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: dist
           path: dist
@@ -80,6 +82,7 @@ jobs:
   # invariant: only this job can mint the OIDC token npm trusts, and it never
   # installs the project's dependencies or runs its lifecycle scripts.
   publish:
+    name: Publish to npm
     needs: [release-please, build]
     if: ${{ !cancelled() && needs.build.result == 'success' }}
     runs-on: ubuntu-latest
@@ -87,16 +90,16 @@ jobs:
       contents: read
       id-token: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ needs.release-please.outputs.tag_name || inputs.tag }}
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: dist
           path: dist
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
 

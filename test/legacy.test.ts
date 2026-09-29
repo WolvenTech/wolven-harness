@@ -1,14 +1,23 @@
-import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { makeRepo, run } from './helpers/fixture.js';
-import { buildRepoContext, resolveGitRoot } from '../src/validate/repo.js';
+import { test } from 'node:test';
 import { detectLegacy } from '../src/validate/legacy.js';
+import { buildRepoContext, resolveGitRoot } from '../src/validate/repo.js';
+import { makeRepo, run } from './helpers/fixture.js';
 
 /** A Nygard-shaped legacy ADR body: no frontmatter, `## Status` section. */
 function legacyAdrBody(number: string, title: string): string {
-  return [`# ADR-${number}: ${title}`, '', '## Status', '', 'Accepted', '', '## Context', '', 'Context goes here.', ''].join(
-    '\n',
-  );
+  return [
+    `# ADR-${number}: ${title}`,
+    '',
+    '## Status',
+    '',
+    'Accepted',
+    '',
+    '## Context',
+    '',
+    'Context goes here.',
+    '',
+  ].join('\n');
 }
 
 const LEGACY_README = [
@@ -30,9 +39,17 @@ function legacyFixtureFiles(): Record<string, string> {
 
 /** A minimal stable profile ADR body that passes the writing profile. */
 function stableProfileAdr(title: string): string {
-  return ['---', 'type: adr', `title: ${title}`, 'description: a fixture ADR', 'status: stable', '---', '', '# Fixture ADR', ''].join(
-    '\n',
-  );
+  return [
+    '---',
+    'type: adr',
+    `title: ${title}`,
+    'description: a fixture ADR',
+    'status: stable',
+    '---',
+    '',
+    '# Fixture ADR',
+    '',
+  ].join('\n');
 }
 
 // --- legacy-detect ---
@@ -47,14 +64,8 @@ test('legacy-detect: Nygard fixture prints exactly two legacy-adr lines, none fo
   const legacyLines = result.stdout.split('\n').filter((l) => l.includes('legacy ADR-'));
   assert.equal(legacyLines.length, 2, result.stdout);
 
-  assert.match(
-    result.stdout,
-    /legacy ADR-001 \(adrs\/adr-001\.md\): 1 claims in 1 files — migrate via harness-init/,
-  );
-  assert.match(
-    result.stdout,
-    /legacy ADR-002 \(adrs\/adr-002\.md\): 1 claims in 1 files — migrate via harness-init/,
-  );
+  assert.match(result.stdout, /legacy ADR-001 \(adrs\/adr-001\.md\): 1 claims in 1 files — migrate via harness-init/);
+  assert.match(result.stdout, /legacy ADR-002 \(adrs\/adr-002\.md\): 1 claims in 1 files — migrate via harness-init/);
   assert.ok(!/legacy ADR-\d{3} \(adrs\/README\.md\)/.test(result.stdout), result.stdout);
 });
 

@@ -1,17 +1,17 @@
-import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { execFile } from 'node:child_process';
 import { readdirSync, readFileSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
+import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { parse } from 'yaml';
+import { renderWolven } from '../src/setup/render-wolven.js';
+import type { Context } from '../src/setup/types.js';
 import { makeRepo, run } from './helpers/fixture.js';
 import { makeIo } from './helpers/io.js';
 import { walkFiles } from './helpers/walk.js';
-import { renderWolven } from '../src/setup/render-wolven.js';
-import type { Context } from '../src/setup/types.js';
 
 const execFileAsync = promisify(execFile);
 
@@ -40,7 +40,9 @@ function templateSkillNames(): string[] {
 test('setup-surfaces: creates exactly the expected paths', async () => {
   const dir = await makeRepo({}, { git: true });
 
-  const result = await run(['setup', '--git-host', 'gh', '--runtimes', 'codex', '--skills', 'ship,discovery'], { cwd: dir });
+  const result = await run(['setup', '--git-host', 'gh', '--runtimes', 'codex', '--skills', 'ship,discovery'], {
+    cwd: dir,
+  });
   assert.equal(result.code, 0, result.stderr);
 
   const nonSkillFiles = [
@@ -58,6 +60,7 @@ test('setup-surfaces: creates exactly the expected paths', async () => {
     '.qmd/index.yml',
     '.qmd/.gitignore',
     '.wolven-harness.json',
+    '.harness-score.json',
   ];
 
   const expected = [...nonSkillFiles, ...(await templateSkillFiles())].sort();
@@ -114,10 +117,7 @@ test('wolven-template: skills table lists every template skill', async () => {
   assert.match(rendered, /\| Skill \| Use when \|/);
 
   for (const name of templateSkillNames()) {
-    const skillMd = readFileSync(
-      path.join(repoTemplatesDir, '.agents', 'skills', name, 'SKILL.md'),
-      'utf8',
-    );
+    const skillMd = readFileSync(path.join(repoTemplatesDir, '.agents', 'skills', name, 'SKILL.md'), 'utf8');
     const frontmatter = skillMd.match(/^---\n([\s\S]*?)\n---/)![1];
     const parsed = parse(frontmatter) as { name: string; description: string };
 
@@ -180,7 +180,13 @@ test('setup-surfaces: a fresh install passes validate once committed', async () 
   assert.equal(init.code, 0, init.stderr);
 
   // why: the claim gate scans tracked files only, so shipped examples are judged once a consumer commits them.
-  const env = { ...process.env, GIT_AUTHOR_NAME: 't', GIT_AUTHOR_EMAIL: 't@example.com', GIT_COMMITTER_NAME: 't', GIT_COMMITTER_EMAIL: 't@example.com' };
+  const env = {
+    ...process.env,
+    GIT_AUTHOR_NAME: 't',
+    GIT_AUTHOR_EMAIL: 't@example.com',
+    GIT_COMMITTER_NAME: 't',
+    GIT_COMMITTER_EMAIL: 't@example.com',
+  };
   await execFileAsync('git', ['add', '-A'], { cwd: dir, env });
   await execFileAsync('git', ['commit', '-q', '-m', 'install'], { cwd: dir, env });
 

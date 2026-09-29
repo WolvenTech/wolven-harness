@@ -1,12 +1,12 @@
-import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { promises as fs } from 'node:fs';
+import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { PassThrough } from 'node:stream';
-import { readFile } from 'node:fs/promises';
-import { wireRuntimes, setSymlinkImpl } from '../src/setup/runtimes.js';
-import { SetupError } from '../src/setup/types.js';
+import { test } from 'node:test';
+import { setSymlinkImpl, wireRuntimes } from '../src/setup/runtimes.js';
 import type { Context, Io, Options } from '../src/setup/types.js';
+import { SetupError } from '../src/setup/types.js';
 import { makeRepo, run } from './helpers/fixture.js';
 
 function makeCtx(root: string): Context {
@@ -94,15 +94,12 @@ test('runtime-wiring: symlink failure exits 1 naming macOS/Linux', async () => {
   });
 
   try {
-    await assert.rejects(
-      wireRuntimes(opts(['claude']), ctx),
-      (err: unknown) => {
-        assert.ok(err instanceof SetupError, 'throws SetupError');
-        assert.match((err as Error).message, /macOS/);
-        assert.match((err as Error).message, /Linux/);
-        return true;
-      },
-    );
+    await assert.rejects(wireRuntimes(opts(['claude']), ctx), (err: unknown) => {
+      assert.ok(err instanceof SetupError, 'throws SetupError');
+      assert.match((err as Error).message, /macOS/);
+      assert.match((err as Error).message, /Linux/);
+      return true;
+    });
   } finally {
     setSymlinkImpl();
   }

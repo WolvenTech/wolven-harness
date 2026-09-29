@@ -1,8 +1,8 @@
-import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readSkill } from './helpers/skill-contract.js';
+import { test } from 'node:test';
 import { makeRepo, run } from './helpers/fixture.js';
 import { flatten } from './helpers/prose.js';
+import { readSkill } from './helpers/skill-contract.js';
 
 const REF = 'references/adr-migration.md';
 
@@ -109,8 +109,14 @@ test('migrate-rules: a superseded ADR that still partly applies is asked about, 
   const raw = await readReference();
   const table = flatten(raw.split('### Status mapping')[1]?.split('### Before writing')[0] ?? '');
 
-  assert.match(table, /`deprecated`\s*\|\s*only when nothing in the ADR or an index of the legacy folder says part of it still applies/i);
-  assert.match(table, /\|\s*superseded, but the ADR or an index says part of it still applies\s*\|\s*ask the human\s*\|/i);
+  assert.match(
+    table,
+    /`deprecated`\s*\|\s*only when nothing in the ADR or an index of the legacy folder says part of it still applies/i,
+  );
+  assert.match(
+    table,
+    /\|\s*superseded, but the ADR or an index says part of it still applies\s*\|\s*ask the human\s*\|/i,
+  );
   assert.match(table, /split the part that still binds into a new ADR through `adr`, then deprecate this one/i);
   assert.match(table, /keep this one `stable`.*with that decision recorded in the session note/i);
 });
@@ -128,7 +134,10 @@ test('migrate-closure: each claim to a touched ADR is read against its title, mi
   const flat = flatten(await readReference());
 
   assert.match(flat, /check what each claim means/i);
-  assert.match(flat, /for every claim to an ADR this migration touched, read the line making the claim next to that ADR's title/i);
+  assert.match(
+    flat,
+    /for every claim to an ADR this migration touched, read the line making the claim next to that ADR's title/i,
+  );
   assert.match(flat, /take each mismatch to the human, one at a time: repoint it, reword it, or leave it as is/i);
 });
 
@@ -156,7 +165,7 @@ test('migrate-closure: done only when harness:validate exits 0 with 0 legacy-war
   assert.match(flat, /the step is done only when `harness:validate` exits 0\s*with `0 legacy-warn`/i);
 });
 
-test('migrate-closure: points at the repo\'s own test and lint commands for links inside source files', async () => {
+test("migrate-closure: points at the repo's own test and lint commands for links inside source files", async () => {
   const flat = flatten(await readReference());
   assert.match(flat, /point at the repo's own checks/i);
   assert.match(flat, /point the human at the repo's own test and lint commands/i);
@@ -168,7 +177,7 @@ test('migrate-closure: the human reviews the whole diff before the migration com
   assert.match(flat, /before the migration commit is offered/i);
 });
 
-test('migrate-example: the before fixture warns legacy-adr for both ADRs and reports the example\'s own legacy-warn count', async () => {
+test("migrate-example: the before fixture warns legacy-adr for both ADRs and reports the example's own legacy-warn count", async () => {
   const { before } = await loadExampleFixtures();
   const dir = await makeRepo(before, { git: true });
   const result = await run(['validate'], { cwd: dir });
@@ -203,7 +212,7 @@ test('migrate-example: the after fixture exits 0 with 0 legacy-warn, the citatio
   assert.ok(Number(match[1]) > 0, 'expected at least one ok claim against the stable ADR');
 });
 
-test('migrate-example: the after fixture\'s ADRs carry the mapped statuses and superseded_by', async () => {
+test("migrate-example: the after fixture's ADRs carry the mapped statuses and superseded_by", async () => {
   const { after } = await loadExampleFixtures();
   const deprecated = after['docs/adrs/adr-012-cache-with-memcached.md'];
   const stable = after['docs/adrs/adr-013-cache-with-redis.md'];

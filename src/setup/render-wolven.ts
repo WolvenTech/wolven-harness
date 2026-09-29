@@ -1,4 +1,5 @@
-import { readFile, readdir } from 'node:fs/promises';
+import type { Dirent } from 'node:fs';
+import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { classifyFrontmatter, skillIdentity } from '../frontmatter.js';
 import type { Context } from './types.js';
@@ -40,7 +41,7 @@ async function readSkillFrontmatter(skillMdPath: string): Promise<SkillFrontmatt
 async function collectSkills(templatesDir: string, only?: readonly string[]): Promise<SkillFrontmatter[]> {
   const skillsDir = path.join(templatesDir, '.agents', 'skills');
 
-  let entries;
+  let entries: Dirent[];
   try {
     entries = await readdir(skillsDir, { withFileTypes: true });
   } catch {

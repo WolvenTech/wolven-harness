@@ -18,11 +18,15 @@ cd wolven-harness
 pnpm install
 pnpm build
 pnpm test
+pnpm lint
 ```
 
 `pnpm build` compiles `src/` to `dist/` with `tsc`. `pnpm test` runs the
 `node:test` suites under `test/` through `tsx`, straight against `src/`, so it
-needs no build.
+needs no build. `pnpm lint` runs Biome over `src/`, `test/` and the site config;
+`pnpm exec biome check --write` applies its fixes. `pnpm install` also installs
+a pre-commit hook that runs Biome on staged files; set `SKIP_SIMPLE_GIT_HOOKS=1`
+to bypass it once.
 
 Two more checks run the CLI against this repo itself, and both need `dist/`, so
 build first:
@@ -30,10 +34,14 @@ build first:
 ```sh
 pnpm validate   # writing profile, ADR claims, legacy ADRs, spine
 pnpm comments   # judges comment lines added since the merge-base
+pnpm score      # harness-score; fails below L3
 ```
 
 `pnpm validate` passes when it prints `validate: ok`. `pnpm comments` passes
-when it prints `comments: ok (0 findings)`. An added comment has to be a
+when it prints `comments: ok (0 findings)`. `pnpm score` passes while the repo
+stays at L3 or above; the checks this repo chooses not to build are dropped in
+`.harness-score.json`. harness-score also reads untracked and ignored files, so
+a local `.env` or local agent files can make your score differ from CI's. An added comment has to be a
 `why:`, `hazard:`, or `invariant:` line of at most four lines, or a `/** */`
 block directly above a declaration; it must not narrate the change, cite
 anything outside this repository, or defer work with `@todo`. The rule itself
@@ -53,9 +61,20 @@ PR titles are [Conventional Commits](https://www.conventionalcommits.org/) —
 format, and since PRs are squash-merged the title becomes the commit message on
 `main`, which is what release-please reads to work out the next version.
 
-Every pull request runs the same gate you just ran locally: `pnpm install`,
-`pnpm build`, `pnpm test`, `pnpm validate`, `pnpm comments`, and
-`npm pack --dry-run`. It runs once, on Node 22 and Linux. Run the gate yourself
-before pushing and CI should hold no surprises.
+Every pull request runs the same gate you just ran locally, on Linux, as
+parallel jobs:
+
+- Title checks the PR title.
+- Lint runs `pnpm lint`, `pnpm validate`, `pnpm comments` and `pnpm score` on
+  Node 22.
+- Test runs `pnpm test` on Node 22 and 24.
+- Package packs the tarball, installs it into an empty repo, and runs `setup`,
+  `validate` and `harness:score` there.
+
+The `CI` job waits for all of them and fails unless every one passed. It is the
+only check `main` requires. Editing the PR title or description reruns only Title, and `CI` then
+passes only if the latest Lint, Test and Package runs on the same commit passed;
+changing the base branch reruns everything. Run the
+gate yourself before pushing and CI should hold no surprises.
 
 Releasing is a maintainer task; see [Release](site/release.md).

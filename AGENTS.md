@@ -8,8 +8,12 @@ Dev entry for agents working in this repository, which builds and publishes `@wo
 pnpm install
 pnpm build      # tsc -p tsconfig.json -> dist/
 pnpm test       # tsx --test "test/**/*.test.ts"
+pnpm lint       # biome check: lint and format src/, test/ and the site config
 pnpm validate   # node dist/cli.js validate — run after `pnpm build`
+pnpm score      # harness-score --min-level 3, with drops in .harness-score.json
 ```
+
+`pnpm install` runs `prepare`, which installs a pre-commit hook (simple-git-hooks) that runs `biome check --staged`.
 
 ## Layout
 
@@ -23,6 +27,6 @@ pnpm validate   # node dist/cli.js validate — run after `pnpm build`
 ## Rules
 
 - Runtime dependencies: `yaml` and `@clack/prompts` (the `setup` prompts and progress UI, `src/setup/ui.ts`) only. Adding another runtime dependency is a decision, not a default.
-- `setup` creates only missing paths, and never creates or edits a consumer's `AGENTS.md`. It does add missing `harness:validate` and `harness:comments` scripts to an existing `package.json`, and it rewrites `packageVersion` in `.wolven-harness.json` on every run. The `comments` base, when `--base` is omitted, is the merge-base with `origin/HEAD`, then `origin/main`, then `main`.
+- `setup` creates only missing paths, and never creates or edits a consumer's `AGENTS.md`. It does add missing `harness:validate`, `harness:comments` and `harness:score` scripts to an existing `package.json` (never a dependency; it prints the `harness-score` install command instead), and it rewrites `packageVersion` in `.wolven-harness.json` on every run. The `comments` base, when `--base` is omitted, is the merge-base with `origin/HEAD`, then `origin/main`, then `main`.
 - Architecture claims follow ADR-001 (`docs/adrs/adr-001-claim-path.md`).
 - Added comments under `src/` and `test/` must be `why:`/`hazard:`/`invariant:` (at most 4 lines) or an informative JSDoc comment on the declaration below them, with no narration of what changed and no references outside this repository; `pnpm comments` (`wolven-harness comments`) judges comment lines added since the merge-base with `origin/main` and enforces it.

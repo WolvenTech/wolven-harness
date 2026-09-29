@@ -1,7 +1,7 @@
-import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
+import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { makeRepo, run } from './helpers/fixture.js';
 
@@ -262,7 +262,7 @@ test('claim-fail-closed: claim-ok — a stable ADR with a bare and a correct slu
 
 // --- self-claim ---
 
-test('self-claim: the package repo\'s own ADR-001 doc and AGENTS.md citation pass validate', async () => {
+test("self-claim: the package repo's own ADR-001 doc and AGENTS.md citation pass validate", async () => {
   const adr001 = await readFile(path.join(repoRoot, 'docs', 'adrs', 'adr-001-claim-path.md'), 'utf8');
   const agentsMd = await readFile(path.join(repoRoot, 'AGENTS.md'), 'utf8');
 

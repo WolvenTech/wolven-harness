@@ -1,13 +1,13 @@
-import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
+import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
-import { readSkill } from './helpers/skill-contract.js';
 import { makeRepo, run } from './helpers/fixture.js';
 import { flatten } from './helpers/prose.js';
+import { readSkill } from './helpers/skill-contract.js';
 
 const execFileAsync = promisify(execFile);
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -53,8 +53,14 @@ test('step0-modes: the three modes each sit under their own heading, in order', 
 test('step0-modes: full and light write the WOLVEN.md fold and describe the no-AGENTS.md case', async () => {
   const flat = flatten(await readEntryModes());
 
-  assert.match(flat, /without its first line, goes into `?AGENTS\.md`? as a\s*\n?\s*new `?##? ?Wolven harness`? section/i);
-  assert.match(flat, /no `?AGENTS\.md`? yet, `?WOLVEN\.md`? \(without its first line\) becomes `?AGENTS\.md`? outright/i);
+  assert.match(
+    flat,
+    /without its first line, goes into `?AGENTS\.md`? as a\s*\n?\s*new `?##? ?Wolven harness`? section/i,
+  );
+  assert.match(
+    flat,
+    /no `?AGENTS\.md`? yet, `?WOLVEN\.md`? \(without its first line\) becomes `?AGENTS\.md`? outright/i,
+  );
   assert.match(flat, /short `?##? ?Wolven harness`? block/i);
   assert.match(flat, /carries no router table and no skills table/i);
 });

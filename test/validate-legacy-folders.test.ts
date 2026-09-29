@@ -1,12 +1,21 @@
-import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { test } from 'node:test';
 import { makeRepo, run } from './helpers/fixture.js';
 
 /** A Nygard-shaped legacy ADR body: no frontmatter, `## Status` section. */
 function legacyAdrBody(number: string, title: string): string {
-  return [`# ADR-${number}: ${title}`, '', '## Status', '', 'Accepted', '', '## Context', '', 'Context goes here.', ''].join(
-    '\n',
-  );
+  return [
+    `# ADR-${number}: ${title}`,
+    '',
+    '## Status',
+    '',
+    'Accepted',
+    '',
+    '## Context',
+    '',
+    'Context goes here.',
+    '',
+  ].join('\n');
 }
 
 /** A minimal 4-digit-numbered body, shaped like an adr-tools/MADR entry. */
@@ -16,9 +25,17 @@ function fourDigitAdrBody(number: string, title: string): string {
 
 /** A minimal stable profile ADR body that passes the writing profile. */
 function stableProfileAdr(title: string): string {
-  return ['---', 'type: adr', `title: ${title}`, 'description: a fixture ADR', 'status: stable', '---', '', '# Fixture ADR', ''].join(
-    '\n',
-  );
+  return [
+    '---',
+    'type: adr',
+    `title: ${title}`,
+    'description: a fixture ADR',
+    'status: stable',
+    '---',
+    '',
+    '# Fixture ADR',
+    '',
+  ].join('\n');
 }
 
 test('legacy-archived: an archived copy of a legacy ADR raises no legacy-adr, the live one warns once, and a claim on it downgrades to legacy-warn with no claim-duplicate', async () => {

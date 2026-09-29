@@ -1,12 +1,12 @@
-import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
+import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { makeRepo, run } from './helpers/fixture.js';
-import { makeIo } from './helpers/io.js';
 import { renderWolven } from '../src/setup/render-wolven.js';
 import type { Context } from '../src/setup/types.js';
+import { makeRepo, run } from './helpers/fixture.js';
+import { makeIo } from './helpers/io.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, '..');
@@ -19,14 +19,14 @@ async function freshFixture(): Promise<string> {
   );
 }
 
-test('comments-install: setup adds exactly harness:validate and harness:comments, and a re-run adds nothing', async () => {
+test('comments-install: setup adds exactly harness:validate, harness:comments and harness:score, and a re-run adds nothing', async () => {
   const dir = await freshFixture();
 
   const first = await run(['setup', '--git-host', 'gh', '--runtimes', 'claude'], { cwd: dir });
   assert.equal(first.code, 0, first.stderr);
 
   const pkg = JSON.parse(await readFile(path.join(dir, 'package.json'), 'utf8'));
-  assert.deepEqual(Object.keys(pkg.scripts).sort(), ['harness:comments', 'harness:validate']);
+  assert.deepEqual(Object.keys(pkg.scripts).sort(), ['harness:comments', 'harness:score', 'harness:validate']);
   assert.equal(pkg.scripts['harness:validate'], 'wolven-harness validate');
   assert.equal(pkg.scripts['harness:comments'], 'wolven-harness comments');
 
@@ -35,7 +35,10 @@ test('comments-install: setup adds exactly harness:validate and harness:comments
   const second = await run(['setup', '--git-host', 'gh', '--runtimes', 'claude'], { cwd: dir });
   assert.equal(second.code, 0, second.stderr);
   assert.doesNotMatch(second.stdout, /✔ package\.json scripts/);
-  assert.match(second.stdout, /kept your existing package\.json scripts: harness:validate, harness:comments, left untouched/);
+  assert.match(
+    second.stdout,
+    /kept your existing package\.json scripts: harness:validate, harness:comments, harness:score, left untouched/,
+  );
 
   const afterSecond = await readFile(path.join(dir, 'package.json'), 'utf8');
   assert.equal(afterSecond, afterFirst, 'second run leaves package.json byte-identical');

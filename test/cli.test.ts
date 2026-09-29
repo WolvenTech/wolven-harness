@@ -1,5 +1,6 @@
-import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
+import { test } from 'node:test';
 import { makeRepo, run } from './helpers/fixture.js';
 
 test('--help lists setup, validate, and comments', async () => {
@@ -58,4 +59,24 @@ test('validate exits 0', async () => {
 
   assert.equal(result.code, 0);
   assert.match(result.stdout, /validate: ok/);
+});
+
+test('--version and -v print the package name and version', async () => {
+  const dir = await makeRepo({});
+  const pkg = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8')) as {
+    version: string;
+  };
+
+  for (const flag of ['--version', '-v']) {
+    const result = await run([flag], { cwd: dir });
+    assert.equal(result.code, 0);
+    assert.equal(result.stdout, `@wolven-tech/harness ${pkg.version}\n`);
+  }
+});
+
+test('usage lists --version', async () => {
+  const dir = await makeRepo({});
+  const result = await run(['--help'], { cwd: dir });
+
+  assert.match(result.stdout, /--version/);
 });

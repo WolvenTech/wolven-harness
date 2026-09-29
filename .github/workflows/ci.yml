@@ -1,40 +1,196 @@
-name: ci
+name: CI
 
 on:
   pull_request:
     branches: [main]
+    # why: `edited` re-checks a renamed title. An edit-only run skips the code
+    # jobs and CI requires the latest runs of them on this commit to have passed;
+    # a base-branch change still runs everything.
+    types: [opened, edited, synchronize, reopened]
 
 permissions:
   contents: read
+  pull-requests: read
+  checks: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number }}-${{ github.event.action == 'edited' && !github.event.changes.base && 'edit' || 'code' }}
+  cancel-in-progress: true
 
 jobs:
-  package-gate:
+  title:
+    name: Title
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Check the PR title against Conventional Commits
+        uses: amannn/action-semantic-pull-request@v6
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  lint:
+    name: Lint
+    if: ${{ github.event.action != 'edited' || github.event.changes.base }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
         with:
           # why: `pnpm comments` diffs against the merge-base with origin/main; a
           # shallow, single-ref checkout has neither that branch nor the history
           # needed to compute it.
           fetch-depth: 0
 
-      - uses: pnpm/action-setup@v4
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v6
         with:
           version: 11.28.2
 
-      - uses: actions/setup-node@v4
+      - name: Set up Node
+        uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: pnpm
 
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm build
-      - run: pnpm test
-      - run: pnpm validate
-      - run: pnpm comments
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
-      # why: packs with the release job's npm so a bad manifest fails here, not
-      # after the release tag exists. `npm publish --dry-run` can't be used: npm
-      # 11 fails it once the version on main is already published.
-      - run: npm install -g npm@11.20.0
-      - run: npm pack --dry-run
+      - name: Build
+        run: pnpm build
+
+      - name: Lint and format
+        run: pnpm lint
+
+      - name: Validate harness
+        run: pnpm validate
+
+      - name: Check comments
+        run: pnpm comments
+
+      - name: Score harness
+        run: pnpm score
+
+  test:
+    name: Test (Node ${{ matrix.node }})
+    if: ${{ github.event.action != 'edited' || github.event.changes.base }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [22, 24]
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 11.28.2
+
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: ${{ matrix.node }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Test
+        run: pnpm test
+
+  package:
+    name: Package
+    if: ${{ github.event.action != 'edited' || github.event.changes.base }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 11.28.2
+
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm build
+
+      # why: packs with the release job's npm, so a bad manifest fails here
+      # rather than after the release tag exists.
+      - name: Set up release npm
+        run: npm install -g npm@11.20.0
+
+      - name: Pack
+        run: |
+          set -euo pipefail
+          npm pack --pack-destination "$RUNNER_TEMP"
+          mv "$RUNNER_TEMP"/*.tgz "$RUNNER_TEMP/package.tgz"
+
+      # why: installs the packed tarball into an empty repo, which catches files
+      # the published package omits and the in-repo tests cannot see.
+      - name: Smoke test the packed CLI
+        run: |
+          set -euo pipefail
+          cd "$(mktemp -d)"
+          git init --quiet
+          echo '{"name":"smoke","private":true}' > package.json
+          pnpm add --save-dev "$RUNNER_TEMP/package.tgz"
+          version="$(pnpm exec wolven-harness --version)"
+          [[ "$version" == "@wolven-tech/harness "* ]]
+          pnpm exec wolven-harness setup --git-host gh --runtimes claude,codex --skills ship < /dev/null
+          pnpm exec wolven-harness validate
+          score_version="$(node -p "require('$GITHUB_WORKSPACE/package.json').devDependencies['harness-score']")"
+          pnpm add --save-dev --save-exact "harness-score@$score_version"
+          pnpm harness:score
+
+  # why: main requires this one check; the jobs above fan in here. On an
+  # edit-only run the code jobs are skipped, so their latest non-skipped runs on
+  # this commit must have passed: a failed or unfinished code run keeps CI red,
+  # and its own later CI run supersedes this one. An edit never greens a commit.
+  ci:
+    name: CI
+    needs: [title, lint, test, package]
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require every job to pass
+        env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+          TITLE_RESULT: ${{ needs.title.result }}
+          EDIT_ONLY: ${{ github.event.action == 'edited' && !github.event.changes.base }}
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.event.pull_request.head.sha }}
+          REQUIRED: |
+            Lint
+            Test (Node 22)
+            Test (Node 24)
+            Package
+        run: |
+          set -euo pipefail
+          echo "results: $RESULTS"
+          if [[ "$EDIT_ONLY" != true ]]; then
+            for result in $RESULTS; do [[ "$result" == success ]] || exit 1; done
+            exit 0
+          fi
+          [[ "$TITLE_RESULT" == success ]] || { echo "Title: $TITLE_RESULT"; exit 1; }
+          runs="$(gh api --paginate "repos/$REPO/commits/$SHA/check-runs?per_page=100" --jq '.check_runs[]' | jq -s '.')"
+          bad=0
+          while IFS= read -r name; do
+            [[ -n "$name" ]] || continue
+            verdict="$(jq -r --arg name "$name" '
+              [.[] | select(.name == $name and .conclusion != "skipped")]
+              | sort_by(.id) | last
+              | if . == null then "missing" else "\(.status) \(.conclusion)" end' <<< "$runs")"
+            echo "$name: $verdict"
+            [[ "$verdict" == "completed success" ]] || bad=1
+          done <<< "$REQUIRED"
+          exit "$bad"
