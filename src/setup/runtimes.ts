@@ -53,7 +53,7 @@ async function wireClaudeSkillsSymlink(ctx: Context, created: string[], skipped:
     await symlinkImpl('../.agents/skills', skillsLink, 'dir');
   } catch {
     throw new SetupError(
-      'could not create the .claude/skills symlink: symlinks are required to wire the claude runtime, and v0 supports macOS and Linux only.',
+      'could not create the .claude/skills symlink: symlinks are required to wire the claude runtime, and only macOS and Linux are supported.',
     );
   }
 
