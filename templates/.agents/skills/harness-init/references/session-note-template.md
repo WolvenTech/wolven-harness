@@ -43,6 +43,10 @@ status: <status>
 
 <each claim repointed, reworded, or left as is during the claim loop and the meaning check, with the Human's answer>
 
+### Meaning check
+
+<grouped by ADR number, in the bare-number form below: each citing `file:line` with `ok` or `mismatch → the Human's answer`. Skipped only when step 1 was skipped.>
+
 ## Discovery
 
 <the context list, the lifecycle note, and the decided-tools list step 2 produced>

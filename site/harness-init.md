@@ -24,6 +24,6 @@ pnpm exec wolven-harness validate
 
 `setup` adds `harness:validate` as a package script for `wolven-harness validate` when that script is missing. In that case, `pnpm harness:validate` runs the same check. Existing scripts are preserved; see [Commands](./commands).
 
-Migration is complete when validation exits 0 with no legacy warnings left. References to decision records must resolve to a stable record in `docs/adrs/`; legacy records get migration warnings during the transition.
+Migration is complete when validation exits 0 with no legacy warnings left and no `adr-status-mismatch`. A superseded ADR is never kept `stable`: it gets a successor and is deprecated. References to decision records must resolve to a stable record in `docs/adrs/`; legacy records get migration warnings during the transition.
 
 Next, try the [Daily use](./cycle) example.

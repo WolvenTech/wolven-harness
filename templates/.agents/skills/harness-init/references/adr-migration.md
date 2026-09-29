@@ -39,8 +39,9 @@ section, a table cell, a header note) maps to the profile's `status`:
 | `Accepted` | `stable` | |
 | `Proposed` | `draft` | |
 | `Superseded by <ADR>` | `deprecated` | only when nothing in the ADR or an index of the legacy folder says part of it still applies (otherwise it is the next row); set `superseded_by` to the successor's new filename (without `.md`) — the successor must already be migrated and promoted before this ADR is deprecated, same order as the `adr` skill's own Supersede step |
-| superseded, but the ADR or an index says part of it still applies | ask the Human | offer two options: split the part that still binds into a new ADR through `adr`, then deprecate this one with `superseded_by` set; or keep this one `stable` because the Human judges it still binding as a whole, with that decision recorded in the session note |
-| anything else — superseded with no successor named, `Deprecated`, `Rejected`, `Amended`, several statuses at once, or no status line at all | ask the Human | offer only the options that would pass `harness:validate` once written; never guess a mapping for a shape this table doesn't cover |
+| superseded, no successor named | ask the Human | offer two options. (1) Recommended: record what replaced it as a new ADR through `adr`, with evidence from code and config (the current provider, say), promote it, then deprecate this one with `superseded_by`. (2) If nothing replaced it and the decision was simply dropped, still write a short successor ADR saying so, then deprecate. Never `stable` |
+| superseded, but the ADR or an index says part of it still applies | ask the Human | split only: the part that still binds becomes a new ADR through `adr`, and this one is deprecated with `superseded_by` set. Never keep this one `stable` as a whole |
+| anything else — `Deprecated`, `Rejected`, `Amended`, several statuses at once, or no status line at all | ask the Human | offer options that are true to the ADR's own Status section; never guess a mapping for a shape this table doesn't cover. `harness:validate` warns `adr-status-mismatch` on a `stable` ADR whose body says otherwise |
 
 The agent never guesses a status mapping outside this table's first three
 rows.
@@ -79,11 +80,14 @@ has is migrated:
 - **Check what each claim means.** `harness:validate` proves a claim's
   number resolves, not that it names the right decision — an older
   renumbering can leave a claim pointing at an unrelated ADR that happens
-  to be `stable`. For every claim to an ADR this migration touched, read
-  the line making the claim next to that ADR's title. Take each mismatch
-  to the Human, one at a time: repoint it, reword it, or leave it as is.
+  to be `stable`. For each ADR this migration touched, list every citing
+  line as `file:line` with `ok` or `mismatch → <the Human's answer>`. A
+  title written next to the token (`ADR-NNN: <Title>`) must match that
+  ADR's title. Take each mismatch to the Human, one at a time: repoint it,
+  reword it, or leave it as is. The list goes into the session note's
+  meaning check.
 - **Done condition.** The step is done only when `harness:validate` exits 0
-  with `0 legacy-warn`. Short of that, keep working the loop above.
+  with `0 legacy-warn` and no `adr-status-mismatch`. Short of that, keep working the loop above.
 - **Point at the repo's own checks.** Moving files can move links inside
   source files too (a code comment citing a decision doc by path, say) —
   things `harness:validate` doesn't scan. Once validate is clean, point the
@@ -256,3 +260,5 @@ that replaced it, not reworded to drop the claim entirely.
   new frontmatter.
 - Calling the step done while `harness:validate` still reports any
   `legacy-warn`, even with the exit code at 0.
+- Mapping an ADR to `stable` while its Status section says it is
+  superseded or deprecated — validate warns `adr-status-mismatch`.
