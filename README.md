@@ -7,62 +7,54 @@
 [![node](https://img.shields.io/badge/node-%3E%3D22-brightgreen.svg)](https://nodejs.org)
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 
-`wolven-harness` is a TypeScript CLI for Node 22 or later. The binary is `wolven-harness`. `setup` seeds an `AGENTS.md`-based `.agents/` tree (sixteen skills, including `harness-init`) and wires runtimes. `validate` keeps `ADR-NNN` claims fail-closed against `docs/adrs/`. `comments` judges comment lines a change adds. v0 is macOS and Linux only, because Claude wiring uses a directory symlink. The repository is `wolven-harness`. The package is `@wolven-tech/harness`.
+Set up a repo so a coding agent can find its instructions, use recorded decisions, and check its work.
 
-Docs: [wolventech.github.io/wolven-harness](https://wolventech.github.io/wolven-harness/).
+`setup` adds the harness files. `validate` checks the harness files and that architecture claims point to recorded decisions. `comments` checks the comment lines a change adds.
+
+Docs: [wolventech.github.io/wolven-harness](https://wolventech.github.io/wolven-harness/). See also [Commands](https://wolventech.github.io/wolven-harness/commands) and [Upgrade](https://wolventech.github.io/wolven-harness/upgrade).
 
 ## Install
-
-The package is public on npmjs.org as `@wolven-tech/harness`. Install is two commands, in this order:
 
 ```sh
 pnpm add -D @wolven-tech/harness
 pnpm exec wolven-harness setup
 ```
 
-Run both at the git top level of the repo you are setting up. `setup` fails anywhere else. You need Node 22 or later, git, and macOS or Linux.
+Run both at the git top level. You need Node 22 or later, git, pnpm, and macOS or Linux.
+
+Upgrading from 0.2.0? In 0.3.0 `init` became `setup`. See the [Upgrade page](https://wolventech.github.io/wolven-harness/upgrade).
 
 ## Setup
 
-`setup` asks a few questions, then adds only what is missing. It never edits `AGENTS.md`, and it never commits.
+`setup` creates only paths that are missing. It never creates or edits `AGENTS.md`, and it never commits. It also:
 
-When stdout is not a TTY, pass `--git-host` and `--runtimes`. Add a skill set later with `--skills` (for example `--skills ship,discovery`). Re-runs never remove one.
+- adds missing `harness:validate` and `harness:comments` scripts to an existing `package.json`;
+- rewrites `.wolven-harness.json` on every run, with your setup choices and `packageVersion`.
+
+To be asked questions, stdin and stdout must both be a TTY. Otherwise pass `--git-host gh|bit` and `--runtimes` (a comma list of `claude`, `codex`, `cursor`), unless `.wolven-harness.json` already records them.
+
+Nine core skills are always installed. Two optional sets add more:
+
+- `ship`: `code-commit`, `code-pr`, `code-review`, `code-ci`.
+- `discovery`: `create-prd`, `prototype`, `handoff`.
+
+Interactive runs preselect `ship`. Non-interactive runs without `--skills` install core and `ship`. Use `--skills ship,discovery` to pick sets, or `--skills none` for core only. Re-runs never remove an installed set.
 
 ## What to do next
 
-After `setup` and `harness-init`:
+Ask your agent to run `harness-init`. Then:
 
-1. `code-spec`: freeze the ask into obligation-and-proof pairs.
-2. `code-plan`: turn the spec into ordered execute units.
-3. `code-execute`: implement a wave in-repo and run the gates.
+1. `code-spec`: agree on the change and how to verify it.
+2. `code-plan`: approve the implementation steps.
+3. `code-execute`: make the change and run the checks.
+4. `code-commit`: commit the result when you are ready.
 
-Use `create-prd` and `grilling` when the problem is not yet a clear ask.
+Commits are manual by default. For a one-file change, go straight to `code-execute`.
 
-Commit, PR, review, and CI are later, separate asks. `code-pr`, `code-review`, `code-ci`, and `handoff` are ask-only and never merge.
+`create-prd`, `prototype`, and `handoff` need the discovery set: `pnpm exec wolven-harness setup --skills discovery`. `code-pr`, `code-review`, `code-ci`, and `handoff` are ask-only and never merge.
 
-## Skills
-
-`setup` seeds sixteen skills under `.agents/skills/`. Ask-only rows are never started by a model, and none of them merges. The same table, plus the standing rules, is on the [skills page](https://wolventech.github.io/wolven-harness/skills).
-
-| Skill | Description |
-| --- | --- |
-| `adr` | Create, promote, and supersede ADRs under docs/adrs/; repoint claims when one supersedes another. |
-| `code-ci` (ask-only) | Drive a PR to merge-ready: conflicts, then comments, then failing checks. Explicit ask; never merge. |
-| `code-commit` | Write Conventional Commits on an explicit ask, or from code-execute when commit-cadence says to. |
-| `code-execute` | Execute a locked plan in-repo (implement, validate, maybe commit). PRs, review, CI are a later ask. |
-| `code-plan` | Turn a locked spec into ordered execute units with dependencies, wave stops, and a Subagent each. |
-| `code-pr` (ask-only) | Push the branch and open or amend a PR from the body template. Ask-only; never merges. |
-| `code-review` (ask-only) | Review an open PR against the refs it cites; post blocking or nit findings. Never merges. |
-| `code-spec` | Freeze a code initiative into a spec from a PRD or confirmed ask, with obligation-proof pairs. |
-| `create-prd` | Grill a problem to one statement, draft a lean PRD, and promote draft to stable only on approval. |
-| `grilling` | Interview one question at a time until every open branch of a plan, decision, or idea is settled. |
-| `handoff` (ask-only) | Save a handoff document to the OS temp directory for a fresh session. Ask-only; never automatic. |
-| `harness-init` | Fold WOLVEN.md into AGENTS.md, migrate legacy ADRs, discover, stub skills, and write a session note. |
-| `pragmatic-guard` | YAGNI: challenge over-build, record docs/deferrals/, refuse scope expansion without a trigger. |
-| `prototype` | Build a throwaway prototype that answers one question, then discard or promote it deliberately. |
-| `qmd` | Search local markdown notes, docs, and wikis with QMD; retrieve documents or set up QMD access. |
-| `research` | Investigate against primary sources, cite every claim, and land the answer as an in-repo note. |
+All 16 skills are listed on the [skills page](https://wolventech.github.io/wolven-harness/skills).
 
 ## License
 
-MIT © WolvenTech. See [LICENSE](./LICENSE). Issues and pull requests belong here: [CONTRIBUTING.md](CONTRIBUTING.md).
+MIT © WolvenTech. See [LICENSE](./LICENSE). To contribute, see [CONTRIBUTING.md](CONTRIBUTING.md).

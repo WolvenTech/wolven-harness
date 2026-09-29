@@ -1,5 +1,5 @@
 ---
-description: The sixteen skills setup seeds, and the three standing rules.
+description: The sixteen skills available, which ones setup installs, and the three standing rules.
 ---
 
 # Skills
@@ -19,7 +19,7 @@ For a one-file change, you can ask for `code-execute` directly and skip the spec
 
 ## Full inventory
 
-`setup` seeds sixteen skills under `.agents/skills/`. The four marked **ask-only** require an explicit request. PR creation, review, and CI work never merge the PR.
+Sixteen skills are available under `.agents/skills/`. `setup` always installs the nine core skills (`harness-init`, `adr`, `grilling`, `pragmatic-guard`, `qmd`, `research`, `code-spec`, `code-plan`, `code-execute`). The `ship` set (`code-commit`, `code-pr`, `code-review`, `code-ci`) and the `discovery` set (`create-prd`, `prototype`, `handoff`) are optional. The four marked **ask-only** require an explicit request. PR creation, review, and CI work never merge the PR.
 
 | Skill | Description |
 | --- | --- |
