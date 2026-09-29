@@ -115,12 +115,27 @@ body {
 
 .VPNavBar {
   background: var(--ground) !important;
-  border-bottom: 1px solid var(--rule);
+  border-bottom: 0;
   box-shadow: none !important;
 }
 
+/* VitePress splits this rule: the brand title's border, and a divider
+   padded by the sidebar width. At wide viewports those widths disagree,
+   so the line breaks where the columns meet. One edge on the header. */
+.VPNav::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 3;
+  height: 1px;
+  background: var(--rule);
+  pointer-events: none;
+}
+
 .VPNavBar .divider {
-  display: none;
+  display: none !important;
 }
 
 .VPNavBarTitle .title,
