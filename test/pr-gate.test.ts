@@ -26,46 +26,28 @@ test('pr-gate: workflow permissions are exactly contents read, with no job widen
   }
 });
 
-test('pr-gate: the package-gate job runs install, build, test, validate, comments, then packs with the release npm', async () => {
+/** The `run` commands of a job's steps, in order. */
+function runsOf(job: Record<string, any>): string[] {
+  return job.steps.filter((s: Record<string, any>) => s.run).map((s: Record<string, any>) => String(s.run));
+}
+
+test('pr-gate: the lint job builds, validates the harness, and checks comments on full history', async () => {
   const workflow = await readWorkflow();
-  const job = workflow.jobs['package-gate'];
+  const job = workflow.jobs.lint;
 
-  assert.ok(job, 'package-gate job present');
+  assert.ok(job, 'lint job present');
+  assert.deepEqual(runsOf(job), ['pnpm install --frozen-lockfile', 'pnpm build', 'pnpm validate', 'pnpm comments']);
 
-  const runs = job.steps.filter((s: Record<string, any>) => s.run).map((s: Record<string, any>) => String(s.run));
-  assert.deepEqual(runs, [
-    'pnpm install --frozen-lockfile',
-    'pnpm build',
-    'pnpm test',
-    'pnpm validate',
-    'pnpm comments',
-    'npm install -g npm@11.20.0',
-    'npm pack --dry-run',
-  ]);
+  const checkout = job.steps.find((s: Record<string, any>) => String(s.uses ?? '').startsWith('actions/checkout@'));
+  assert.equal(checkout?.with?.['fetch-depth'], 0);
 });
 
-test('pr-gate: pnpm is pinned to an exact version and node-version is set', async () => {
+test('pr-gate: the test job builds and tests on Node 22 and 24', async () => {
   const workflow = await readWorkflow();
-  const steps: Record<string, any>[] = workflow.jobs['package-gate'].steps;
+  const job = workflow.jobs.test;
 
-  const pnpmSetup = steps.find((s) => String(s.uses ?? '').startsWith('pnpm/action-setup@'));
-  assert.ok(pnpmSetup, 'pnpm/action-setup step present');
-  assert.match(String(pnpmSetup.with?.version), /^\d+\.\d+\.\d+$/);
-
-  const nodeSetup = steps.find((s) => String(s.uses ?? '').startsWith('actions/setup-node@'));
-  assert.ok(nodeSetup, 'actions/setup-node step present');
-  assert.ok(nodeSetup.with?.['node-version'], 'node-version present');
-});
-
-test('pr-gate: the workflow names no secret', async () => {
-  const raw = await readFile(path.join(repoRoot, '.github/workflows/ci.yml'), 'utf8');
-
-  assert.doesNotMatch(raw, /secrets\./);
-});
-
-test('pr-gate: the package-gate job runs on a node matrix that includes 22 and 24', async () => {
-  const workflow = await readWorkflow();
-  const job = workflow.jobs['package-gate'];
+  assert.ok(job, 'test job present');
+  assert.deepEqual(runsOf(job), ['pnpm install --frozen-lockfile', 'pnpm build', 'pnpm test']);
 
   const matrix: unknown[] = job.strategy?.matrix?.node ?? [];
   assert.ok(matrix.includes(22), 'node 22 in matrix');
@@ -75,15 +57,40 @@ test('pr-gate: the package-gate job runs on a node matrix that includes 22 and 2
   assert.equal(nodeSetup?.with?.['node-version'], '${{ matrix.node }}');
 });
 
-test('pr-gate: the tarball-smoke job packs, runs setup, and runs validate', async () => {
+test('pr-gate: the package job runs after lint and test, packs with the release npm, and smoke-tests the tarball', async () => {
   const workflow = await readWorkflow();
-  const job = workflow.jobs['tarball-smoke'];
+  const job = workflow.jobs.package;
 
-  assert.ok(job, 'tarball-smoke job present');
+  assert.ok(job, 'package job present');
+  assert.deepEqual(job.needs, ['lint', 'test']);
 
-  const runs = job.steps.filter((s: Record<string, any>) => s.run).map((s: Record<string, any>) => String(s.run));
+  const runs = runsOf(job);
+  assert.ok(runs.includes('npm install -g npm@11.20.0'), 'release npm pinned');
   const joined = runs.join('\n');
   assert.match(joined, /npm pack/);
   assert.match(joined, /wolven-harness setup/);
   assert.match(joined, /wolven-harness validate/);
+});
+
+test('pr-gate: every job pins pnpm to an exact version, sets node-version, and names every step', async () => {
+  const workflow = await readWorkflow();
+
+  for (const [id, job] of Object.entries<Record<string, any>>(workflow.jobs)) {
+    assert.ok(job.name, `${id} has a display name`);
+    const steps: Record<string, any>[] = job.steps;
+
+    const pnpmSetup = steps.find((s) => String(s.uses ?? '').startsWith('pnpm/action-setup@'));
+    assert.match(String(pnpmSetup?.with?.version), /^\d+\.\d+\.\d+$/, `${id} pins pnpm`);
+
+    const nodeSetup = steps.find((s) => String(s.uses ?? '').startsWith('actions/setup-node@'));
+    assert.ok(nodeSetup?.with?.['node-version'], `${id} sets node-version`);
+
+    for (const step of steps) assert.ok(step.name, `${id} names every step`);
+  }
+});
+
+test('pr-gate: the workflow names no secret', async () => {
+  const raw = await readFile(path.join(repoRoot, '.github/workflows/ci.yml'), 'utf8');
+
+  assert.doesNotMatch(raw, /secrets\./);
 });

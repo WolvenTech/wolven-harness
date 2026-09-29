@@ -151,8 +151,8 @@ test('release-oidc: the PR gate and the release use the same pnpm and npm pins',
   const npmPin = (steps: Record<string, any>[]) =>
     steps.find((s) => /npm install -g npm@/.test(String(s.run ?? '')))?.run;
 
-  assert.equal(pnpmPin(release.jobs.build.steps), pnpmPin(ci.jobs['package-gate'].steps));
-  assert.equal(npmPin(release.jobs.publish.steps), npmPin(ci.jobs['package-gate'].steps));
+  assert.equal(pnpmPin(release.jobs.build.steps), pnpmPin(ci.jobs.package.steps));
+  assert.equal(npmPin(release.jobs.publish.steps), npmPin(ci.jobs.package.steps));
 });
 
 test('release-workflow: releases bump the minor version before 1.0', async () => {

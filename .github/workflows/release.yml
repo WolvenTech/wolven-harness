@@ -1,4 +1,4 @@
-name: release
+name: Release
 
 on:
   push:
@@ -17,6 +17,7 @@ permissions:
 
 jobs:
   release-please:
+    name: Release PR
     if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.tag == '') }}
     runs-on: ubuntu-latest
     permissions:
@@ -35,6 +36,7 @@ jobs:
           skip-github-release: ${{ github.event_name == 'push' }}
 
   build:
+    name: Build
     needs: release-please
     if: ${{ !cancelled() && (needs.release-please.outputs.release_created == 'true' || (github.event_name == 'workflow_dispatch' && startsWith(inputs.tag, 'v'))) }}
     runs-on: ubuntu-latest
@@ -80,6 +82,7 @@ jobs:
   # invariant: only this job can mint the OIDC token npm trusts, and it never
   # installs the project's dependencies or runs its lifecycle scripts.
   publish:
+    name: Publish to npm
     needs: [release-please, build]
     if: ${{ !cancelled() && needs.build.result == 'success' }}
     runs-on: ubuntu-latest

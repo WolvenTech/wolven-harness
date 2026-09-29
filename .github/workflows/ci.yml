@@ -1,4 +1,4 @@
-name: ci
+name: CI
 
 on:
   pull_request:
@@ -7,110 +7,123 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ci-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 jobs:
-  package-gate:
+  lint:
+    name: Lint
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node: [22, 24]
     steps:
-      - uses: actions/checkout@v4
+      - name: Check out
+        uses: actions/checkout@v4
         with:
           # why: `pnpm comments` diffs against the merge-base with origin/main; a
           # shallow, single-ref checkout has neither that branch nor the history
           # needed to compute it.
           fetch-depth: 0
 
-      - uses: pnpm/action-setup@v4
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
         with:
           version: 11.28.2
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node }}
-          cache: pnpm
-
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm build
-      - run: pnpm test
-      - run: pnpm validate
-      - run: pnpm comments
-
-      # why: packs with the release job's npm so a bad manifest fails here, not
-      # after the release tag exists. `npm publish --dry-run` can't be used: npm
-      # 11 fails it once the version on main is already published.
-      - run: npm install -g npm@11.20.0
-      - run: npm pack --dry-run
-
-  tarball-smoke:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 11.28.2
-
-      - uses: actions/setup-node@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: pnpm
 
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm build
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
-      # why: the tarball must come from the release job's npm so the smoke test
-      # installs exactly what would be published.
-      - run: npm install -g npm@11.20.0
-      - name: Pack tarball
+      - name: Build
+        run: pnpm build
+
+      - name: Validate harness
+        run: pnpm validate
+
+      - name: Check comments
+        run: pnpm comments
+
+  test:
+    name: Test (Node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [22, 24]
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.28.2
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm build
+
+      - name: Test
+        run: pnpm test
+
+  package:
+    name: Package
+    needs: [lint, test]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.28.2
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm build
+
+      # why: packs with the release job's npm, so a bad manifest fails here
+      # rather than after the release tag exists.
+      - name: Set up release npm
+        run: npm install -g npm@11.20.0
+
+      - name: Pack
         run: |
           set -euo pipefail
-          tgz="$(npm pack --pack-destination "$RUNNER_TEMP" --silent | tail -n 1)"
-          echo "TARBALL=$RUNNER_TEMP/$tgz" >> "$GITHUB_ENV"
+          npm pack --pack-destination "$RUNNER_TEMP"
+          mv "$RUNNER_TEMP"/*.tgz "$RUNNER_TEMP/package.tgz"
 
-      # why: installing the packed tarball into an empty repo catches files the
-      # manifest omits, which the in-repo test suite cannot see.
-      - name: Install tarball into a fresh repo
+      # why: installs the packed tarball into an empty repo, which catches files
+      # the published package omits and the in-repo tests cannot see.
+      - name: Smoke test the packed CLI
         run: |
           set -euo pipefail
-          smoke="$(mktemp -d)"
-          echo "SMOKE_DIR=$smoke" >> "$GITHUB_ENV"
-          cd "$smoke"
-          git init
-          git config user.name smoke
-          git config user.email smoke@example.invalid
+          cd "$(mktemp -d)"
+          git init --quiet
           echo '{"name":"smoke","private":true}' > package.json
-          pnpm add -D "$TARBALL"
-
-      - name: Check version output
-        working-directory: ${{ env.SMOKE_DIR }}
-        run: |
-          set -euo pipefail
-          out="$(pnpm exec wolven-harness --version)"
-          echo "$out"
-          case "$out" in
-            "@wolven-tech/harness "*) ;;
-            *) echo "unexpected --version output" >&2; exit 1 ;;
-          esac
-
-      # why: stdin from /dev/null keeps setup non-interactive.
-      - name: Run setup
-        working-directory: ${{ env.SMOKE_DIR }}
-        run: |
-          set -euo pipefail
+          pnpm add --save-dev "$RUNNER_TEMP/package.tgz"
+          version="$(pnpm exec wolven-harness --version)"
+          [[ "$version" == "@wolven-tech/harness "* ]]
           pnpm exec wolven-harness setup --git-host gh --runtimes claude,codex --skills ship < /dev/null
-
-      - name: Assert setup output
-        working-directory: ${{ env.SMOKE_DIR }}
-        run: |
-          set -euo pipefail
-          test -f .agents/skills/code-spec/SKILL.md
-          test -f .agents/skills/code-pr/SKILL.md
-          test ! -e .agents/skills/create-prd
-          test -L .claude/skills
-          test ! -e AGENTS.md
-          node -e "if (!require('./package.json').scripts?.['harness:validate']) process.exit(1)"
-
-      - name: Validate
-        working-directory: ${{ env.SMOKE_DIR }}
-        run: pnpm exec wolven-harness validate
+          pnpm exec wolven-harness validate

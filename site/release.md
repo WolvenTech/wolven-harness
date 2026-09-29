@@ -32,7 +32,7 @@ PR titles must be [Conventional Commits](https://www.conventionalcommits.org/). 
 1. **Open the release PR** that release-please maintains, and check its version and changelog.
 2. **Close and reopen the release PR before merging it.** release-please pushes with `GITHUB_TOKEN`, and pushes made with that token start no workflows. Reopening the PR is what makes the checks run.
 3. **Wait for checks to pass, then merge.**
-4. **Run the `release` workflow by hand with the tag left empty:** Actions → **release** → **Run workflow**, on `main`. The run:
+4. **Run the `release` workflow by hand with the tag left empty:** Actions → **Release** → **Run workflow**, on `main`. The run:
    - creates the tag and the GitHub Release,
    - checks that the tag matches `package.json`'s version, then builds and tests,
    - publishes to npmjs through OIDC trusted publishing, with provenance. It uses no stored token.
