@@ -2,7 +2,7 @@
 type: spec
 title: Tell the CLI setup flow apart from harness-init
 description: The public command is setup. Compound CLI names use only the setup- or install- prefix. The harness-init skill is unchanged.
-status: stable
+status: deprecated
 ---
 
 # Tell the CLI setup flow apart from harness-init
@@ -15,24 +15,24 @@ status: stable
 
 - **setup** — the CLI command that scaffolds a consumer repo. Replaces the public command `init`. Recorded here at first use as the command name.
 - **setup-&lt;something&gt;** / **install-&lt;something&gt;** — the only allowed shapes for a compound name that belongs to that CLI flow (test files, test titles).
-- **harness-init** — the skill a person asks an agent to run after `setup` finishes. Already the name in [templates/.agents/skills/harness-init/SKILL.md](../../../templates/.agents/skills/harness-init/SKILL.md). Not renamed.
+- **harness-init** — the skill a person asks an agent to run after `setup` finishes. Already the name in [templates/.agents/skills/harness-init/SKILL.md](../../../../templates/.agents/skills/harness-init/SKILL.md). Not renamed.
 - **git init** — the git command. Unrelated. Stays.
 
-Checked against [docs/adrs/adr-001-claim-path.md](../../adrs/adr-001-claim-path.md) and [docs/adrs/adr-002-public-npm-oidc.md](../../adrs/adr-002-public-npm-oidc.md). Neither ADR names this command. No new term collides with them.
+Checked against [docs/adrs/adr-001-claim-path.md](../../../adrs/adr-001-claim-path.md) and [docs/adrs/adr-002-public-npm-oidc.md](../../../adrs/adr-002-public-npm-oidc.md). Neither ADR names this command. No new term collides with them.
 
 ## Repository grounding
 
-- [src/cli.ts](../../../src/cli.ts) dispatches `case 'init'` to `runInit` today. Yes. This initiative changes that case to `setup`.
-- [src/init/](../../../src/init/) holds the command implementation (`runInit`, `InitError`, `InitCancelled`). Yes. The folder moves to `src/setup/`. Files inside it (`ui.ts`, `options.ts`, `apply.ts`, and the rest) are not named `init` and stay.
+- [src/cli.ts](../../../../src/cli.ts) dispatches `case 'init'` to `runInit` today. Yes. This initiative changes that case to `setup`.
+- [src/init/](../../../../src/setup/) holds the command implementation (`runInit`, `InitError`, `InitCancelled`). Yes. The folder moves to `src/setup/`. Files inside it (`ui.ts`, `options.ts`, `apply.ts`, and the rest) are not named `init` and stay.
 - Nine test files are named `test/init-*.test.ts`. Yes. They move to `setup-<something>.test.ts`, except the package-install warning file, which moves to `install-devdep.test.ts`.
-- `test/harness-init-*.test.ts`, [test/skill-harness-init.test.ts](../../../test/skill-harness-init.test.ts), [site/harness-init.md](../../../site/harness-init.md), and [templates/.agents/skills/harness-init/](../../../templates/.agents/skills/harness-init/) exist. Yes. They stay, except sentences that name the CLI command.
-- [README.md](../../../README.md) pins `pnpm exec wolven-harness init` via [test/readme-install.test.ts](../../../test/readme-install.test.ts). Yes. The pin moves with the command.
-- `pnpm test`, `pnpm validate`, and `pnpm docs:build` exist in [package.json](../../../package.json). Yes. They are the gates. This repo's integrity script is `pnpm validate`, not `harness:validate`.
+- `test/harness-init-*.test.ts`, [test/skill-harness-init.test.ts](../../../../test/skill-harness-init.test.ts), [site/harness-init.md](../../../../site/harness-init.md), and [templates/.agents/skills/harness-init/](../../../../templates/.agents/skills/harness-init/) exist. Yes. They stay, except sentences that name the CLI command.
+- [README.md](../../../../README.md) pins `pnpm exec wolven-harness init` via [test/readme-install.test.ts](../../../../test/readme-install.test.ts). Yes. The pin moves with the command.
+- `pnpm test`, `pnpm validate`, and `pnpm docs:build` exist in [package.json](../../../../package.json). Yes. They are the gates. This repo's integrity script is `pnpm validate`, not `harness:validate`.
 
 ## Surface walk
 
-- **In scope:** [src/cli.ts](../../../src/cli.ts); [src/init/](../../../src/init/) renamed to `src/setup/`; importers in [src/validate/](../../../src/validate/) and [src/comments/](../../../src/comments/); the nine `test/init-*.test.ts` files; CLI mentions in [README.md](../../../README.md), [site/](../../../site/), and skill markdown that means the command.
-- **Out of mutate scope:** the `harness-init` skill folder, its tests, [site/harness-init.md](../../../site/harness-init.md) title and step list, session-note slugs `harness-init-<date>`, `git init`, `initialValue` / `selectInitial`, Pages theme CSS, npm publish, and [docs/adrs/](../../adrs/).
+- **In scope:** [src/cli.ts](../../../../src/cli.ts); [src/init/](../../../../src/setup/) renamed to `src/setup/`; importers in [src/validate/](../../../../src/validate/) and [src/comments/](../../../../src/comments/); the nine `test/init-*.test.ts` files; CLI mentions in [README.md](../../../../README.md), [site/](../../../../site/), and skill markdown that means the command.
+- **Out of mutate scope:** the `harness-init` skill folder, its tests, [site/harness-init.md](../../../../site/harness-init.md) title and step list, session-note slugs `harness-init-<date>`, `git init`, `initialValue` / `selectInitial`, Pages theme CSS, npm publish, and [docs/adrs/](../../../adrs/).
 
 ## Name map
 
@@ -61,7 +61,7 @@ Compound names that belong to the CLI use only these shapes:
 | titles `init-config:` in that file | `setup-config:` (the config file the command writes, not the skill) |
 | `run(['init', ...])` | `run(['setup', ...])` |
 
-`git init` in [src/init/options.ts](../../../src/init/options.ts) stays. The same hint's "re-run init" becomes "re-run setup".
+`git init` in [src/setup/options.ts](../../../../src/setup/options.ts) stays. The same hint's "re-run init" becomes "re-run setup".
 
 ## Waves
 
@@ -88,7 +88,7 @@ A failed gate aborts before the next wave. The same stops are the plan's gate un
 | ID | Obligation | Named proof | Evidence shape |
 | --- | --- | --- | --- |
 | R1.1 | `wolven-harness setup` runs the scaffold. `wolven-harness init` is an unknown command and exits 1. | `proof-cli-setup-dispatch` | `pnpm test` on the dispatch test; usage text lists `setup` and does not list a command named `init` |
-| R1.2 | Errors and the debug tag say `wolven-harness setup:` and `[wolven-harness:setup]`. | `proof-cli-setup-stderr` | [test/setup-ui.test.ts](../../../test/setup-ui.test.ts) asserts the unknown-option line and the debug tag |
+| R1.2 | Errors and the debug tag say `wolven-harness setup:` and `[wolven-harness:setup]`. | `proof-cli-setup-stderr` | [test/setup-ui.test.ts](../../../../test/setup-ui.test.ts) asserts the unknown-option line and the debug tag |
 | R1.3 | `src/init/` is gone. `src/setup/` exports `runSetup`, `SetupError`, and `SetupCancelled`. No `runInit`, `InitError`, or `InitCancelled` remains under `src/`. | `proof-cli-setup-symbols` | `rg` of those three old symbols under `src/` is empty; `src/setup/` exists |
 
 ### R2 — Compound names use only the two prefixes
@@ -102,9 +102,9 @@ A failed gate aborts before the next wave. The same stops are the plan's gate un
 
 | ID | Obligation | Named proof | Evidence shape |
 | --- | --- | --- | --- |
-| R3.1 | The README install line is `pnpm exec wolven-harness setup`, still before any later mention, and still free of GitHub Packages residue. | `proof-cli-setup-readme` | [test/readme-install.test.ts](../../../test/readme-install.test.ts) |
-| R3.2 | Pages and skill sentences that mean the CLI say `setup`. The skill name, folder, docs title "Setting up with harness-init", and `harness-init-<date>` slugs stay. | `proof-cli-setup-prose` | `rg "wolven-harness init" ` is empty; `rg "harness-init"` still hits the skill, its tests, and [site/harness-init.md](../../../site/harness-init.md) |
-| R3.3 | The string `git init` remains in the not-a-repository hint and in test fixtures. | `proof-cli-setup-git-init` | `rg "git init" src test` still hits [src/setup/options.ts](../../../src/setup/options.ts) and [test/helpers/fixture.ts](../../../test/helpers/fixture.ts) |
+| R3.1 | The README install line is `pnpm exec wolven-harness setup`, still before any later mention, and still free of GitHub Packages residue. | `proof-cli-setup-readme` | [test/readme-install.test.ts](../../../../test/readme-install.test.ts) |
+| R3.2 | Pages and skill sentences that mean the CLI say `setup`. The skill name, folder, docs title "Setting up with harness-init", and `harness-init-<date>` slugs stay. | `proof-cli-setup-prose` | `rg "wolven-harness init" ` is empty; `rg "harness-init"` still hits the skill, its tests, and [site/harness-init.md](../../../../site/harness-init.md) |
+| R3.3 | The string `git init` remains in the not-a-repository hint and in test fixtures. | `proof-cli-setup-git-init` | `rg "git init" src test` still hits [src/setup/options.ts](../../../../src/setup/options.ts) and [test/helpers/fixture.ts](../../../../test/helpers/fixture.ts) |
 
 ## Nine-dimension landings
 
@@ -112,11 +112,11 @@ A failed gate aborts before the next wave. The same stops are the plan's gate un
 | --- | --- | --- |
 | validation | obligation ↔ proof | R1.1 / `proof-cli-setup-dispatch` — `init` is rejected; `setup` accepts the same flags `--git-host`, `--runtimes`, `--skills`, `--verbose`, `--debug` |
 | failure modes | obligation ↔ proof | R1.2 / `proof-cli-setup-stderr` — a bad flag still exits 1 with `wolven-harness setup: unknown option` |
-| idempotency and retry | n/a | Unchanged surface: re-run behavior in [src/init/apply.ts](../../../src/init/apply.ts) (skip existing paths, rewrite `packageVersion`). This initiative only renames it. |
-| authorization | n/a | Unchanged surface: [src/cli.ts](../../../src/cli.ts) has no auth. Local process only. |
-| concurrency and ordering | n/a | Unchanged surface: `main()` in [src/cli.ts](../../../src/cli.ts) runs one command per process. No new lock. |
-| data lifecycle | n/a | Unchanged surface: [src/init/config.ts](../../../src/init/config.ts) still writes `.wolven-harness.json` with the same keys. |
-| external-dependency failure | n/a | Unchanged surface: [package.json](../../../package.json) `dependencies` stay `yaml` and `@clack/prompts`. No new network call. |
+| idempotency and retry | n/a | Unchanged surface: re-run behavior in [src/setup/apply.ts](../../../../src/setup/apply.ts) (skip existing paths, rewrite `packageVersion`). This initiative only renames it. |
+| authorization | n/a | Unchanged surface: [src/cli.ts](../../../../src/cli.ts) has no auth. Local process only. |
+| concurrency and ordering | n/a | Unchanged surface: `main()` in [src/cli.ts](../../../../src/cli.ts) runs one command per process. No new lock. |
+| data lifecycle | n/a | Unchanged surface: [src/setup/config.ts](../../../../src/setup/config.ts) still writes `.wolven-harness.json` with the same keys. |
+| external-dependency failure | n/a | Unchanged surface: [package.json](../../../../package.json) `dependencies` stay `yaml` and `@clack/prompts`. No new network call. |
 | state transitions | n/a | Unchanged surface: the scaffold still only adds missing paths and does not edit `AGENTS.md` or commit. Behavior stays in `apply.ts`. |
 | observability | obligation ↔ proof | R1.2 / `proof-cli-setup-stderr` — `--debug` and `WOLVEN_HARNESS_DEBUG=1` emit `[wolven-harness:setup] step …` on stderr only |
 
@@ -172,7 +172,7 @@ A failed gate aborts before the next wave. The same stops are the plan's gate un
 | --- | --- |
 | Rename the `harness-init` skill | Stays. It is the agentic flow, not the CLI. |
 | Pages theme or the header hairline | Already on `bc78884`. Not this initiative. |
-| Merge PR 15 or publish to npm | Human. Release stays [docs/adrs/adr-002-public-npm-oidc.md](../../adrs/adr-002-public-npm-oidc.md). |
+| Merge PR 15 or publish to npm | Human. Release stays [docs/adrs/adr-002-public-npm-oidc.md](../../../adrs/adr-002-public-npm-oidc.md). |
 | An executable plan inside the spec file | The plan file only. |
 
 ## ADR
