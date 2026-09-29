@@ -25,6 +25,7 @@ interface Asked {
   multiLabels: string[];
   skillsInitial?: string[];
   skillsRequired?: boolean;
+  messages?: string[];
 }
 
 function fakePrompter(
@@ -33,11 +34,13 @@ function fakePrompter(
 ): Prompter {
   return {
     async select(o) {
+      (asked.messages ??= []).push(o.message);
       asked.selectInitial = o.initialValue;
       asked.selectHints = o.options.map((c) => `${c.label}|${c.hint ?? ''}`);
       return answers.host as never;
     },
     async multiselect(o) {
+      (asked.messages ??= []).push(o.message);
       if (o.options.some((c) => c.value === 'ship')) {
         asked.skillsInitial = o.initialValues;
         asked.skillsRequired = o.required;
@@ -258,4 +261,31 @@ test('init-ui: --help lists init flags including --debug and --verbose', async (
   for (const flag of ['--git-host', '--runtimes', '--verbose', '--debug']) {
     assert.ok(result.stdout.includes(flag), `help mentions ${flag}`);
   }
+});
+
+test('init-ui: an invalid flag value in a terminal opens its menu instead of failing', async () => {
+  const asked = newAsked();
+  const dir = await makeRepo({}, { git: true });
+  const result = await run(['init', '--git-host', 'gitlab', '--runtimes', 'vim', '--skills', 'extras'], {
+    cwd: dir,
+    isTTY: true,
+    prompts: fakePrompter({ host: 'gh', runtimes: ['claude'], skills: ['ship'] }, asked),
+  });
+
+  assert.equal(result.code, 0);
+  const messages = asked.messages ?? [];
+  assert.ok(messages.some((m) => /^Invalid value for --git-host: "gitlab"; pick from the list instead\.\nWhere is this repository hosted\?/.test(m)));
+  assert.ok(messages.some((m) => /^Invalid value for --runtimes: "vim"; pick from the list instead\.\nWhich agent runtimes/.test(m)));
+  assert.ok(messages.some((m) => /^Invalid value for --skills: "extras"; pick from the list instead\.\nWhich extra skill sets/.test(m)));
+  const config = JSON.parse(await readFile(path.join(dir, '.wolven-harness.json'), 'utf8'));
+  assert.equal(config.gitHost, 'gh');
+  assert.deepEqual(config.runtimes, ['claude']);
+});
+
+test('init-ui: an invalid flag value off a terminal still fails with a hint', async () => {
+  const dir = await makeRepo({}, { git: true });
+  const result = await run(['init', '--git-host', 'gh', '--runtimes', 'vim'], { cwd: dir });
+  assert.equal(result.code, 1);
+  assert.match(result.stderr, /invalid value for --runtimes: "vim"/);
+  assert.match(result.stderr, /Hint: /);
 });

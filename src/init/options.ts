@@ -185,6 +185,33 @@ export async function detectRuntimes(root: string): Promise<Runtime[]> {
   return found;
 }
 
+/** Why a flag's value was set aside, shown above the question that replaces it. */
+interface Notes {
+  gitHost?: string;
+  runtimes?: string;
+  skills?: string;
+}
+
+/** Prefixes `message` with the reason a flag value was set aside, when there is one. */
+function withNote(note: string | undefined, message: string): string {
+  return note === undefined ? message : `${note}\n${message}`;
+}
+
+/**
+ * Parses a flag value. When a person can answer prompts, an invalid value
+ * is recorded in `setNote` and returns `undefined`, so the question is
+ * asked instead; otherwise the `InitError` stands.
+ */
+function parseOrAsk<T>(parse: () => T, interactive: boolean, setNote: (note: string) => void): T | undefined {
+  try {
+    return parse();
+  } catch (err) {
+    if (!interactive || !(err instanceof InitError)) throw err;
+    setNote(`${err.message.charAt(0).toUpperCase()}${err.message.slice(1)}; pick from the list instead.`);
+    return undefined;
+  }
+}
+
 /**
  * Asks for whichever of `gitHost`/`runtimes` is still missing, host first
  * then runtimes, preselecting what the repo already shows. A cancelled
@@ -195,6 +222,7 @@ async function promptMissing(
   root: string,
   needGitHost: boolean,
   needRuntimes: boolean,
+  notes: Notes = {},
 ): Promise<{ gitHost?: GitHost; runtimes?: Runtime[] }> {
   let gitHost: GitHost | undefined;
   let runtimes: Runtime[] | undefined;
@@ -203,7 +231,7 @@ async function promptMissing(
     const detected = await detectGitHost(root);
     const note = detected === undefined ? '' : ' (detected from origin)';
     gitHost = await prompter.select<GitHost>({
-      message: 'Where is this repository hosted?',
+      message: withNote(notes.gitHost, 'Where is this repository hosted?'),
       options: [
         { value: 'gh', label: 'GitHub', hint: `github.com${detected === 'gh' ? note : ''}` },
         { value: 'bit', label: 'Bitbucket', hint: `bitbucket.org${detected === 'bit' ? note : ''}` },
@@ -216,7 +244,7 @@ async function promptMissing(
   if (needRuntimes) {
     const detected = await detectRuntimes(root);
     runtimes = await prompter.multiselect<Runtime>({
-      message: 'Which agent runtimes do you use? (space to toggle, enter to confirm)',
+      message: withNote(notes.runtimes, 'Which agent runtimes do you use? (space to toggle, enter to confirm)'),
       options: [
         { value: 'claude', label: 'Claude Code', hint: detected.includes('claude') ? 'detected in this repo' : undefined },
         { value: 'codex', label: 'Codex', hint: detected.includes('codex') ? 'detected in this repo' : undefined },
@@ -245,9 +273,9 @@ export async function detectInstalledSets(root: string): Promise<SkillSet[]> {
 }
 
 /** Asks which optional skill sets to add; ship is preselected, zero selections is allowed. */
-async function promptSkillSets(prompter: Prompter, installed: SkillSet[]): Promise<SkillSet[]> {
+async function promptSkillSets(prompter: Prompter, installed: SkillSet[], note?: string): Promise<SkillSet[]> {
   const answer = await prompter.multiselect<SkillSet>({
-    message: 'Which extra skill sets do you want? Core is always included (spec, plan, execute, ADRs, grilling…).',
+    message: withNote(note, 'Which extra skill sets do you want? Core is always included (spec, plan, execute, ADRs, grilling…).'),
     options: [
       { value: 'ship', label: 'Ship — commit, PR, review, CI', hint: 'for getting changes merged' },
       { value: 'discovery', label: 'Discovery — PRD, prototype, handoff', hint: 'for shaping what to build' },
@@ -281,17 +309,25 @@ export async function resolveOptions(argv: string[], ctx: Context): Promise<Opti
   const flags = parseFlags(argv);
   const existing = await readConfig(ctx.root);
 
+  const interactive = canPrompt(ctx.io);
+  const notes: Notes = {};
+  const { gitHost: hostFlag, runtimes: runtimesFlag, skills: skillsFlag } = flags;
+
   let gitHost: GitHost | undefined =
-    flags.gitHost !== undefined ? parseGitHostFlag(flags.gitHost) : existing?.gitHost;
+    hostFlag !== undefined
+      ? parseOrAsk(() => parseGitHostFlag(hostFlag), interactive, (n) => (notes.gitHost = n))
+      : existing?.gitHost;
   let runtimes: Runtime[] | undefined =
-    flags.runtimes !== undefined ? parseRuntimesFlag(flags.runtimes) : existing?.runtimes;
+    runtimesFlag !== undefined
+      ? parseOrAsk(() => parseRuntimesFlag(runtimesFlag), interactive, (n) => (notes.runtimes = n))
+      : existing?.runtimes;
 
   const missing: string[] = [];
   if (gitHost === undefined) missing.push('--git-host');
   if (runtimes === undefined) missing.push('--runtimes');
 
   if (missing.length > 0) {
-    if (!canPrompt(ctx.io)) {
+    if (!interactive) {
       const label = missing.length > 1 ? 'flags' : 'flag';
       throw new InitError(
         `missing required ${label}: ${missing.join(', ')}`,
@@ -300,17 +336,19 @@ export async function resolveOptions(argv: string[], ctx: Context): Promise<Opti
     }
 
     const prompter = ctx.io.prompts ?? clackPrompter(ctx.io);
-    const prompted = await promptMissing(prompter, ctx.root, gitHost === undefined, runtimes === undefined);
+    const prompted = await promptMissing(prompter, ctx.root, gitHost === undefined, runtimes === undefined, notes);
     if (gitHost === undefined) gitHost = prompted.gitHost;
     if (runtimes === undefined) runtimes = prompted.runtimes;
   }
 
   const installed = await detectInstalledSets(ctx.root);
   let skillSets: SkillSet[] | undefined =
-    flags.skills !== undefined ? parseSkillsFlag(flags.skills) : existing?.skillSets;
+    skillsFlag !== undefined
+      ? parseOrAsk(() => parseSkillsFlag(skillsFlag), interactive, (n) => (notes.skills = n))
+      : existing?.skillSets;
   if (skillSets === undefined) {
-    skillSets = canPrompt(ctx.io)
-      ? await promptSkillSets(ctx.io.prompts ?? clackPrompter(ctx.io), installed)
+    skillSets = interactive
+      ? await promptSkillSets(ctx.io.prompts ?? clackPrompter(ctx.io), installed, notes.skills)
       : ['ship'];
   }
   const chosenSets: SkillSet[] = skillSets;
