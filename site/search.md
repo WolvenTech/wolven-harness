@@ -1,19 +1,32 @@
 ---
-description: How the qmd skill searches your own documents.
+description: Find an engineering decision and read the record behind the answer.
 ---
 
-# Searching your documents
+# Search
 
-The `qmd` skill wires an agent into QMD, a local markdown search tool, so a question gets answered from your decision records and specs before it is answered from memory or the web. QMD is a separate CLI the skill expects to find installed. The harness only teaches the agent to use it well.
+Ask your agent a question you would otherwise have to dig through the repo to answer:
 
-1. **Search decisions.** Query the decision records first — they are the record an agent is allowed to depend on.
-2. **Widen.** Only on a miss, widen the same question across every indexed collection.
-3. **Retrieve in full.** Pull the whole document rather than working from snippets, which are leads and not evidence.
-4. **Answer with citations.** Answer from the retrieved text, citing the path or document id it came from.
+> Why do we publish this package publicly on npm instead of GitHub Packages?
 
-Rather than pasting a bare question, the skill has the agent write the query in four labelled parts:
+For this package’s repository, the recorded answer is:
 
-- `intent:` what you are trying to find, and what to avoid.
-- `lex:` exact terms, aliases, titles, and rare words you expect to appear.
-- `vec:` the same idea paraphrased in natural language.
-- `hyde:` a description of the document that would satisfy the request.
+> The private GitHub Packages setup required a registry entry, a read token, and access grants in every consumer. The source and shipped files were already public. Public npm publishing removes those install requirements; the release workflow uses OIDC trusted publishing, which authenticates GitHub Actions without a stored npm token.
+>
+> Source: [the publishing decision](https://github.com/WolvenTech/wolven-harness/blob/main/docs/adrs/adr-002-public-npm-oidc.md), Context and Decision.
+
+This is an example from the harness repo. In your repo, answers come from your own records.
+
+## How search works
+
+QMD is the local document search tool the agent uses. The agent searches architecture decision records first with `qmd query -c adrs`. If there is no match, it widens the search to other indexed documents. It reads the full record before answering and names the source file. Notes may be dated; an unfinished spec is not a settled decision.
+
+::: details Optional: the four query fields
+
+The agent prefers a structured query:
+
+- `intent`: what to find and what to exclude — the publishing decision, not release troubleshooting.
+- `lex`: exact terms likely to appear — npmjs, GitHub Packages, registry, token.
+- `vec`: the question in natural language — why consumers install from public npm.
+- `hyde`: a short hypothetical passage to help find a matching document — a decision to remove per-repo registry credentials by publishing publicly. This is a search hint, not evidence.
+
+:::

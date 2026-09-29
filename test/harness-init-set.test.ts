@@ -19,37 +19,37 @@ function extractSection(doc: string, heading: string): string {
   return doc.slice(match.index);
 }
 
-test('skill-set: the harness-init page names steps 0 through 6', async () => {
-  const section = extractSection(await readHarnessInit(), 'Setting up with harness-init');
+test('skill-set: the harness-init page covers integration, migration, discovery, stubs, and validation wiring', async () => {
+  const section = extractSection(await readHarnessInit(), 'Setup');
 
-  for (const label of ['Step 0', 'Step 1', 'Steps 2', 'Step 5', 'Step 6']) {
+  for (const label of ['integrate', 'migrate', 'suggests', 'stubs', 'CI', 'session note']) {
     assert.match(section, new RegExp(`${label}\\b`), `missing "${label}"`);
   }
 });
 
 test('skill-set: the harness-init page names the three entry modes', async () => {
-  const section = flatten(extractSection(await readHarnessInit(), 'Setting up with harness-init'));
+  const section = flatten(extractSection(await readHarnessInit(), 'Setup'));
 
   assert.match(section, /full, light, or mention-only/i);
 });
 
 test('skill-set: the harness-init page says migration is done only at a clean validate with no legacy warnings', async () => {
-  const section = flatten(extractSection(await readHarnessInit(), 'Setting up with harness-init'));
+  const section = flatten(extractSection(await readHarnessInit(), 'Setup'));
 
-  assert.match(section, /done only once `?harness:validate`? exits 0 with no legacy warnings left/i);
+  assert.match(section, /complete when validation exits 0 with no legacy warnings left/i);
 });
 
 test('skill-set: the harness-init page covers stubs and the skill-stub-open warning', async () => {
-  const section = flatten(extractSection(await readHarnessInit(), 'Setting up with harness-init'));
+  const section = flatten(extractSection(await readHarnessInit(), 'Setup'));
 
   assert.match(section, /\bstubs?\b/i);
   assert.match(section, /`skill-stub-open`/);
 });
 
 test('skill-set: the harness-init page covers the phased commits', async () => {
-  const section = flatten(extractSection(await readHarnessInit(), 'Setting up with harness-init'));
+  const section = flatten(extractSection(await readHarnessInit(), 'Setup'));
 
   assert.match(section, /three commits/i);
   assert.match(section, /entry, migration, setup/i);
-  assert.match(section, /only if you say yes/i);
+  assert.match(section, /only after validation passes and you say yes/i);
 });

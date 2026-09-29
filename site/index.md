@@ -1,29 +1,28 @@
 ---
-description: Map of the wolven-harness docs. Install lives on the GitHub README.
+description: Set up a repo so a coding agent can find its instructions, use recorded decisions, and check its work.
 ---
 
 # wolven-harness
 
-AI-assisted dev harness: setup an `AGENTS.md`-based skills tree, wire runtimes, and validate architecture-decision claims.
+Set up a repo so a coding agent can find its instructions, use recorded decisions, and check its work.
 
-A TypeScript CLI for Node 22 or later, published as `@wolven-tech/harness`. One binary, three commands, and a repo an agent can work in without being re-briefed. macOS and Linux. Long-form docs live here. The GitHub README is the short install path.
+## Install
 
-## Where to go
+Add the harness to the repo you want an agent to work in.
 
-- [Commands](/commands) — flags and failure modes for `setup`, `validate`, and `comments`.
-- [The cycle](/cycle) — how a full pass fits together, from the first `setup` through the gates.
-- [Setting up with harness-init](/harness-init) — the walk you steer after `setup` finishes.
-- [Doc layout](/layout) — where each path lives, and what `validate` checks there.
-- [Skills](/skills) — the sixteen skills `setup` seeds.
-- [Runtimes](/runtimes) — wire Claude Code, Codex, and Cursor.
-- [Searching your documents](/search) — answer from your own notes with the `qmd` skill.
-- [Release](/release) — how maintainers publish the package.
-- [Contributing](/contributing) — clone this repo, build it, and run `setup` from source.
+```sh
+pnpm add -D @wolven-tech/harness
+pnpm exec wolven-harness setup
+```
 
-## Elsewhere
+Run both at the git top level. You need Node 22 or later, git, pnpm, and macOS or Linux.
 
-- [Source on GitHub](https://github.com/WolvenTech/wolven-harness)
-- [Package on npm](https://www.npmjs.com/package/@wolven-tech/harness)
-- [README on GitHub](https://github.com/WolvenTech/wolven-harness#readme)
+`setup` adds harness files: agent skills, rules, document templates, and a local search index configuration. It preserves existing copies and leaves `AGENTS.md` alone. It also adds missing check scripts to `package.json` and saves setup choices and the package version in `.wolven-harness.json`. It never commits.
 
-Built and released from the repository. This site is static and collects nothing.
+## Next
+
+Ask your coding agent to run `harness-init`. It proposes how to connect the harness files to your repo’s existing instructions in `AGENTS.md`. Review the proposed diff before approving each write. [Setup](./harness-init) explains the steps.
+
+Then try a small change with the [Daily use](./cycle) example.
+
+`setup`, `validate`, and `comments` are terminal commands. `harness-init`, `code-spec`, `code-plan`, and `code-execute` are skills you ask the agent to run.

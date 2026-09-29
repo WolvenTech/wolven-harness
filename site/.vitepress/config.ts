@@ -7,7 +7,7 @@ const base = '/wolven-harness/'
 export default defineConfig({
   title: 'wolven-harness',
   description:
-    'AI-assisted dev harness: setup an AGENTS.md-based skills tree, wire runtimes, and validate architecture-decision claims.',
+    'A repo where a coding agent can find its instructions, use recorded decisions, and check its work.',
   base,
   appearance: false,
   head: [
@@ -29,20 +29,20 @@ export default defineConfig({
     ],
     sidebar: [
       {
-        text: 'Use the harness',
+        text: 'Guide',
         items: [
-          { text: 'Site map', link: '/' },
-          { text: 'Commands', link: '/commands' },
-          { text: 'The cycle', link: '/cycle' },
-          { text: 'Setting up with harness-init', link: '/harness-init' },
-          { text: 'Doc layout', link: '/layout' },
+          { text: 'Start', link: '/' },
+          { text: 'Setup', link: '/harness-init' },
+          { text: 'Daily use', link: '/cycle' },
+          { text: 'Search', link: '/search' },
+          { text: 'Files', link: '/layout' },
           { text: 'Skills', link: '/skills' },
-          { text: 'Runtimes', link: '/runtimes' },
-          { text: 'Searching your documents', link: '/search' },
+          { text: 'Agents', link: '/runtimes' },
+          { text: 'Commands', link: '/commands' },
         ],
       },
       {
-        text: 'Maintain the package',
+        text: 'Project',
         items: [
           { text: 'Release', link: '/release' },
           { text: 'Contributing', link: '/contributing' },

@@ -1,21 +1,29 @@
 ---
-description: Tutorial for the harness-init skill after setup finishes.
+description: Connect the harness files to your repo’s existing instructions with harness-init.
 ---
 
-# Setting up with harness-init
+# Setup
 
-`setup` never creates or edits `AGENTS.md`. After it finishes, ask your agent to run `harness-init`. You steer every write. The agent shows the diff first.
+Run `wolven-harness setup` to add the harness files, then ask your agent to run `harness-init`. The skill proposes how to connect those files to your existing instructions. It shows a diff and asks for approval before each write.
 
-**Step 0:** fold `WOLVEN.md` into `AGENTS.md` (full, light, or mention-only). You pick the mode. `setup` left the entry file alone so this choice stays yours.
+## What happens
 
-**Step 1:** migrate legacy ADRs into `docs/adrs/` when validate reports them.
+1. Choose how to integrate `WOLVEN.md` into `AGENTS.md`: full, light, or mention-only. `setup` never creates or edits `AGENTS.md`.
+2. If validation finds legacy architecture decision records (ADRs), migrate them into `docs/adrs/`, keeping their numbers and resolving any broken references.
+3. The agent reads the repo and suggests up to four skills based on the tools you use. It asks before doing optional web research.
+4. It creates the skill stubs you choose. These are unfinished, ask-only skills; validation reports a `skill-stub-open` warning until you complete them. This warning does not fail validation.
+5. Choose whether validation runs in CI, through an existing check script, or locally. The agent finishes a session note under `docs/notes/`.
 
-**Steps 2 to 4:** discover the repo and suggest two to four skills.
+The run offers three commits (entry, migration, setup), each only after validation passes and you say yes.
 
-**Step 5:** write the skills you pick as ask-only stubs (`skill-stub-open`).
+## Check the setup
 
-**Step 6:** write a session note under `docs/notes/`.
+```sh
+pnpm exec wolven-harness validate
+```
 
-Migration is done only once `harness:validate` exits 0 with no legacy warnings left.
+`setup` adds `harness:validate` as a package script for `wolven-harness validate` when that script is missing. In that case, `pnpm harness:validate` runs the same check. Existing scripts are preserved; see [Commands](./commands).
 
-The run offers three commits (entry, migration, setup) only if you say yes.
+Migration is complete when validation exits 0 with no legacy warnings left. References to decision records must resolve to a stable record in `docs/adrs/`; legacy records get migration warnings during the transition.
+
+Next, try the [Daily use](./cycle) example.
