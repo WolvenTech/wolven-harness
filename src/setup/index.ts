@@ -8,13 +8,13 @@ import { devDependencyWarning, resolveOwnPackage } from './own-package.js';
 import { buildSummary, joinNames, runtimeName } from './summary.js';
 import { createUi } from './ui.js';
 import { skillFolders } from './skill-sets.js';
-import { InitCancelled, InitError } from './types.js';
+import { SetupCancelled, SetupError } from './types.js';
 import type { Io, Context, Runtime } from './types.js';
 
 /**
  * Resolves `templates/` relative to this package, working both when run
- * under `tsx` from `src/init/index.ts` and when run from the built
- * `dist/init/index.js` — both sit two directories below the package root.
+ * under `tsx` from `src/setup/index.ts` and when run from the built
+ * `dist/setup/index.js` — both sit two directories below the package root.
  */
 function resolveTemplatesDir(): string {
   const here = path.dirname(fileURLToPath(import.meta.url));
@@ -22,11 +22,11 @@ function resolveTemplatesDir(): string {
 }
 
 /**
- * Runs one step, first writing `[wolven-harness:init] step <name>` to
+ * Runs one step, first writing `[wolven-harness:setup] step <name>` to
  * stderr when `debug` is on; silent otherwise.
  */
 async function traced<T>(io: Io, debug: boolean, name: string, fn: () => Promise<T>): Promise<T> {
-  if (debug) io.stderr.write(`[wolven-harness:init] step ${name}\n`);
+  if (debug) io.stderr.write(`[wolven-harness:setup] step ${name}\n`);
   return fn();
 }
 
@@ -41,13 +41,13 @@ function nextSteps(runtimes: Runtime[], hasScripts: boolean): string[] {
 }
 
 /**
- * Runs `init`'s steps in a fixed order: resolve options (prompting on a
+ * Runs `setup`'s steps in a fixed order: resolve options (prompting on a
  * TTY), apply templates, wire runtimes, add the harness scripts, then
  * report a grouped summary, any missing-devDependency warning, and next
  * steps. `--verbose` also lists every file; `--debug` (or
  * `WOLVEN_HARNESS_DEBUG=1`) traces each step on stderr.
  */
-export async function runInit(argv: string[], io: Io): Promise<number> {
+export async function runSetup(argv: string[], io: Io): Promise<number> {
   const ctx: Context = {
     root: io.cwd,
     templatesDir: resolveTemplatesDir(),
@@ -91,11 +91,11 @@ export async function runInit(argv: string[], io: Io): Promise<number> {
     const hasScripts = scriptResult.created.length + scriptResult.skipped.length > 0;
     ui.nextSteps(nextSteps(opts.runtimes, hasScripts));
   } catch (err) {
-    if (err instanceof InitCancelled) {
+    if (err instanceof SetupCancelled) {
       ui.cancelled();
       return 1;
     }
-    if (!(err instanceof InitError)) throw err;
+    if (!(err instanceof SetupError)) throw err;
     ui.error(err.message, err.hint);
     return 1;
   }

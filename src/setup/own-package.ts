@@ -13,7 +13,7 @@ let ownPackage: Promise<OwnPackage> | undefined;
 
 /**
  * Resolves this package's own `package.json`, relative to this module the
- * same way `resolveTemplatesDir` (in `src/init/index.ts`) resolves
+ * same way `resolveTemplatesDir` (in `src/setup/index.ts`) resolves
  * `templates/` — both sit two directories below the package root, so this
  * works both under `tsx` and from the built `dist/`. Read once per process;
  * later calls share the first result.

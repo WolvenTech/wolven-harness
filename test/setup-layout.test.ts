@@ -6,8 +6,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parse } from 'yaml';
 import { makeIo } from './helpers/io.js';
-import { renderWolven } from '../src/init/render-wolven.js';
-import type { Context } from '../src/init/types.js';
+import { renderWolven } from '../src/setup/render-wolven.js';
+import type { Context } from '../src/setup/types.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, '..');
@@ -21,7 +21,7 @@ const DIR_TYPE: Record<string, string> = {
   deferrals: 'deferral',
 };
 
-test('init-layout: .qmd/index.yml has one collection per folder with the doc-folder pattern', async () => {
+test('setup-layout: .qmd/index.yml has one collection per folder with the doc-folder pattern', async () => {
   const raw = await readFile(path.join(repoTemplatesDir, '.qmd', 'index.yml'), 'utf8');
   const parsed = parse(raw) as { collections: Record<string, { path: string; pattern: string }> };
 
@@ -41,7 +41,7 @@ test('init-layout: .qmd/index.yml has one collection per folder with the doc-fol
   );
 });
 
-test('init-layout: WRITING-PROFILE.md documents the layout, the type map, and stays <= 80 lines', async () => {
+test('setup-layout: WRITING-PROFILE.md documents the layout, the type map, and stays <= 80 lines', async () => {
   const raw = await readFile(path.join(repoTemplatesDir, 'docs', 'WRITING-PROFILE.md'), 'utf8');
   const lineCount = raw.split('\n').length;
 
@@ -56,7 +56,7 @@ test('init-layout: WRITING-PROFILE.md documents the layout, the type map, and st
   }
 });
 
-test('init-layout: WOLVEN.md router shows docs/<folder>/<slug>/<slug>-<type>.md', async () => {
+test('setup-layout: WOLVEN.md router shows docs/<folder>/<slug>/<slug>-<type>.md', async () => {
   const ctx: Context = { root: '/unused', templatesDir: repoTemplatesDir, io: makeIo('/unused') };
   const rendered = await renderWolven(ctx);
 
@@ -70,7 +70,7 @@ test('init-layout: WOLVEN.md router shows docs/<folder>/<slug>/<slug>-<type>.md'
   assert.ok(rendered.includes('adr-NNN-<slug>.md'));
 });
 
-test('init-layout: pragmatic-guard skill and yagni-strict rule write docs/deferrals/<slug>/<slug>-deferral.md', () => {
+test('setup-layout: pragmatic-guard skill and yagni-strict rule write docs/deferrals/<slug>/<slug>-deferral.md', () => {
   const pragmaticGuard = readFileSync(
     path.join(repoTemplatesDir, '.agents', 'skills', 'pragmatic-guard', 'SKILL.md'),
     'utf8',

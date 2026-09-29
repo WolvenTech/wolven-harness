@@ -20,7 +20,7 @@ export interface Choice<T extends string> {
 }
 
 /**
- * The two questions `init` can ask. Each resolves to `undefined` when the
+ * The two questions `setup` can ask. Each resolves to `undefined` when the
  * person cancels (Ctrl-C), so callers never see a library-specific symbol.
  */
 export interface Prompter {
@@ -46,7 +46,7 @@ export interface Options {
   runtimes: Runtime[];
   /** Optional skill sets to install this run (core is always installed). */
   skillSets: SkillSet[];
-  /** Sets already installed but not chosen this run; `init` never removes them. */
+  /** Sets already installed but not chosen this run; `setup` never removes them. */
   keptSets: SkillSet[];
 }
 
@@ -62,11 +62,11 @@ export interface StepResult {
 }
 
 /**
- * Expected failure of an `init` step (bad flag, not at git top-level,
- * symlink not possible). `runInit` prints the message, then the optional
+ * Expected failure of a `setup` step (bad flag, not at git top-level,
+ * symlink not possible). `runSetup` prints the message, then the optional
  * `hint` naming the fix, and exits 1.
  */
-export class InitError extends Error {
+export class SetupError extends Error {
   constructor(
     message: string,
     readonly hint?: string,
@@ -76,4 +76,4 @@ export class InitError extends Error {
 }
 
 /** The person cancelled a prompt; nothing has been written yet. */
-export class InitCancelled extends Error {}
+export class SetupCancelled extends Error {}

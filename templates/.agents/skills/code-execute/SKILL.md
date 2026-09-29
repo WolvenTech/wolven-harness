@@ -121,7 +121,7 @@ values, whether they came from the file or from a default.
 - A batch's plan-completion marks flip in the worktree immediately before
   that batch's commit; a failed commit leaves those marks incomplete.
 - Validate red: never commit, on any cadence.
-- `init` ships no config file, so an unconfigured consumer keeps a person
+- `setup` ships no config file, so an unconfigured consumer keeps a person
   in the loop at the `false` / `wave` defaults.
 
 ## Subagent dispatch (plan's Subagent column)

@@ -1,7 +1,7 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import type { GitHost, Runtime } from './types.js';
-import { InitError } from './types.js';
+import { SetupError } from './types.js';
 import { isSkillSet } from './skill-sets.js';
 import type { SkillSet } from './skill-sets.js';
 
@@ -16,7 +16,7 @@ export interface Config {
   /** Optional skill sets installed so far; absent in configs written before sets existed. */
   skillSets?: SkillSet[];
   ignore?: string[];
-  /** This package's own version, resolved and rewritten on every `init` run. */
+  /** This package's own version, resolved and rewritten on every `setup` run. */
   packageVersion?: string;
   /**
    * Any other top-level keys present in the file (e.g. `comments`).
@@ -47,7 +47,7 @@ function isRuntimeArray(value: unknown): value is Runtime[] {
 
 /**
  * Reads and validates `.wolven-harness.json` from `root`. Returns
- * `undefined` when the file is absent. Throws `InitError` when the file
+ * `undefined` when the file is absent. Throws `SetupError` when the file
  * exists but is not valid JSON, or its shape is invalid (`version` is not
  * `1`, `gitHost`/`runtimes` are missing or hold unknown values, `ignore` is
  * present but not an array of strings, or `packageVersion` is present but
@@ -70,23 +70,23 @@ export async function readConfig(root: string): Promise<Config | undefined> {
   try {
     parsed = JSON.parse(raw);
   } catch {
-    throw new InitError(`${CONFIG_FILENAME} is not valid JSON`);
+    throw new SetupError(`${CONFIG_FILENAME} is not valid JSON`);
   }
 
   if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
-    throw new InitError(`${CONFIG_FILENAME} must contain a JSON object`);
+    throw new SetupError(`${CONFIG_FILENAME} must contain a JSON object`);
   }
 
   const obj = parsed as Record<string, unknown>;
 
   if (obj.version !== 1) {
-    throw new InitError(`${CONFIG_FILENAME} "version" must be 1`);
+    throw new SetupError(`${CONFIG_FILENAME} "version" must be 1`);
   }
   if (!isGitHost(obj.gitHost)) {
-    throw new InitError(`${CONFIG_FILENAME} "gitHost" must be "gh" or "bit"`);
+    throw new SetupError(`${CONFIG_FILENAME} "gitHost" must be "gh" or "bit"`);
   }
   if (!isRuntimeArray(obj.runtimes)) {
-    throw new InitError(
+    throw new SetupError(
       `${CONFIG_FILENAME} "runtimes" must be a non-empty array of "claude", "codex", "cursor"`,
     );
   }
@@ -99,21 +99,21 @@ export async function readConfig(root: string): Promise<Config | undefined> {
 
   if (obj.skillSets !== undefined) {
     if (!Array.isArray(obj.skillSets) || !obj.skillSets.every(isSkillSet)) {
-      throw new InitError(`${CONFIG_FILENAME} "skillSets" must be an array of "ship", "discovery"`);
+      throw new SetupError(`${CONFIG_FILENAME} "skillSets" must be an array of "ship", "discovery"`);
     }
     config.skillSets = obj.skillSets;
   }
 
   if (obj.ignore !== undefined) {
     if (!Array.isArray(obj.ignore) || !obj.ignore.every((v) => typeof v === 'string')) {
-      throw new InitError(`${CONFIG_FILENAME} "ignore" must be an array of strings`);
+      throw new SetupError(`${CONFIG_FILENAME} "ignore" must be an array of strings`);
     }
     config.ignore = obj.ignore as string[];
   }
 
   if (obj.packageVersion !== undefined) {
     if (typeof obj.packageVersion !== 'string') {
-      throw new InitError(`${CONFIG_FILENAME} "packageVersion" must be a string`);
+      throw new SetupError(`${CONFIG_FILENAME} "packageVersion" must be a string`);
     }
     config.packageVersion = obj.packageVersion;
   }

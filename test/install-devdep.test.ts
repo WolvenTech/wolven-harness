@@ -23,11 +23,11 @@ async function readPackageFile(dir: string): Promise<Record<string, unknown>> {
   return JSON.parse(raw) as Record<string, unknown>;
 }
 
-test('init-devdep: warns when package.json exists without the dep in devDependencies', async () => {
+test('install-devdep: warns when package.json exists without the dep in devDependencies', async () => {
   const pkg = { name: 'consumer', version: '1.0.0' };
   const dir = await makeRepo({ 'package.json': `${JSON.stringify(pkg, null, 2)}\n` }, { git: true });
 
-  const result = await run(['init', '--git-host', 'gh', '--runtimes', 'claude'], { cwd: dir });
+  const result = await run(['setup', '--git-host', 'gh', '--runtimes', 'claude'], { cwd: dir });
 
   assert.equal(result.code, 0, result.stderr);
   assert.match(result.stderr, /@wolven-tech\/harness/);
@@ -39,7 +39,7 @@ test('init-devdep: warns when package.json exists without the dep in devDependen
   assert.equal(after.devDependencies, undefined);
 });
 
-test('init-devdep: no warning when the dep is already in devDependencies', async () => {
+test('install-devdep: no warning when the dep is already in devDependencies', async () => {
   const pkg = {
     name: 'consumer',
     version: '1.0.0',
@@ -47,13 +47,13 @@ test('init-devdep: no warning when the dep is already in devDependencies', async
   };
   const dir = await makeRepo({ 'package.json': `${JSON.stringify(pkg, null, 2)}\n` }, { git: true });
 
-  const result = await run(['init', '--git-host', 'gh', '--runtimes', 'claude'], { cwd: dir });
+  const result = await run(['setup', '--git-host', 'gh', '--runtimes', 'claude'], { cwd: dir });
 
   assert.equal(result.code, 0, result.stderr);
   assert.doesNotMatch(result.stderr, /@wolven-tech\/harness/);
 });
 
-test('init-devdep: a dep listed under dependencies gets a move hint, not a second add', async () => {
+test('install-devdep: a dep listed under dependencies gets a move hint, not a second add', async () => {
   const pkg = {
     name: 'consumer',
     version: '1.0.0',
@@ -61,7 +61,7 @@ test('init-devdep: a dep listed under dependencies gets a move hint, not a secon
   };
   const dir = await makeRepo({ 'package.json': `${JSON.stringify(pkg, null, 2)}\n` }, { git: true });
 
-  const result = await run(['init', '--git-host', 'gh', '--runtimes', 'claude'], { cwd: dir });
+  const result = await run(['setup', '--git-host', 'gh', '--runtimes', 'claude'], { cwd: dir });
 
   assert.equal(result.code, 0, result.stderr);
   assert.match(
@@ -70,19 +70,19 @@ test('init-devdep: a dep listed under dependencies gets a move hint, not a secon
   );
 });
 
-test('init-devdep: no warning without a package.json', async () => {
+test('install-devdep: no warning without a package.json', async () => {
   const dir = await makeRepo({}, { git: true });
 
-  const result = await run(['init', '--git-host', 'gh', '--runtimes', 'claude'], { cwd: dir });
+  const result = await run(['setup', '--git-host', 'gh', '--runtimes', 'claude'], { cwd: dir });
 
   assert.equal(result.code, 0, result.stderr);
   assert.doesNotMatch(result.stderr, /@wolven-tech\/harness/);
 });
 
-test('init-config: a fresh run writes this package\'s own version as packageVersion', async () => {
+test('setup-config: a fresh run writes this package\'s own version as packageVersion', async () => {
   const dir = await makeRepo({}, { git: true });
 
-  const result = await run(['init', '--git-host', 'gh', '--runtimes', 'claude'], { cwd: dir });
+  const result = await run(['setup', '--git-host', 'gh', '--runtimes', 'claude'], { cwd: dir });
 
   assert.equal(result.code, 0, result.stderr);
 
@@ -90,7 +90,7 @@ test('init-config: a fresh run writes this package\'s own version as packageVers
   assert.equal(config.packageVersion, await ownPackageVersion());
 });
 
-test('init-config: comments, ignore, and an unknown key survive a re-run unchanged apart from packageVersion and skillSets', async () => {
+test('setup-config: comments, ignore, and an unknown key survive a re-run unchanged apart from packageVersion and skillSets', async () => {
   const existing = {
     version: 1,
     gitHost: 'gh',
@@ -104,7 +104,7 @@ test('init-config: comments, ignore, and an unknown key survive a re-run unchang
     { git: true },
   );
 
-  const result = await run(['init'], { cwd: dir, isTTY: false });
+  const result = await run(['setup'], { cwd: dir, isTTY: false });
 
   assert.equal(result.code, 0, result.stderr);
 
@@ -116,7 +116,7 @@ test('init-config: comments, ignore, and an unknown key survive a re-run unchang
   assert.deepEqual(rest, existing);
 });
 
-test('init-config: a re-run keeps the existing key order and adds skillSets and packageVersion after it', async () => {
+test('setup-config: a re-run keeps the existing key order and adds skillSets and packageVersion after it', async () => {
   const existing = {
     comments: { paths: ['src/**'] },
     runtimes: ['claude'],
@@ -130,7 +130,7 @@ test('init-config: a re-run keeps the existing key order and adds skillSets and 
     { git: true },
   );
 
-  const result = await run(['init'], { cwd: dir, isTTY: false });
+  const result = await run(['setup'], { cwd: dir, isTTY: false });
 
   assert.equal(result.code, 0, result.stderr);
 

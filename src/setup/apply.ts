@@ -4,7 +4,7 @@ import { pathExists } from '../path-exists.js';
 import type { Context, StepResult } from './types.js';
 import { renderWolven } from './render-wolven.js';
 
-/** Relative path (posix, `/`-joined) of the one file `init` must never create or edit. */
+/** Relative path (posix, `/`-joined) of the one file `setup` must never create or edit. */
 const AGENTS_MD = 'AGENTS.md';
 const WOLVEN_MD = 'WOLVEN.md';
 
@@ -61,7 +61,7 @@ async function walkFiles(dir: string): Promise<string[]> {
     } else if (entry.isFile()) {
       files.push(entry.name);
     }
-    // symlinks inside templatesDir are not expected and are skipped
+    // invariant: a symlink in templatesDir is not a file to copy, so the walk skips it.
   }
   return files;
 }
@@ -91,9 +91,7 @@ export async function applyTemplates(ctx: Context, skillFolders?: readonly strin
     if (skillFolders !== undefined && skillName !== undefined && !skillFolders.includes(skillName)) continue;
 
     if (rel === AGENTS_MD) {
-      // Hard refuse: AGENTS.md is never created or edited by `init`,
-      // regardless of whether the template manifest carries one or
-      // whether a consumer AGENTS.md already exists.
+      // invariant: setup never creates or edits AGENTS.md, even when a template lists it.
       skipped.push(rel);
       continue;
     }

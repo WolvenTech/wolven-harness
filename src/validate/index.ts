@@ -1,5 +1,5 @@
-import { InitError } from '../init/types.js';
-import type { Io } from '../init/types.js';
+import { SetupError } from '../setup/types.js';
+import type { Io } from '../setup/types.js';
 import { checkAdrFolders } from './adr-folders.js';
 import { loadIgnoreConfig } from './config.js';
 import type { IgnoreConfig } from './config.js';
@@ -51,7 +51,7 @@ export async function runValidate(argv: string[], io: Io): Promise<number> {
   try {
     ignoreConfig = await loadIgnoreConfig(root);
   } catch (err) {
-    if (!(err instanceof InitError)) throw err;
+    if (!(err instanceof SetupError)) throw err;
     io.stderr.write(`wolven-harness validate: ${err.message}\n`);
     return 1;
   }

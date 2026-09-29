@@ -10,8 +10,8 @@ import { parse } from 'yaml';
 import { makeRepo, run } from './helpers/fixture.js';
 import { makeIo } from './helpers/io.js';
 import { walkFiles } from './helpers/walk.js';
-import { renderWolven } from '../src/init/render-wolven.js';
-import type { Context } from '../src/init/types.js';
+import { renderWolven } from '../src/setup/render-wolven.js';
+import type { Context } from '../src/setup/types.js';
 
 const execFileAsync = promisify(execFile);
 
@@ -37,12 +37,10 @@ function templateSkillNames(): string[] {
   return entries.filter((e) => e.isDirectory()).map((e) => e.name);
 }
 
-// --- init-surfaces: created-path manifest ---
-
-test('init-surfaces: creates exactly the expected paths', async () => {
+test('setup-surfaces: creates exactly the expected paths', async () => {
   const dir = await makeRepo({}, { git: true });
 
-  const result = await run(['init', '--git-host', 'gh', '--runtimes', 'codex', '--skills', 'ship,discovery'], { cwd: dir });
+  const result = await run(['setup', '--git-host', 'gh', '--runtimes', 'codex', '--skills', 'ship,discovery'], { cwd: dir });
   assert.equal(result.code, 0, result.stderr);
 
   const nonSkillFiles = [
@@ -68,8 +66,6 @@ test('init-surfaces: creates exactly the expected paths', async () => {
   assert.deepEqual(actual, expected);
 });
 
-// --- wolven-template: rendered content ---
-
 test('wolven-template: first line points to harness-init step 0', async () => {
   const raw = await readFile(path.join(repoTemplatesDir, 'WOLVEN.md'), 'utf8');
   const firstLine = raw.split('\n')[0];
@@ -82,7 +78,6 @@ test('wolven-template: has router, QMD-first, standing rules, claim rule, valida
   const ctx: Context = { root: '/unused', templatesDir: repoTemplatesDir, io: makeIo('/unused') };
   const rendered = await renderWolven(ctx);
 
-  // Entry router
   for (const surface of [
     '.agents/skills',
     '.agents/rules',
@@ -96,22 +91,18 @@ test('wolven-template: has router, QMD-first, standing rules, claim rule, valida
     assert.ok(rendered.includes(surface), `router mentions ${surface}`);
   }
 
-  // Before-you-answer-from-memory / QMD-first
   assert.match(rendered, /before you answer from memory/i);
   assert.match(rendered, /qmd query -c adrs/);
 
-  // Standing rules, linked by exact path
   assert.ok(rendered.includes('.agents/rules/qmd-first.md'));
   assert.ok(rendered.includes('.agents/rules/yagni-strict.md'));
 
-  // Architecture claims rule
   assert.match(rendered, /ADR-NNN/);
   assert.match(rendered, /adr-NNN-<slug>/);
   assert.match(rendered, /docs\/adrs\//);
   assert.match(rendered, /stable/);
   assert.match(rendered, /harness-init/);
 
-  // Validate command
   assert.ok(rendered.includes('pnpm harness:validate'));
   assert.ok(rendered.includes('wolven-harness validate'));
 });
@@ -166,13 +157,10 @@ test('wolven-template: new skill folder appears without code change', async () =
   assert.ok(rendered.includes('A skill added only as a template folder.'));
   assert.ok(rendered.includes('existing-skill'));
 
-  // Sorted by name: brand-new-skill before existing-skill
   assert.ok(rendered.indexOf('brand-new-skill') < rendered.indexOf('existing-skill'));
 });
 
-// --- init-surfaces: docs templates ---
-
-test('init-surfaces: adr-000 is a stable profile ADR', () => {
+test('setup-surfaces: adr-000 is a stable profile ADR', () => {
   const raw = readFileSync(
     path.join(repoTemplatesDir, 'docs', 'adrs', 'adr-000-record-architecture-decisions.md'),
     'utf8',
@@ -186,9 +174,9 @@ test('init-surfaces: adr-000 is a stable profile ADR', () => {
   assert.ok(typeof parsed.description === 'string' && parsed.description.length > 0);
 });
 
-test('init-surfaces: a fresh install passes validate once committed', async () => {
+test('setup-surfaces: a fresh install passes validate once committed', async () => {
   const dir = await makeRepo({ 'package.json': '{ "name": "consumer", "version": "1.0.0" }\n' }, { git: true });
-  const init = await run(['init', '--git-host', 'gh', '--runtimes', 'claude'], { cwd: dir });
+  const init = await run(['setup', '--git-host', 'gh', '--runtimes', 'claude'], { cwd: dir });
   assert.equal(init.code, 0, init.stderr);
 
   // why: the claim gate scans tracked files only, so shipped examples are judged once a consumer commits them.
