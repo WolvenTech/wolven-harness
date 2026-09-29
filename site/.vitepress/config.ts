@@ -9,7 +9,17 @@ export default defineConfig({
   description:
     'AI-assisted dev harness: init an AGENTS.md-based skills tree, wire runtimes, and validate architecture-decision claims.',
   base,
-  head: [['link', { rel: 'icon', href: `${base}wolven-logo-black.png` }]],
+  appearance: false,
+  head: [
+    ['link', { rel: 'icon', href: `${base}wolven-logo-black.png` }],
+    [
+      'link',
+      {
+        rel: 'stylesheet',
+        href: 'https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Bai+Jamjuree:wght@400;500;700&display=swap',
+      },
+    ],
+  ],
   themeConfig: {
     logo: '/wolven-logo-black.png',
     siteTitle: 'wolven-harness',
