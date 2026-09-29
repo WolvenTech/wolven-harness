@@ -72,7 +72,9 @@ parallel jobs:
   `validate` and `harness:score` there.
 
 The `CI` job waits for all of them and fails unless every one passed. It is the
-only check `main` requires. Editing the PR title reruns the whole gate. Run the
+only check `main` requires. Editing the PR title or description reruns only Title, and `CI` then
+passes only if the latest Lint, Test and Package runs on the same commit passed;
+changing the base branch reruns everything. Run the
 gate yourself before pushing and CI should hold no surprises.
 
 Releasing is a maintainer task; see [Release](site/release.md).

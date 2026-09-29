@@ -19,10 +19,10 @@ test('pr-gate: triggers on pull requests to main, including title edits', async 
   });
 });
 
-test('pr-gate: workflow permissions are exactly contents and pull-requests read, with no job widening them', async () => {
+test('pr-gate: workflow permissions are exactly contents, pull-requests and checks read, with no job widening them', async () => {
   const workflow = await readWorkflow();
 
-  assert.deepEqual(workflow.permissions, { contents: 'read', 'pull-requests': 'read' });
+  assert.deepEqual(workflow.permissions, { contents: 'read', 'pull-requests': 'read', checks: 'read' });
   for (const job of Object.values<Record<string, any>>(workflow.jobs)) {
     assert.equal(job.permissions, undefined, 'no job sets its own permissions');
   }
@@ -51,12 +51,12 @@ test('pr-gate: the lint job builds, validates the harness, checks comments on fu
   assert.equal(checkout?.with?.['fetch-depth'], 0);
 });
 
-test('pr-gate: the test job builds and tests on Node 22 and 24', async () => {
+test('pr-gate: the test job tests from source on Node 22 and 24', async () => {
   const workflow = await readWorkflow();
   const job = workflow.jobs.test;
 
   assert.ok(job, 'test job present');
-  assert.deepEqual(runsOf(job), ['pnpm install --frozen-lockfile', 'pnpm build', 'pnpm test']);
+  assert.deepEqual(runsOf(job), ['pnpm install --frozen-lockfile', 'pnpm test']);
 
   const matrix: unknown[] = job.strategy?.matrix?.node ?? [];
   assert.ok(matrix.includes(22), 'node 22 in matrix');
@@ -111,7 +111,26 @@ test('pr-gate: the title job checks the PR title against Conventional Commits', 
   assert.equal(check.env?.GITHUB_TOKEN, '${{ secrets.GITHUB_TOKEN }}');
 });
 
-test('pr-gate: the CI job fans in every other job, always runs, and fails unless all succeeded', async () => {
+const EDIT_ONLY_SKIP = "${{ github.event.action != 'edited' || github.event.changes.base }}";
+
+test('pr-gate: edit runs and code runs use separate concurrency groups and cancel in progress', async () => {
+  const workflow = await readWorkflow();
+
+  assert.match(workflow.concurrency.group, /'edit'/);
+  assert.match(workflow.concurrency.group, /'code'/);
+  assert.match(workflow.concurrency.group, /github\.event\.changes\.base/);
+  assert.equal(workflow.concurrency['cancel-in-progress'], true);
+});
+
+test('pr-gate: lint, test and package skip on edit-only runs; title always runs', async () => {
+  const workflow = await readWorkflow();
+
+  for (const id of ['lint', 'test', 'package'])
+    assert.equal(workflow.jobs[id].if, EDIT_ONLY_SKIP, `${id} skips edit-only runs`);
+  assert.equal(workflow.jobs.title.if, undefined);
+});
+
+test('pr-gate: the CI job fans in every other job, always runs, and checks the required runs by display name', async () => {
   const workflow = await readWorkflow();
   const job = workflow.jobs.ci;
 
@@ -123,7 +142,22 @@ test('pr-gate: the CI job fans in every other job, always runs, and fails unless
 
   const step = job.steps[0];
   assert.equal(step.env?.RESULTS, "${{ join(needs.*.result, ' ') }}");
+  assert.equal(step.env?.EDIT_ONLY, "${{ github.event.action == 'edited' && !github.event.changes.base }}");
+  assert.equal(step.env?.GH_TOKEN, '${{ github.token }}');
   assert.match(String(step.run), /\[\[ "\$result" == success \]\] \|\| exit 1/);
+  assert.doesNotMatch(String(step.run), /\$\{\{/, 'the script interpolates no expressions');
+
+  const expected = [
+    workflow.jobs.lint.name,
+    ...workflow.jobs.test.strategy.matrix.node.map((n: number) =>
+      workflow.jobs.test.name.replace('${{ matrix.node }}', String(n)),
+    ),
+    workflow.jobs.package.name,
+  ];
+  const required = String(step.env?.REQUIRED)
+    .split('\n')
+    .filter((line) => line.length > 0);
+  assert.deepEqual([...required].sort(), [...expected].sort(), 'required names match the job display names');
 });
 
 test('pr-gate: the workflow names no secret beyond the built-in GITHUB_TOKEN', async () => {
