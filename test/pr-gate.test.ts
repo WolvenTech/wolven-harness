@@ -11,16 +11,18 @@ async function readWorkflow(): Promise<Record<string, any>> {
   return parseYaml(await readFile(path.join(repoRoot, '.github/workflows/ci.yml'), 'utf8'));
 }
 
-test('pr-gate: triggers on pull_request to main', async () => {
+test('pr-gate: triggers on pull requests to main, including title edits', async () => {
   const workflow = await readWorkflow();
 
-  assert.deepEqual(workflow.on, { pull_request: { branches: ['main'] } });
+  assert.deepEqual(workflow.on, {
+    pull_request: { branches: ['main'], types: ['opened', 'edited', 'synchronize', 'reopened'] },
+  });
 });
 
-test('pr-gate: workflow permissions are exactly contents read, with no job widening them', async () => {
+test('pr-gate: workflow permissions are exactly contents and pull-requests read, with no job widening them', async () => {
   const workflow = await readWorkflow();
 
-  assert.deepEqual(workflow.permissions, { contents: 'read' });
+  assert.deepEqual(workflow.permissions, { contents: 'read', 'pull-requests': 'read' });
   for (const job of Object.values<Record<string, any>>(workflow.jobs)) {
     assert.equal(job.permissions, undefined, 'no job sets its own permissions');
   }
@@ -64,12 +66,12 @@ test('pr-gate: the test job builds and tests on Node 22 and 24', async () => {
   assert.equal(nodeSetup?.with?.['node-version'], '${{ matrix.node }}');
 });
 
-test('pr-gate: the package job runs after lint and test, packs with the release npm, and smoke-tests the tarball', async () => {
+test('pr-gate: the package job runs in parallel, packs with the release npm, and smoke-tests the tarball', async () => {
   const workflow = await readWorkflow();
   const job = workflow.jobs.package;
 
   assert.ok(job, 'package job present');
-  assert.deepEqual(job.needs, ['lint', 'test']);
+  assert.equal(job.needs, undefined, 'package waits on no other job');
 
   const runs = runsOf(job);
   assert.ok(runs.includes('npm install -g npm@11.20.0'), 'release npm pinned');
@@ -80,25 +82,53 @@ test('pr-gate: the package job runs after lint and test, packs with the release 
   assert.match(joined, /pnpm harness:score/);
 });
 
-test('pr-gate: every job pins pnpm to an exact version, sets node-version, and names every step', async () => {
+test('pr-gate: every job has a display name and names every step; every job that installs pins pnpm and node', async () => {
   const workflow = await readWorkflow();
 
   for (const [id, job] of Object.entries<Record<string, any>>(workflow.jobs)) {
     assert.ok(job.name, `${id} has a display name`);
     const steps: Record<string, any>[] = job.steps;
+    for (const step of steps) assert.ok(step.name, `${id} names every step`);
+    if (!runsOf(job).includes('pnpm install --frozen-lockfile')) continue;
 
     const pnpmSetup = steps.find((s) => String(s.uses ?? '').startsWith('pnpm/action-setup@'));
     assert.match(String(pnpmSetup?.with?.version), /^\d+\.\d+\.\d+$/, `${id} pins pnpm`);
 
     const nodeSetup = steps.find((s) => String(s.uses ?? '').startsWith('actions/setup-node@'));
     assert.ok(nodeSetup?.with?.['node-version'], `${id} sets node-version`);
-
-    for (const step of steps) assert.ok(step.name, `${id} names every step`);
   }
 });
 
-test('pr-gate: the workflow names no secret', async () => {
+test('pr-gate: the title job checks the PR title against Conventional Commits', async () => {
+  const workflow = await readWorkflow();
+  const job = workflow.jobs.title;
+
+  assert.ok(job, 'title job present');
+  const check = job.steps.find((s: Record<string, any>) =>
+    String(s.uses ?? '').startsWith('amannn/action-semantic-pull-request@'),
+  );
+  assert.ok(check, 'Conventional Commits title check present');
+  assert.equal(check.env?.GITHUB_TOKEN, '${{ secrets.GITHUB_TOKEN }}');
+});
+
+test('pr-gate: the CI job fans in every other job, always runs, and fails unless all succeeded', async () => {
+  const workflow = await readWorkflow();
+  const job = workflow.jobs.ci;
+
+  assert.ok(job, 'ci gate job present');
+  assert.equal(job.name, 'CI');
+  const others = Object.keys(workflow.jobs).filter((id) => id !== 'ci');
+  assert.deepEqual([...job.needs].sort(), others.sort(), 'the gate needs every other job');
+  assert.equal(job.if, '${{ always() }}');
+
+  const step = job.steps[0];
+  assert.equal(step.env?.RESULTS, "${{ join(needs.*.result, ' ') }}");
+  assert.match(String(step.run), /\[\[ "\$result" == success \]\] \|\| exit 1/);
+});
+
+test('pr-gate: the workflow names no secret beyond the built-in GITHUB_TOKEN', async () => {
   const raw = await readFile(path.join(repoRoot, '.github/workflows/ci.yml'), 'utf8');
 
-  assert.doesNotMatch(raw, /secrets\./);
+  const secrets = [...raw.matchAll(/secrets\.(\w+)/g)].map((m) => m[1]);
+  assert.deepEqual([...new Set(secrets)], ['GITHUB_TOKEN']);
 });

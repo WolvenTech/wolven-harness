@@ -61,10 +61,18 @@ PR titles are [Conventional Commits](https://www.conventionalcommits.org/) —
 format, and since PRs are squash-merged the title becomes the commit message on
 `main`, which is what release-please reads to work out the next version.
 
-Every pull request runs the same gate you just ran locally, on Linux. Lint runs
-`pnpm lint`, `pnpm validate`, `pnpm comments` and `pnpm score` on Node 22. Test runs
-`pnpm test` on Node 22 and 24. Package packs the tarball, installs it into an
-empty repo and runs `setup` and `validate` there. Run the gate yourself before
-pushing and CI should hold no surprises.
+Every pull request runs the same gate you just ran locally, on Linux, as
+parallel jobs:
+
+- Title checks the PR title.
+- Lint runs `pnpm lint`, `pnpm validate`, `pnpm comments` and `pnpm score` on
+  Node 22.
+- Test runs `pnpm test` on Node 22 and 24.
+- Package packs the tarball, installs it into an empty repo, and runs `setup`,
+  `validate` and `harness:score` there.
+
+The `CI` job waits for all of them and fails unless every one passed. It is the
+only check `main` requires. Editing the PR title reruns the whole gate. Run the
+gate yourself before pushing and CI should hold no surprises.
 
 Releasing is a maintainer task; see [Release](site/release.md).
