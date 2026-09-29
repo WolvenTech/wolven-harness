@@ -203,6 +203,11 @@ test('skill-harness-init: step 6 scores the harness, asks per dimension, and nev
   assert.match(step, /run `harness:score`/i);
   assert.match(step, /For each dimension with a failing check, ask one question/);
   assert.match(step, /never drop one without the Human's yes/);
+  assert.match(
+    step,
+    /The run ends at hand-back\. Defining stubs or building score gaps is a separate change on its own branch/,
+  );
+  assert.match(step, /If the Human asks for it in the same session, say so and stop/);
   assert.ok(
     step.indexOf('harness:score') < step.indexOf('harness:validate'),
     'scoring comes before the wiring question',
@@ -212,6 +217,7 @@ test('skill-harness-init: step 6 scores the harness, asks per dimension, and nev
   assert.match(ref, /`HYG-03`, `HYG-04` and `HYG-06` detect leaked credentials and can never be dropped/);
   assert.match(ref, /add `"no-hooks"` to `extends`/);
   assert.match(ref, /Never build a failing check inside this run/);
+  assert.match(ref, /The run ends at hand-back.*separate change on its own branch/);
   assert.match(ref, /Nothing is written without a yes/);
 
   const note = flatten(await skill.read('references/session-note-template.md'));

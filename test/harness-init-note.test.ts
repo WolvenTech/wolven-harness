@@ -103,6 +103,10 @@ test('session-note: the ADR migration section carries a per-ADR table and names 
 
   assert.match(template, /\| Number \| Title \| Legacy status \| Mapped status \| Evidence \| Decision \|/);
   assert.match(template, /each claim repointed, reworded, or left as is/i);
+  assert.match(template, /### Meaning check/);
+  assert.match(template, /grouped by ADR number/i);
+  assert.match(template, /`ok` or `mismatch → the Human's answer`/);
+  assert.match(template, /Skipped only when step 1 was skipped/);
   assert.match(flat, /## Naming ADRs in the note/);
   assert.match(flat, /names an ADR only by its bare number and title/i);
   assert.match(flat, /never in the claim forms/i);
