@@ -1,6 +1,6 @@
 import { readdir } from 'node:fs/promises';
 import path from 'node:path';
-import { parseFrontmatter } from '../frontmatter.js';
+import { FRONTMATTER_RE, parseFrontmatter } from '../frontmatter.js';
 import type { RepoContext } from './repo.js';
 import type { Finding } from './report.js';
 
@@ -29,6 +29,9 @@ const KEBAB_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*\.md$/;
 
 /** `adr-NNN-<kebab-slug>.md` — a three-digit number, dash, kebab slug. */
 const ADR_NAME_RE = /^adr-\d{3}-[a-z0-9]+(?:-[a-z0-9]+)*\.md$/;
+
+/** Status words in an ADR body that contradict `status: stable`. */
+const RETIRED_STATUS_RE = /^(superseded|deprecated|rejected|obsolete)\b/i;
 
 const REQUIRED_FIELDS = ['type', 'title', 'description', 'status'] as const;
 
@@ -59,6 +62,28 @@ async function listUntrackedAdrFiles(root: string, adrFiles: Set<string>): Promi
       .map((name) => `docs/adrs/${name}`)
       .filter((rel) => !adrFiles.has(rel)),
   );
+}
+
+/**
+ * Finds the status statement in an ADR body: the first non-empty line after a
+ * `## Status` heading, or a `Status:` / `**Status:**` line. Returns the
+ * statement's 1-based line in the file and its text without emphasis marks.
+ */
+function bodyStatement(content: string): { line: number; text: string } | undefined {
+  const lines = content.split('\n');
+  const start = content.match(FRONTMATTER_RE)?.[0].split('\n').length ?? 0;
+  for (let i = start; i < lines.length; i++) {
+    if (/^#{2}\s+status\s*$/i.test(lines[i])) {
+      for (let j = i + 1; j < lines.length; j++) {
+        if (lines[j].trim() === '') continue;
+        return /^#/.test(lines[j]) ? undefined : { line: j + 1, text: lines[j].trim().replace(/^[*_]+/, '') };
+      }
+      return undefined;
+    }
+    const inline = lines[i].match(/^\s*\**status\**\s*:\s*\**\s*(\S.*)$/i);
+    if (inline) return { line: i + 1, text: inline[1].replace(/^[*_]+/, '') };
+  }
+  return undefined;
 }
 
 /**
@@ -150,6 +175,21 @@ function checkFile(
       message: `status "${status}" is not one of draft, stable, deprecated`,
     });
     return;
+  }
+
+  // why: validate reads frontmatter only, so a stable ADR whose own Status says it is retired would pass silently.
+  if (dir === 'adrs' && status === 'stable') {
+    const statement = bodyStatement(content);
+    const word = statement?.text.match(RETIRED_STATUS_RE)?.[1];
+    if (statement && word) {
+      findings.push({
+        level: 'warn',
+        rule: 'adr-status-mismatch',
+        file: rel,
+        line: statement.line,
+        message: `frontmatter says stable but the ADR says "${word}"; write a successor and deprecate it, or split the part that still binds`,
+      });
+    }
   }
 
   // ADR-only: superseded_by required when deprecated.
