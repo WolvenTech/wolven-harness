@@ -10,6 +10,9 @@ permissions:
 jobs:
   package-gate:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [22, 24]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -24,7 +27,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: ${{ matrix.node }}
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
@@ -38,3 +41,76 @@ jobs:
       # 11 fails it once the version on main is already published.
       - run: npm install -g npm@11.20.0
       - run: npm pack --dry-run
+
+  tarball-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.28.2
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+
+      # why: the tarball must come from the release job's npm so the smoke test
+      # installs exactly what would be published.
+      - run: npm install -g npm@11.20.0
+      - name: Pack tarball
+        run: |
+          set -euo pipefail
+          tgz="$(npm pack --pack-destination "$RUNNER_TEMP" --silent | tail -n 1)"
+          echo "TARBALL=$RUNNER_TEMP/$tgz" >> "$GITHUB_ENV"
+
+      # why: installing the packed tarball into an empty repo catches files the
+      # manifest omits, which the in-repo test suite cannot see.
+      - name: Install tarball into a fresh repo
+        run: |
+          set -euo pipefail
+          smoke="$(mktemp -d)"
+          echo "SMOKE_DIR=$smoke" >> "$GITHUB_ENV"
+          cd "$smoke"
+          git init
+          git config user.name smoke
+          git config user.email smoke@example.invalid
+          echo '{"name":"smoke","private":true}' > package.json
+          pnpm add -D "$TARBALL"
+
+      - name: Check version output
+        working-directory: ${{ env.SMOKE_DIR }}
+        run: |
+          set -euo pipefail
+          out="$(pnpm exec wolven-harness --version)"
+          echo "$out"
+          case "$out" in
+            "@wolven-tech/harness "*) ;;
+            *) echo "unexpected --version output" >&2; exit 1 ;;
+          esac
+
+      # why: stdin from /dev/null keeps setup non-interactive.
+      - name: Run setup
+        working-directory: ${{ env.SMOKE_DIR }}
+        run: |
+          set -euo pipefail
+          pnpm exec wolven-harness setup --git-host gh --runtimes claude,codex --skills ship < /dev/null
+
+      - name: Assert setup output
+        working-directory: ${{ env.SMOKE_DIR }}
+        run: |
+          set -euo pipefail
+          test -f .agents/skills/code-spec/SKILL.md
+          test -f .agents/skills/code-pr/SKILL.md
+          test ! -e .agents/skills/create-prd
+          test -L .claude/skills
+          test ! -e AGENTS.md
+          node -e "if (!require('./package.json').scripts?.['harness:validate']) process.exit(1)"
+
+      - name: Validate
+        working-directory: ${{ env.SMOKE_DIR }}
+        run: pnpm exec wolven-harness validate

@@ -62,3 +62,28 @@ test('pr-gate: the workflow names no secret', async () => {
 
   assert.doesNotMatch(raw, /secrets\./);
 });
+
+test('pr-gate: the package-gate job runs on a node matrix that includes 22 and 24', async () => {
+  const workflow = await readWorkflow();
+  const job = workflow.jobs['package-gate'];
+
+  const matrix: unknown[] = job.strategy?.matrix?.node ?? [];
+  assert.ok(matrix.includes(22), 'node 22 in matrix');
+  assert.ok(matrix.includes(24), 'node 24 in matrix');
+
+  const nodeSetup = job.steps.find((s: Record<string, any>) => String(s.uses ?? '').startsWith('actions/setup-node@'));
+  assert.equal(nodeSetup?.with?.['node-version'], '${{ matrix.node }}');
+});
+
+test('pr-gate: the tarball-smoke job packs, runs setup, and runs validate', async () => {
+  const workflow = await readWorkflow();
+  const job = workflow.jobs['tarball-smoke'];
+
+  assert.ok(job, 'tarball-smoke job present');
+
+  const runs = job.steps.filter((s: Record<string, any>) => s.run).map((s: Record<string, any>) => String(s.run));
+  const joined = runs.join('\n');
+  assert.match(joined, /npm pack/);
+  assert.match(joined, /wolven-harness setup/);
+  assert.match(joined, /wolven-harness validate/);
+});
