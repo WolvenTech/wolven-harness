@@ -28,6 +28,7 @@
     "comments": "node dist/cli.js comments"
   },
   "dependencies": {
+    "@clack/prompts": "^1.8.1",
     "yaml": "^2.6.1"
   },
   "devDependencies": {

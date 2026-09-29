@@ -110,6 +110,10 @@ first, but the Human always picks:
 - Anything in between is a question to the Human, the recommended option
   listed first, same as any other ambiguity this skill meets.
 
+The mode is always put to the Human as one question: the recommended mode
+first with the reason, the other two modes as the remaining options. Never
+pick a mode silently, even when one recommendation looks obvious.
+
 ## Before writing
 
 Alongside picking a mode, step 0 runs five checks. Each one is a question

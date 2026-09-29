@@ -2,6 +2,8 @@ import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import type { GitHost, Runtime } from './types.js';
 import { InitError } from './types.js';
+import { isSkillSet } from './skill-sets.js';
+import type { SkillSet } from './skill-sets.js';
 
 /**
  * Shape of `.wolven-harness.json`. `version` is the config schema version
@@ -11,6 +13,8 @@ export interface Config {
   version: 1;
   gitHost: GitHost;
   runtimes: Runtime[];
+  /** Optional skill sets installed so far; absent in configs written before sets existed. */
+  skillSets?: SkillSet[];
   ignore?: string[];
   /** This package's own version, resolved and rewritten on every `init` run. */
   packageVersion?: string;
@@ -22,7 +26,7 @@ export interface Config {
   extra?: Record<string, unknown>;
 }
 
-const KNOWN_KEYS = new Set(['version', 'gitHost', 'runtimes', 'ignore', 'packageVersion']);
+const KNOWN_KEYS = new Set(['version', 'gitHost', 'runtimes', 'skillSets', 'ignore', 'packageVersion']);
 
 export const CONFIG_FILENAME = '.wolven-harness.json';
 
@@ -93,6 +97,13 @@ export async function readConfig(root: string): Promise<Config | undefined> {
     runtimes: obj.runtimes,
   };
 
+  if (obj.skillSets !== undefined) {
+    if (!Array.isArray(obj.skillSets) || !obj.skillSets.every(isSkillSet)) {
+      throw new InitError(`${CONFIG_FILENAME} "skillSets" must be an array of "ship", "discovery"`);
+    }
+    config.skillSets = obj.skillSets;
+  }
+
   if (obj.ignore !== undefined) {
     if (!Array.isArray(obj.ignore) || !obj.ignore.every((v) => typeof v === 'string')) {
       throw new InitError(`${CONFIG_FILENAME} "ignore" must be an array of strings`);
@@ -128,7 +139,7 @@ async function existingKeyOrder(file: string): Promise<string[]> {
 
 /**
  * Writes `.wolven-harness.json` at `root` as 2-space JSON with a trailing
- * newline: `{ "version", "gitHost", "runtimes" }`, plus `packageVersion` and
+ * newline: `{ "version", "gitHost", "runtimes" }`, plus `skillSets`, `packageVersion` and
  * `ignore` when set, plus every key in `config.extra` (e.g. `comments`).
  * Keys already in the file keep their order; new keys follow in the order
  * above. Callers are responsible for carrying an existing `ignore`/`extra`
@@ -143,6 +154,9 @@ export async function writeConfig(root: string, config: Config): Promise<void> {
     gitHost: config.gitHost,
     runtimes: config.runtimes,
   };
+  if (config.skillSets !== undefined) {
+    fresh.skillSets = config.skillSets;
+  }
   if (config.packageVersion !== undefined) {
     fresh.packageVersion = config.packageVersion;
   }

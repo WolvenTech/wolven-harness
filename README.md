@@ -19,9 +19,11 @@ pnpm exec wolven-harness init
 
 ### `wolven-harness init`
 
-Run it at the git top-level of the target repo. It asks for the git host (`gh` or `bit`) and the runtimes to wire (`claude`, `codex`, `cursor`), or takes them as flags — `--git-host gh --runtimes claude,codex` — which are required when stdin is not a TTY. The answers are saved to `.wolven-harness.json`.
+Run it at the git top-level. It asks a few questions, then sets up the harness.
 
-`init` creates paths that are missing and leaves every other existing path byte-identical, then lists what it created and what it skipped. Two exceptions: it adds `harness:validate` and `harness:comments` to an existing `package.json` when those script keys are absent, and every run rewrites `packageVersion` in `.wolven-harness.json`. It writes `WOLVEN.md`, `docs/` (writing profile, ADR folder with a starter ADR, prds, specs, notes, deferrals), `.qmd/index.yml`, `.agents/` (skills, rules, hooks — including the `comments.md` standing rule), and the runtime wiring below. It never creates or edits `AGENTS.md`: see [Setting up with harness-init](#setting-up-with-harness-init) below.
+- Adds only what is missing: never edits `AGENTS.md`, never commits.
+- In CI or a pipe, pass `--git-host` and `--runtimes`; `--help` lists every flag.
+- Add a skill set later with `--skills ship,discovery`; re-runs never remove one.
 
 ### `wolven-harness validate`
 
