@@ -109,6 +109,7 @@ Finding codes:
 | `step0-pending` | warn |
 | `adr-unrecognized` | warn |
 | `legacy-adr` | warn |
+| `adr-status-mismatch` | warn |
 | `legacy-claim` | warn, verbose-only |
 
 An `ignore-entry` error stops validation early. Only that finding and the
@@ -204,3 +205,5 @@ policy is.
 - 2026-09-29, before 0.3.0 shipped: `setup` adds a third script,
   `harness:score`, and never adds or edits a dependency. Approved by the
   maintainer.
+- 2026-09-29: `adr-status-mismatch` added as a warning code. It is additive under
+  the change policy and ships in a minor release.

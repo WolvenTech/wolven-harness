@@ -101,7 +101,8 @@ test('migrate-rules: the status mapping table carries Accepted, Proposed, Supers
   assert.match(flat, /\|\s*`Proposed`\s*\|\s*`draft`\s*\|/);
   assert.match(flat, /\|\s*`Superseded by <ADR>`\s*\|\s*`deprecated`\s*\|/);
   assert.match(flat, /anything else.*ask the human.*\|/i);
-  assert.match(flat, /offer only the options that would pass `harness:validate`/i);
+  assert.match(flat, /offer options that are true to the ADR's own Status section/i);
+  assert.doesNotMatch(flat, /offer only the options that would pass/i);
   assert.match(flat, /never guesses a status mapping/i);
 });
 
@@ -117,8 +118,33 @@ test('migrate-rules: a superseded ADR that still partly applies is asked about, 
     table,
     /\|\s*superseded, but the ADR or an index says part of it still applies\s*\|\s*ask the human\s*\|/i,
   );
-  assert.match(table, /split the part that still binds into a new ADR through `adr`, then deprecate this one/i);
-  assert.match(table, /keep this one `stable`.*with that decision recorded in the session note/i);
+  assert.match(
+    table,
+    /the part that still binds becomes a new ADR through `adr`, and this one is deprecated with `superseded_by`/i,
+  );
+  assert.match(table, /split only/i);
+  assert.match(table, /never keep this one `stable` as a whole/i);
+  assert.doesNotMatch(table, /or keep this one `stable`/i);
+});
+
+test('migrate-rules: a superseded ADR with no successor gets a successor ADR and is deprecated, never stable', async () => {
+  const raw = await readReference();
+  const table = flatten(raw.split('### Status mapping')[1]?.split('### Before writing')[0] ?? '');
+
+  assert.match(table, /\|\s*superseded, no successor named\s*\|\s*ask the human\s*\|/i);
+  assert.match(
+    table,
+    /record what replaced it as a new ADR through `adr`.*then deprecate this one with `superseded_by`/i,
+  );
+  assert.match(table, /nothing replaced it.*still write a short successor ADR saying so, then deprecate/i);
+  assert.match(table, /Never `stable`/);
+  assert.match(table, /`adr-status-mismatch`/);
+});
+
+test('migrate-rules: mapping a superseded or deprecated ADR to stable is an anti-pattern naming adr-status-mismatch', async () => {
+  const anti = flatten((await readReference()).split('## Anti-patterns')[1] ?? '');
+  assert.match(anti, /Mapping an ADR to `stable` while its Status section says it is superseded or deprecated/);
+  assert.match(anti, /`adr-status-mismatch`/);
 });
 
 test('migrate-rules: tokens are searched, tests included, before a status other than stable is written', async () => {
@@ -134,11 +160,14 @@ test('migrate-closure: each claim to a touched ADR is read against its title, mi
   const flat = flatten(await readReference());
 
   assert.match(flat, /check what each claim means/i);
-  assert.match(
-    flat,
-    /for every claim to an ADR this migration touched, read the line making the claim next to that ADR's title/i,
-  );
+  assert.match(flat, /for each ADR this migration touched, list every citing line/i);
   assert.match(flat, /take each mismatch to the human, one at a time: repoint it, reword it, or leave it as is/i);
+});
+
+test('migrate-closure: the meaning check lists every citing file:line as ok or mismatch and matches titles', async () => {
+  const flat = flatten(await readReference());
+  assert.match(flat, /list every citing line as `file:line` with `ok` or `mismatch → <the Human's answer>`/i);
+  assert.match(flat, /A title written next to the token \(`ADR-NNN: <Title>`\) must match that ADR's title/i);
 });
 
 test('migrate-closure: recomputes every relative link into and out of a moved file', async () => {
@@ -160,9 +189,12 @@ test('migrate-closure: the claim loop repoints, rewords, or records a new decisi
   assert.match(flat, /claim that starts failing after migration is expected input to work through, not a defect/i);
 });
 
-test('migrate-closure: done only when harness:validate exits 0 with 0 legacy-warn', async () => {
+test('migrate-closure: done only when harness:validate exits 0 with 0 legacy-warn and no adr-status-mismatch', async () => {
   const flat = flatten(await readReference());
-  assert.match(flat, /the step is done only when `harness:validate` exits 0\s*with `0 legacy-warn`/i);
+  assert.match(
+    flat,
+    /the step is done only when `harness:validate` exits 0\s*with `0 legacy-warn` and no `adr-status-mismatch`/i,
+  );
 });
 
 test("migrate-closure: points at the repo's own test and lint commands for links inside source files", async () => {

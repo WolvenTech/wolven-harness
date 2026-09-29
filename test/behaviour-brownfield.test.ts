@@ -79,6 +79,29 @@ test('behaviour: a partly binding superseded ADR is split into a stable successo
   assert.match(stale.out, /superseded_by: adr-004-storage-v2/);
 });
 
+test('behaviour: a stable ADR whose body says superseded with no successor warns adr-status-mismatch and still exits 0', async () => {
+  const body = [
+    '---',
+    'type: adr',
+    'title: Worker model provider',
+    'description: a fixture decision',
+    'status: stable',
+    '---',
+    '',
+    '# Worker model provider',
+    '',
+    '## Status',
+    '',
+    'Superseded — the worker model is now served by another provider',
+    '',
+  ].join('\n');
+  const dir = await makeRepo({ 'docs/adrs/adr-003-worker-model-provider.md': body }, { git: true });
+
+  const result = await validate(dir);
+  assert.equal(result.code, 0, result.out);
+  assert.match(result.out, /warn \[adr-status-mismatch\] docs\/adrs\/adr-003-worker-model-provider\.md:12:/);
+});
+
 test('behaviour: a test file pinning a deprecated ADR token fails claim-deprecated until repointed to the successor', async () => {
   const dir = await makeRepo(
     {

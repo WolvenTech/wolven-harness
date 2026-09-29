@@ -171,6 +171,10 @@ Then add the note's final sections, set it `stable`, and hand the run back to
 the Human with what was done and what is left for them to define. See
 [references/session-note-template.md](references/session-note-template.md).
 
+The run ends at hand-back. Defining stubs or building score gaps is a
+separate change on its own branch, not a commit on the harness-init branch.
+If the Human asks for it in the same session, say so and stop.
+
 ## Anti-patterns
 
 - Guessing at an ambiguous status, mode, or successor instead of asking the
