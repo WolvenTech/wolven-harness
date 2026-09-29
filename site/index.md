@@ -1,27 +1,28 @@
 ---
-description: Set up a repo so a coding agent can find its instructions, use recorded decisions, and check its work.
+description: CLI tool that installs and maintains a set of tools for AI agents to find instructions, use recorded decisions, check their work and maintain human-decided patterns.
 ---
 
 # wolven-harness
 
-Set up a repo so a coding agent can find its instructions, use recorded decisions, and check its work.
+CLI tool that installs and maintains a set of tools for AI agents to find instructions, use recorded decisions, check their work and maintain human-decided patterns.
 
 ## Install
 
-Add the harness to the repo you want an agent to work in.
+Run the harness `setup` in your repo, at the git top level. You need Node 22 or later, git, pnpm, and macOS or Linux.
 
 ```sh
-pnpm add -D @wolven-tech/harness
-pnpm exec wolven-harness setup
+pnpm add -D @wolven-tech/harness && pnpm exec wolven-harness setup
 ```
 
-Run both at the git top level. You need Node 22 or later, git, pnpm, and macOS or Linux.
+`setup` adds harness files: agent skills, rules, document templates, and a local search index configuration. It preserves existing copies and leaves `AGENTS.md` alone, so don't worry.
 
-`setup` adds harness files: agent skills, rules, document templates, and a local search index configuration. It preserves existing copies and leaves `AGENTS.md` alone. It also adds missing check scripts to `package.json` and saves setup choices and the package version in `.wolven-harness.json`. It never commits.
+It also adds missing check scripts to `package.json` and saves setup choices and the package version in `.wolven-harness.json`.
 
 ## Next
 
-Ask your coding agent to run `harness-init`. It proposes how to connect the harness files to your repo’s existing instructions in `AGENTS.md`. Review the proposed diff before approving each write. [Setup](./harness-init) explains the steps.
+Ask your coding agent to run `harness-init`. It proposes how to connect the harness files to your repo’s existing instructions in `AGENTS.md`.
+
+Follow the instructions and review the proposed diff before approving each write. [Setup](./harness-init) explains the steps.
 
 Then try a small change with the [Daily use](./cycle) example.
 

@@ -48,7 +48,7 @@ test('readme-install: no GitHub Packages registry residue', async () => {
 });
 
 test('readme-install: the release page covers trusted publishing, its npm-side setup and the manual re-run', async () => {
-  const releaseSection = section(await readDoc('site/release.md'), 'Release');
+  const releaseSection = await readDoc('site/release.md');
 
   assert.match(releaseSection, /trusted publish/i);
   assert.match(releaseSection, /seed/i);

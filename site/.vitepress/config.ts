@@ -7,7 +7,7 @@ const base = '/wolven-harness/'
 export default defineConfig({
   title: 'wolven-harness',
   description:
-    'A repo where a coding agent can find its instructions, use recorded decisions, and check its work.',
+    'CLI tool that installs and maintains a set of tools for AI agents to find instructions, use recorded decisions, check their work and maintain human-decided patterns.',
   base,
   appearance: false,
   head: [

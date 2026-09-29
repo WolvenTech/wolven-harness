@@ -8,15 +8,23 @@ After [Setup](./harness-init), try a small change: add a retry limit to outbound
 
 ## Specify
 
-Ask for `code-spec`: “Limit outbound calls to three retries and add a test that proves we stop at the cap.” The agent records the requirements and how to verify them. Review the spec before implementation.
+Use `code-spec` to start a new code development. For example:
+
+> “I need to limit outbound calls to three retries and add a test that proves we stop at the cap.”
+
+The agent reads the documentation, then writes a document with the requirements and how to verify them. You then review and approve the spec before implementation.
 
 ## Plan
 
-Ask for `code-plan`. The agent identifies the files to change, the test to add, and the checks to run. Approve the plan before work starts.
+Ask for `code-plan` along with a clear implementation description or a spec written with `code-spec`.
+
+The agent identifies the files to change, the tests to add, and the checks to run. Then presents you with a task plan that covers each implementation wave and the verification gates. You approve the plan before work starts.
 
 ## Execute
 
-Ask for `code-execute`. The agent makes the change and runs the tests and harness checks. Review the diff and results.
+Ask for `code-execute` and the agent makes a code change and runs the tests and harness checks. If you pass along a plan written with `code-plan`, it can orchestrate subagents to execute it in one go, stopping at the defined human gates.
+
+You review the diff and results, then proceed.
 
 ## Commits and pull requests
 

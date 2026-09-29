@@ -7,22 +7,17 @@
 [![node](https://img.shields.io/badge/node-%3E%3D22-brightgreen.svg)](https://nodejs.org)
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 
-Set up a repo so a coding agent can find its instructions, use recorded decisions, and check its work.
+CLI tool that installs and maintains a set of tools for AI agents to find instructions, use recorded decisions, check their work and maintain human-decided patterns.
 
-`setup` adds the harness files. `validate` checks the harness files and that architecture claims point to recorded decisions. `comments` checks the comment lines a change adds.
-
-Docs: [wolventech.github.io/wolven-harness](https://wolventech.github.io/wolven-harness/). See also [Commands](https://wolventech.github.io/wolven-harness/commands) and [Upgrade](https://wolventech.github.io/wolven-harness/upgrade).
+Docs: [wolventech.github.io/wolven-harness](https://wolventech.github.io/wolven-harness/). See also [Commands](https://wolventech.github.io/wolven-harness/commands).
 
 ## Install
 
 ```sh
-pnpm add -D @wolven-tech/harness
-pnpm exec wolven-harness setup
+pnpm add -D @wolven-tech/harness && pnpm exec wolven-harness setup
 ```
 
-Run both at the git top level. You need Node 22 or later, git, pnpm, and macOS or Linux.
-
-Upgrading from 0.2.0? In 0.3.0 `init` became `setup`. See the [Upgrade page](https://wolventech.github.io/wolven-harness/upgrade).
+Run at the git top level. You need Node 22 or later, git, pnpm, and macOS or Linux.
 
 ## Setup
 
