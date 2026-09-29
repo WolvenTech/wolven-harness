@@ -18,7 +18,7 @@ pnpm validate   # node dist/cli.js validate — run after `pnpm build`
 - `test/` — `node:test` suites, run in-process against `src/` via `tsx` (no build required).
 - `CONTRIBUTING.md` — contributor entry point: requirements, the local gate, and the PR rules.
 - `assets/` — the Wolven marks the `README.md` header embeds; outside `"files"`, so they do not ship.
-- `site/` — the static GitHub Pages page and its mark; Pages must be pointed at this folder in repo settings.
+- `site/` — the VitePress source for the GitHub Pages guide; `pnpm docs:build` builds it, and `.github/workflows/pages.yml` deploys it on push to `main`, so the repo's Pages source must be set to GitHub Actions.
 
 ## Rules
 
