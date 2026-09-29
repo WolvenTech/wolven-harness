@@ -4,9 +4,9 @@ description: Tutorial for the harness-init skill after setup finishes.
 
 # Setting up with harness-init
 
-`init` never creates or edits `AGENTS.md`. After it finishes, ask your agent to run `harness-init`. You steer every write. The agent shows the diff first.
+`setup` never creates or edits `AGENTS.md`. After it finishes, ask your agent to run `harness-init`. You steer every write. The agent shows the diff first.
 
-**Step 0:** fold `WOLVEN.md` into `AGENTS.md` (full, light, or mention-only). You pick the mode. `init` left the entry file alone so this choice stays yours.
+**Step 0:** fold `WOLVEN.md` into `AGENTS.md` (full, light, or mention-only). You pick the mode. `setup` left the entry file alone so this choice stays yours.
 
 **Step 1:** migrate legacy ADRs into `docs/adrs/` when validate reports them.
 

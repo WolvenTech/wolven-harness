@@ -42,7 +42,7 @@ is `templates/.agents/rules/comments.md`.
 Some tests pin documentation copy. `test/readme-install.test.ts` asserts the
 install lines in `README.md` and the release and contributing pages under
 `site/`. `test/release.test.ts`, `test/harness-init-set.test.ts`, and
-`test/init-runtimes.test.ts` assert phrases in those pages too. Editing them
+`test/setup-runtimes.test.ts` assert phrases in those pages too. Editing them
 can fail the suite, which is the point: change the copy and the test together,
 deliberately.
 
