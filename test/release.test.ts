@@ -169,12 +169,14 @@ test('release-oidc: the PR gate and the release use the same pnpm and npm pins',
   assert.equal(npmPin(release.jobs.publish.steps), npmPin(ci.jobs.package.steps));
 });
 
-test('release-workflow: releases bump the minor version before 1.0', async () => {
+test('release-workflow: below 1.0 a feat bumps the patch and a breaking change bumps the minor', async () => {
   const config = await readJson('release-please-config.json');
   const manifest = await readJson('.release-please-manifest.json');
 
   assert.equal(config['release-type'], 'node');
   assert.equal(config['bump-minor-pre-major'], true);
+  // why: without this flag a feat still bumps the minor before 1.0, and the assertion above would stay green.
+  assert.equal(config['bump-patch-for-minor-pre-major'], true);
   assert.equal(config['include-component-in-tag'], false);
   assert.equal(config.packages?.['.']?.['package-name'], '@wolven-tech/harness');
   assert.equal(config.packages['.']['initial-version'], undefined);
