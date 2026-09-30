@@ -1,5 +1,0 @@
-interface:
-  display_name: "biome"
-  short_description: "Use when changing lint, format, or the pre-commit check."
-policy:
-  allow_implicit_invocation: false
