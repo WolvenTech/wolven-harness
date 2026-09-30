@@ -31,6 +31,10 @@ meets:
 Nothing else is asked here. Everything else this step produces comes from
 what the repo already shows.
 
+On the lean path for a thin-evidence fresh repo, those two Q&A extras may be
+deferred after file-based discovery has produced a usable context list — see
+Lean path in `SKILL.md`. File-based discovery itself still runs.
+
 ### Context
 
 What the repo's own files say about itself: what it is, what it depends on,
@@ -63,7 +67,9 @@ instead of widening this step's own web budget.
 
 If the web is unavailable, or the Human declines it, this step continues
 repo-only and says so in the note — a missing web pass is expected input to
-record, not a gap to paper over.
+record, not a gap to paper over. On the lean path, optional web research may
+be deferred the same way (repo-only, recorded under Deferred / skipped
+steps).
 
 ## Suggestions
 
@@ -72,13 +78,17 @@ whatever research added, suggest two to four architectural skills. Each one:
 
 - is named for a decided tool or field, never a guess at what the repo might
   adopt later;
-- cites the discovery (or research) evidence that grounds it;
+- cites the discovery (or research) evidence that grounds it — or, on the
+  lean path with thin evidence, cites the stated goal and available
+  references, or states an explicit thin-evidence basis;
 - never duplicates a skill already installed under `.agents/skills/`.
 
 When the evidence only supports fewer than two, say so rather than padding
-the list to reach the range. The Human picks any subset of what's suggested,
-including none of it — there is no catalogue to pick from instead; a
-suggestion not grounded in this run's own evidence isn't offered.
+the list to reach the range. Unsupported tool or architecture decisions stay
+open. Skill proposals are never deferred on the lean path. The Human picks
+any subset of what's suggested, including none of it — there is no catalogue
+to pick from instead; a suggestion not grounded in this run's own evidence
+isn't offered.
 
 For example: a fictional repo, `Petalworks`, lists a queueing library called
 `Quinly` in its manifest, and `docs/adrs/adr-NNN-queue-with-quinly.md`

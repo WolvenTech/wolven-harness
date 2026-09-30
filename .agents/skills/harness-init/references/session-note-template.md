@@ -71,6 +71,14 @@ status: <status>
 
 <the wiring question as asked, the option recommended and why, the Human's answer (CI job, chained script, or local only), and what was written — or "nothing written">
 
+## Deferred / skipped steps
+
+<one row per lean-path deferral, or "none" when the full path ran>
+
+| Step | Name | Reason | Remaining work |
+| --- | --- | --- | --- |
+| <number> | <step name> | <why this step was deferred or skipped> | <what still needs doing later> |
+
 ## Next steps for the Human
 
 <what the Human still has to define in each stub, and anything else left open>
@@ -79,7 +87,9 @@ status: <status>
 Every section heading above stays in the note even when its step was
 skipped — a skipped step fills its section with why, rather than leaving
 the heading empty or dropping it, so the note always shows the full shape
-of the run.
+of the run. **Deferred / skipped steps** holds the lean-path deferral list
+(step number, name, reason, remaining work); fill it with `none` when
+nothing was deferred.
 
 ## Naming ADRs in the note
 
@@ -115,3 +125,5 @@ deprecation would fail the check it documents.
 - Starting a new note over a `draft` note left by an interrupted run.
 - Naming an ADR in the note by its claim token or filename instead of its
   bare number and title.
+- Omitting a lean-path deferral from **Deferred / skipped steps** after the
+  Human agreed to skip it.
