@@ -25,13 +25,13 @@ List every skill, grouped by `core` / `ship` / `discovery`:
 pnpm exec wolven-harness setup --list-skills
 ```
 
-Install one skill without its whole set (non-interactive; pass `--git-host` and `--runtimes` unless `.wolven-harness.json` already records them):
+Install one skill without its whole set. `--skills none` keeps the default `ship` set out; without it, a non-interactive run also installs `ship`. Pass `--git-host` and `--runtimes` unless `.wolven-harness.json` already records them:
 
 ```sh
-pnpm exec wolven-harness setup --git-host gh --runtimes cursor --skill create-prd
+pnpm exec wolven-harness setup --git-host gh --runtimes cursor --skills none --skill create-prd
 ```
 
-`--skill` is additive and may be repeated or combined with `--skills`. Opt into whole sets with `--skills` as before; re-runs never remove an installed set or skill.
+`--skill` is additive and may be repeated or combined with `--skills`. `setup --skill` still runs all of `setup`: it refreshes `.wolven-harness.json`, restores missing core templates, wires the chosen runtimes, and adds missing package scripts. Opt into whole sets with `--skills` as before; re-runs never remove an installed set or skill.
 
 ## Full inventory
 

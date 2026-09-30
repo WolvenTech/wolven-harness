@@ -33,7 +33,10 @@ what the repo already shows.
 
 On the lean path for a thin-evidence fresh repo, those two Q&A extras may be
 deferred after file-based discovery has produced a usable context list — see
-Lean path in `SKILL.md`. File-based discovery itself still runs.
+Lean path in `SKILL.md`. File-based discovery itself still runs. The lean
+path's own goal question (one sentence, asked before step 0 when the prompt
+stated none) is separate from these two and is never deferred; record the
+answer in the note.
 
 ### Context
 
@@ -79,8 +82,9 @@ whatever research added, suggest two to four architectural skills. Each one:
 - is named for a decided tool or field, never a guess at what the repo might
   adopt later;
 - cites the discovery (or research) evidence that grounds it — or, on the
-  lean path with thin evidence, cites the stated goal and available
-  references, or states an explicit thin-evidence basis;
+  lean path with thin evidence, cites the recorded immediate goal and
+  available references, or states an explicit thin-evidence basis (also when
+  no goal was stated);
 - never duplicates a skill already installed under `.agents/skills/`.
 
 When the evidence only supports fewer than two, say so rather than padding

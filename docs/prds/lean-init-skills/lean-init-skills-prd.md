@@ -119,8 +119,10 @@ Traces to goal: G4
 None — resolved with Human (impersonator) before approval:
 
 - **CLI:** Extend `setup` with additive `--skill <name>` (sets stay on `--skills`); document listing via help / `--list-skills`.
-- **Lean deferrals:** May defer deep discovery Q&A, web research, and per-dimension score-gap questions; must still reach skill proposals (never deferred); record deferred steps in the session note.
+- **Lean deferrals:** May defer deep discovery Q&A, web research, and per-dimension score-gap questions; must still reach skill proposals (never deferred); record deferred steps in the session note. The spec extends the deferrable list to four by adding the validate-wiring question (step 6), so the lean path has one closed list.
 - **Config:** Keep `skillSets` for whole opted-in sets; add additive individual `skills` list; do not mark a set installed from a single skill.
+
+These answers came from a stand-in for the Human, not the maintainer. They stay pending maintainer confirmation before release.
 
 ## Handoff
 

@@ -41,9 +41,11 @@ List the catalog with `pnpm exec wolven-harness setup --list-skills` (no writes)
 pnpm exec wolven-harness setup --git-host gh --runtimes cursor --skills none --skill create-prd
 ```
 
+`setup --skill` still runs all of `setup`: it refreshes `.wolven-harness.json`, restores missing core templates, wires the chosen runtimes, and adds missing package scripts.
+
 ## What to do next
 
-Ask your agent to run `harness-init`. On a fresh or thin-evidence repo, the lean path may defer deep discovery Q&A, web research, and per-gap score questions; skill proposals still run. See [harness-init](https://wolventech.github.io/wolven-harness/harness-init). Then:
+Ask your agent to run `harness-init`. On a fresh or thin-evidence repo, the lean path asks for your immediate goal in one sentence (unless you stated one), then may defer four named items (deep discovery Q&A, web research, per-gap score questions, and the validate-wiring question); skill proposals still run. See [harness-init](https://wolventech.github.io/wolven-harness/harness-init). Then:
 
 1. `code-spec`: agree on the change and how to verify it.
 2. `code-plan`: approve the implementation steps.

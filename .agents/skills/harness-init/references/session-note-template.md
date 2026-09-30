@@ -73,7 +73,11 @@ status: <status>
 
 ## Deferred / skipped steps
 
-<one row per lean-path deferral, or "none" when the full path ran>
+**Path:** <lean or full>
+
+**Immediate goal:** <the goal the Human stated or answered, in their words, or "none stated" — on the lean path only; "n/a — full path" otherwise>
+
+<one row per lean-path deferral (the four deferrable items only), or "none" when the full path ran>
 
 | Step | Name | Reason | Remaining work |
 | --- | --- | --- | --- |
@@ -87,9 +91,11 @@ status: <status>
 Every section heading above stays in the note even when its step was
 skipped — a skipped step fills its section with why, rather than leaving
 the heading empty or dropping it, so the note always shows the full shape
-of the run. **Deferred / skipped steps** holds the lean-path deferral list
-(step number, name, reason, remaining work); fill it with `none` when
-nothing was deferred.
+of the run. **Deferred / skipped steps** holds the lean section: the path, the
+immediate goal, and the deferral list (step number, name, reason, remaining
+work); fill the deferral list with `none` when nothing was deferred. It is
+filled as step 0 creates the note, since the lean goal and deferrals are
+agreed before step 0.
 
 ## Naming ADRs in the note
 

@@ -4,13 +4,14 @@ title: Lean new-repo init and individually installable skills
 description: Freeze lean harness-init deferrals plus additive setup --skill / --list-skills and optional config skills.
 status: stable
 source_issue: https://github.com/WolvenTech/wolven-harness/issues/22
-source_prd: /cursor/stores/self/internal/issue-22-prd.md
+source_prd: docs/prds/lean-init-skills/lean-init-skills-prd.md
 ---
 
 # Lean new-repo init and individually installable skills
 
-**Source:** `/cursor/stores/self/internal/issue-22-prd.md` (status `stable`) — issue #22.
-**Next:** After the Human approves → `code-plan` → `code-execute`, wave **1 → 2 → 3**.
+**Source:** `docs/prds/lean-init-skills/lean-init-skills-prd.md` (status `stable`) — issue #22.
+**Next:** `code-plan` → `code-execute`, wave **1 → 2 → 3**; the plan sits beside this spec in `lean-init-skills-plan.md`.
+**Pending confirmation:** the PRD records its open questions as resolved by a stand-in for the Human (see its Open questions). Those stand-in decisions (Q4–Q6 and Q9: the `--skill` flag, the lean deferral boundary, and the config `skills` key) stay pending maintainer confirmation before release.
 **Named proof (this spec's own structural gate):** `proof-lean-init-skills-spec-obligations`
 
 ## Term challenge
@@ -21,7 +22,7 @@ source_prd: /cursor/stores/self/internal/issue-22-prd.md
 | `setup` | Public CLI command (`wolven-harness setup`) — ADR-003 |
 | `skill set` / `ship` / `discovery` / `core` | Existing partition in `src/setup/skill-sets.ts` and ADR-003 `--skills` |
 | `session note` | Existing harness-init artifact under `docs/notes/harness-init-<date>/` |
-| lean path | harness-init behavior for thin-evidence fresh repos: may defer deep discovery Q&A, web research, and per-dimension score-gap questions; never defers skill proposals |
+| lean path | harness-init behavior for thin-evidence fresh repos: captures the immediate goal (asking one question when the prompt stated none), defers exactly four named items (deep discovery Q&A beyond files, optional web research, per-dimension score-gap questions, the validate-wiring question); never defers skill proposals |
 | individual skill / `--skill` | Additive install of one template skill folder without opting into its whole set |
 | `skills` (config) | New optional `.wolven-harness.json` array of individually installed skill folder names (distinct from `skillSets`) |
 
@@ -83,10 +84,11 @@ A failed gate aborts before the next wave.
 
 | ID | Obligation | Named proof | Evidence shape |
 |----|------------|--------------|------------------|
-| R3.1 | harness-init documents a lean path for thin-evidence fresh repos that may propose deferring: deep discovery Q&A beyond files (step 2 extras), optional web research (step 3), and per-dimension score-gap keep/drop questions (part of step 6) | `proof-harness-init-lean-rules` | `test/skill-harness-init.test.ts` (or sibling) pins required phrases/structure in `SKILL.md` / references |
+| R3.1 | harness-init documents a lean path for thin-evidence fresh repos that may propose deferring exactly four named items and nothing else: deep discovery Q&A beyond files (step 2 extras), optional web research (step 3), per-dimension score-gap keep/drop questions (part of step 6), and the validate-wiring question (part of step 6). Lean is chosen from the tree alone; the path asks one question for the immediate goal when the prompt stated none, and records it in the session note | `proof-harness-init-lean-rules` | `test/skill-harness-init.test.ts` (or sibling) pins required phrases/structure in `SKILL.md` / references |
 | R3.2 | Before proceeding with deferrals, the agent must present each deferred/skipped step by number/name with why and remaining work; the session note records those choices | `proof-harness-init-deferral-record` | Session-note template + skill text require a deferred-steps section; skill test pins it |
-| R3.3 | Skill proposals (step 4) are never listed as deferred/skippable on the lean path; proposals cite the stated goal and available references or an explicit thin-evidence basis; unsupported tool/architecture decisions stay open | `proof-harness-init-proposals-always` | Skill test pins “never defer” / always-reach proposals language |
-| R3.4 | Lean path still runs entry (0), migration when needed (1), file-based discovery (2), proposals (4), stubs user picks (5), a score run that records level without forcing every gap question, validate-wiring as one essential choice or an explicitly deferred item with reason, and closes the session note | `proof-harness-init-lean-must-run` | Skill text structure test |
+| R3.3 | Skill proposals (step 4) are never listed as deferred/skippable on the lean path; proposals cite the recorded immediate goal and available references or an explicit thin-evidence basis; unsupported tool/architecture decisions stay open | `proof-harness-init-proposals-always` | Skill test pins “never defer” / always-reach proposals language |
+| R3.4 | Lean path still runs entry (0), migration when needed (1), file-based discovery (2), proposals (4), stubs user picks (5), a score run that records level without forcing every gap question, and closes the session note; validate-wiring is asked as one essential choice unless it is one of the four agreed deferrals, each recorded with reason and remaining work under Deferred / skipped steps | `proof-harness-init-lean-must-run` | Skill text structure test |
+| R3.5 | A documented walkthrough of a lean run on an empty repo exists at `docs/notes/lean-init-walkthrough/lean-init-walkthrough-note.md`, showing in order: goal captured, deferral list presented before proceeding, proposals made, and the session note recording the same choices; the session-note template carries the Immediate goal field and the Deferred / skipped steps section | `proof-harness-init-lean-walkthrough` | `test/skill-harness-init.test.ts` asserts the walkthrough's four beats in order and the template fields |
 
 ### R4 — Docs and contract
 
@@ -149,6 +151,7 @@ A failed gate aborts before the next wave.
 - [ ] `proof-harness-init-deferral-record` PASS
 - [ ] `proof-harness-init-proposals-always` PASS
 - [ ] `proof-harness-init-lean-must-run` PASS
+- [ ] `proof-harness-init-lean-walkthrough` PASS
 
 ### Wave 3
 

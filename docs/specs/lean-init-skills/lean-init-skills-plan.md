@@ -3,14 +3,14 @@ type: spec
 title: Lean new-repo init and individually installable skills — plan
 description: Ordered units for lean harness-init and setup --skill / --list-skills.
 status: stable
-source_spec: /cursor/stores/self/internal/issue-22-spec.md
+source_spec: docs/specs/lean-init-skills/lean-init-skills-spec.md
 ---
 
 # Lean new-repo init and individually installable skills — plan
 
 ## Structural gate
 
-Every obligation in `issue-22-spec.md` maps to a named proof (`proof-setup-skill-*`, `proof-config-skills-partial`, `proof-setup-list-skills`, `proof-harness-init-*`, `proof-contract-skills-amend`, `proof-docs-lean-skill`). Nine landings present; Unresolved empty. Ready to slice.
+Every obligation in `lean-init-skills-spec.md` maps to a named proof (`proof-setup-skill-*`, `proof-config-skills-partial`, `proof-setup-list-skills`, `proof-harness-init-*`, `proof-contract-skills-amend`, `proof-docs-lean-skill`). Nine landings present; Unresolved empty. Ready to slice.
 
 ## Work units
 

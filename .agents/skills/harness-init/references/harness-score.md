@@ -41,10 +41,10 @@ own, with its own spec.
 The run ends at hand-back: building the gaps afterwards is a separate change on
 its own branch, not a commit on the harness-init branch.
 
-On the lean path, after `harness:score` has run and the level is recorded, the
-per-dimension keep/drop questions may be deferred — still record the level in
-the note, and list the deferred gap questions under Deferred / skipped steps.
-Never skip the score run itself.
+The lean path never defers the score run: `harness:score` always runs and its
+level and score are always recorded in the note. Only the per-dimension
+keep/drop questions above may wait, once that level is recorded; list them
+under Deferred / skipped steps with the failing checks left open.
 
 `HYG-03`, `HYG-04` and `HYG-06` detect leaked credentials and can never be
 dropped. A failure there is not a question: stop and show the Human the

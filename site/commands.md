@@ -24,13 +24,13 @@ List the catalog (requires the git top-level; prints core/ship/discovery groups 
 pnpm exec wolven-harness setup --list-skills
 ```
 
-Install one skill without its set with `--skill <name>`:
+Install one skill without its set with `--skill <name>`. Add `--skills none` to keep the default `ship` set out of a non-interactive run:
 
 ```sh
-pnpm exec wolven-harness setup --git-host gh --runtimes cursor --skill create-prd
+pnpm exec wolven-harness setup --git-host gh --runtimes cursor --skills none --skill create-prd
 ```
 
-`--skill` is additive, may be repeated or combined with `--skills`, and records the name in optional config `skills` (not as a whole `skillSets` entry).
+`--skill` is additive, may be repeated or combined with `--skills`, and records the name in optional config `skills` (not as a whole `skillSets` entry). `setup --skill` still runs all of `setup`: it refreshes `.wolven-harness.json`, restores missing core templates, wires the chosen runtimes, and adds missing package scripts.
 
 ## `wolven-harness validate`
 

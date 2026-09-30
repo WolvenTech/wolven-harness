@@ -81,6 +81,7 @@ test('readme-install: README covers lean harness-init, --list-skills, --skill, a
   assert.match(setup, /setup --list-skills/);
   assert.match(setup, /--skill <name>/);
   assert.match(setup, /--skill create-prd/);
+  assert.match(setup, /`setup --skill` still runs all of `setup`/);
   assert.match(next, /lean path/i);
   assert.match(next, /thin-evidence/i);
   assert.match(next, /skill proposals still run/i);
@@ -94,6 +95,8 @@ test('readme-install: harness-init page documents the lean path and recorded def
   assert.match(lean, /deep discovery Q&A beyond files/i);
   assert.match(lean, /optional web research/i);
   assert.match(lean, /per-dimension score-gap keep\/drop questions/i);
+  assert.match(lean, /validate-wiring question/i);
+  assert.match(lean, /immediate goal/i);
   assert.match(lean, /Deferred \/ skipped steps/);
   assert.match(lean, /Skill proposals always run/i);
 });
@@ -104,6 +107,12 @@ test('readme-install: skills and commands pages show --list-skills and non-inter
 
   for (const doc of [skills, commands]) {
     assert.match(doc, /pnpm exec wolven-harness setup --list-skills/);
-    assert.match(doc, /pnpm exec wolven-harness setup --git-host gh --runtimes cursor --skill create-prd/);
+    assert.match(
+      doc,
+      /pnpm exec wolven-harness setup --git-host gh --runtimes cursor --skills none --skill create-prd/,
+    );
+    assert.doesNotMatch(doc, /--runtimes cursor --skill create-prd/);
+    assert.match(doc, /`setup --skill` still runs all of `setup`/);
+    assert.match(doc, /refreshes `\.wolven-harness\.json`/);
   }
 });

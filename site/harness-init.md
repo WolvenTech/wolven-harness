@@ -18,7 +18,11 @@ The run offers three commits (entry, migration, setup), each only after validati
 
 ## Lean path
 
-On a fresh or thin-evidence repo, `harness-init` may propose deferring deep discovery Q&A beyond files, optional web research, and per-dimension score-gap keep/drop questions. Before continuing, each deferred step is named with why and what remaining work it leaves; those choices are recorded under **Deferred / skipped steps** in the session note. Skill proposals always run — they cite the stated goal and available references, or an explicit thin-evidence basis when the tree is thin.
+On a fresh or thin-evidence repo, `harness-init` judges from the tree that the lean path fits. If you did not state a goal in your prompt, it asks one question for your immediate goal (one sentence) and records it as you give it.
+
+It then proposes deferring exactly four items: deep discovery Q&A beyond files, optional web research, per-dimension score-gap keep/drop questions, and the validate-wiring question. Before continuing, each deferred step is named with why and what remaining work it leaves, and you can decline any of them. Those choices, with your goal, are recorded under **Deferred / skipped steps** in the session note. Skill proposals always run and are never deferred — they cite your recorded goal and available references, or an explicit thin-evidence basis when the tree is thin.
+
+For a worked example, see the [lean walkthrough note](https://github.com/WolvenTech/wolven-harness/blob/main/docs/notes/lean-init-walkthrough/lean-init-walkthrough-note.md).
 
 ## Check the setup
 

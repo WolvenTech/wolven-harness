@@ -50,6 +50,8 @@ write, then run `harness:validate`.
 Record the answer under "Validate wiring" in the session note, with what was
 written or "nothing written" for (c) or a declined diff.
 
-On the lean path, this question is one essential choice the run still asks —
-or an explicitly deferred item with reason, recorded under Deferred /
-skipped steps. Do not silently skip it.
+On the lean path, this question is one of the four deferrable items (see
+Lean path in `SKILL.md`). When the Human agreed to defer it, ask nothing, write
+nothing, and record it under Deferred / skipped steps with the reason and the
+remaining work: choose a wiring later. Otherwise ask it as above. Do not
+silently skip it.
