@@ -2,14 +2,14 @@
 type: spec
 title: Lean new-repo init and individually installable skills
 description: Freeze lean harness-init deferrals plus additive setup --skill / --list-skills and optional config skills.
-status: stable
+status: deprecated
 source_issue: https://github.com/WolvenTech/wolven-harness/issues/22
-source_prd: docs/prds/lean-init-skills/lean-init-skills-prd.md
+source_prd: docs/prds/archived/lean-init-skills/lean-init-skills-prd.md
 ---
 
 # Lean new-repo init and individually installable skills
 
-**Source:** `docs/prds/lean-init-skills/lean-init-skills-prd.md` (status `stable`) — issue #22.
+**Source:** `docs/prds/archived/lean-init-skills/lean-init-skills-prd.md` (status `deprecated`, archived at closure) — issue #22.
 **Next:** `code-plan` → `code-execute`, wave **1 → 2 → 3**; the plan sits beside this spec in `lean-init-skills-plan.md`.
 **Pending confirmation:** the PRD records its open questions as resolved by a stand-in for the Human (see its Open questions). Those stand-in decisions (Q4–Q6 and Q9: the `--skill` flag, the lean deferral boundary, and the config `skills` key) stay pending maintainer confirmation before release.
 **Named proof (this spec's own structural gate):** `proof-lean-init-skills-spec-obligations`

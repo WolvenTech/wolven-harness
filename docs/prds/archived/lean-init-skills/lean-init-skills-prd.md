@@ -2,7 +2,7 @@
 type: prd
 title: Lean new-repo init and individually installable skills
 description: Fresh repos finish a lean harness-init path and can install one skill without taking a whole skill set.
-status: stable
+status: deprecated
 source_issue: https://github.com/WolvenTech/wolven-harness/issues/22
 ---
 

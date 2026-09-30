@@ -2,8 +2,8 @@
 type: spec
 title: Lean new-repo init and individually installable skills — plan
 description: Ordered units for lean harness-init and setup --skill / --list-skills.
-status: stable
-source_spec: docs/specs/lean-init-skills/lean-init-skills-spec.md
+status: deprecated
+source_spec: docs/specs/archived/lean-init-skills/lean-init-skills-spec.md
 ---
 
 # Lean new-repo init and individually installable skills — plan
@@ -60,7 +60,7 @@ Per assignment: invoke `code-commit` after each executed mutate unit (01, 02, 04
 | Field | Value |
 |-------|-------|
 | Unit | 01 — Catalog + config `skills` + `--skill` / `--list-skills` wiring |
-| Spec / plan | `docs/specs/lean-init-skills/lean-init-skills-spec.md` / `docs/specs/lean-init-skills/lean-init-skills-plan.md` |
+| Spec / plan | `docs/specs/archived/lean-init-skills/lean-init-skills-spec.md` / `docs/specs/archived/lean-init-skills/lean-init-skills-plan.md` |
 | Obligations | R1.1–R1.5, R2.1 — done |
 | `HEAD` | `9a0eb6b` |
 | `git status` | dirty — docs/prds + docs/specs lean-init-skills artifacts (orchestration; outside 01 Owns; leave for later commit or isolate) |
@@ -74,7 +74,7 @@ Per assignment: invoke `code-commit` after each executed mutate unit (01, 02, 04
 | Field | Value |
 |-------|-------|
 | Unit | 02 — Amend ADR-003 |
-| Spec / plan | docs/specs/lean-init-skills/* |
+| Spec / plan | docs/specs/archived/lean-init-skills/* |
 | Obligations | R4.1 — done |
 | `HEAD` | (see git) |
 | `git status` | dirty — ADR only |
