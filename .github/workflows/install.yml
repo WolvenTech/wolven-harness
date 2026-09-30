@@ -1,0 +1,122 @@
+name: Install harness
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+# why: overlapping main pushes would each open a pull request before either can see the other.
+concurrency:
+  group: install-harness
+  cancel-in-progress: false
+
+jobs:
+  install:
+    name: Install
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+        with:
+          # why: updating the chore branch has to merge the main history it is behind.
+          fetch-depth: 0
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 11.28.2
+
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm build
+
+      - name: Set up missing harness files
+        run: node dist/cli.js setup --git-host gh --runtimes claude,codex,cursor --skills ship,discovery
+
+      # why: setup writes WOLVEN.md again after that text already lives in AGENTS.md.
+      - name: Remove a recreated entry file
+        run: |
+          if grep -q -E '^(## Wolven harness|# Wolven harness — entry router)$' AGENTS.md; then
+            rm -f WOLVEN.md
+          fi
+
+      - name: Open or update the chore pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GIT_AUTHOR_NAME: github-actions[bot]
+          GIT_AUTHOR_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+          GIT_COMMITTER_NAME: github-actions[bot]
+          GIT_COMMITTER_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+        run: |
+          set -euo pipefail
+          git add -A
+          if git diff --cached --quiet; then
+            echo "setup left no changes"
+            exit 0
+          fi
+
+          patch="$(mktemp)"
+          git diff --cached --binary > "$patch"
+          git reset --hard HEAD
+          git clean -fd
+
+          branch="chore/install-harness-files"
+          git fetch origin main
+          if git fetch origin "$branch"; then
+            git checkout -B "$branch" "origin/$branch"
+            git merge origin/main --no-edit
+          else
+            git checkout -B "$branch" origin/main
+          fi
+
+          if git apply --check "$patch"; then
+            git apply "$patch"
+            git add -A
+            if git diff --cached --quiet; then
+              echo "setup diff was already committed"
+            else
+              git commit -m "chore: install harness files added on main"
+            fi
+          elif git apply --reverse --check "$patch"; then
+            echo "chore branch already contains this setup diff"
+          else
+            echo "setup diff does not apply on $branch" >&2
+            exit 1
+          fi
+
+          if git show-ref --verify --quiet "refs/remotes/origin/$branch" && [ "$(git rev-parse HEAD)" = "$(git rev-parse "origin/$branch")" ]; then
+            echo "chore branch already up to date"
+          else
+            git push origin "HEAD:$branch"
+          fi
+
+          open="$(gh pr list --base main --head "$branch" --state open --json number --jq '.[0].number // empty')"
+          if [ -n "$open" ]; then
+            echo "updated pull request #$open"
+            exit 0
+          fi
+
+          body_file="$(mktemp)"
+          printf '%s\n' \
+            '## Summary' \
+            '- Install harness files that setup still finds missing on main.' \
+            '' \
+            '## Test plan' \
+            '- [ ] CI is green on this pull request' \
+            > "$body_file"
+          gh pr create \
+            --base main \
+            --head "$branch" \
+            --title "chore: install harness files added on main" \
+            --body-file "$body_file"

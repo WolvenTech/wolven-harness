@@ -35,7 +35,10 @@
     "score": "harness-score --min-level 3",
     "docs:dev": "vitepress dev site",
     "docs:build": "vitepress build site",
-    "docs:preview": "vitepress preview site"
+    "docs:preview": "vitepress preview site",
+    "harness:validate": "wolven-harness validate",
+    "harness:comments": "wolven-harness comments",
+    "harness:score": "harness-score"
   },
   "dependencies": {
     "@clack/prompts": "^1.8.1",
