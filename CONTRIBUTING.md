@@ -47,6 +47,21 @@ block directly above a declaration; it must not narrate the change, cite
 anything outside this repository, or defer work with `@todo`. The rule itself
 is `templates/.agents/rules/comments.md`.
 
+## Cloud Agents
+
+Repo-managed bootstrap lives in `.cursor/environment.json` (runs
+`.cursor/install.sh`): `pnpm install`, global `@tobilu/qmd` into `~/.local`,
+then `qmd update` and `qmd embed` so `.qmd/index.yml` collections are
+queryable. That file overrides personal and team Cloud Agent environments.
+
+On a fresh agent, confirm QMD before relying on `qmd-first`:
+
+```sh
+which qmd
+qmd status
+qmd query -c adrs "architecture claim path"
+```
+
 Some tests pin documentation copy. `test/readme-install.test.ts` asserts the
 install lines in `README.md` and the release and contributing pages under
 `site/`. `test/release.test.ts`, `test/harness-init-set.test.ts`, and

@@ -1,0 +1,4 @@
+{
+  "name": "wolven-harness",
+  "install": "./.cursor/install.sh"
+}
