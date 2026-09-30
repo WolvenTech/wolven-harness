@@ -1,5 +1,0 @@
-interface:
-  display_name: "release-please"
-  short_description: "Use when changing how the version bump and the release pull request are cut."
-policy:
-  allow_implicit_invocation: false

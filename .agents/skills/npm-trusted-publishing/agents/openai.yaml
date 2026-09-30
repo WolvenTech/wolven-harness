@@ -1,5 +1,0 @@
-interface:
-  display_name: "npm-trusted-publishing"
-  short_description: "Use when changing how @wolven-tech/harness is published to npmjs."
-policy:
-  allow_implicit_invocation: false

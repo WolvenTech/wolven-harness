@@ -1,16 +1,13 @@
 ---
 name: npm-trusted-publishing
 description: "Use when changing how `@wolven-tech/harness` is published to npmjs."
-disable-model-invocation: true
 ---
 
 # npm-trusted-publishing
 
 Keep the OIDC trusted-publishing path for `@wolven-tech/harness` aligned
 with ADR-002 and the `publish` job in `.github/workflows/release.yml`.
-Ask-only: an explicit ask for `npm-trusted-publishing` is the only run.
-`disable-model-invocation: true` stays until the Human removes it. The
-four steps below are filled. The workflow for publishing is step 3.
+The four steps below are filled. The workflow for publishing is step 3.
 
 ## Cited evidence
 
