@@ -16,7 +16,7 @@ status: stable
 | Surface | Present today | Role for this initiative |
 |---------|----------------|----------------------------|
 | `src/setup/skill-sets.ts` | yes | Add both folders to `SET_SKILLS.discovery` |
-| `templates/.agents/skills/*` | yes (16 folders) | Add `the-fool` and `the-jury` packages |
+| `templates/.agents/skills/*` | yes (16 folders before this initiative) | Add `the-fool` and `the-jury` packages; Jury ships five juror agent files |
 | `test/ask-only.test.ts`, `test/skill-sets.test.ts`, `test/setup-skill-sets.test.ts` | yes | Partition/count/install expectations become 18 |
 | `site/skills.md`, `site/layout.md`, `README.md` | yes | Catalog copy for discovery membership and distinctions |
 | `src/setup/options.ts` discovery prompt | yes | Hint text lists discovery skills |
@@ -26,7 +26,7 @@ status: stable
 
 ## Surface walk
 
-- **In scope:** `templates/.agents/skills/the-fool/**`, `templates/.agents/skills/the-jury/**`, `src/setup/skill-sets.ts`, discovery hint in `src/setup/options.ts`, tests that enumerate skills/counts, `site/skills.md`, `site/layout.md`, `README.md`, this PRD/spec/plan under `docs/`
+- **In scope:** `templates/.agents/skills/the-fool/**`, `templates/.agents/skills/the-jury/**` (including `agents/` juror artifacts), `src/setup/skill-sets.ts`, discovery hint in `src/setup/options.ts`, tests that enumerate skills/counts and Jury isolation proofs, `site/skills.md`, `site/layout.md`, `README.md`, this PRD/spec/plan under `docs/`
 - **Out of mutate scope (unchanged):** `grilling` skill body, ship/core set membership, ADR-003 public CLI verbs (no new flags), consumer `AGENTS.md` behavior, #22 pick-skill implementation
 
 ## Waves
@@ -38,7 +38,7 @@ flowchart TD
   G1 -->|pass| B[Wave 2: catalog/docs + PRD/spec/plan already on branch]
 ```
 
-- Wave 1 gate: `pnpm test` (skill-set/ask-only/setup-skill-sets) and skill folders present with frontmatter
+- Wave 1 gate: `pnpm test` (skill-set/ask-only/setup-skill-sets/Jury agent proofs) and skill folders present with frontmatter
 - Wave 2 gate: `pnpm lint && pnpm build && pnpm test && pnpm validate` (docs + full gate)
 - A failed gate aborts before the next wave
 
@@ -64,9 +64,11 @@ flowchart TD
 
 | ID | Obligation | Named proof | Evidence shape |
 |----|------------|--------------|------------------|
-| R3.1 | `the-jury` requires independent first-round opinions before deliberation and preserves dissent | `proof-jury-independence` | Inspect skill text |
+| R3.1 | `the-jury` ships exactly five distinct juror agent artifacts under `agents/`, requires spawning them in parallel with isolated first-round contexts, then deliberates only after those opinions are recorded (with shared visibility of first-round verdicts), and preserves dissent | `proof-jury-independence` | Assert five `agents/juror-*.md` files exist; inspect skill text for parallel spawn + isolation + post-round visibility; reject persona-simulation-only independence language |
 | R3.2 | Verdict output requires confidence and one concrete test | `proof-jury-verdict` | Inspect skill text |
 | R3.3 | Jury is harness-authored (no unknown-license vendor copy) | `proof-jury-authorship` | Inspect skill; no third-party LICENSE claiming foreign ownership |
+| R3.4 | Single-agent persona simulation is refused as the independence path; when isolated juror spawn is unavailable, the skill degrades or stops explicitly rather than claiming independent reviewers | `proof-jury-no-persona-fallback` | Inspect skill refuses/anti-patterns; test asserts absence of "simulate independence" / single-context persona language as the approved path |
+| R3.5 | Verdict is advisory; the Human retains decision authority | `proof-jury-human-authority` | Inspect skill text for Human authority / no execute-from-verdict |
 
 ### R4 — Catalog distinction and invocability
 
@@ -88,13 +90,13 @@ flowchart TD
 | Dimension | Landing kind | Landing |
 |-----------|---------------|---------|
 | validation | obligation ↔ proof | R5.1 / `proof-fool-jury-validate` |
-| failure modes | obligation ↔ proof | R1.2 / `proof-fool-jury-setup-install` — core-only path excludes the new skills |
+| failure modes | obligation ↔ proof | R1.2 / `proof-fool-jury-setup-install` — core-only path excludes the new skills; R3.4 / `proof-jury-no-persona-fallback` — no isolated spawn → explicit degrade/stop |
 | idempotency and retry | `n/a` | Unchanged surface: `setup` still only creates missing paths (`src/setup/apply.ts`) |
-| authorization | `n/a` | Unchanged surface: no auth boundary in skill install |
-| concurrency and ordering | `n/a` | Unchanged surface: single-process setup CLI |
+| authorization | obligation ↔ proof | R3.5 / `proof-jury-human-authority` — Human retains decision authority over verdict side effects |
+| concurrency and ordering | obligation ↔ proof | R3.1 / `proof-jury-independence` — five jurors first-round in parallel isolation, then shared deliberation |
 | data lifecycle | `n/a` | Unchanged surface: skill files are static templates; no persisted runtime state |
-| external-dependency failure | `n/a` | Unchanged surface: no network fetch at install time for these skills |
-| state transitions | obligation ↔ proof | R2.1 / `proof-fool-workflow` — Fool engage→synthesize; R3.1 / `proof-jury-independence` — first round→deliberation→verdict |
+| external-dependency failure | obligation ↔ proof | R3.4 / `proof-jury-no-persona-fallback` — missing subagent spawn is an explicit stop/degrade, not a silent persona fallback |
+| state transitions | obligation ↔ proof | R2.1 / `proof-fool-workflow` — Fool engage→synthesize; R3.1 / `proof-jury-independence` — isolated first round→shared deliberation→verdict |
 | observability | `n/a` | Unchanged surface: setup summary already lists installed skill folders |
 
 ## Unresolved
@@ -109,6 +111,7 @@ flowchart TD
 - Changing `grilling` skill body
 - New CLI verbs or runtime npm dependencies
 - Editing consumer `AGENTS.md`
+- Vendoring third-party Jury prose under a foreign license
 
 ## Pragmatic-guard refuses
 
@@ -116,6 +119,7 @@ flowchart TD
 - Vendoring unknown-license Jury text
 - Folding Fool into grilling
 - Ask-only flags on discovery critique/verdict skills without a product reason
+- Treating single-agent persona labels as independent jurors
 
 ## Acceptance
 

@@ -19,7 +19,7 @@ status: stable
 - G1: Installing the optional `discovery` skill set places `the-fool` and `the-jury` under `.agents/skills/` — success signal: setup with `--skills discovery` installs both folders; skill-set partition tests pass.
 - G2: The skill catalog and generated agent entry guide state when to use each skill and how they differ from each other and from core `grilling` — success signal: `site/skills.md`, `README.md`, and rendered `WOLVEN.md` skills table describe Fool, Jury, and the distinction.
 - G3: The Fool returns actionable challenges and supports a follow-up synthesis after the user responds — success signal: `the-fool` skill text requires challenges then user engagement then synthesis.
-- G4: The Jury runs independent first-round opinions before deliberation, preserves dissent, and reports confidence and a concrete test — success signal: `the-jury` skill text requires those steps.
+- G4: The Jury ships **five distinct juror agents**, runs them in a **parallel isolated** first round (no access to each other's first-round opinions), then runs a deliberation where jurors **can see each other's recorded verdicts**, and returns a dissent-preserving final verdict with confidence and one concrete test — success signal: five juror agent artifacts under `the-jury/agents/`, spawn-isolation instructions in the skill, and tests that reject single-agent persona simulation as the independence path.
 - G5: Installation and validation work across the supported runtimes (claude, codex, cursor) — success signal: `pnpm test`, `pnpm validate` (after build), and skill-frontmatter checks pass with both skills present.
 
 **Non-goals**
@@ -28,7 +28,7 @@ status: stable
 - Changing or folding core `grilling`.
 - Adding a new runtime dependency.
 - Creating or editing a consumer's `AGENTS.md`.
-- Copying unknown-license Jury source text.
+- Copying unknown-license Jury source text (design may align with a known multi-juror protocol; the shipped text is harness-authored).
 
 ## User stories
 
@@ -95,22 +95,28 @@ Traces to goal: G3
 ### US-4: Run The Jury for a verdict
 
 **As a** discovery worker with a clear question and evidence,
-**I want** The Jury to collect independent first-round opinions, preserve dissent, and return a verdict with confidence and a concrete test,
-**so that** I can decide between options without erasing disagreement.
+**I want** The Jury to spawn five distinct juror agents for an isolated first round, then deliberate with shared first-round opinions, preserve dissent, and return a verdict with confidence and a concrete test,
+**so that** I can decide between options without erasing disagreement or mistaking one model's persona labels for independent reviewers.
 
 Traces to goal: G4
 
-#### AC-4.1: Independent first round then deliberation
+#### AC-4.1: Five juror agents, isolated first round, then shared deliberation
 
 **Given** the `the-jury` skill is installed
 **When** an agent runs it on a decision
-**Then** the skill requires independent first-round opinions before joint deliberation and records dissent in the output
+**Then** the skill requires exactly five distinct juror agent artifacts, instructs spawning them in parallel with isolated first-round contexts (no juror sees another first-round opinion), records those opinions, then allows a deliberation where jurors can see the recorded first-round verdicts, and keeps dissent in the final output — and refuses single-agent persona simulation as the independence path
 
 #### AC-4.2: Confidence and concrete test
 
 **Given** a Jury run that reaches a verdict
 **When** the skill describes the deliverable
 **Then** the output must include a confidence statement and one concrete test that would change or confirm the verdict
+
+#### AC-4.3: Verdict is advisory to the Human
+
+**Given** a Jury run that reaches a verdict
+**When** the skill describes authority
+**Then** the skill states that the Human retains decision authority and the agent must not treat the verdict as authorization to execute side effects
 
 ### US-5: Compatible with future individual install
 
@@ -137,9 +143,10 @@ Traces to goal: G1
 **In**
 
 - `the-fool` and `the-jury` skill folders under `templates/.agents/skills/`
+- Five harness-authored juror agent artifacts under `the-jury/agents/`
 - Membership in `SET_SKILLS.discovery` and partition/count tests
 - Catalog and README / site / discovery-set prompt copy updates
-- MIT-adapted Fool content with attribution; harness-authored Jury from acceptance criteria
+- MIT-adapted Fool content with attribution; harness-authored Jury aligned to the five-agent isolated-then-shared design
 - Runtime-agnostic skill packaging (claude/codex/cursor via existing setup wiring)
 
 **Out**
