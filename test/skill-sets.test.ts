@@ -20,7 +20,7 @@ test('skill-sets: core and the optional sets partition the template skill folder
 });
 
 test('skill-sets: the folders for all sets are every template skill', async () => {
-  assert.equal(skillFolders(['ship', 'discovery']).length, 16);
+  assert.equal(skillFolders(['ship', 'discovery']).length, 18);
   assert.equal(skillFolders([]).length, CORE_SKILLS.length);
 });
 

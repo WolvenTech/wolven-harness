@@ -24,7 +24,7 @@ export const CORE_SKILLS: readonly string[] = [
  */
 export const SET_SKILLS: Record<SkillSet, readonly string[]> = {
   ship: ['code-commit', 'code-pr', 'code-review', 'code-ci'],
-  discovery: ['create-prd', 'prototype', 'handoff'],
+  discovery: ['create-prd', 'prototype', 'handoff', 'the-fool', 'the-jury'],
 };
 
 /** Optional sets in display order. */

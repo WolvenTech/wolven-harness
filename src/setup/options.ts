@@ -291,7 +291,11 @@ async function promptSkillSets(prompter: Prompter, installed: SkillSet[], note?:
     ),
     options: [
       { value: 'ship', label: 'Ship — commit, PR, review, CI', hint: 'for getting changes merged' },
-      { value: 'discovery', label: 'Discovery — PRD, prototype, handoff', hint: 'for shaping what to build' },
+      {
+        value: 'discovery',
+        label: 'Discovery — PRD, prototype, handoff, fool, jury',
+        hint: 'for shaping what to build',
+      },
     ],
     initialValues: orderSets(['ship', ...installed]),
     required: false,
