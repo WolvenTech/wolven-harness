@@ -87,6 +87,41 @@ A re-run does not redo what an earlier run already finished:
 - Step 1 is skipped when there are no legacy-ADR warnings left.
 - A `draft` session note from an interrupted run is resumed, not replaced.
 
+## Lean path
+
+For a **thin-evidence** fresh repo — little or no application code, a stated
+immediate goal, and not enough in the tree to support deep Q&A — the run may
+propose deferring only these:
+
+| Deferrable | Step | What may wait |
+|------------|------|----------------|
+| Deep discovery Q&A beyond files | 2 extras | Lifecycle and decisions-not-yet-visible questions when files already give a thin but usable context list |
+| Optional web research | 3 | The Human-gated web pass; continue repo-only |
+| Per-dimension score-gap keep/drop questions | part of 6 | Asking keep/drop for every failing dimension; still run `harness:score` and record the level |
+
+**Before proceeding** with any lean deferral, present each deferred or skipped
+step by number and name, with why and what remaining work it leaves. Wait for
+the Human's yes on that list, then record those choices under **Deferred /
+skipped steps** in the session note. Never silently skip a step.
+
+**Skill proposals (step 4) are never deferred** and are never listed as
+skippable on the lean path. Proposals cite the stated goal and the available
+references (file-based discovery, plus any research that ran), or an explicit
+thin-evidence basis when the tree is thin. Unsupported tool or architecture
+decisions stay open — do not invent them to pad the list.
+
+**Must still run** on the lean path:
+
+1. Entry integration (step 0)
+2. Legacy ADR migration when needed (step 1)
+3. File-based discovery (step 2 — reading the repo; Q&A extras may defer)
+4. Skill proposals (step 4 — never deferred)
+5. Stubs for skills the Human picks (step 5)
+6. A score run that records the level without forcing every gap question
+7. Validate-wiring as one essential choice, **or** an explicitly deferred
+   item with reason (part of step 6)
+8. Session note close (`stable` at hand-back)
+
 ## Workflow
 
 ### 0. Entry integration
@@ -139,10 +174,12 @@ note, when the web is unavailable. See
 ### 4. Suggest 2–4 skills
 
 Suggest two to four architectural skills, each named for a decided tool or
-field and citing the discovery evidence, never duplicating an installed
-skill. Say so, rather than padding, if the evidence supports fewer than
-two. The Human picks any subset. See
-[references/discovery.md](references/discovery.md).
+field and citing the discovery evidence (or, on the lean path, the stated
+goal and available references or an explicit thin-evidence basis), never
+duplicating an installed skill. Say so, rather than padding, if the
+evidence supports fewer than two; unsupported tool or architecture
+decisions stay open. This step is never deferred. The Human picks any
+subset. See [references/discovery.md](references/discovery.md).
 
 ### 5. Write stubs
 
@@ -160,18 +197,23 @@ First run `harness:score` and record the level and score. For each dimension
 with a failing check, ask one question: keep its checks as gaps to build
 later, or drop them in `.harness-score.json`. Never build a check in this run,
 and never drop one without the Human's yes. Score again and record the level,
-the score and every drop. See
+the score and every drop. On the lean path, the per-dimension keep/drop
+questions may be deferred after the score run has recorded the level — see
+Lean path. See
 [references/harness-score.md](references/harness-score.md).
 
 Then put one question to the Human: how should `harness:validate` be wired —
 (a) as a CI job on pull requests, (b) chained into the repo's existing
 `validate` or `test` script, or (c) local only? Detect the CI config and the
 existing scripts first, frame the options with that evidence, and list the
-recommended option first. Nothing is written without the Human's yes. See
+recommended option first. Nothing is written without the Human's yes. On the
+lean path, validate-wiring is one essential choice, or an explicitly deferred
+item with reason. See
 [references/validate-wiring.md](references/validate-wiring.md).
 
-Then add the note's final sections, set it `stable`, and hand the run back to
-the Human with what was done and what is left for them to define. See
+Then add the note's final sections (including any Deferred / skipped steps),
+set it `stable`, and hand the run back to the Human with what was done and
+what is left for them to define. See
 [references/session-note-template.md](references/session-note-template.md).
 
 The run ends at hand-back. Defining stubs or building score gaps is a
@@ -191,3 +233,6 @@ If the Human asks for it in the same session, say so and stop.
   run.
 - Treating a validate failure after migration as this skill's defect
   instead of expected input to work through with the Human.
+- Silently skipping a lean-path step without naming it, why, and remaining
+  work before proceeding.
+- Deferring skill proposals (step 4) on the lean path.

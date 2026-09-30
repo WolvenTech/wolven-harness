@@ -49,3 +49,7 @@ write, then run `harness:validate`.
 
 Record the answer under "Validate wiring" in the session note, with what was
 written or "nothing written" for (c) or a declined diff.
+
+On the lean path, this question is one essential choice the run still asks —
+or an explicitly deferred item with reason, recorded under Deferred /
+skipped steps. Do not silently skip it.

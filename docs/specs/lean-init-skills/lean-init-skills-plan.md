@@ -82,3 +82,13 @@ Per assignment: invoke `code-commit` after each executed mutate unit (01, 02, 04
 | Discrepancies | none |
 
 **Unit 02 status:** complete (proof-adr-003-skills-amend PASS)
+
+### Unit 04 — Lean harness-init
+
+| Field | Value |
+|-------|-------|
+| Unit | 04 — Lean harness-init |
+| Obligations | R3.1–R3.4 — done |
+| Discrepancies | none |
+
+**Unit 04 status:** complete

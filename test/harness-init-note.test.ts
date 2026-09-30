@@ -59,6 +59,7 @@ test('session-note: every section heading appears in order inside the template',
     'Stubs',
     'Harness score',
     'Validate wiring',
+    'Deferred / skipped steps',
     'Next steps for the human',
   ];
 

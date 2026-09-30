@@ -227,3 +227,69 @@ test('skill-harness-init: step 6 scores the harness, asks per dimension, and nev
     'Harness score precedes Validate wiring',
   );
 });
+
+// proof-harness-init-lean-rules
+test('skill-harness-init: lean path may defer deep discovery Q&A, web research, and score-gap questions', async () => {
+  const skill = await readSkill('harness-init');
+  const lean = flatten(skill.body.split(/^## Lean path/m)[1]?.split(/^## /m)[0] ?? '');
+
+  assert.match(skill.body, /^## Lean path/m);
+  assert.match(lean, /thin-evidence/i);
+  assert.match(lean, /deep discovery Q&A beyond files/i);
+  assert.match(lean, /optional web research/i);
+  assert.match(lean, /per-dimension score-gap keep\/drop questions/i);
+});
+
+// proof-harness-init-deferral-record
+test('skill-harness-init: lean deferrals are named before proceeding and recorded in the session note', async () => {
+  const skill = await readSkill('harness-init');
+  const lean = flatten(skill.body.split(/^## Lean path/m)[1]?.split(/^## /m)[0] ?? '');
+
+  assert.match(lean, /Before proceeding/i);
+  assert.match(lean, /present each deferred or skipped step by number and name/i);
+  assert.match(lean, /with why and what remaining work/i);
+  assert.match(lean, /Deferred \/ skipped steps/i);
+
+  const note = flatten(await skill.read('references/session-note-template.md'));
+  assert.match(note, /## Deferred \/ skipped steps/);
+  assert.match(note, /\| Step \| Name \| Reason \| Remaining work \|/);
+  assert.match(note, /why this step was deferred or skipped/i);
+  assert.match(note, /what still needs doing later/i);
+});
+
+// proof-harness-init-proposals-always
+test('skill-harness-init: skill proposals are never deferred on the lean path', async () => {
+  const skill = await readSkill('harness-init');
+  const lean = flatten(skill.body.split(/^## Lean path/m)[1]?.split(/^## /m)[0] ?? '');
+  const step4 = flatten(skill.body.split(/^### 4\. /m)[1]?.split(/^### /m)[0] ?? '');
+  const flat = flatten(skill.body);
+
+  assert.match(lean, /Skill proposals \(step 4\) are never deferred/i);
+  assert.match(lean, /never listed as skippable/i);
+  assert.match(lean, /stated goal and the available references/i);
+  assert.match(lean, /explicit thin-evidence basis/i);
+  assert.match(lean, /Unsupported tool or architecture decisions stay open/i);
+  assert.match(step4, /never deferred/i);
+  assert.match(flat, /Deferring skill proposals \(step 4\) on the lean path/i);
+
+  const discovery = flatten(await skill.read('references/discovery.md'));
+  assert.match(discovery, /Skill proposals are never deferred on the lean path/i);
+  assert.match(discovery, /thin-evidence basis/i);
+});
+
+// proof-harness-init-lean-must-run
+test('skill-harness-init: lean path still lists the must-run steps', async () => {
+  const skill = await readSkill('harness-init');
+  const lean = flatten(skill.body.split(/^## Lean path/m)[1]?.split(/^## /m)[0] ?? '');
+
+  assert.match(lean, /Must still run/i);
+  assert.match(lean, /Entry integration \(step 0\)/i);
+  assert.match(lean, /Legacy ADR migration when needed \(step 1\)/i);
+  assert.match(lean, /File-based discovery \(step 2/i);
+  assert.match(lean, /Skill proposals \(step 4 — never deferred\)/i);
+  assert.match(lean, /Stubs for skills the Human picks \(step 5\)/i);
+  assert.match(lean, /score run that records the level without forcing every gap question/i);
+  assert.match(lean, /Validate-wiring as one essential choice/i);
+  assert.match(lean, /explicitly deferred item with reason/i);
+  assert.match(lean, /Session note close/i);
+});
