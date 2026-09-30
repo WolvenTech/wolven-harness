@@ -16,6 +16,8 @@ function printUsage(io: Io): void {
       '  setup      Scaffold WOLVEN.md, the .agents/ source tree, and wire runtimes',
       '             [--git-host <gh|bit>] [--runtimes <claude,codex,cursor>]',
       '             [--skills <ship,discovery|none>]  extra skill sets (core is always installed)',
+      '             [--skill <name>]  add one skill by folder name, repeatable (see --list-skills)',
+      '             [--list-skills]  print the skill catalog and exit, writing nothing',
       '             [--verbose] list every file created or kept',
       '             [--debug]   trace each step on stderr (or WOLVEN_HARNESS_DEBUG=1)',
       '  validate   Check the repo against the writing profile and claim gate',

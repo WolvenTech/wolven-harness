@@ -44,7 +44,7 @@ Flags. Each value flag takes `--flag value` or `--flag=value`.
 | `--runtimes` | comma-separated `claude`, `codex`, `cursor`; entries are trimmed and deduplicated |
 | `--skills` | comma-separated `ship`, `discovery`, or `none` alone |
 | `--skill` | comma-separated known skill folder names; additive; may be repeated |
-| `--list-skills` | none. Print the skill catalog grouped by core/ship/discovery, exit 0, and do not copy templates or rewrite config; still requires the git top-level |
+| `--list-skills` | none. Print the skill catalog grouped by core/ship/discovery, exit 0, and do not copy templates or rewrite config; still requires the git top-level, and the rest of the arguments must pass the same grammar as any run |
 | `--verbose` | none |
 | `--debug` | none |
 
@@ -57,7 +57,11 @@ Flags. Each value flag takes `--flag value` or `--flag=value`.
 - Prompts appear only when stdout is a TTY and stdin is a TTY. Without a
   TTY, a missing `--git-host` or `--runtimes` is an error naming the flag.
   A missing `--skills` defaults to `ship`.
-- On a TTY, an invalid flag value is asked again instead of failing.
+- On a TTY, an invalid flag value is asked again instead of failing. That
+  includes an invalid `--skill`, which is asked as a choice of individual
+  skills.
+- An individually installed skill never adds its set to `skillSets`, even
+  when every skill of the set was installed one by one.
 - Guarantees:
   - It creates only missing paths and never overwrites or edits an existing
     file.
@@ -146,7 +150,7 @@ A JSON object at the repository root.
 | `gitHost` | string | Required. `gh` or `bit`. |
 | `runtimes` | array | Required. Non-empty. Each entry `claude`, `codex` or `cursor`. |
 | `skillSets` | array | Optional. Each entry `ship` or `discovery`. Whole opted-in sets only. |
-| `skills` | array | Optional. Each entry a known skill folder name string. Individually installed skills; distinct from `skillSets`. |
+| `skills` | array | Optional. Each entry a non-empty string. Individually installed skills; distinct from `skillSets`. A name this release does not ship is kept on rewrite and ignored when copying. |
 | `ignore` | array of strings | Optional. Each entry `<dir>/**`, with no glob characters in `<dir>`, no `..`, and `<dir>` not `docs` or `.agents` or under either. |
 | `packageVersion` | string | Optional. Rewritten by `setup` on every run. |
 | `comments.paths` | non-empty array of strings | Optional. Directory prefixes. When set, it replaces the default scope, `ignore` included. |
@@ -219,3 +223,8 @@ number is not the guarantee. This policy is.
 - 2026-09-30: `setup` gains `--skill` and `--list-skills`, and
   `.wolven-harness.json` accepts optional `skills`. Additive under the change
   policy (new command flags and a new optional config key).
+- 2026-09-30: clarifies `--skill` and `--list-skills`. `--list-skills` checks
+  the whole argument list, an invalid `--skill` is asked again on a TTY,
+  unknown names in `skills` are kept and ignored because the skill set may
+  change in any release, and individual installs never become `skillSets`.
+  Not a new contract item.

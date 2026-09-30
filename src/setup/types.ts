@@ -46,6 +46,8 @@ export interface Options {
   keptSets: SkillSet[];
   /** Individually installed skill names (from `--skill` and prior config); unioned with set folders. */
   skills: string[];
+  /** Names in `skills` this release does not ship; kept in the config, never copied. */
+  ignoredSkills?: string[];
 }
 
 export interface Context {

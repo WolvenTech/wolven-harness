@@ -169,7 +169,9 @@ test('setup-skill-sets: invalid values fail with a hint and write nothing', asyn
   assert.match(unknown.stderr, /--list-skills/);
 });
 
-test('setup-skill-sets: --help lists --skills', async () => {
+test('setup-skill-sets: --help lists --skills, --skill and --list-skills', async () => {
   const result = await run(['--help'], { cwd: await makeRepo({}) });
   assert.ok(result.stdout.includes('--skills'));
+  assert.ok(result.stdout.includes('--skill <name>'));
+  assert.ok(result.stdout.includes('--list-skills'));
 });

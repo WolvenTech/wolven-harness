@@ -94,6 +94,9 @@ export async function runSetup(argv: string[], io: Io): Promise<number> {
         results.flatMap((r) => r.skipped),
       );
     }
+    if (opts.ignoredSkills !== undefined) {
+      ui.warn(`Ignored unknown skills in .wolven-harness.json (kept in the file): ${joinNames(opts.ignoredSkills)}.`);
+    }
     if (warning !== undefined) ui.warn(warning);
     if (scoreWarning !== undefined) ui.warn(scoreWarning);
     const hasScripts = scriptResult.created.length + scriptResult.skipped.length > 0;

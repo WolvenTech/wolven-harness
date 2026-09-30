@@ -11,6 +11,7 @@ import {
   formatSkillCatalog,
   isKnownSkill,
   isSkillSet,
+  mergeSkills,
   orderSets,
   orderSkills,
   SET_SKILLS,
@@ -45,12 +46,15 @@ async function assertGitTopLevel(io: Io): Promise<void> {
 }
 
 /**
- * When `--list-skills` is present: require git top-level, print the catalog
- * to stdout, and return true so the caller exits 0 without writes.
+ * When `--list-skills` is present: require git top-level, validate the whole
+ * argument list like any other run, print the catalog to stdout, and return
+ * true so the caller exits 0 without writes.
  */
 export async function listSkillsRequested(argv: string[], io: Io): Promise<boolean> {
   if (!argv.includes('--list-skills')) return false;
   await assertGitTopLevel(io);
+  // why: `--skill --list-skills` consumes the flag as a value, so only the parsed result says whether it was asked for.
+  if (!parseFlags(argv).listSkills) return false;
   io.stdout.write(formatSkillCatalog());
   return true;
 }
@@ -64,6 +68,7 @@ interface Flags {
   skills?: string;
   /** Raw `--skill` values (each may be comma-separated); accumulated across repeats. */
   skill: string[];
+  listSkills: boolean;
 }
 
 /**
@@ -72,7 +77,7 @@ interface Flags {
  * a `SetupError`.
  */
 function parseFlags(argv: string[]): Flags {
-  const flags: Flags = { skill: [] };
+  const flags: Flags = { skill: [], listSkills: false };
 
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
@@ -106,7 +111,9 @@ function parseFlags(argv: string[]): Flags {
       flags.skill.push(value);
     } else if (arg.startsWith('--skill=')) {
       flags.skill.push(arg.slice('--skill='.length));
-    } else if (arg === '--debug' || arg === '--verbose' || arg === '--list-skills') {
+    } else if (arg === '--list-skills') {
+      flags.listSkills = true;
+    } else if (arg === '--debug' || arg === '--verbose') {
       // why: read by runSetup before resolveOptions runs; accepted here so they are not "unknown".
     } else {
       throw new SetupError(`unknown option "${arg}"`, `Valid options: ${VALID_OPTIONS}.`);
@@ -247,6 +254,7 @@ interface Notes {
   gitHost?: string;
   runtimes?: string;
   skills?: string;
+  skill?: string;
 }
 
 /** Prefixes `message` with the reason a flag value was set aside, when there is one. */
@@ -319,12 +327,17 @@ async function promptMissing(
   return { gitHost, runtimes };
 }
 
-/** Optional sets that already have every skill folder under `.agents/skills/` in `root`. */
-export async function detectInstalledSets(root: string): Promise<SkillSet[]> {
+/**
+ * Optional sets that already have every skill folder under `.agents/skills/`
+ * in `root`. A set whose skills are all in `individualSkills` is not
+ * inferred: those folders are individual installs, not an opt-in to the set.
+ */
+export async function detectInstalledSets(root: string, individualSkills: readonly string[] = []): Promise<SkillSet[]> {
   const found: SkillSet[] = [];
   for (const set of SKILL_SETS) {
-    // why: a lone `--skill` must not count as opting into its whole set on later runs.
+    // why: individually installed skills must not turn into whole-set opt-in on later runs.
     const skills = SET_SKILLS[set];
+    if (skills.every((skill) => individualSkills.includes(skill))) continue;
     let complete = true;
     for (const skill of skills) {
       if (!(await pathExists(path.join(root, '.agents', 'skills', skill)))) {
@@ -353,6 +366,18 @@ async function promptSkillSets(prompter: Prompter, installed: SkillSet[], note?:
   });
   if (answer === undefined) throw new SetupCancelled('skill sets prompt cancelled');
   return orderSets(answer);
+}
+
+/** Asks which individual skills to add when `--skill` named an unknown one; zero selections is allowed. */
+async function promptSkills(prompter: Prompter, initial: readonly string[], note?: string): Promise<string[]> {
+  const answer = await prompter.multiselect<string>({
+    message: withNote(note, 'Which individual skills do you want? (space to toggle, enter to confirm)'),
+    options: ALL_SKILLS.map((skill) => ({ value: skill, label: skill })),
+    initialValues: [...initial],
+    required: false,
+  });
+  if (answer === undefined) throw new SetupCancelled('skills prompt cancelled');
+  return orderSkills(answer);
 }
 
 /** True when a person can answer prompts: an interactive stdout plus an injected or real TTY stdin. */
@@ -417,7 +442,17 @@ export async function resolveOptions(argv: string[], ctx: Context): Promise<Opti
     if (runtimes === undefined) runtimes = prompted.runtimes;
   }
 
-  const installed = await detectInstalledSets(ctx.root);
+  const existingSkills = existing?.skills ?? [];
+  const parsedSkills =
+    flags.skill.length > 0
+      ? parseOrAsk(
+          () => parseSkillNames(flags.skill),
+          interactive,
+          (n) => (notes.skill = n),
+        )
+      : [];
+
+  const preliminary = await detectInstalledSets(ctx.root, [...existingSkills, ...(parsedSkills ?? [])]);
   let skillSets: SkillSet[] | undefined =
     skillsFlag !== undefined
       ? parseOrAsk(
@@ -428,15 +463,20 @@ export async function resolveOptions(argv: string[], ctx: Context): Promise<Opti
       : existing?.skillSets;
   if (skillSets === undefined) {
     skillSets = interactive
-      ? await promptSkillSets(ctx.io.prompts ?? clackPrompter(ctx.io), installed, notes.skills)
+      ? await promptSkillSets(ctx.io.prompts ?? clackPrompter(ctx.io), preliminary, notes.skills)
       : ['ship'];
   }
   const chosenSets: SkillSet[] = skillSets;
+
+  const requestedSkills =
+    parsedSkills ??
+    (await promptSkills(ctx.io.prompts ?? clackPrompter(ctx.io), orderSkills(existingSkills), notes.skill));
+  const recordedSkills = mergeSkills(existingSkills, requestedSkills);
+
+  const installed = await detectInstalledSets(ctx.root, recordedSkills);
   const keptSets = installed.filter((s) => !chosenSets.includes(s));
   const recordedSets = orderSets([...chosenSets, ...installed]);
-
-  const requestedSkills = flags.skill.length > 0 ? parseSkillNames(flags.skill) : [];
-  const recordedSkills = orderSkills([...(existing?.skills ?? []), ...requestedSkills]);
+  const ignoredSkills = recordedSkills.filter((s) => !isKnownSkill(s));
 
   // invariant: both are set here, from flags/config or from prompts that only resolve with an answer.
   const resolvedGitHost = gitHost as GitHost;
@@ -463,5 +503,6 @@ export async function resolveOptions(argv: string[], ctx: Context): Promise<Opti
     skillSets: orderSets(chosenSets),
     keptSets,
     skills: recordedSkills,
+    ...(ignoredSkills.length > 0 ? { ignoredSkills } : {}),
   };
 }

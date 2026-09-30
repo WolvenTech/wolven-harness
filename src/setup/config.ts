@@ -1,7 +1,7 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import type { SkillSet } from './skill-sets.js';
-import { isKnownSkill, isSkillSet } from './skill-sets.js';
+import { isSkillSet } from './skill-sets.js';
 import type { GitHost, Runtime } from './types.js';
 import { SetupError } from './types.js';
 
@@ -108,8 +108,9 @@ export async function readConfig(root: string): Promise<Config | undefined> {
   }
 
   if (obj.skills !== undefined) {
-    if (!Array.isArray(obj.skills) || !obj.skills.every(isKnownSkill)) {
-      throw new SetupError(`${CONFIG_FILENAME} "skills" must be an array of known skill folder names`);
+    // why: the skill catalog may change in any release, so a name this release lacks must not reject the file.
+    if (!Array.isArray(obj.skills) || !obj.skills.every((v) => typeof v === 'string' && v.length > 0)) {
+      throw new SetupError(`${CONFIG_FILENAME} "skills" must be an array of non-empty skill folder names`);
     }
     config.skills = obj.skills;
   }

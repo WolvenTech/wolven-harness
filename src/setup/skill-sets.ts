@@ -51,6 +51,17 @@ export function orderSkills(skills: readonly string[]): string[] {
   return ALL_SKILLS.filter((s) => skills.includes(s));
 }
 
+/**
+ * Unions two skill lists: known names in catalog order, then names this
+ * release does not know in first-seen order, so a config written by another
+ * release keeps them.
+ */
+export function mergeSkills(...lists: readonly (readonly string[])[]): string[] {
+  const all = lists.flat();
+  const unknown = all.filter((s, i) => !isKnownSkill(s) && all.indexOf(s) === i);
+  return [...orderSkills(all), ...unknown];
+}
+
 /** Skill folder names for core plus the chosen `sets`. */
 export function skillFolders(sets: readonly SkillSet[]): string[] {
   return [...CORE_SKILLS, ...sets.flatMap((s) => SET_SKILLS[s])];
