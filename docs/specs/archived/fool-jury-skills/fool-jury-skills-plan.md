@@ -2,7 +2,7 @@
 type: spec
 title: Fool and Jury discovery skills — plan
 description: Ordered work units to add the-fool and the-jury to the discovery set with catalog updates.
-status: stable
+status: deprecated
 ---
 
 # Fool and Jury discovery skills — plan
@@ -20,9 +20,9 @@ Every obligation in `fool-jury-skills-spec.md` (R1.1–R5.2) names a proof. Nine
 | 03 | Wire discovery membership + count/ask-only tests | 01, 02 | `src/setup/skill-sets.ts`, `src/setup/options.ts`, `test/ask-only.test.ts`, `test/skill-sets.test.ts`, `test/setup-skill-sets.test.ts`, `test/skill-fool-jury.test.ts` | `inline` | R1.1–R1.3, R3.1/R3.4, R4.2–R4.3, R5.2 hold; `pnpm test` covers membership/eighteen folders/invocable/five juror agents |
 | 04 | Wave 1 gate | 03 | — (gate only) | `inline` | `pnpm test` exit 0 |
 | 05 | Update catalog docs (site + README) | 04 | `site/skills.md`, `site/layout.md`, `README.md` | `inline` | R4.1 holds (`proof-fool-jury-catalog`) |
-| 06 | Land PRD/spec/plan docs already drafted | 04 | `docs/prds/fool-jury-skills/**`, `docs/specs/fool-jury-skills/**` | `inline` | Profile docs present with `status: stable` and five-agent obligations locked |
+| 06 | Land PRD/spec/plan docs already drafted | 04 | `docs/prds/archived/fool-jury-skills/**`, `docs/specs/archived/fool-jury-skills/**` | `inline` | Profile docs present with `status: stable` and five-agent obligations locked |
 | 07 | Wave 2 gate + full validate | 05, 06 | — (gate only) | `inline` | `pnpm lint && pnpm build && pnpm test && pnpm validate` exit 0; R5.1 holds |
-| 08 | Rework Jury independence (five agents + isolation proofs) | 07 | `templates/.agents/skills/the-jury/**`, `test/skill-fool-jury.test.ts`, `docs/prds/fool-jury-skills/**`, `docs/specs/fool-jury-skills/**`, `site/skills.md` | `inline` | R3.1–R3.5 hold with agent artifacts and tests that reject persona-only independence; full gate green |
+| 08 | Rework Jury independence (five agents + isolation proofs) | 07 | `templates/.agents/skills/the-jury/**`, `test/skill-fool-jury.test.ts`, `docs/prds/archived/fool-jury-skills/**`, `docs/specs/archived/fool-jury-skills/**`, `site/skills.md` | `inline` | R3.1–R3.5 hold with agent artifacts and tests that reject persona-only independence; full gate green |
 
 ## Wave stops
 

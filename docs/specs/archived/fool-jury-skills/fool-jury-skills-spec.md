@@ -2,12 +2,12 @@
 type: spec
 title: Fool and Jury discovery skills
 description: Freeze install, catalog, and skill-behavior obligations for adding the-fool and the-jury to the optional discovery set.
-status: stable
+status: deprecated
 ---
 
 # Fool and Jury discovery skills
 
-**Source:** `docs/prds/fool-jury-skills/fool-jury-skills-prd.md` (status `stable`).
+**Source:** `docs/prds/archived/fool-jury-skills/fool-jury-skills-prd.md` (status `deprecated`, archived).
 **Next:** After the Human approves → `code-plan` → `code-execute`, wave **1 → 2**.
 **Named proof (this spec's own structural gate):** `proof-fool-jury-skills-spec-obligations`
 

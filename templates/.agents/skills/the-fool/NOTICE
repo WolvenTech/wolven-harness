@@ -4,7 +4,11 @@ This skill package (`the-fool`) is adapted from the MIT-licensed
 [the-fool](https://github.com/Jeffallan/claude-skills) skill in
 [Jeffallan/claude-skills](https://github.com/Jeffallan/claude-skills).
 
-Copyright (c) 2025 Jeffallan / Jeffallan/claude-skills contributors.
+Upstream copyright line, verbatim from its LICENSE: `Copyright (c) 2025`
+(the upstream LICENSE names no holder).
+
+Adapted from `skills/the-fool` at upstream commit
+`efebc44c90ae6eb3b36ff1c53802a765418481b9`.
 
 Adapted for wolven-harness (WolvenTech) — harness voice, grilling-style mode
 selection, and packaging under `templates/.agents/skills/the-fool/`.

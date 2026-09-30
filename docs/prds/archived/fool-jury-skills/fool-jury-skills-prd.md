@@ -2,7 +2,7 @@
 type: prd
 title: Add The Fool and The Jury as optional discovery skills
 description: Discovery workers get structured critique without a forced decision and a dissent-preserving verdict process via two new optional discovery skills.
-status: stable
+status: deprecated
 ---
 
 # Add The Fool and The Jury as optional discovery skills
