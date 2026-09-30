@@ -59,6 +59,7 @@ test('session-note: every section heading appears in order inside the template',
     'Stubs',
     'Harness score',
     'Validate wiring',
+    'Deferred / skipped steps',
     'Next steps for the human',
   ];
 
@@ -73,6 +74,15 @@ test('session-note: every section heading appears in order inside the template',
   for (let i = 1; i < positions.length; i++) {
     assert.ok(positions[i] > positions[i - 1], `heading "${headings[i]}" must come after "${headings[i - 1]}"`);
   }
+});
+
+test('session-note: the lean section carries the path, the immediate goal, and the deferral table', async () => {
+  const template = extractTemplate(await readReference());
+  const section = template.split(/^## Deferred \/ skipped steps/im)[1]?.split(/^## /m)[0] ?? '';
+
+  assert.match(section, /\*\*Path:\*\* <lean or full>/);
+  assert.match(section, /\*\*Immediate goal:\*\*.*"none stated"/);
+  assert.match(section, /\| Step \| Name \| Reason \| Remaining work \|/);
 });
 
 test('session-note: sections that cover a skipped step say so instead of disappearing', async () => {
