@@ -31,7 +31,7 @@ To be asked questions, stdin and stdout must both be a TTY. Otherwise pass `--gi
 Nine core skills are always installed. Two optional sets add more:
 
 - `ship`: `code-commit`, `code-pr`, `code-review`, `code-ci`.
-- `discovery`: `create-prd`, `prototype`, `handoff`.
+- `discovery`: `create-prd`, `prototype`, `handoff`, `the-fool`, `the-jury`.
 
 Interactive runs preselect `ship`. Non-interactive runs without `--skills` install core and `ship`. Use `--skills ship,discovery` to pick sets, or `--skills none` for core only. Re-runs never remove an installed set.
 
@@ -46,9 +46,9 @@ Ask your agent to run `harness-init`. Then:
 
 Commits are manual by default. For a one-file change, go straight to `code-execute`.
 
-`create-prd`, `prototype`, and `handoff` need the discovery set: `pnpm exec wolven-harness setup --skills discovery`. `code-pr`, `code-review`, `code-ci`, and `handoff` are ask-only and never merge.
+`create-prd`, `prototype`, `handoff`, `the-fool`, and `the-jury` need the discovery set: `pnpm exec wolven-harness setup --skills discovery`. `code-pr`, `code-review`, `code-ci`, and `handoff` are ask-only and never merge.
 
-All 16 skills are listed on the [skills page](https://wolventech.github.io/wolven-harness/skills).
+All 18 skills are listed on the [skills page](https://wolventech.github.io/wolven-harness/skills).
 
 ## License
 

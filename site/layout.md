@@ -10,7 +10,7 @@ What your repository looks like after `setup`.
 | --- | --- | --- |
 | `AGENTS.md` | Your entry file — the first thing an agent reads. `setup` never creates or edits it. | Warns until `WOLVEN.md` has been folded in. |
 | `WOLVEN.md` | The harness section `setup` writes, ready for `harness-init` to fold into the entry file. | Every rule it cites has to exist. |
-| `.agents/skills/` | The sixteen seeded skills, one folder each. | Each skill carries a `name` and a `description`. |
+| `.agents/skills/` | The eighteen seeded skills, one folder each. | Each skill carries a `name` and a `description`. |
 | `.agents/rules/` | The three standing rules: `comments`, `qmd-first`, `yagni-strict`. | A cited rule file has to exist, and no ignore rule may hide it. |
 | `.agents/hooks/` | A placeholder note only. No executable hooks ship or run. | Only that no ignore rule hides it. |
 | `docs/adrs/` | Decision records, flat, as `adr-NNN-<slug>.md`, seeded with one starter record. | The profile. Validation fails if a reference points to no decision record. |
