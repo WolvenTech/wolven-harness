@@ -70,3 +70,40 @@ test('readme-install: the contributing page keeps clone-and-build with pnpm buil
 
   assert.match(contributingSection, /pnpm build/);
 });
+
+test('readme-install: README covers lean harness-init, --list-skills, --skill, and --skills sets', async () => {
+  const readme = await readReadme();
+  const setup = section(readme, 'Setup');
+  const next = section(readme, 'What to do next');
+
+  assert.match(setup, /--skills ship,discovery/);
+  assert.match(setup, /--skills none/);
+  assert.match(setup, /setup --list-skills/);
+  assert.match(setup, /--skill <name>/);
+  assert.match(setup, /--skill create-prd/);
+  assert.match(next, /lean path/i);
+  assert.match(next, /thin-evidence/i);
+  assert.match(next, /skill proposals still run/i);
+});
+
+test('readme-install: harness-init page documents the lean path and recorded deferrals', async () => {
+  const doc = await readDoc('site/harness-init.md');
+  const lean = section(doc, 'Lean path');
+
+  assert.match(lean, /thin-evidence/i);
+  assert.match(lean, /deep discovery Q&A beyond files/i);
+  assert.match(lean, /optional web research/i);
+  assert.match(lean, /per-dimension score-gap keep\/drop questions/i);
+  assert.match(lean, /Deferred \/ skipped steps/);
+  assert.match(lean, /Skill proposals always run/i);
+});
+
+test('readme-install: skills and commands pages show --list-skills and non-interactive --skill', async () => {
+  const skills = await readDoc('site/skills.md');
+  const commands = await readDoc('site/commands.md');
+
+  for (const doc of [skills, commands]) {
+    assert.match(doc, /pnpm exec wolven-harness setup --list-skills/);
+    assert.match(doc, /pnpm exec wolven-harness setup --git-host gh --runtimes cursor --skill create-prd/);
+  }
+});

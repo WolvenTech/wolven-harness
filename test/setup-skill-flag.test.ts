@@ -25,7 +25,6 @@ async function configExists(dir: string): Promise<boolean> {
   }
 }
 
-// proof-setup-skill-flag
 test('setup-skill-flag: unknown --skill exits 1 naming valid skills', async () => {
   const dir = await makeRepo({}, { git: true });
 
@@ -38,7 +37,6 @@ test('setup-skill-flag: unknown --skill exits 1 naming valid skills', async () =
   assert.equal(await configExists(dir), false);
 });
 
-// proof-setup-skill-union + proof-setup-skill-with-none + proof-config-skills-partial
 test('setup-skill-flag: --skills none --skill create-prd installs core+create-prd only', async () => {
   const dir = await makeRepo({}, { git: true });
 
@@ -55,7 +53,6 @@ test('setup-skill-flag: --skills none --skill create-prd installs core+create-pr
   assert.ok(!(cfg.skillSets as string[]).includes('discovery'));
 });
 
-// proof-setup-skill-flag (equals form) + combination with --skills ship
 test('setup-skill-flag: --skill= with --skills ship installs the set plus the skill', async () => {
   const dir = await makeRepo({}, { git: true });
 
@@ -69,7 +66,6 @@ test('setup-skill-flag: --skill= with --skills ship installs the set plus the sk
   assert.deepEqual(cfg.skills, ['create-prd']);
 });
 
-// proof-setup-skill-rerun
 test('setup-skill-flag: repeat --skill create-prd is additive and idempotent', async () => {
   const dir = await makeRepo({}, { git: true });
   await run([...BASE, '--skills', 'none', '--skill', 'create-prd'], { cwd: dir });
@@ -88,7 +84,6 @@ test('setup-skill-flag: repeat --skill create-prd is additive and idempotent', a
   assert.deepEqual((await walkFiles(dir)).sort(), beforeTree);
 });
 
-// proof-setup-list-skills
 test('setup-skill-flag: --list-skills prints groups and exits 0 without writes', async () => {
   const dir = await makeRepo({}, { git: true });
   const before = (await walkFiles(dir)).sort();

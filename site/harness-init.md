@@ -16,6 +16,10 @@ Run `wolven-harness setup` to add the harness files, then ask your agent to run 
 
 The run offers three commits (entry, migration, setup), each only after validation passes and you say yes.
 
+## Lean path
+
+On a fresh or thin-evidence repo, `harness-init` may propose deferring deep discovery Q&A beyond files, optional web research, and per-dimension score-gap keep/drop questions. Before continuing, each deferred step is named with why and what remaining work it leaves; those choices are recorded under **Deferred / skipped steps** in the session note. Skill proposals always run — they cite the stated goal and available references, or an explicit thin-evidence basis when the tree is thin.
+
 ## Check the setup
 
 ```sh

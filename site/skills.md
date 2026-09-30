@@ -17,6 +17,22 @@ Commits stay manual by default. `code-execute` can commit when you explicitly en
 
 For a one-file change, you can ask for `code-execute` directly and skip the spec and plan. Validation still applies.
 
+## List and install
+
+List every skill, grouped by `core` / `ship` / `discovery`:
+
+```sh
+pnpm exec wolven-harness setup --list-skills
+```
+
+Install one skill without its whole set (non-interactive; pass `--git-host` and `--runtimes` unless `.wolven-harness.json` already records them):
+
+```sh
+pnpm exec wolven-harness setup --git-host gh --runtimes cursor --skill create-prd
+```
+
+`--skill` is additive and may be repeated or combined with `--skills`. Opt into whole sets with `--skills` as before; re-runs never remove an installed set or skill.
+
 ## Full inventory
 
 Sixteen skills are available under `.agents/skills/`. `setup` always installs the nine core skills (`harness-init`, `adr`, `grilling`, `pragmatic-guard`, `qmd`, `research`, `code-spec`, `code-plan`, `code-execute`). The `ship` set (`code-commit`, `code-pr`, `code-review`, `code-ci`) and the `discovery` set (`create-prd`, `prototype`, `handoff`) are optional. The four marked **ask-only** require an explicit request. PR creation, review, and CI work never merge the PR.

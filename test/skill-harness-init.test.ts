@@ -228,7 +228,6 @@ test('skill-harness-init: step 6 scores the harness, asks per dimension, and nev
   );
 });
 
-// proof-harness-init-lean-rules
 test('skill-harness-init: lean path may defer deep discovery Q&A, web research, and score-gap questions', async () => {
   const skill = await readSkill('harness-init');
   const lean = flatten(skill.body.split(/^## Lean path/m)[1]?.split(/^## /m)[0] ?? '');
@@ -240,7 +239,6 @@ test('skill-harness-init: lean path may defer deep discovery Q&A, web research, 
   assert.match(lean, /per-dimension score-gap keep\/drop questions/i);
 });
 
-// proof-harness-init-deferral-record
 test('skill-harness-init: lean deferrals are named before proceeding and recorded in the session note', async () => {
   const skill = await readSkill('harness-init');
   const lean = flatten(skill.body.split(/^## Lean path/m)[1]?.split(/^## /m)[0] ?? '');
@@ -257,7 +255,6 @@ test('skill-harness-init: lean deferrals are named before proceeding and recorde
   assert.match(note, /what still needs doing later/i);
 });
 
-// proof-harness-init-proposals-always
 test('skill-harness-init: skill proposals are never deferred on the lean path', async () => {
   const skill = await readSkill('harness-init');
   const lean = flatten(skill.body.split(/^## Lean path/m)[1]?.split(/^## /m)[0] ?? '');
@@ -277,7 +274,6 @@ test('skill-harness-init: skill proposals are never deferred on the lean path', 
   assert.match(discovery, /thin-evidence basis/i);
 });
 
-// proof-harness-init-lean-must-run
 test('skill-harness-init: lean path still lists the must-run steps', async () => {
   const skill = await readSkill('harness-init');
   const lean = flatten(skill.body.split(/^## Lean path/m)[1]?.split(/^## /m)[0] ?? '');

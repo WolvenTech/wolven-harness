@@ -35,9 +35,15 @@ Nine core skills are always installed. Two optional sets add more:
 
 Interactive runs preselect `ship`. Non-interactive runs without `--skills` install core and `ship`. Use `--skills ship,discovery` to pick sets, or `--skills none` for core only. Re-runs never remove an installed set.
 
+List the catalog with `pnpm exec wolven-harness setup --list-skills` (no writes). Install one skill without its set with `--skill <name>` (additive; may repeat), for example:
+
+```sh
+pnpm exec wolven-harness setup --git-host gh --runtimes cursor --skills none --skill create-prd
+```
+
 ## What to do next
 
-Ask your agent to run `harness-init`. Then:
+Ask your agent to run `harness-init`. On a fresh or thin-evidence repo, the lean path may defer deep discovery Q&A, web research, and per-gap score questions; skill proposals still run. See [harness-init](https://wolventech.github.io/wolven-harness/harness-init). Then:
 
 1. `code-spec`: agree on the change and how to verify it.
 2. `code-plan`: approve the implementation steps.
@@ -46,7 +52,7 @@ Ask your agent to run `harness-init`. Then:
 
 Commits are manual by default. For a one-file change, go straight to `code-execute`.
 
-`create-prd`, `prototype`, and `handoff` need the discovery set: `pnpm exec wolven-harness setup --skills discovery`. `code-pr`, `code-review`, `code-ci`, and `handoff` are ask-only and never merge.
+`create-prd`, `prototype`, and `handoff` need the discovery set (`pnpm exec wolven-harness setup --skills discovery`) or a single skill via `--skill`. `code-pr`, `code-review`, `code-ci`, and `handoff` are ask-only and never merge.
 
 All 16 skills are listed on the [skills page](https://wolventech.github.io/wolven-harness/skills).
 

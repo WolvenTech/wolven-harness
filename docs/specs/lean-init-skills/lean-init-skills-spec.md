@@ -92,7 +92,7 @@ A failed gate aborts before the next wave.
 
 | ID | Obligation | Named proof | Evidence shape |
 |----|------------|--------------|------------------|
-| R4.1 | ADR-003 Decision tables document `--skill`, `--list-skills`, and optional config `skills`; Amendments entry records the additive change | `proof-adr-003-skills-amend` | Inspect ADR body / contract tests updated |
+| R4.1 | ADR-003 Decision tables document `--skill`, `--list-skills`, and optional config `skills`; Amendments entry records the additive change | `proof-contract-skills-amend` | Inspect ADR body / contract tests updated |
 | R4.2 | README and site docs (`harness-init`, `skills`, `commands`) explain lean init and how to list/install one skill non-interactively | `proof-docs-lean-skill` | Grep/doc tests or content assertions |
 
 ## Nine-dimension landings
@@ -141,7 +141,7 @@ A failed gate aborts before the next wave.
 - [ ] `proof-setup-skill-rerun` PASS
 - [ ] `proof-setup-skill-with-none` PASS
 - [ ] `proof-setup-list-skills` PASS
-- [ ] `proof-adr-003-skills-amend` PASS
+- [ ] `proof-contract-skills-amend` PASS
 
 ### Wave 2
 

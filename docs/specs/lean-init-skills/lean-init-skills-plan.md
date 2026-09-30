@@ -10,14 +10,14 @@ source_spec: /cursor/stores/self/internal/issue-22-spec.md
 
 ## Structural gate
 
-Every obligation in `issue-22-spec.md` maps to a named proof (`proof-setup-skill-*`, `proof-config-skills-partial`, `proof-setup-list-skills`, `proof-harness-init-*`, `proof-adr-003-skills-amend`, `proof-docs-lean-skill`). Nine landings present; Unresolved empty. Ready to slice.
+Every obligation in `issue-22-spec.md` maps to a named proof (`proof-setup-skill-*`, `proof-config-skills-partial`, `proof-setup-list-skills`, `proof-harness-init-*`, `proof-contract-skills-amend`, `proof-docs-lean-skill`). Nine landings present; Unresolved empty. Ready to slice.
 
 ## Work units
 
 | # | Unit | Depends | Owns | Subagent | Done when |
 |---|------|---------|------|----------|-----------|
 | 01 | Catalog + config `skills` + `--skill` / `--list-skills` wiring | — | `src/setup/skill-sets.ts`, `src/setup/config.ts`, `src/setup/options.ts`, `src/setup/types.ts`, `src/setup/index.ts`, `src/setup/summary.ts` (if needed), `test/setup-skill-sets.test.ts`, `test/setup-options.test.ts`, new/extended setup tests for proofs R1.* / R2.1 | `spawn` | `--skill create-prd` with `--skills none` installs core+create-prd only; config has `skills` not `discovery` in `skillSets`; unknown skill exits 1; `--list-skills` prints groups and exits 0 without writes; re-run idempotent — `proof-setup-skill-flag`, `proof-setup-skill-union`, `proof-config-skills-partial`, `proof-setup-skill-rerun`, `proof-setup-skill-with-none`, `proof-setup-list-skills` |
-| 02 | Amend ADR-003 for new flags + optional `skills` | 01 | `docs/adrs/adr-003-public-contract.md`, `test/contract.test.ts` (and related contract pins) | `spawn` | ADR Decision tables + Amendments document `--skill`, `--list-skills`, optional `skills`; contract tests pass — `proof-adr-003-skills-amend` |
+| 02 | Amend ADR-003 for new flags + optional `skills` | 01 | `docs/adrs/adr-003-public-contract.md`, `test/contract.test.ts` (and related contract pins) | `spawn` | ADR Decision tables + Amendments document `--skill`, `--list-skills`, optional `skills`; contract tests pass — `proof-contract-skills-amend` |
 | 03 | Wave 1 gate | 01, 02 | _(none — gate)_ | `inline` | `pnpm build && pnpm test && pnpm lint` PASS; abort before wave 2 on failure |
 | 04 | Lean harness-init playbook + session-note deferral record | 03 | `templates/.agents/skills/harness-init/SKILL.md`, `templates/.agents/skills/harness-init/references/**` (session-note and discovery refs as needed), `test/skill-harness-init.test.ts` and/or `test/harness-init-*.test.ts` | `spawn` | Skill text encodes lean deferrals, never-defer proposals, must-run steps, and explicit deferral presentation; session-note template has deferred-steps section — `proof-harness-init-lean-rules`, `proof-harness-init-deferral-record`, `proof-harness-init-proposals-always`, `proof-harness-init-lean-must-run` |
 | 05 | Wave 2 gate | 04 | _(none — gate)_ | `inline` | `pnpm test && pnpm lint` PASS; abort before wave 3 on failure |
@@ -81,7 +81,7 @@ Per assignment: invoke `code-commit` after each executed mutate unit (01, 02, 04
 | Intended diff | docs/adrs/adr-003-public-contract.md |
 | Discrepancies | none |
 
-**Unit 02 status:** complete (proof-adr-003-skills-amend PASS)
+**Unit 02 status:** complete (proof-contract-skills-amend PASS)
 
 ### Unit 04 — Lean harness-init
 
@@ -92,3 +92,13 @@ Per assignment: invoke `code-commit` after each executed mutate unit (01, 02, 04
 | Discrepancies | none |
 
 **Unit 04 status:** complete
+
+### Unit 06 — Docs
+
+| Field | Value |
+|-------|-------|
+| Unit | 06 — Document lean init + individual skill install |
+| Obligations | R4.2 — done |
+| Discrepancies | none |
+
+**Unit 06 status:** complete

@@ -18,6 +18,20 @@ It also adds missing `harness:validate`, `harness:comments` and `harness:score` 
 
 Add a skill set later with `--skills` (for example `--skills ship,discovery`). Re-runs never remove one.
 
+List the catalog (requires the git top-level; prints core/ship/discovery groups and exits without writing):
+
+```sh
+pnpm exec wolven-harness setup --list-skills
+```
+
+Install one skill without its set with `--skill <name>`:
+
+```sh
+pnpm exec wolven-harness setup --git-host gh --runtimes cursor --skill create-prd
+```
+
+`--skill` is additive, may be repeated or combined with `--skills`, and records the name in optional config `skills` (not as a whole `skillSets` entry).
+
 ## `wolven-harness validate`
 
 Run it from anywhere inside the repo. Four groups: the writing profile, ADR claims, legacy ADRs, and the skills-and-rules spine. References such as `ADR-NNN` in tracked, non-ignored files must resolve to exactly one stable decision record. ADR files, dependencies, and archived paths are excluded from the scan. Legacy records receive migration warnings; missing or duplicate targets fail validation.
