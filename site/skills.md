@@ -1,5 +1,5 @@
 ---
-description: The sixteen skills available, which ones setup installs, and the three standing rules.
+description: The eighteen skills available, which ones setup installs, and the three standing rules.
 ---
 
 # Skills
@@ -19,7 +19,9 @@ For a one-file change, you can ask for `code-execute` directly and skip the spec
 
 ## Full inventory
 
-Sixteen skills are available under `.agents/skills/`. `setup` always installs the nine core skills (`harness-init`, `adr`, `grilling`, `pragmatic-guard`, `qmd`, `research`, `code-spec`, `code-plan`, `code-execute`). The `ship` set (`code-commit`, `code-pr`, `code-review`, `code-ci`) and the `discovery` set (`create-prd`, `prototype`, `handoff`) are optional. The four marked **ask-only** require an explicit request. PR creation, review, and CI work never merge the PR.
+Eighteen skills are available under `.agents/skills/`. `setup` always installs the nine core skills (`harness-init`, `adr`, `grilling`, `pragmatic-guard`, `qmd`, `research`, `code-spec`, `code-plan`, `code-execute`). The `ship` set (`code-commit`, `code-pr`, `code-review`, `code-ci`) and the `discovery` set (`create-prd`, `prototype`, `handoff`, `the-fool`, `the-jury`) are optional. The four marked **ask-only** require an explicit request. PR creation, review, and CI work never merge the PR.
+
+`grilling` (core) interviews toward a settled plan. `the-fool` challenges without forcing a decision. `the-jury` returns a dissent-preserving verdict with confidence and a concrete test. Keep the three distinct.
 
 | Skill | Description |
 | --- | --- |
@@ -39,6 +41,8 @@ Sixteen skills are available under `.agents/skills/`. `setup` always installs th
 | `prototype` | Build a throwaway prototype that answers one question, then discard or promote it deliberately. |
 | `qmd` | Search local markdown notes, docs, and wikis with QMD, the local search tool the agent uses; retrieve documents or set up access. |
 | `research` | Investigate against primary sources, cite every claim, and land the answer as an in-repo note. |
+| `the-fool` | Challenge an idea or plan with structured critique and synthesis after the user responds; does not force a decision. |
+| `the-jury` | Convene independent first-round opinions, preserve dissent, and deliver a verdict with confidence and one concrete test. |
 
 ## Rules applied each session
 
