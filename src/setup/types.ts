@@ -44,6 +44,8 @@ export interface Options {
   skillSets: SkillSet[];
   /** Sets already installed but not chosen this run; `setup` never removes them. */
   keptSets: SkillSet[];
+  /** Individually installed skill names (from `--skill` and prior config); unioned with set folders. */
+  skills: string[];
 }
 
 export interface Context {

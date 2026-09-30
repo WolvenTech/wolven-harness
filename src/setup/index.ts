@@ -2,11 +2,11 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { applyTemplates } from './apply.js';
 import { HARNESS_SCORE_VERSION, harnessScoreWarning } from './harness-score.js';
-import { resolveOptions } from './options.js';
+import { listSkillsRequested, resolveOptions } from './options.js';
 import { devDependencyWarning, resolveOwnPackage } from './own-package.js';
 import { addValidateScript } from './package-script.js';
 import { wireRuntimes } from './runtimes.js';
-import { skillFolders } from './skill-sets.js';
+import { skillFoldersFor } from './skill-sets.js';
 import { buildSummary, joinNames, runtimeName } from './summary.js';
 import type { Context, Io, Runtime } from './types.js';
 import { SetupCancelled, SetupError } from './types.js';
@@ -47,7 +47,8 @@ function nextSteps(runtimes: Runtime[], hasScripts: boolean): string[] {
  * TTY), apply templates, wire runtimes, add the harness scripts, then
  * report a grouped summary, any missing-devDependency warning, and next
  * steps. `--verbose` also lists every file; `--debug` (or
- * `WOLVEN_HARNESS_DEBUG=1`) traces each step on stderr.
+ * `WOLVEN_HARNESS_DEBUG=1`) traces each step on stderr. `--list-skills`
+ * prints the catalog after the git guard and exits without writes.
  */
 export async function runSetup(argv: string[], io: Io): Promise<number> {
   const ctx: Context = {
@@ -59,19 +60,22 @@ export async function runSetup(argv: string[], io: Io): Promise<number> {
   const verbose = argv.includes('--verbose');
   const ui = createUi(io);
 
-  const { name, version } = await resolveOwnPackage();
-  ui.intro(`${name} ${version}`, [
-    "I'll set up the .agents/ source tree (skills and rules), the docs/ folders and WOLVEN.md,",
-    'wire your agent runtimes, and add harness:validate, harness:comments and harness:score scripts.',
-    'Nothing is committed, and existing files are never overwritten.',
-  ]);
-
   try {
+    if (await listSkillsRequested(argv, io)) return 0;
+
+    const { name, version } = await resolveOwnPackage();
+    ui.intro(`${name} ${version}`, [
+      "I'll set up the .agents/ source tree (skills and rules), the docs/ folders and WOLVEN.md,",
+      'wire your agent runtimes, and add harness:validate, harness:comments and harness:score scripts.',
+      'Nothing is committed, and existing files are never overwritten.',
+    ]);
+
     const opts = await traced(io, debug, 'resolveOptions', () => resolveOptions(argv, ctx));
     const wiredNames = opts.runtimes.map(runtimeName).join(' / ');
+    const folders = skillFoldersFor(opts.skillSets, opts.skills);
 
     const applyResult = await ui.phase('Copying skills and rules', 'Copied skills and rules', () =>
-      traced(io, debug, 'applyTemplates', () => applyTemplates(ctx, skillFolders(opts.skillSets))),
+      traced(io, debug, 'applyTemplates', () => applyTemplates(ctx, folders)),
     );
     const runtimeResult = await ui.phase(`Wiring ${wiredNames}`, `Wired ${wiredNames}`, () =>
       traced(io, debug, 'wireRuntimes', () => wireRuntimes(opts, ctx)),

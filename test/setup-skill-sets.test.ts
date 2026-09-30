@@ -2,10 +2,29 @@ import assert from 'node:assert/strict';
 import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { test } from 'node:test';
-import { CORE_SKILLS, SET_SKILLS } from '../src/setup/skill-sets.js';
+import {
+  ALL_SKILLS,
+  CORE_SKILLS,
+  formatSkillCatalog,
+  isKnownSkill,
+  orderSkills,
+  SET_SKILLS,
+  skillFoldersFor,
+} from '../src/setup/skill-sets.js';
 import { makeRepo, run } from './helpers/fixture.js';
 
 const BASE = ['setup', '--git-host', 'gh', '--runtimes', 'codex'];
+
+test('setup-skill-sets: catalog helpers union sets with individual skills', () => {
+  assert.deepEqual(skillFoldersFor([], ['create-prd']), [...CORE_SKILLS, 'create-prd']);
+  assert.deepEqual(skillFoldersFor(['ship'], ['create-prd']), [...CORE_SKILLS, ...SET_SKILLS.ship, 'create-prd']);
+  assert.ok(isKnownSkill('create-prd'));
+  assert.equal(isKnownSkill('not-a-skill'), false);
+  assert.deepEqual(orderSkills(['create-prd', 'harness-init', 'create-prd']), ['harness-init', 'create-prd']);
+  assert.equal(ALL_SKILLS.length, 16);
+  assert.match(formatSkillCatalog(), /^core:\n {2}harness-init/m);
+  assert.match(formatSkillCatalog(), /^discovery:\n {2}create-prd/m);
+});
 
 async function installed(dir: string): Promise<string[]> {
   return (await readdir(path.join(dir, '.agents/skills'))).sort();
@@ -146,6 +165,8 @@ test('setup-skill-sets: invalid values fail with a hint and write nothing', asyn
 
   const unknown = await run(['setup', '--nope'], { cwd: dir });
   assert.match(unknown.stderr, /--skills <ship,discovery\|none>/);
+  assert.match(unknown.stderr, /--skill <name>/);
+  assert.match(unknown.stderr, /--list-skills/);
 });
 
 test('setup-skill-sets: --help lists --skills', async () => {

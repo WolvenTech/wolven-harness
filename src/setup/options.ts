@@ -6,7 +6,16 @@ import type { Config } from './config.js';
 import { isGitHost, isRuntime, readConfig, writeConfig } from './config.js';
 import { resolveOwnPackage } from './own-package.js';
 import type { SkillSet } from './skill-sets.js';
-import { isSkillSet, orderSets, SET_SKILLS, SKILL_SETS } from './skill-sets.js';
+import {
+  ALL_SKILLS,
+  formatSkillCatalog,
+  isKnownSkill,
+  isSkillSet,
+  orderSets,
+  orderSkills,
+  SET_SKILLS,
+  SKILL_SETS,
+} from './skill-sets.js';
 import type { Context, GitHost, Io, Options, Prompter, Runtime } from './types.js';
 import { SetupCancelled, SetupError } from './types.js';
 import { clackPrompter } from './ui.js';
@@ -35,13 +44,26 @@ async function assertGitTopLevel(io: Io): Promise<void> {
   }
 }
 
+/**
+ * When `--list-skills` is present: require git top-level, print the catalog
+ * to stdout, and return true so the caller exits 0 without writes.
+ */
+export async function listSkillsRequested(argv: string[], io: Io): Promise<boolean> {
+  if (!argv.includes('--list-skills')) return false;
+  await assertGitTopLevel(io);
+  io.stdout.write(formatSkillCatalog());
+  return true;
+}
+
 const VALID_OPTIONS =
-  '--git-host <gh|bit>, --runtimes <claude,codex,cursor>, --skills <ship,discovery|none>, --verbose, --debug';
+  '--git-host <gh|bit>, --runtimes <claude,codex,cursor>, --skills <ship,discovery|none>, --skill <name>, --list-skills, --verbose, --debug';
 
 interface Flags {
   gitHost?: string;
   runtimes?: string;
   skills?: string;
+  /** Raw `--skill` values (each may be comma-separated); accumulated across repeats. */
+  skill: string[];
 }
 
 /**
@@ -50,7 +72,7 @@ interface Flags {
  * a `SetupError`.
  */
 function parseFlags(argv: string[]): Flags {
-  const flags: Flags = {};
+  const flags: Flags = { skill: [] };
 
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
@@ -76,7 +98,15 @@ function parseFlags(argv: string[]): Flags {
       flags.skills = value;
     } else if (arg.startsWith('--skills=')) {
       flags.skills = arg.slice('--skills='.length);
-    } else if (arg === '--debug' || arg === '--verbose') {
+    } else if (arg === '--skill') {
+      // hazard: must follow `--skills` checks — `--skills` also starts with `--skill`.
+      const value = argv[++i];
+      if (value === undefined)
+        throw new SetupError('missing value for --skill', `Valid skills: ${ALL_SKILLS.join(', ')}.`);
+      flags.skill.push(value);
+    } else if (arg.startsWith('--skill=')) {
+      flags.skill.push(arg.slice('--skill='.length));
+    } else if (arg === '--debug' || arg === '--verbose' || arg === '--list-skills') {
       // why: read by runSetup before resolveOptions runs; accepted here so they are not "unknown".
     } else {
       throw new SetupError(`unknown option "${arg}"`, `Valid options: ${VALID_OPTIONS}.`);
@@ -138,6 +168,27 @@ function parseSkillsFlag(raw: string): SkillSet[] {
     if (!isSkillSet(part)) throw new SetupError(`invalid value for --skills: "${part}"`, hint);
   }
   return orderSets(parts as SkillSet[]);
+}
+
+/**
+ * Parses one or more `--skill` values (each may be comma-separated). Every
+ * name must be a known template skill folder.
+ */
+function parseSkillNames(rawParts: readonly string[]): string[] {
+  const hint = `Valid skills: ${ALL_SKILLS.join(', ')}.`;
+  const names: string[] = [];
+  for (const raw of rawParts) {
+    const parts = raw
+      .split(',')
+      .map((s) => s.trim())
+      .filter((s) => s.length > 0);
+    if (parts.length === 0) throw new SetupError(`invalid value for --skill: "${raw}"`, hint);
+    for (const part of parts) {
+      if (!isKnownSkill(part)) throw new SetupError(`unknown skill "${part}"`, hint);
+      if (!names.includes(part)) names.push(part);
+    }
+  }
+  return orderSkills(names);
 }
 
 function parseGitHostFlag(raw: string): GitHost {
@@ -268,16 +319,20 @@ async function promptMissing(
   return { gitHost, runtimes };
 }
 
-/** Optional sets that already have at least one skill folder under `.agents/skills/` in `root`. */
+/** Optional sets that already have every skill folder under `.agents/skills/` in `root`. */
 export async function detectInstalledSets(root: string): Promise<SkillSet[]> {
   const found: SkillSet[] = [];
   for (const set of SKILL_SETS) {
-    for (const skill of SET_SKILLS[set]) {
-      if (await pathExists(path.join(root, '.agents', 'skills', skill))) {
-        found.push(set);
+    // why: a lone `--skill` must not count as opting into its whole set on later runs.
+    const skills = SET_SKILLS[set];
+    let complete = true;
+    for (const skill of skills) {
+      if (!(await pathExists(path.join(root, '.agents', 'skills', skill)))) {
+        complete = false;
         break;
       }
     }
+    if (complete) found.push(set);
   }
   return found;
 }
@@ -380,6 +435,9 @@ export async function resolveOptions(argv: string[], ctx: Context): Promise<Opti
   const keptSets = installed.filter((s) => !chosenSets.includes(s));
   const recordedSets = orderSets([...chosenSets, ...installed]);
 
+  const requestedSkills = flags.skill.length > 0 ? parseSkillNames(flags.skill) : [];
+  const recordedSkills = orderSkills([...(existing?.skills ?? []), ...requestedSkills]);
+
   // invariant: both are set here, from flags/config or from prompts that only resolve with an answer.
   const resolvedGitHost = gitHost as GitHost;
   const resolvedRuntimes = runtimes as Runtime[];
@@ -391,6 +449,7 @@ export async function resolveOptions(argv: string[], ctx: Context): Promise<Opti
     gitHost: resolvedGitHost,
     runtimes: resolvedRuntimes,
     skillSets: recordedSets,
+    ...(recordedSkills.length > 0 ? { skills: recordedSkills } : {}),
     packageVersion,
     ...(existing?.ignore !== undefined ? { ignore: existing.ignore } : {}),
     ...(existing?.extra !== undefined ? { extra: existing.extra } : {}),
@@ -398,5 +457,11 @@ export async function resolveOptions(argv: string[], ctx: Context): Promise<Opti
 
   await writeConfig(ctx.root, config);
 
-  return { gitHost: resolvedGitHost, runtimes: resolvedRuntimes, skillSets: orderSets(chosenSets), keptSets };
+  return {
+    gitHost: resolvedGitHost,
+    runtimes: resolvedRuntimes,
+    skillSets: orderSets(chosenSets),
+    keptSets,
+    skills: recordedSkills,
+  };
 }

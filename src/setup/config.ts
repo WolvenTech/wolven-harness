@@ -1,7 +1,7 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import type { SkillSet } from './skill-sets.js';
-import { isSkillSet } from './skill-sets.js';
+import { isKnownSkill, isSkillSet } from './skill-sets.js';
 import type { GitHost, Runtime } from './types.js';
 import { SetupError } from './types.js';
 
@@ -15,6 +15,11 @@ export interface Config {
   runtimes: Runtime[];
   /** Optional skill sets installed so far; absent in configs written before sets existed. */
   skillSets?: SkillSet[];
+  /**
+   * Individually installed skill folder names (via `--skill`); whole sets
+   * stay in `skillSets` only — a lone discovery skill must not list `discovery` there.
+   */
+  skills?: string[];
   ignore?: string[];
   /** This package's own version, resolved and rewritten on every `setup` run. */
   packageVersion?: string;
@@ -26,7 +31,7 @@ export interface Config {
   extra?: Record<string, unknown>;
 }
 
-const KNOWN_KEYS = new Set(['version', 'gitHost', 'runtimes', 'skillSets', 'ignore', 'packageVersion']);
+const KNOWN_KEYS = new Set(['version', 'gitHost', 'runtimes', 'skillSets', 'skills', 'ignore', 'packageVersion']);
 
 export const CONFIG_FILENAME = '.wolven-harness.json';
 
@@ -102,6 +107,13 @@ export async function readConfig(root: string): Promise<Config | undefined> {
     config.skillSets = obj.skillSets;
   }
 
+  if (obj.skills !== undefined) {
+    if (!Array.isArray(obj.skills) || !obj.skills.every(isKnownSkill)) {
+      throw new SetupError(`${CONFIG_FILENAME} "skills" must be an array of known skill folder names`);
+    }
+    config.skills = obj.skills;
+  }
+
   if (obj.ignore !== undefined) {
     if (!Array.isArray(obj.ignore) || !obj.ignore.every((v) => typeof v === 'string')) {
       throw new SetupError(`${CONFIG_FILENAME} "ignore" must be an array of strings`);
@@ -137,12 +149,12 @@ async function existingKeyOrder(file: string): Promise<string[]> {
 
 /**
  * Writes `.wolven-harness.json` at `root` as 2-space JSON with a trailing
- * newline: `{ "version", "gitHost", "runtimes" }`, plus `skillSets`, `packageVersion` and
- * `ignore` when set, plus every key in `config.extra` (e.g. `comments`).
- * Keys already in the file keep their order; new keys follow in the order
- * above. Callers are responsible for carrying an existing `ignore`/`extra`
- * value forward — `writeConfig` never invents or drops them itself, it only
- * writes what it is given.
+ * newline: `{ "version", "gitHost", "runtimes" }`, plus `skillSets`, `skills`,
+ * `packageVersion` and `ignore` when set, plus every key in `config.extra`
+ * (e.g. `comments`). Keys already in the file keep their order; new keys
+ * follow in the order above. Callers are responsible for carrying an existing
+ * `ignore`/`extra` value forward — `writeConfig` never invents or drops them
+ * itself, it only writes what it is given.
  */
 export async function writeConfig(root: string, config: Config): Promise<void> {
   const file = path.join(root, CONFIG_FILENAME);
@@ -154,6 +166,9 @@ export async function writeConfig(root: string, config: Config): Promise<void> {
   };
   if (config.skillSets !== undefined) {
     fresh.skillSets = config.skillSets;
+  }
+  if (config.skills !== undefined) {
+    fresh.skills = config.skills;
   }
   if (config.packageVersion !== undefined) {
     fresh.packageVersion = config.packageVersion;

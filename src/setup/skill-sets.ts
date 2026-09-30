@@ -30,8 +30,15 @@ export const SET_SKILLS: Record<SkillSet, readonly string[]> = {
 /** Optional sets in display order. */
 export const SKILL_SETS: readonly SkillSet[] = ['ship', 'discovery'];
 
+/** Every known skill folder name in catalog order (core, then each optional set). */
+export const ALL_SKILLS: readonly string[] = [...CORE_SKILLS, ...SKILL_SETS.flatMap((s) => SET_SKILLS[s])];
+
 export function isSkillSet(value: unknown): value is SkillSet {
   return typeof value === 'string' && (SKILL_SETS as readonly string[]).includes(value);
+}
+
+export function isKnownSkill(value: unknown): value is string {
+  return typeof value === 'string' && (ALL_SKILLS as readonly string[]).includes(value);
 }
 
 /** Sorts and dedupes `sets` into display order. */
@@ -39,9 +46,22 @@ export function orderSets(sets: readonly SkillSet[]): SkillSet[] {
   return SKILL_SETS.filter((s) => sets.includes(s));
 }
 
+/** Sorts and dedupes skill names into catalog order. */
+export function orderSkills(skills: readonly string[]): string[] {
+  return ALL_SKILLS.filter((s) => skills.includes(s));
+}
+
 /** Skill folder names for core plus the chosen `sets`. */
 export function skillFolders(sets: readonly SkillSet[]): string[] {
   return [...CORE_SKILLS, ...sets.flatMap((s) => SET_SKILLS[s])];
+}
+
+/**
+ * Skill folders for core plus chosen `sets` plus any individual `skills`
+ * not already covered by those sets (deduped, catalog order).
+ */
+export function skillFoldersFor(sets: readonly SkillSet[], skills: readonly string[]): string[] {
+  return orderSkills([...skillFolders(sets), ...skills]);
 }
 
 /** Names (`core`, `ship`, `discovery`) of the sets that own at least one of `skills`. */
@@ -50,4 +70,17 @@ export function setsOf(skills: readonly string[]): string[] {
     const owned = name === 'core' ? CORE_SKILLS : SET_SKILLS[name];
     return skills.some((s) => owned.includes(s));
   });
+}
+
+/** Human-readable catalog grouped by core / ship / discovery for `--list-skills`. */
+export function formatSkillCatalog(): string {
+  const lines: string[] = [];
+  for (const name of SET_ORDER) {
+    lines.push(`${name}:`);
+    const owned = name === 'core' ? CORE_SKILLS : SET_SKILLS[name];
+    for (const skill of owned) {
+      lines.push(`  ${skill}`);
+    }
+  }
+  return `${lines.join('\n')}\n`;
 }
