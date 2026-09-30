@@ -68,3 +68,17 @@ Per assignment: invoke `code-commit` after each executed mutate unit (01, 02, 04
 | Discrepancies | docs artifacts dirty outside Owns — resolved: do not include in unit 01 commit; commit docs in a separate hygiene commit or with ship docs unit |
 
 **Unit 01 status:** complete (proofs R1.* / R2.1 PASS)
+
+### Unit 02 — Amend ADR-003
+
+| Field | Value |
+|-------|-------|
+| Unit | 02 — Amend ADR-003 |
+| Spec / plan | docs/specs/lean-init-skills/* |
+| Obligations | R4.1 — done |
+| `HEAD` | (see git) |
+| `git status` | dirty — ADR only |
+| Intended diff | docs/adrs/adr-003-public-contract.md |
+| Discrepancies | none |
+
+**Unit 02 status:** complete (proof-adr-003-skills-amend PASS)

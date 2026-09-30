@@ -43,6 +43,8 @@ Flags. Each value flag takes `--flag value` or `--flag=value`.
 | `--git-host` | `gh` or `bit` |
 | `--runtimes` | comma-separated `claude`, `codex`, `cursor`; entries are trimmed and deduplicated |
 | `--skills` | comma-separated `ship`, `discovery`, or `none` alone |
+| `--skill` | comma-separated known skill folder names; additive; may be repeated |
+| `--list-skills` | none. Print the skill catalog grouped by core/ship/discovery, exit 0, and do not copy templates or rewrite config; still requires the git top-level |
 | `--verbose` | none |
 | `--debug` | none |
 
@@ -143,7 +145,8 @@ A JSON object at the repository root.
 | `version` | number | Required. Must be `1`. It is the schema version, not the package version. |
 | `gitHost` | string | Required. `gh` or `bit`. |
 | `runtimes` | array | Required. Non-empty. Each entry `claude`, `codex` or `cursor`. |
-| `skillSets` | array | Optional. Each entry `ship` or `discovery`. |
+| `skillSets` | array | Optional. Each entry `ship` or `discovery`. Whole opted-in sets only. |
+| `skills` | array | Optional. Each entry a known skill folder name string. Individually installed skills; distinct from `skillSets`. |
 | `ignore` | array of strings | Optional. Each entry `<dir>/**`, with no glob characters in `<dir>`, no `..`, and `<dir>` not `docs` or `.agents` or under either. |
 | `packageVersion` | string | Optional. Rewritten by `setup` on every run. |
 | `comments.paths` | non-empty array of strings | Optional. Directory prefixes. When set, it replaces the default scope, `ignore` included. |
@@ -213,3 +216,6 @@ number is not the guarantee. This policy is.
   for a breaking change marked `feat!` or `BREAKING CHANGE`.
   `bump-patch-for-minor-pre-major` is set, and `bump-minor-pre-major` stays
   set so a breaking change stays a minor. Chosen by the maintainer.
+- 2026-09-30: `setup` gains `--skill` and `--list-skills`, and
+  `.wolven-harness.json` accepts optional `skills`. Additive under the change
+  policy (new command flags and a new optional config key).
