@@ -1,13 +1,13 @@
 ---
 name: vitepress
 description: "Use when changing the docs site or how GitHub Pages publishes it."
-disable-model-invocation: true
 ---
 
 # vitepress
 
-Ask-only: an explicit ask for `vitepress` is the only run.
-`disable-model-invocation: true` stays until the Human removes it.
+Change guide pages under `site/`, the VitePress config, or how GitHub
+Pages publishes the built site. The four steps below are filled. The
+workflow for VitePress is step 3.
 
 ## Cited evidence
 

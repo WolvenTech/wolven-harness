@@ -6,9 +6,11 @@ disable-model-invocation: true
 
 # npm-trusted-publishing
 
+Keep the OIDC trusted-publishing path for `@wolven-tech/harness` aligned
+with ADR-002 and the `publish` job in `.github/workflows/release.yml`.
 Ask-only: an explicit ask for `npm-trusted-publishing` is the only run.
 `disable-model-invocation: true` stays until the Human removes it. The
-workflow for publishing `@wolven-tech/harness` is step 3.
+four steps below are filled. The workflow for publishing is step 3.
 
 ## Cited evidence
 
@@ -26,12 +28,11 @@ When a cited skill conflicts with a stable ADR or an existing workflow
 in this repo, record the conflict here and follow the local decision.
 The conflicting step stays out of this skill.
 
-- Conflict: paulirish `npm-trusted-publishing` rejects `workflow_dispatch`, sets `registry-url` on `setup-node`, and adds `--provenance` to the publish command. Those steps differ from ADR-002 and from the `publish` job in `.github/workflows/release.yml`.
-- Follow: ADR-002 and that publish job. Publish only from `workflow_dispatch` on `release.yml`. `id-token: write` stays on the publish job alone. The job uses Node 22, installs global `npm@11.20.0`, and runs `npm publish --access public --ignore-scripts`. It stores no `NPM_TOKEN` and sets no `registry-url`. Provenance stays the attestation ADR-002 requires, on the publish command the workflow already runs.
+- Conflict: none
+- Follow: ADR-002 and the `publish` job in `.github/workflows/release.yml`
 
-Done when: Conflict names ADR-002 and the `publish` job, plus the cited
-steps that differ (`workflow_dispatch`, `registry-url`, `--provenance`),
-and Follow names that local decision.
+Done when: Conflict is `none`, and Follow names ADR-002 and the `publish`
+job.
 
 ## Steps
 
@@ -52,6 +53,7 @@ changing how `@wolven-tech/harness` is published to npmjs.
 - The publish command is `npm publish --access public --ignore-scripts`.
 - The publish job stores no `NPM_TOKEN` and sets no `registry-url` on `setup-node`.
 - Provenance stays the attestation ADR-002 requires. The publish line stays `npm publish --access public --ignore-scripts`.
+- Do not add `--provenance` to the publish command, and do not set `registry-url` on `setup-node`.
 - npm's trusted-publisher docs are the cite for `workflow_dispatch` as a manual publish path: https://docs.npmjs.com/trusted-publishers/
 
 Done when: every bullet is a decision in ADR-002 or in the `publish` job
@@ -77,8 +79,7 @@ at https://docs.npmjs.com/trusted-publishers/.
    Done when: the publish job's `setup-node` step sets `node-version: 22` and has no `registry-url`, the following step is `npm install -g npm@11.20.0`, and the publish line is `npm publish --access public --ignore-scripts`.
 
 Done when: every step above ends with a `Done when:` line whose result a
-later run can observe in `.github/workflows/release.yml` or in ADR-002,
-and none of those steps is a conflicting step from Local decision.
+later run can observe in `.github/workflows/release.yml` or in ADR-002.
 
 ### 4. Verify
 

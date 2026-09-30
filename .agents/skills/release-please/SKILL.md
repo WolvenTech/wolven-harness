@@ -6,6 +6,7 @@ disable-model-invocation: true
 
 # release-please
 
+Keep the version bump and the release pull request on release-please.
 Ask-only: an explicit ask for `release-please` is the only run.
 `disable-model-invocation: true` stays until the Human removes it.
 Publishing the npm package is the `npm-trusted-publishing` skill.

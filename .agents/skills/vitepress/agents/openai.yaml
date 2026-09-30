@@ -1,5 +1,0 @@
-interface:
-  display_name: "vitepress"
-  short_description: "Use when changing the docs site or how GitHub Pages publishes it."
-policy:
-  allow_implicit_invocation: false

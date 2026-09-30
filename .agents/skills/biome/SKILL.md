@@ -6,6 +6,7 @@ disable-model-invocation: true
 
 # biome
 
+Keep lint, format, and the pre-commit check on Biome for this repo.
 Ask-only: an explicit ask for `biome` is the only run.
 `disable-model-invocation: true` stays until the Human removes it.
 The four steps below are filled. The workflow for Biome is step 3.
