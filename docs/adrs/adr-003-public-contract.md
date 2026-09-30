@@ -186,9 +186,11 @@ A new error-level finding code counts as breaking, because it can turn a
 passing CI run red. A new `comments` kind counts as breaking for the same
 reason.
 
-release-please runs with `bump-minor-pre-major`. Below 1.0 a breaking change
-still bumps the minor version. The version number is not the guarantee. This
-policy is.
+release-please runs with `bump-minor-pre-major` and
+`bump-patch-for-minor-pre-major`. Below 1.0 a `feat` bumps the patch, and a
+minor bump is only for a breaking change marked `feat!` or `BREAKING CHANGE`.
+A breaking change still bumps the minor rather than the major. The version
+number is not the guarantee. This policy is.
 
 ## Consequences
 
@@ -207,3 +209,7 @@ policy is.
   maintainer.
 - 2026-09-29: `adr-status-mismatch` added as a warning code. It is additive under
   the change policy and ships in a minor release.
+- 2026-09-30: below 1.0 a `feat` bumps the patch, and a minor bump is only
+  for a breaking change marked `feat!` or `BREAKING CHANGE`.
+  `bump-patch-for-minor-pre-major` is set, and `bump-minor-pre-major` stays
+  set so a breaking change stays a minor. Chosen by the maintainer.

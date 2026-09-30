@@ -11,6 +11,14 @@
     "test/**"
   ],
   "comments": {
-    "paths": ["src", "test"]
-  }
+    "paths": [
+      "src",
+      "test"
+    ]
+  },
+  "skillSets": [
+    "ship",
+    "discovery"
+  ],
+  "packageVersion": "0.3.0"
 }

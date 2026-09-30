@@ -1,9 +1,14 @@
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
+import path from 'node:path';
 import { test } from 'node:test';
+import { fileURLToPath } from 'node:url';
 import { parse as parseYaml } from 'yaml';
 import { run } from './helpers/fixture.js';
 import { flatten } from './helpers/prose.js';
 import { minimalValidateFixture, readSkill } from './helpers/skill-contract.js';
+
+const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 const REF = 'references/stub-template.md';
 const INVENTED_NAME = 'payments-gateway';
@@ -96,28 +101,88 @@ test('stub-template: renders a SKILL.md stub whose frontmatter carries the stub 
   const frontmatter = parseYaml(match![1]) as Record<string, unknown>;
 
   assert.equal(frontmatter.name, INVENTED_NAME);
-  assert.equal(typeof frontmatter.description, 'string');
+  assert.equal(frontmatter.description, 'Use when <trigger>');
   assert.ok(!(frontmatter.description as string).includes('|'), 'description must not contain "|"');
-  assert.match(frontmatter.description as string, /stub/i);
+  assert.doesNotMatch(frontmatter.description as string, /stub skill/i);
+  assert.doesNotMatch(frontmatter.description as string, /not yet defined/i);
   assert.equal(frontmatter['disable-model-invocation'], true);
   assert.equal((frontmatter.metadata as Record<string, unknown>)?.['wolven-harness'], 'stub');
 });
 
-test('stub-template: renders headed prompts and the discovery evidence the suggestion came from', async () => {
+test('stub-template: renders cited evidence, a generated-against stamp, and a step per prompt', async () => {
   const { skillMd } = await loadRenderedFiles();
 
-  assert.match(skillMd, /## Discovery evidence/);
-  assert.match(skillMd, /## When to use/);
-  assert.match(skillMd, /## Conventions/);
-  assert.match(skillMd, /## What to avoid/);
-  assert.match(skillMd, /## How to verify/);
+  assert.match(skillMd, /## Cited evidence/);
+  assert.match(skillMd, /Decided tool: <tool-or-field>/);
+  assert.match(skillMd, /Repo file: <path>/);
+  assert.match(skillMd, /External skill: <skill-name and location, or none>/);
+  assert.match(skillMd, /its text stays in its own file/i);
+  assert.match(skillMd, /Generated against: <tool-or-field> <version, or no version recorded>/);
+
+  assert.match(skillMd, /### 1\. Trigger/);
+  assert.match(skillMd, /### 2\. Conventions/);
+  assert.match(skillMd, /### 3\. Workflow/);
+  assert.match(skillMd, /### 4\. Verify/);
+  assert.equal((skillMd.match(/^Ask the Human/gm) ?? []).length, 4);
+
+  const steps = skillMd.split(/^## Steps/m)[1] ?? '';
+  assert.equal((steps.match(/^Done when:/gm) ?? []).length, 4);
 });
 
 test('stub-template: renders an agents/openai.yaml whose policy blocks implicit invocation', async () => {
   const { openaiYaml } = await loadRenderedFiles();
-  const parsed = parseYaml(openaiYaml) as { policy?: { allow_implicit_invocation?: boolean } };
+  const parsed = parseYaml(openaiYaml) as {
+    interface?: { short_description?: string };
+    policy?: { allow_implicit_invocation?: boolean };
+  };
 
   assert.equal(parsed.policy?.allow_implicit_invocation, false);
+  assert.equal(parsed.interface?.short_description, 'Use when <trigger>');
+});
+
+test('stub-template: a cited skill that conflicts with a local ADR or workflow is recorded and left out', async () => {
+  const raw = await readReference();
+  const flat = flatten(raw);
+
+  assert.match(
+    flat,
+    /when a cited skill conflicts with a stable ADR or an existing workflow in this repo, record the conflict here and follow the local decision/i,
+  );
+  assert.match(flat, /the conflicting step stays out of this skill/i);
+  assert.match(flat, /step 3 stays a prompt until the Human fills it/);
+  assert.doesNotMatch(raw, /ADR-002/);
+  assert.doesNotMatch(raw, /release\.yml/);
+});
+
+test('stub-template: branch-only detail sits one level down, and the skill file stays under 500 lines', async () => {
+  const skillMd = flatten((await loadRenderedFiles()).skillMd);
+
+  assert.match(skillMd, /Keep this file under 500 lines/);
+  assert.match(skillMd, /`references\/<slug>\.md` in this skill folder — one level down/);
+});
+
+test('stub-template: step 5 is done when validate warns skill-stub-open and no folder was overwritten', async () => {
+  const step = flatten(
+    (await readSkill('harness-init')).body.split(/^### 5\. Write stubs/m)[1]?.split(/^### /m)[0] ?? '',
+  );
+
+  assert.match(step, /\[references\/stub-template\.md\]\(references\/stub-template\.md\)/);
+  assert.match(step, /trigger `description`/);
+  assert.match(step, /generated-against stamp/);
+  assert.match(step, /each step ending on a checkable done/i);
+  assert.match(step, /no existing skill folder was overwritten/i);
+  assert.match(step, /warns `skill-stub-open` once for that `SKILL\.md`/);
+});
+
+test('stub-template: the installed harness-init copy matches the template', async () => {
+  for (const rel of [
+    '.agents/skills/harness-init/SKILL.md',
+    '.agents/skills/harness-init/references/stub-template.md',
+  ]) {
+    const template = await readFile(path.join(repoRoot, 'templates', rel), 'utf8');
+    const installed = await readFile(path.join(repoRoot, rel), 'utf8');
+    assert.equal(installed, template, rel);
+  }
 });
 
 test('stub-template: a rendered stub passes validate with no skill-frontmatter finding and exactly one skill-stub-open warning', async () => {

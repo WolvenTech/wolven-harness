@@ -20,12 +20,13 @@ A push to `main` does not create the GitHub Release and does not publish. Mergin
 
 ## PR titles and version bumps
 
-PR titles must be [Conventional Commits](https://www.conventionalcommits.org/). The title decides the next version. Before 1.0:
+PR titles must be [Conventional Commits](https://www.conventionalcommits.org/). The title decides the next version. Below 1.0 a `feat` bumps the patch, and a minor bump is only for a breaking change marked `feat!` or `BREAKING CHANGE`.
 
 | PR title type | Bump |
 | --- | --- |
-| `feat`, or any breaking change | minor (`0.2.0` → `0.3.0`) |
+| `feat` | patch (`0.2.0` → `0.2.1`) |
 | `fix` | patch (`0.2.0` → `0.2.1`) |
+| `feat!` or `BREAKING CHANGE` | minor (`0.2.0` → `0.3.0`) |
 
 ## Cut a release
 
