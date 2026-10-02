@@ -146,14 +146,14 @@ None. The Human confirmed that finished migration verifications can go. The cons
 
 ## Acceptance
 
-- [ ] `proof-repo-trim-copy-check` PASS — harness-init copy `test()` gone; `proof-lean-init-copies-identical` remains; `pnpm test` exits 0
-- [ ] `proof-repo-trim-help-version` PASS — `usage lists --version` gone; the contract `--help` test remains; `pnpm test` exits 0
-- [ ] `proof-repo-trim-unknown-command` PASS — `test/cli.test.ts` title `unknown command exits 1` gone; the contract unknown-command test remains; `pnpm test` exits 0
-- [ ] `proof-repo-trim-template-files` PASS — `seed-extract: template files exist` gone; setup-surfaces and the two `assertSkillBasics` calls remain; `pnpm test` exits 0
-- [ ] `proof-repo-trim-init-pin` PASS — the `init` dispatch test and the `\binit\b` assertions are gone; the help test still requires `setup`
-- [ ] `proof-repo-trim-packages-readme` PASS — the README registry-residue test is gone; the add-then-setup test remains
-- [ ] `proof-repo-trim-packages-workflow` PASS — the release test no longer names GitHub Packages and still rejects `secrets.`
-- [ ] `proof-repo-trim-template-residue` PASS — extract-vocabulary rules are gone; `template-residue: copied skills contain no concrete ADR token` remains and still matches `ADR-` plus three digits; `pnpm test` exits 0
+- [x] `proof-repo-trim-copy-check` PASS — harness-init copy `test()` gone; `proof-lean-init-copies-identical` remains; `pnpm test` exits 0
+- [x] `proof-repo-trim-help-version` PASS — `usage lists --version` gone; the contract `--help` test remains; `pnpm test` exits 0
+- [x] `proof-repo-trim-unknown-command` PASS — `test/cli.test.ts` title `unknown command exits 1` gone; the contract unknown-command test remains; `pnpm test` exits 0
+- [x] `proof-repo-trim-template-files` PASS — `seed-extract: template files exist` gone; setup-surfaces and the two `assertSkillBasics` calls remain; `pnpm test` exits 0
+- [x] `proof-repo-trim-init-pin` PASS — the `init` dispatch test and the `\binit\b` assertions are gone; the help test still requires `setup`
+- [x] `proof-repo-trim-packages-readme` PASS — the README registry-residue test is gone; the add-then-setup test remains
+- [x] `proof-repo-trim-packages-workflow` PASS — the release test no longer names GitHub Packages and still rejects `secrets.`
+- [x] `proof-repo-trim-template-residue` PASS — extract-vocabulary rules are gone; `template-residue: copied skills contain no concrete ADR token` remains and still matches `ADR-` plus three digits; `pnpm test` exits 0
 
 ## Eval / gates
 

@@ -30,16 +30,6 @@ const files = relFiles.map((rel) => ({
   content: readFileSync(path.join(templatesAgentsDir, rel), 'utf8'),
 }));
 
-test('seed-extract: template files exist', () => {
-  assert.ok(files.length > 0, 'templates/.agents has at least one file');
-  const relSet = new Set(relFiles.map((r) => r.split(path.sep).join('/')));
-  assert.ok(relSet.has('skills/qmd/SKILL.md'));
-  assert.ok(relSet.has('skills/pragmatic-guard/SKILL.md'));
-  assert.ok(relSet.has('rules/qmd-first.md'));
-  assert.ok(relSet.has('rules/yagni-strict.md'));
-  assert.ok(relSet.has('hooks/README.md'));
-});
-
 test('seed-extract: qmd searches -c adrs first', () => {
   const qmdSkill = files.find((f) => f.rel === path.join('skills', 'qmd', 'SKILL.md'))!;
   const qmdFirstRule = files.find((f) => f.rel === path.join('rules', 'qmd-first.md'))!;

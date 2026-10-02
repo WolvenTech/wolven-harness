@@ -68,3 +68,95 @@ Parallel only while Owns stay disjoint. Unit 02 is the only writer of `test/cli.
 - `src/**`, `templates/**`, `.github/workflows/**`, `docs/adrs/**`, `video/**`, `site/**`
 - `.agents/skills/test-sync/SKILL.md`
 - This spec's obligation rows. Unit 07 may check Acceptance boxes only
+
+## Execution / resume section
+
+Resolved opt, read before mutate: `.agents/code-commit.config.yml` is absent. `autocommit: false` (default). `autocommit-rule: wave` (default). `code-commit` is installed at `.claude/skills/code-commit/` and is not invoked for this wave.
+
+Pre-start: frontier is units 01–06 in parallel, then unit 07. Spec `docs/specs/repo-trim/repo-trim-spec.md`. Plan `docs/specs/repo-trim/repo-trim-plan.md`. Ship gate is unit 07 (`pnpm test`, `pnpm validate`, `pnpm comments`, and the eight `rg` proofs). No second mutate wave. The Human approved execution on 2026-10-02. Plan `status` stays `draft` because the spec says the mutate batch moves no profile doc between statuses.
+
+### Unit 01 — Drop the harness-init copy duplicate
+
+| Field | Value |
+|-------|-------|
+| Unit | 01 — Drop the harness-init copy duplicate (frontier, parallel with 02–06) |
+| Spec / plan | `docs/specs/repo-trim/repo-trim-spec.md` / `docs/specs/repo-trim/repo-trim-plan.md` |
+| Obligations | R1.1 / `proof-repo-trim-copy-check` — done |
+| `HEAD` | `e9ad58b` |
+| `git status` | dirty — `docs/specs/repo-trim/repo-trim-plan.md` resume section only; isolated from Owns; decision: resolved, do not revert |
+| Intended diff | `test/harness-init-stub.test.ts` |
+| Discrepancies | none |
+
+### Unit 02 — Drop the cli duplicates and the retired `init` pins
+
+| Field | Value |
+|-------|-------|
+| Unit | 02 — Drop the cli duplicates and the retired `init` pins (frontier, parallel with 01, 03–06) |
+| Spec / plan | `docs/specs/repo-trim/repo-trim-spec.md` / `docs/specs/repo-trim/repo-trim-plan.md` |
+| Obligations | R1.2 / `proof-repo-trim-help-version`, R1.3 / `proof-repo-trim-unknown-command`, R2.1 / `proof-repo-trim-init-pin` — done |
+| `HEAD` | `e9ad58b` |
+| `git status` | dirty — `docs/specs/repo-trim/repo-trim-plan.md` resume section only; isolated from Owns; decision: resolved, do not revert |
+| Intended diff | `test/cli.test.ts` |
+| Discrepancies | none |
+
+### Unit 03 — Drop the template-existence duplicate
+
+| Field | Value |
+|-------|-------|
+| Unit | 03 — Drop the template-existence duplicate (frontier, parallel with 01–02, 04–06) |
+| Spec / plan | `docs/specs/repo-trim/repo-trim-spec.md` / `docs/specs/repo-trim/repo-trim-plan.md` |
+| Obligations | R1.4 / `proof-repo-trim-template-files` — done |
+| `HEAD` | `e9ad58b` |
+| `git status` | dirty — `docs/specs/repo-trim/repo-trim-plan.md` resume section only; isolated from Owns; decision: resolved, do not revert |
+| Intended diff | `test/seed-extract.test.ts` |
+| Discrepancies | none |
+
+### Unit 04 — Drop the README registry-residue test
+
+| Field | Value |
+|-------|-------|
+| Unit | 04 — Drop the README registry-residue test (frontier, parallel with 01–03, 05–06) |
+| Spec / plan | `docs/specs/repo-trim/repo-trim-spec.md` / `docs/specs/repo-trim/repo-trim-plan.md` |
+| Obligations | R2.2 / `proof-repo-trim-packages-readme` — done |
+| `HEAD` | `e9ad58b` |
+| `git status` | dirty — `docs/specs/repo-trim/repo-trim-plan.md` resume section only; isolated from Owns; decision: resolved, do not revert |
+| Intended diff | `test/readme-install.test.ts` |
+| Discrepancies | none |
+
+### Unit 05 — Drop the release-workflow registry pins
+
+| Field | Value |
+|-------|-------|
+| Unit | 05 — Drop the release-workflow registry pins (frontier, parallel with 01–04, 06) |
+| Spec / plan | `docs/specs/repo-trim/repo-trim-spec.md` / `docs/specs/repo-trim/repo-trim-plan.md` |
+| Obligations | R2.3 / `proof-repo-trim-packages-workflow` — done |
+| `HEAD` | `e9ad58b` |
+| `git status` | dirty — `docs/specs/repo-trim/repo-trim-plan.md` resume section only; isolated from Owns; decision: resolved, do not revert |
+| Intended diff | `test/release.test.ts` |
+| Discrepancies | none |
+
+### Unit 06 — Drop the extract-vocabulary bans
+
+| Field | Value |
+|-------|-------|
+| Unit | 06 — Drop the extract-vocabulary bans (frontier, parallel with 01–05) |
+| Spec / plan | `docs/specs/repo-trim/repo-trim-spec.md` / `docs/specs/repo-trim/repo-trim-plan.md` |
+| Obligations | R2.4 / `proof-repo-trim-template-residue` — done |
+| `HEAD` | `e9ad58b` |
+| `git status` | dirty — `docs/specs/repo-trim/repo-trim-plan.md` resume section only; isolated from Owns; decision: resolved, do not revert |
+| Intended diff | `test/template-residue.test.ts` |
+| Discrepancies | none |
+
+### Unit 07 — Batch gate
+
+| Field | Value |
+|-------|-------|
+| Unit | 07 — Batch gate (after 01–06) |
+| Spec / plan | `docs/specs/repo-trim/repo-trim-spec.md` / `docs/specs/repo-trim/repo-trim-plan.md` |
+| Obligations | R1.1–R2.4 — done. Acceptance boxes checked. |
+| `HEAD` | `e9ad58b` |
+| `git status` | dirty — the six test files plus this plan and the spec Acceptance boxes; all in this wave; decision: resolved |
+| Intended diff | `docs/specs/repo-trim/repo-trim-spec.md` (Acceptance boxes only), `docs/specs/repo-trim/repo-trim-plan.md` (resume marks only) |
+| Discrepancies | none |
+
+Wave gate evidence, this session: eight `rg` proofs passed; `test/contract.test.ts` byte-identical; `pnpm test` 552 pass, 0 fail; `pnpm validate` `validate: ok` (93 claims, 0 failures); `pnpm comments` `comments: ok (0 findings)`. One wave, so one commit covers units 01–07.
