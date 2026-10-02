@@ -14,7 +14,7 @@ Run `setup` at your repository's Git top level. You need Node.js 22 or later, Gi
 pnpm add -D @wolven-tech/harness && pnpm exec wolven-harness setup
 ```
 
-`setup` installs nine core skills, three standing rules, document templates, a local search index configuration, and the `WOLVEN.md` entry file. Optional sets add up to nine more skills (`ship`: four, `discovery`: five). Setup preserves existing copies and leaves `AGENTS.md` alone.
+`setup` installs nine core skills, three standing rules, document templates, a local search index configuration, and the `WOLVEN.md` entry file. Optional sets add up to nine more skills (`ship`: four, `discovery`: five); `ship` is selected by default, so a default setup installs 13 skills. Setup preserves existing copies and leaves `AGENTS.md` alone.
 
 It adds missing check scripts to an existing `package.json` and saves setup choices and the package version in `.wolven-harness.json`. It does not install dependencies; setup prints the install command when `harness-score` is missing.
 

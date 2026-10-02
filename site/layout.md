@@ -19,16 +19,16 @@ description: What setup installs, where harness files live, and what validate ch
 | `docs/notes/<slug>/` | A note named `<slug>-note.md`. | Required main document, frontmatter, slug, and type are checked. |
 | `docs/deferrals/<slug>/` | A deferral named `<slug>-deferral.md`. | Required main document, frontmatter, slug, and type are checked. |
 | `docs/WRITING-PROFILE.md` | The writing and naming rules used for profile documents. | Informational; the validator reads its own profile rules. |
-| `.qmd/index.yml` | QMD collection configuration for local document search. | Not checked by `validate`. Setup does not install QMD itself. |
+| `.qmd/index.yml` | QMD collection configuration for local document search. | Its contents are not checked, but `.qmd/` must not be hidden by a repository ignore rule. Setup does not install QMD itself. |
 | `.harness-score.json` | The starter set of harness-score checks this repository can adjust. | Not checked by `validate`; consumed by `harness-score`. |
-| `.wolven-harness.json` | Setup choices, package version, optional ignore rules, and preserved extra config such as comment settings. | Ignore entries are validated. Harness paths cannot be excluded from the scan. |
+| `.wolven-harness.json` | Setup choices, package version, optional ignore rules, and preserved extra config such as comment settings. | Ignore entries are validated. `docs/` and `.agents/` cannot be excluded from the scan. |
 | `.claude/skills` and `CLAUDE.md` | Created only when Claude Code is selected and each path is absent. The first links to `.agents/skills/`; the second imports `AGENTS.md`. | The skills link is a required harness path. Existing paths are preserved. |
 
 ## Document profile
 
 ADRs live directly in `docs/adrs/` and use a three-digit number and kebab-case slug. Other document types live in one slug folder per document, with a main file named `<slug>-<type>.md`. Required frontmatter fields are `type`, `title`, `description`, and `status`; status is `draft`, `stable`, or `deprecated`.
 
-Deprecated ADRs need a `superseded_by` field pointing to an existing ADR filename without `.md`. Active document folders need their main document. The validator skips content inside each document folder's `archived/` directory. See [Commands](./commands) for finding codes and scan behavior.
+Deprecated ADRs need a `superseded_by` field pointing to an existing ADR filename without `.md`. Active document folders need their main document. The validator skips everything under `docs/<type>/archived/`, for example `docs/specs/archived/<slug>/`. See [Commands](./commands) for finding codes and scan behavior.
 
 ## Ignore rules
 

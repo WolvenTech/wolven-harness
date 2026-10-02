@@ -4,7 +4,7 @@ description: Clone this repo, build it, and run setup from source.
 
 # Contributing
 
-Open an issue for a bug or proposal, or a pull request for a change. See [CONTRIBUTING.md](https://github.com/WolvenTech/wolven-harness/blob/main/CONTRIBUTING.md). PR titles use Conventional Commits. CI checks the title, runs lint and harness checks, runs tests on Node.js 22 and 24, then packs and smoke-tests the CLI in a clean repository.
+Open an issue for a bug or proposal, or a pull request for a change. See [CONTRIBUTING.md](https://github.com/WolvenTech/wolven-harness/blob/main/CONTRIBUTING.md). PR titles use Conventional Commits. CI runs these jobs in parallel: a title check, lint and harness checks, tests on Node.js 22 and 24, and a pack that smoke-tests the CLI in a clean repository.
 
 ```sh
 git clone https://github.com/WolvenTech/wolven-harness.git

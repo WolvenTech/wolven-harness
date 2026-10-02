@@ -76,7 +76,7 @@ Setup uses each value from its command-line flag first, then from `.wolven-harne
 
 When setup runs in a script or CI, include any missing required `--git-host` and `--runtimes` values in the command. The optional skill sets default to `ship` when no choice has been recorded. In an interactive setup, `ship` is preselected, and you can choose no optional sets.
 
-If a flag value is invalid, setup lets you correct it when asking questions in a terminal; in a script or CI, correct the command and run it again. `--skills none` cannot be combined with another skill set. Re-running setup never removes skill files or optional sets already present; choosing `none` does not uninstall anything.
+If a flag value is invalid, setup lets you correct it when asking questions in a terminal; in a script or CI, correct the command and run it again. A flag with no value or an unknown option exits 1 before any prompt, even in a terminal. `--skills none` cannot be combined with another skill set. Re-running setup never removes skill files or optional sets already present; choosing `none` does not uninstall anything.
 
 For the same setup trace in a script or CI, set `WOLVEN_HARNESS_DEBUG=1`.
 
@@ -132,7 +132,7 @@ Successful output ends with `validate: ok`. A failing run ends with an error and
 wolven-harness comments [--base <ref>]
 ```
 
-This command checks only comment blocks added since a base revision; it does not lint existing comments. Without `--base`, it uses the merge-base with the first available ref in this order: `origin/HEAD`, `origin/main`, then `main`. If none can be resolved, pass a base explicitly.
+This command checks only comment blocks added since a base revision; it does not lint existing comments. Without `--base`, it uses the merge-base with the first available ref in this order: `origin/HEAD`, `origin/main`, then `main`. If none can be resolved, pass a base explicitly. `--base` takes its value as a separate argument; `--base=<ref>` is rejected as an unknown option.
 
 ```sh
 pnpm harness:comments
@@ -186,8 +186,8 @@ Setup stores its choices in `.wolven-harness.json` at the repository root. The f
 | Key | Required | Purpose and rules |
 | --- | --- | --- |
 | `version` | Yes | Must be the number `1`; this is the config schema version. |
-| `gitHost` | Yes for setup | `gh` or `bit`; the `--git-host` flag overrides it. |
-| `runtimes` | Yes for setup | Non-empty array of `claude`, `codex`, or `cursor`; `--runtimes` overrides it. |
+| `gitHost` | Yes | `gh` or `bit`; the `--git-host` flag overrides it. Every command that reads the file requires it. |
+| `runtimes` | Yes | Non-empty array of `claude`, `codex`, or `cursor`; `--runtimes` overrides it. Every command that reads the file requires it. |
 | `skillSets` | No | Optional `ship` and/or `discovery` sets; core is always installed. |
 | `packageVersion` | No | Refreshed to the running package version by setup. |
 | `ignore` | No | Validation scan exclusions and default comments exclusions. Each entry must be `<dir>/**`; `docs/` and `.agents/` cannot be excluded. |
