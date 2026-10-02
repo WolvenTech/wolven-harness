@@ -1,32 +1,42 @@
 ---
-description: Find an engineering decision and read the record behind the answer.
+description: Configure local document search and find the decision record behind an answer.
 ---
 
 # Search
 
-Ask your agent a question you would otherwise have to dig through the repo to answer:
+The harness includes a `qmd-first` rule that directs an agent to search the repository's records before answering questions about its architecture. For the search to work, install the QMD CLI and build the local index configured by `.qmd/index.yml`; `wolven-harness setup` installs the configuration but not QMD itself.
+
+Ask your agent a question you would otherwise have to investigate by hand:
 
 > Why do we publish this package publicly on npm instead of GitHub Packages?
 
-For this package’s repository, the recorded answer is:
+For this repository, the answer is recorded in [ADR-002](https://github.com/WolvenTech/wolven-harness/blob/main/docs/adrs/adr-002-public-npm-oidc.md). The decision explains that public npm avoids per-consumer registry credentials and uses OIDC trusted publishing for releases.
 
-> The private GitHub Packages setup required a registry entry, a read token, and access grants in every consumer. The source and shipped files were already public. Public npm publishing removes those install requirements; the release workflow uses OIDC trusted publishing, which authenticates GitHub Actions without a stored npm token.
->
-> Source: [the publishing decision](https://github.com/WolvenTech/wolven-harness/blob/main/docs/adrs/adr-002-public-npm-oidc.md), Context and Decision.
+That answer is specific to the harness repository. In your repository, the source of truth is your own decision record.
 
-This is an example from the harness repo. In your repo, answers come from your own records.
+## Search order
 
-## How search works
+The standing rule asks the agent to:
 
-QMD is the local document search tool the agent uses. The agent searches architecture decision records first with `qmd query -c adrs`. If there is no match, it widens the search to other indexed documents. It reads the full record before answering and names the source file. Notes may be dated; an unfinished spec is not a settled decision.
+1. Search the `adrs` collection first with `qmd query -c adrs "<question>"`.
+2. Widen the search with `qmd query "<question>"` if no decision answers it.
+3. Read the full matching record before relying on it and identify the source file in its answer.
 
-::: details Optional: the four query fields
+ADRs are settled decisions. Specs and PRDs describe active or proposed work; notes may be dated and can become stale.
 
-The agent prefers a structured query:
+## Structured queries
 
-- `intent`: what to find and what to exclude — the publishing decision, not release troubleshooting.
-- `lex`: exact terms likely to appear — npmjs, GitHub Packages, registry, token.
-- `vec`: the question in natural language — why consumers install from public npm.
-- `hyde`: a short hypothetical passage to help find a matching document — a decision to remove per-repo registry credentials by publishing publicly. This is a search hint, not evidence.
+QMD supports four fields for a more focused query:
 
-:::
+| Field | What to include |
+| --- | --- |
+| `intent` | What to find and what to exclude. |
+| `lex` | Exact names or terms likely to appear in the record. |
+| `vec` | The question written in natural language. |
+| `hyde` | A hypothetical passage that helps locate a match; it is a search hint, not evidence. |
+
+For example, search for the npm publishing decision, exclude release troubleshooting, and include terms such as npmjs, GitHub Packages, registry, and token.
+
+## Index lifecycle
+
+The `.qmd/index.yml` file defines the local collections. QMD builds and updates the actual index on the developer's machine; setup keeps the QMD local index out of Git. In this repository's Cloud Agent environment, bootstrap installs QMD and runs `qmd update` and `qmd embed`. Other repositories need their own QMD installation and index setup.

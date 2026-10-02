@@ -19,7 +19,7 @@ For a one-file change, you can ask for `code-execute` directly and skip the spec
 
 ## Full inventory
 
-Eighteen skills are available under `.agents/skills/`. `setup` always installs the nine core skills (`harness-init`, `adr`, `grilling`, `pragmatic-guard`, `qmd`, `research`, `code-spec`, `code-plan`, `code-execute`). The `ship` set (`code-commit`, `code-pr`, `code-review`, `code-ci`) and the `discovery` set (`create-prd`, `prototype`, `handoff`, `the-fool`, `the-jury`) are optional. The four marked **ask-only** require an explicit request. PR creation, review, and CI work never merge the PR.
+Eighteen skills are available under `.agents/skills/`. `setup` always installs the nine core skills (`harness-init`, `adr`, `grilling`, `pragmatic-guard`, `qmd`, `research`, `code-spec`, `code-plan`, `code-execute`). The `ship` set (`code-commit`, `code-pr`, `code-review`, `code-ci`) and the `discovery` set (`create-prd`, `prototype`, `handoff`, `the-fool`, `the-jury`) are optional. A fresh interactive setup preselects `ship`; a fresh non-interactive setup defaults to `ship`. Select `--skills discovery` or `--skills ship,discovery` to add sets, or `--skills none` for core skills only. Re-runs never remove installed files or sets. The four marked **ask-only** require an explicit request. PR creation, review, and CI work never merge the PR.
 
 `grilling` (core) interviews toward a settled plan. `the-fool` challenges without forcing a decision. `the-jury` spawns five isolated juror agents, then deliberates with shared first-round opinions, and returns a dissent-preserving advisory verdict with confidence and a concrete test. Keep the three distinct.
 

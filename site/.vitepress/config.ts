@@ -7,7 +7,7 @@ const base = '/wolven-harness/';
 export default defineConfig({
   title: 'wolven-harness',
   description:
-    'CLI tool that installs and maintains a set of tools for AI agents to find instructions, use recorded decisions, check their work and maintain human-decided patterns.',
+    'AI-assisted development harness to plan and implement changes, initialize an AGENTS.md-based skill tree, wire runtimes, and validate architecture decisions.',
   base,
   appearance: false,
   head: [

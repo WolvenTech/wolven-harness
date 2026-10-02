@@ -1,23 +1,39 @@
 ---
-description: Where setup writes each path, and what validate checks there.
+description: What setup installs, where harness files live, and what validate checks.
 ---
 
-# Files
+# Files and validation
 
-What your repository looks like after `setup`.
+`wolven-harness setup` installs the harness in a consumer repository. It creates missing paths only and leaves `AGENTS.md` to you. The table shows the main paths and how `wolven-harness validate` treats them.
 
-| Path | What it holds | What `validate` checks |
+| Path | What it contains | Validation behavior |
 | --- | --- | --- |
-| `AGENTS.md` | Your entry file — the first thing an agent reads. `setup` never creates or edits it. | Warns until `WOLVEN.md` has been folded in. |
-| `WOLVEN.md` | The harness section `setup` writes, ready for `harness-init` to fold into the entry file. | Every rule it cites has to exist. |
-| `.agents/skills/` | The eighteen seeded skills, one folder each. | Each skill carries a `name` and a `description`. |
-| `.agents/rules/` | The three standing rules: `comments`, `qmd-first`, `yagni-strict`. | A cited rule file has to exist, and no ignore rule may hide it. |
-| `.agents/hooks/` | A placeholder note only. No executable hooks ship or run. | Only that no ignore rule hides it. |
-| `docs/adrs/` | Decision records, flat, as `adr-NNN-<slug>.md`, seeded with one starter record. | The profile. Validation fails if a reference points to no decision record. |
-| `docs/prds/`<br>`docs/specs/`<br>`docs/notes/`<br>`docs/deferrals/` | One slug folder per document. A spec folder may also hold its `<slug>-plan.md`. | Front matter, a type matching the folder, and a kebab-case name. |
-| `docs/WRITING-PROFILE.md` | The type map and naming rules the profile check enforces. | Reference only. |
-| `.qmd/index.yml` | The collection index for searching those documents locally. | Not checked. |
-| `.wolven-harness.json` | Your answers, the version of the `setup` that ran, and any `ignore` or `comments` scope you add. | No harness path may be excluded by an ignore rule. |
-| `.claude/skills`<br>`CLAUDE.md` | Written only when you wire the `claude` runtime, and only when absent: a directory symlink to the skills tree, and an entry file that imports yours. | The symlink target counts as a harness path. |
+| `AGENTS.md` | Your repository's agent entry point. Setup never creates or edits it. | A warning remains while `WOLVEN.md` exists and is not mentioned by `AGENTS.md`. |
+| `WOLVEN.md` | Harness instructions for your agent to integrate into `AGENTS.md`. | Referenced rule files must exist. A pending integration is a warning. |
+| `.agents/skills/` | Nine core skills plus optional `ship` and `discovery` skills. | Every skill folder needs a `SKILL.md` with non-empty `name` and `description` frontmatter. An unfinished marked stub is a warning. |
+| `.agents/rules/` | The standing `comments`, `qmd-first`, and `yagni-strict` rules. | Rules cited from `WOLVEN.md` or `AGENTS.md` must exist. |
+| `.agents/hooks/` | A placeholder note; setup installs no executable hooks. | The path must not be hidden by a repository ignore rule. |
+| `docs/adrs/` | Flat profile decision records named `adr-NNN-<slug>.md`. | Frontmatter, filename, status, and supersession rules apply. ADR references must resolve to a unique stable decision. |
+| `docs/prds/<slug>/` | A PRD named `<slug>-prd.md`. | Required main document, frontmatter, slug, and type are checked. |
+| `docs/specs/<slug>/` | A spec named `<slug>-spec.md`, optionally with `<slug>-plan.md`. | Required main document, frontmatter, slug, and type are checked. |
+| `docs/notes/<slug>/` | A note named `<slug>-note.md`. | Required main document, frontmatter, slug, and type are checked. |
+| `docs/deferrals/<slug>/` | A deferral named `<slug>-deferral.md`. | Required main document, frontmatter, slug, and type are checked. |
+| `docs/WRITING-PROFILE.md` | The writing and naming rules used for profile documents. | Informational; the validator reads its own profile rules. |
+| `.qmd/index.yml` | QMD collection configuration for local document search. | Not checked by `validate`. Setup does not install QMD itself. |
+| `.harness-score.json` | The starter set of harness-score checks this repository can adjust. | Not checked by `validate`; consumed by `harness-score`. |
+| `.wolven-harness.json` | Setup choices, package version, optional ignore rules, and preserved extra config such as comment settings. | Ignore entries are validated. Harness paths cannot be excluded from the scan. |
+| `.claude/skills` and `CLAUDE.md` | Created only when Claude Code is selected and each path is absent. The first links to `.agents/skills/`; the second imports `AGENTS.md`. | The skills link is a required harness path. Existing paths are preserved. |
 
-This package's own repository is not a consumer of that layout: its `docs/` holds only decision records.
+## Document profile
+
+ADRs live directly in `docs/adrs/` and use a three-digit number and kebab-case slug. Other document types live in one slug folder per document, with a main file named `<slug>-<type>.md`. Required frontmatter fields are `type`, `title`, `description`, and `status`; status is `draft`, `stable`, or `deprecated`.
+
+Deprecated ADRs need a `superseded_by` field pointing to an existing ADR filename without `.md`. Active document folders need their main document. The validator skips content inside each document folder's `archived/` directory. See [Commands](./commands) for finding codes and scan behavior.
+
+## Ignore rules
+
+The optional top-level `ignore` array in `.wolven-harness.json` excludes paths from validation scans. Each entry must be a directory prefix in the form `<dir>/**`; glob patterns, absolute paths, `..`, `docs/`, and `.agents/` are rejected. Required harness paths must remain visible to Git.
+
+The `comments` command uses the same ignore paths by default. A `comments.paths` setting replaces that default comments scope. See the [configuration reference](./commands#configuration).
+
+This repository's own `docs/` layout is different from a consumer installation: it stores the harness project's own decisions, specs, PRDs, notes, and deferrals.

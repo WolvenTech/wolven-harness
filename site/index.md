@@ -1,22 +1,24 @@
 ---
-description: CLI tool that installs and maintains a set of tools for AI agents to find instructions, use recorded decisions, plan and implement, then check their work and maintain human-decided patterns.
+description: AI-assisted development harness to plan and implement changes, initialize an AGENTS.md-based skill tree, wire runtimes, and validate architecture decisions.
 ---
 
 # wolven-harness
 
-CLI tool that installs and maintains a set of tools for AI agents to find instructions, use recorded decisions, plan and implement, then check their work and maintain human-decided patterns.
+AI-assisted development harness to plan and implement changes, initialize an `AGENTS.md`-based skill tree, wire runtimes, and validate architecture decisions.
 
 ## Install
 
-Run the harness `setup` in your repo, at the git top level. You need Node 22 or later, git, pnpm, and macOS or Linux.
+Run `setup` at your repository's Git top level. You need Node.js 22 or later, Git, pnpm, and macOS or Linux.
 
 ```sh
 pnpm add -D @wolven-tech/harness && pnpm exec wolven-harness setup
 ```
 
-`setup` adds harness files: agent skills, rules, document templates, and a local search index configuration. It preserves existing copies and leaves `AGENTS.md` alone, so don't worry.
+`setup` installs nine core skills, three standing rules, document templates, a local search index configuration, and the `WOLVEN.md` entry file. Optional `ship` and `discovery` skill sets add nine more skills. Setup preserves existing copies and leaves `AGENTS.md` alone.
 
-It also adds missing check scripts to `package.json` and saves setup choices and the package version in `.wolven-harness.json`.
+It adds missing check scripts to an existing `package.json` and saves setup choices and the package version in `.wolven-harness.json`. It does not install dependencies; setup prints the install command when `harness-score` is missing.
+
+For all commands, flags, configuration, and exit behavior, see the [CLI reference](./commands).
 
 ## Next
 
