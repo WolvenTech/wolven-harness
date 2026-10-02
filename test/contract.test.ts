@@ -111,6 +111,9 @@ test('contract: an unknown command exits 1 and --version exits 0', async () => {
 
   const unknown = await run(['no-such-command'], { cwd: dir });
   assert.equal(unknown.code, 1);
+  assert.match(unknown.stderr, /unknown command/);
+  assert.match(unknown.stdout, /\bvalidate\b/);
+  assert.doesNotMatch(unknown.stdout, /unknown command/);
 
   const version = await run(['--version'], { cwd: dir });
   assert.equal(version.code, 0);

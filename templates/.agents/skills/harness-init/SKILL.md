@@ -85,7 +85,16 @@ A re-run does not redo what an earlier run already finished:
   never fold it a second time; show the diff, ask whether to refresh the
   section, then delete `WOLVEN.md`.
 - Step 1 is skipped when there are no legacy-ADR warnings left.
-- A `draft` session note from an interrupted run is resumed, not replaced.
+- A `draft` session note from an interrupted run is resumed, not replaced,
+  with the mode, immediate goal and deferrals it already records.
+
+## Lean path
+
+The lean decision comes after the re-run checks above. When a `stable`
+harness-init note already exists, lean does not apply and the re-run skips
+run as on the full path. Otherwise, when a `draft` note records the lean
+mode or the tree shows thin evidence, load
+[references/lean-path.md](references/lean-path.md) and follow it before step 0.
 
 ## Workflow
 
@@ -191,3 +200,6 @@ If the Human asks for it in the same session, say so and stop.
   run.
 - Treating a validate failure after migration as this skill's defect
   instead of expected input to work through with the Human.
+- Silently skipping a lean-path step without naming it, why, and remaining
+  work before proceeding.
+- Deferring skill proposals (step 4) on the lean path.
