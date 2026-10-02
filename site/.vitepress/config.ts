@@ -31,14 +31,14 @@ export default defineConfig({
       {
         text: 'Guide',
         items: [
-          { text: 'Start', link: '/' },
+          { text: 'Overview', link: '/' },
           { text: 'Setup', link: '/harness-init' },
-          { text: 'Daily use', link: '/cycle' },
+          { text: 'Development workflow', link: '/cycle' },
           { text: 'Search', link: '/search' },
-          { text: 'Files', link: '/layout' },
+          { text: 'Files and validation', link: '/layout' },
           { text: 'Skills', link: '/skills' },
-          { text: 'Agents', link: '/runtimes' },
-          { text: 'Commands', link: '/commands' },
+          { text: 'Agent runtimes', link: '/runtimes' },
+          { text: 'CLI reference', link: '/commands' },
         ],
       },
       {
