@@ -51,3 +51,14 @@ All obligations R1.1–R3.1 map to named proofs in the spec. Proceed.
 | `git status` | dirty — template + spec/plan |
 | Intended diff | `templates/docs/WRITING-PROFILE.md` |
 | Discrepancies | None |
+
+### Unit 03 — Add profile regression test
+
+| Field | Value |
+| --- | --- |
+| Unit | 03 — Add profile regression test |
+| Obligations | R3.1 — done |
+| `HEAD` | 41d291e |
+| `git status` | dirty — test + spec acceptance |
+| Intended diff | `test/profile.test.ts`, spec acceptance |
+| Discrepancies | None |

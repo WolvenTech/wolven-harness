@@ -91,9 +91,9 @@ Checked with `qmd query -c adrs "architecture claims"`. No new ADR is owed — t
 
 ### Wave 1
 
-- [ ] Template and package `WRITING-PROFILE.md` files restate architecture claims without `WOLVEN.md` (R1, R2).
-- [ ] Profile test guards the template (R3).
-- [ ] `pnpm test`, `pnpm lint`, and `pnpm harness:validate` exit 0.
+- [x] Template and package `WRITING-PROFILE.md` files restate architecture claims without `WOLVEN.md` (R1, R2).
+- [x] Profile test guards the template (R3).
+- [x] `pnpm test`, `pnpm lint`, and `pnpm harness:validate` exit 0.
 
 ## Eval / gates
 
