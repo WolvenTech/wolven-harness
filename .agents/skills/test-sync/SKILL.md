@@ -34,3 +34,4 @@ Python scripts.
 3. A source file with no same-named test is not work for a trim. `validate` and `setup` are already covered through the CLI suites.
 4. Do not loosen stdout or workflow pins in the same change as a deletion.
 5. Do not copy this skill into `templates/` or a skill set. Promotion waits on `docs/deferrals/test-sync-package/test-sync-package-deferral.md`.
+6. `test/template-residue.test.ts` keeps the concrete ADR-token scan: `ADR-` plus three digits, or `adr-` plus three digits, under the adr skill, code-review, and the code-spec template. Extract vocabulary in that file is a separate subject. This repo ignores `templates/**`, and `setup` copies those files into the consumer.
