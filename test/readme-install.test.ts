@@ -72,11 +72,13 @@ test('readme-install: README and the harness-init page explain the lean path', a
 
   assert.match(readme, /lean path/i);
   assert.match(readme, /skill proposals still run/i);
+  // invariant: the four deferrable items are listed only in lean-path.md; docs link there.
+  for (const doc of [readme, lean]) {
+    assert.match(doc, /references\/lean-path\.md/);
+    assert.doesNotMatch(doc, /per-dimension score-gap keep\/drop/i);
+    assert.doesNotMatch(doc, /deep discovery Q&A/i);
+  }
   assert.match(lean, /thin-evidence/i);
-  assert.match(lean, /deep discovery Q&A beyond files/i);
-  assert.match(lean, /optional web research/i);
-  assert.match(lean, /per-dimension score-gap keep\/drop questions/i);
-  assert.match(lean, /validate-wiring question/i);
   assert.match(lean, /immediate goal/i);
   assert.match(lean, /Deferred \/ skipped steps/);
   assert.match(lean, /Skill proposals always run/i);

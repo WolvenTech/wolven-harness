@@ -69,11 +69,11 @@ status: <status>
 
 ## Validate wiring
 
-<the wiring question as asked, the option recommended and why, the Human's answer (CI job, chained script, or local only), and what was written — or "nothing written">
+<the wiring question as asked, the option recommended and why, the Human's answer (CI job, chained script, or local only), and what was written — or "nothing written"; or "deferred — see Deferred / skipped steps" when the lean path deferred the wiring question>
 
 ## Deferred / skipped steps
 
-**Path:** <lean or full>
+**Mode:** <lean or full>
 
 **Immediate goal:** <the goal the Human stated or answered, in their words, or "none stated" — on the lean path only; "n/a — full path" otherwise>
 
@@ -91,7 +91,7 @@ status: <status>
 Every section heading above stays in the note even when its step was
 skipped — a skipped step fills its section with why, rather than leaving
 the heading empty or dropping it, so the note always shows the full shape
-of the run. **Deferred / skipped steps** holds the lean section: the path, the
+of the run. **Deferred / skipped steps** holds the lean section: the mode, the
 immediate goal, and the deferral list (step number, name, reason, remaining
 work); fill the deferral list with `none` when nothing was deferred. It is
 filled as step 0 creates the note, since the lean goal and deferrals are

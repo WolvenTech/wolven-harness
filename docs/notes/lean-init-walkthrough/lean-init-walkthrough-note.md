@@ -8,10 +8,11 @@ status: stable
 # Lean harness-init walkthrough on an empty repo
 
 This is an illustrative transcript, not a recording. It shows what the lean
-path in `templates/.agents/skills/harness-init/SKILL.md` does on a repo that
-holds only the files `wolven-harness setup` added. The repo is invented: a
-new folder for sales proposal decks, with no application code and no
-manifest. `Agent` is the agent running `harness-init`; `Human` is the person.
+path in `templates/.agents/skills/harness-init/references/lean-path.md` does
+on a repo that holds only the files `wolven-harness setup` added. The repo
+is invented: a new folder for sales proposal decks, with no application code
+and no manifest. `Agent` is the agent running `harness-init`; `Human` is
+the person.
 
 The four beats always happen in this order: the goal is captured, the
 deferral list is shown before the run proceeds, skill proposals are made,
@@ -108,7 +109,7 @@ showed.
 ```markdown
 ## Deferred / skipped steps
 
-**Path:** lean
+**Mode:** lean
 
 **Immediate goal:** Write a PRD for a repeatable sales proposal deck.
 
@@ -120,6 +121,8 @@ showed.
 ```
 
 The validate-wiring question is absent from the table because the Human
-chose to run it. Its answer sits under **Validate wiring**. The
+chose to run it. Its answer sits under **Validate wiring**. Had the Human
+kept that deferral, the item would be a fourth table row and **Validate
+wiring** would read "deferred — see Deferred / skipped steps". The
 **Suggestions** section names both proposals and the one picked.
 Skill proposals never appear in the table.

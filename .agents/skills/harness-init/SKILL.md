@@ -85,67 +85,16 @@ A re-run does not redo what an earlier run already finished:
   never fold it a second time; show the diff, ask whether to refresh the
   section, then delete `WOLVEN.md`.
 - Step 1 is skipped when there are no legacy-ADR warnings left.
-- A `draft` session note from an interrupted run is resumed, not replaced.
+- A `draft` session note from an interrupted run is resumed, not replaced,
+  with the mode, immediate goal and deferrals it already records.
 
 ## Lean path
 
-The lean path fits a **thin-evidence** fresh repo: little or no application
-code, and not enough in the tree to support deep Q&A. Thin evidence is judged
-from the tree alone, before step 0 — a goal is not a precondition for lean;
-it is captured by the run.
-
-**Before step 0**, in this order:
-
-1. **Decide whether lean applies** from what the tree shows (manifests,
-   source folders, docs). When the evidence is ambiguous, put that to the
-   Human as one question, lean recommended first. A plain "run harness-init"
-   on an empty repo is enough to choose lean; no goal is needed for it.
-2. **Capture the immediate goal.** Use the goal the Human already stated in
-   the prompt. When there is none, ask one question: "What do you want to get
-   done first in this repo? One sentence." Record the answer as given — never
-   compose one for the Human. When the Human gives none, record "none
-   stated" and ground proposals on the thin-evidence basis instead.
-3. **Present the deferral list** (below) and wait for the Human's yes or
-   their per-item changes. A declined item runs as on the full path.
-4. **Record** the path, the immediate goal and the agreed deferrals in the
-   note's **Deferred / skipped steps** section, filled as step 0 creates the
-   note.
-
-**Deferral boundary.** The lean path defers exactly these four items, and
-nothing else:
-
-| Deferrable | Step | What may wait |
-|------------|------|----------------|
-| Deep discovery Q&A beyond files | 2 extras | Lifecycle and decisions-not-yet-visible questions when files already give a thin but usable context list |
-| Optional web research | 3 | The Human-gated web pass; continue repo-only |
-| Per-dimension score-gap keep/drop questions | part of 6 | Asking keep/drop for every failing dimension; still run `harness:score` and record the level |
-| Validate-wiring question | part of 6 | The CI / chained script / local-only choice; nothing is written and the run says how to wire it later |
-
-**Before proceeding** with any lean deferral, present each deferred or skipped
-step by number and name, with why and what remaining work it leaves. Wait for
-the Human's yes on that list, then record those choices under **Deferred /
-skipped steps** in the session note, one row per item with reason and
-remaining work. Never silently skip a step.
-
-**Skill proposals (step 4) are never deferred** and are never listed as
-skippable on the lean path. Proposals cite the recorded immediate goal and
-the available references (file-based discovery, plus any research that ran),
-or an explicit thin-evidence basis when the tree is thin or no goal was
-stated. Unsupported tool or architecture decisions stay open — do not invent
-them to pad the list.
-
-**Must still run** on the lean path:
-
-1. Entry integration (step 0)
-2. Legacy ADR migration when needed (step 1)
-3. File-based discovery (step 2 — reading the repo; Q&A extras may defer)
-4. Skill proposals (step 4 — never deferred)
-5. Stubs for skills the Human picks (step 5)
-6. A score run that records the level without forcing every gap question
-7. Session note close (`stable` at hand-back)
-
-Validate-wiring is not in that list: it is asked as one essential choice
-unless the Human agreed to defer it in the list above.
+The lean decision comes after the re-run checks above. When a `stable`
+harness-init note already exists, lean does not apply and the re-run skips
+run as on the full path. Otherwise, when a `draft` note records the lean
+mode or the tree shows thin evidence, load
+[references/lean-path.md](references/lean-path.md) and follow it before step 0.
 
 ## Workflow
 
@@ -199,12 +148,10 @@ note, when the web is unavailable. See
 ### 4. Suggest 2–4 skills
 
 Suggest two to four architectural skills, each named for a decided tool or
-field and citing the discovery evidence (or, on the lean path, the recorded
-immediate goal and available references or an explicit thin-evidence basis), never
-duplicating an installed skill. Say so, rather than padding, if the
-evidence supports fewer than two; unsupported tool or architecture
-decisions stay open. This step is never deferred. The Human picks any
-subset. See [references/discovery.md](references/discovery.md).
+field and citing the discovery evidence, never duplicating an installed
+skill. Say so, rather than padding, if the evidence supports fewer than
+two. The Human picks any subset. See
+[references/discovery.md](references/discovery.md).
 
 ### 5. Write stubs
 
@@ -222,24 +169,18 @@ First run `harness:score` and record the level and score. For each dimension
 with a failing check, ask one question: keep its checks as gaps to build
 later, or drop them in `.harness-score.json`. Never build a check in this run,
 and never drop one without the Human's yes. Score again and record the level,
-the score and every drop. On the lean path, the per-dimension keep/drop
-questions may be deferred after the score run has recorded the level — see
-Lean path. See
+the score and every drop. See
 [references/harness-score.md](references/harness-score.md).
 
 Then put one question to the Human: how should `harness:validate` be wired —
 (a) as a CI job on pull requests, (b) chained into the repo's existing
 `validate` or `test` script, or (c) local only? Detect the CI config and the
 existing scripts first, frame the options with that evidence, and list the
-recommended option first. Nothing is written without the Human's yes. On the
-lean path this question is one of the four deferrable items; when the Human
-agreed to defer it, skip the question and record it under Deferred / skipped
-steps. See
+recommended option first. Nothing is written without the Human's yes. See
 [references/validate-wiring.md](references/validate-wiring.md).
 
-Then add the note's final sections (including any Deferred / skipped steps),
-set it `stable`, and hand the run back to the Human with what was done and
-what is left for them to define. See
+Then add the note's final sections, set it `stable`, and hand the run back to
+the Human with what was done and what is left for them to define. See
 [references/session-note-template.md](references/session-note-template.md).
 
 The run ends at hand-back. Defining stubs or building score gaps is a
