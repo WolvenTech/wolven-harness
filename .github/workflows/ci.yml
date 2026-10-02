@@ -142,6 +142,8 @@ jobs:
           cd "$(mktemp -d)"
           git init --quiet
           echo '{"name":"smoke","private":true}' > package.json
+          # why: validate unions untracked non-ignored paths; node_modules must stay gitignored.
+          echo 'node_modules/' > .gitignore
           pnpm add --save-dev "$RUNNER_TEMP/package.tgz"
           version="$(pnpm exec wolven-harness --version)"
           [[ "$version" == "@wolven-tech/harness "* ]]
