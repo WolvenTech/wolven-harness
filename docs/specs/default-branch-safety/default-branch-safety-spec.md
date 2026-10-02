@@ -11,10 +11,13 @@ status: draft
 **Next:** Human approval of this spec, then `code-plan`. No implementation or live protection change is authorized by drafting this spec.
 **Named proof:** `proof-default-branch-safety-spec-obligations`.
 
-**Scope addendum:** Rafael subsequently requested removal of the incident
-commit and the video files altogether during cleanup. This explicitly expands
-the approved PRD's original non-goal of video remediation. It records the
-cleanup outcome, not authorization to rewrite shared history now.
+**Confirmed verification and cleanup decisions:** Rafael confirmed deletion
+of both video files through a normal PR, retaining the incident commit in
+history. GitHub verification uses configuration inspection only: direct-write
+rejection is not exercised. Runtime adapters require local protocol tests
+and activation evidence from available runtimes; unavailable runtimes are
+reported as unverified. These decisions replace the earlier cleanup and
+integration-proof requirements, while preserving the PRD's safety goals.
 
 ## Repository grounding
 
@@ -50,9 +53,8 @@ framework. New paths below are proposed surfaces, not files present today.
   separately authorized operational change after local gates pass.
 - **Cleanup scope:** remove `video/harness-explainer.mp4` and
   `video/harness_explainer.py` altogether, not merely restore their versions
-  before the incident; remove incident commit
-  `8a1154186356ee9eb39c735b2ca519e1c0bc0f85` from the agreed published branch
-  history under the cleanup strategy resolved below.
+  before the incident. Use a normal PR and retain incident commit
+  `8a1154186356ee9eb39c735b2ca519e1c0bc0f85` in the existing history.
 - **Unchanged:** CLI command set and exit codes, config schema version,
   dependency set, consumer AGENTS.md, existing consumer files, npm OIDC
   publishing, merge ownership/review count, consumer GitHub settings.
@@ -147,8 +149,10 @@ that would require spec revision. Do not introduce a release-bot bypass.
 
 The existing release job updates a feature-branch release PR; tagging and npm
 publication do not constitute direct main writes. Preserve that split and
-manual publishing. Prove compatibility before claiming completion; a passing
-lint gate is not remote protection evidence. Operators with administration
+manual publishing. Inspect the retained CI/PR settings and release workflow for compatibility;
+a passing lint gate is not remote protection evidence. Record that actual
+GitHub rejection and PR-merge behavior were not exercised. No disposable
+GitHub repository or live write/merge probe is required for this scope. Operators with administration
 permission can change protection settings; this design prevents ordinary
 direct writes under the configured policy, not deliberate reconfiguration
 by an administrator. Agent credentials should not receive new administration
@@ -161,26 +165,18 @@ binary introduced before the incident. Remove any tracked references that
 would point to deleted assets, and verify the resulting repository still
 passes its gates. Preserve unrelated changes and commits.
 
-The requested commit removal is distinct from deleting files or creating a
-revert commit: a revert leaves the incident commit in history. A literal
-removal from published history needs a separately approved history strategy,
-including affected branches/tags, collaborator coordination, and a resolution
-of its conflict with the no-direct-write/no-bypass policy. Do not silently
-substitute a revert for the requested removal, force-push, or disable
-protection. Cleanup remains blocked on that decision; local safeguards and
-the spec review can proceed independently.
-
-Commit-history removal does not promise deletion of cached GitHub objects,
-PR records, forks, or copies already held by collaborators. The agreed
-verification boundary must be published refs rather than physical erasure
-from every copy of the repository.
+Cleanup uses a normal feature-branch PR. Retain the incident commit and
+existing shared history; no history rewrite, force-push, or protection bypass
+is part of cleanup. Verify the cleanup commit descends from the incident
+commit and deletes the assets without dropping unrelated work.
 
 ## Requirements (obligation ↔ proof)
 
 Every proof names a distinct fixture case or evidence record. Local cases
 belong in proposed `test/default-branch-safety.test.ts` or the existing setup
-tests and run through `pnpm test`. Remote cases require separately authorized
-integration verification; no unsafe live probe belongs in the unit suite.
+tests and run through `pnpm test`. Remote proofs are distinct configuration
+checks, not exercised write/merge behavior. Report that limitation explicitly;
+no live rejection probe or test merge is required.
 
 | ID | Obligation | Named proof | Evidence shape |
 | --- | --- | --- | --- |
@@ -189,19 +185,19 @@ integration verification; no unsafe live probe belongs in the unit suite.
 | R3 | AC-1.3: reject any push tuple targeting the remote default branch | `proof-push-destination` | Non-main local branch, HEAD:main, deletion, mixed refs and second-remote cases rejected; bare remote refs unchanged |
 | R4 | AC-1.4: detached checkout stops for maintainer choice | `proof-detached-recovery` | Policy/skills + fixture deny; no branch created or checkout moved |
 | R5 | AC-1.5: unknown default branch blocks writes, permits editing | `proof-unknown-default` | Missing/malformed default ref fixture; commit/push deny, ordinary file edits unchanged |
-| R6 | AC-2.1: approved PR integration remains allowed | `proof-approved-pr-integration` | Authorized test environment accepts checked PR merge; actual repo configuration preserves CI/review requirements |
-| R7 | AC-2.2: admin credential cannot directly update main | `proof-admin-direct-write` | Disposable protected-repository integration rejects fresh admin update; evidence distinguishes admin permission and rejection cause |
-| R8 | AC-2.3: bypassed local checks and API transport cannot update main | `proof-remote-final-barrier` | Independent direct Git and API probes in disposable protected environment rejected; refs compared before/after |
+| R6 | AC-2.1: approved PR integration remains allowed | `proof-approved-pr-integration` | Inspect actual protection for existing strict CI/PR requirements and review count; merge behavior not exercised |
+| R7 | AC-2.2: admin credential cannot directly update main | `proof-admin-direct-write` | Protection readback confirms admin enforcement enabled; direct admin write rejection not exercised |
+| R8 | AC-2.3: bypassed local checks and API transport cannot update main | `proof-remote-final-barrier` | Inspect effective protection/rules for the remote default branch; explicitly report Git/API rejection not exercised |
 | R9 | AC-2.4: no human or automation bypass | `proof-no-exceptions` | Actual main protection readback: admin enforcement on, no PR bypass allowances; release job behavior reviewed/verified |
 | R10 | AC-3.1: install core policy, Git hooks and supported runtime registrations by default | `proof-default-installation` | Setup fixtures with ship and skills=none; packed-package guard runs without consumer package dependency |
 | R11 | AC-3.2: existing hook conflicts preserve content and report pending protection | `proof-hook-conflict` | Byte hashes of existing hooks/settings/symlinks unchanged; setup exit 0 and actionable pending message |
-| R12 | AC-3.3: unsupported/untrusted runtime layer is reported honestly | `proof-runtime-capability` | Adapter input/output fixtures for all runtimes; unsupported and trust-pending cases never labeled active |
+| R12 | AC-3.3: unsupported/untrusted runtime layer is reported honestly | `proof-runtime-capability` | Local adapter input/output fixtures for all runtimes; activation evidence for available versions/sessions; unavailable runtimes unverified, unsupported/trust-pending never labeled active |
 | R13 | AC-3.4: consumer setup provides guidance without inspecting GitHub | `proof-consumer-host-boundary` | Setup fixture records zero host API/network calls; guidance includes administrator enforcement and no-bypass policy |
 | R14 | Guard retries/install reruns are idempotent and race-safe | `proof-install-retry` | Two reruns and simultaneous create attempts preserve foreign bytes and avoid duplicate entries; failure stays pending |
 | R15 | Remote discovery failures deny writes without interactive hangs | `proof-discovery-failure` | Timeout/auth/unresolvable destination fixtures yield bounded denial and recovery reason; no credential output |
 | R16 | Guard state/logging preserves work and reports the denied operation | `proof-guard-diagnostics` | Capture allow/deny output; branch, destination, reason and next action present, no command payload/secrets logged |
 | R17 | Cleanup removes both video files and repairs tracked references | `proof-video-files-removed` | `git ls-files video` and tracked-reference inspection show neither asset nor dangling reference; repository gates pass |
-| R18 | Cleanup removes the incident commit from the explicitly agreed published history while preserving unrelated work | `proof-incident-commit-removed` | After approved history strategy, `git merge-base --is-ancestor 8a1154186356ee9eb39c735b2ca519e1c0bc0f85 <agreed-ref>` returns 1 for every agreed ref; preserved commits/content verified against pre-cleanup snapshot |
+| R18 | Cleanup retains the incident commit and shared history through a normal PR | `proof-cleanup-history-preserved` | `git merge-base --is-ancestor 8a1154186356ee9eb39c735b2ca519e1c0bc0f85 HEAD` returns 0 on cleanup branch; diff contains only intended cleanup, with no rewrite or force-push |
 
 ## Nine-dimension landings
 
@@ -210,7 +206,7 @@ integration verification; no unsafe live probe belongs in the unit suite.
 | validation | obligation ↔ proof | R3: resolved push tuples rather than command spelling; R10: native adapter schemas |
 | failure modes | obligation ↔ proof | R11: non-destructive pending installation; R12: unsupported/trust pending |
 | idempotency and retry | obligation ↔ proof | R14: exclusive missing-file creation, no duplicate registration |
-| authorization | obligation ↔ proof | R7–R9: privileged writes rejected and no bypass; R13: no consumer host inspection |
+| authorization | obligation ↔ proof | R7–R9: admin enforcement/no bypass verified by configuration inspection; rejection unexercised; R13: no consumer host inspection |
 | concurrency and ordering | obligation ↔ proof | R14: exclusive installation; R2: branch creation must succeed before commit; R3: evaluate every tuple before allowing push |
 | data lifecycle | obligation ↔ proof | R2/R4/R11: retain work and existing configuration; no stash/reset or secret-bearing logs |
 | external-dependency failure | obligation ↔ proof | R15: bounded Git remote lookup; R12: runtime limits reported |
@@ -224,12 +220,11 @@ These are safety boundaries, not executable work units or a plan.
 - **Local protection:** guard, setup and skills, with fixture and packed-package
   proofs. Gate: `pnpm build && pnpm test && pnpm lint && pnpm validate && pnpm comments && pnpm score && git diff --check`.
 - **Remote integration:** separately authorized GitHub configuration and
-  integration evidence. Entry requires the local gate to pass. Gate: readback
+  configuration evidence. Entry requires the local gate to pass. Gate: readback
   of main protection with `gh api repos/WolvenTech/wolven-harness/branches/main/protection`
   plus the distinct remote proof records R6–R9. No automatic merge or publish.
-- **Incident cleanup:** requires resolution of `U-cleanup-history` before
-  execution. Gate: R17–R18 evidence plus the full local gate above. This
-  boundary must preserve enforcement rather than create an unapproved bypass.
+- **Incident cleanup:** normal PR deletion with retained history. Gate:
+  R17–R18 evidence plus the full local gate above; no bypass or rewrite.
 
 A failed gate stops before the next boundary. `code-plan` must encode those
 stops; this document does not assign implementation order within a boundary.
@@ -238,16 +233,18 @@ stops; this document does not assign implementation order within a boundary.
 
 | Identifier | Decision needed | Owner | Blocking effect | Disposition |
 | --- | --- | --- | --- | --- |
-| `U-remote-proof-environment` | Choose an authorized disposable GitHub repository and credentials for real rejection/merge proofs | Rafael | Blocks remote integration proof execution | Specify the concrete test target before any probe; never attempt an accepted test write on production main |
-| `U-runtime-proof-access` | Confirm available runtime versions and trusted sessions for live hook activation evidence | Maintainer implementing the spec | Blocks claiming runtime activation beyond schema/fixture tests | Record version and trust state; unsupported/pending is acceptable when explicitly reported |
-| `U-cleanup-history` | Resolve literal commit removal, affected published refs, and compatibility with the no-bypass policy | Rafael | Blocks incident cleanup execution and its completion claim | Present a concrete history strategy for explicit approval; no force-push or protection change is authorized by this spec update |
+No product or verification decisions remain unresolved. Runtime versions and
+session availability are collected during implementation; unavailable live
+activation evidence is reported as unverified and does not block completion
+when local protocol tests pass. Remote behavior remains explicitly unexercised.
 
 ## Out of scope
 
 Consumer GitHub API calls or configuration; branch naming/merge ownership
 redesign; review-count changes; bootstrap commits in repositories without
 resolvable default branch; hooks that parse arbitrary scripts/MCP writes;
-immutable protection against admin reconfiguration; erasing all cached or forked copies of the incident;
+immutable protection against admin reconfiguration; history rewriting;
+disposable GitHub repositories and live rejection/test-merge probes;
 changing release triggers or npm publishing; a plan or implementation now.
 
 ## Pragmatic-guard refuses
@@ -265,19 +262,19 @@ the approved PRD, with compatibility preserved and partial coverage visible.
 - [ ] R3 — `pnpm test`: proof-push-destination PASS.
 - [ ] R4 — `pnpm test` and skill inspection: proof-detached-recovery PASS.
 - [ ] R5 — `pnpm test`: proof-unknown-default PASS.
-- [ ] R6 — authorized integration evidence: proof-approved-pr-integration PASS.
-- [ ] R7 — authorized disposable-repo probe: proof-admin-direct-write PASS.
-- [ ] R8 — authorized Git/API probes: proof-remote-final-barrier PASS.
+- [ ] R6 — protection configuration inspection (merge behavior unexercised): proof-approved-pr-integration PASS.
+- [ ] R7 — administrator enforcement readback (rejection unexercised): proof-admin-direct-write PASS.
+- [ ] R8 — effective protection inspection (Git/API rejection unexercised): proof-remote-final-barrier PASS.
 - [ ] R9 — `gh api repos/WolvenTech/wolven-harness/branches/main/protection` and release evidence: proof-no-exceptions PASS.
 - [ ] R10 — `pnpm test` including packed-package fixtures: proof-default-installation PASS.
 - [ ] R11 — `pnpm test`: proof-hook-conflict PASS.
-- [ ] R12 — `pnpm test` and recorded runtime activation evidence: proof-runtime-capability PASS.
+- [ ] R12 — `pnpm test`, available runtime activation evidence and explicit unverified reporting: proof-runtime-capability PASS.
 - [ ] R13 — `pnpm test`: proof-consumer-host-boundary PASS.
 - [ ] R14 — `pnpm test`: proof-install-retry PASS.
 - [ ] R15 — `pnpm test`: proof-discovery-failure PASS.
 - [ ] R16 — `pnpm test`: proof-guard-diagnostics PASS.
 - [ ] R17 — `git ls-files video`, reference inspection and local gates: proof-video-files-removed PASS.
-- [ ] R18 — agreed-ref ancestry checks after approved cleanup: proof-incident-commit-removed PASS.
+- [ ] R18 — incident ancestry check and normal PR cleanup diff: proof-cleanup-history-preserved PASS.
 
 ## Eval / gates
 
@@ -286,7 +283,7 @@ the approved PRD, with compatibility preserved and partial coverage visible.
 | Integrity | `pnpm build && pnpm validate && pnpm comments && git diff --check` | Every changed batch | Exit 0 | Fix before continuing |
 | Runtime regression | `pnpm test && pnpm lint && pnpm score` | Local protection boundary | All exit 0; relevant hook scores not excluded without reason | Do not configure remote |
 | Consumer integrity | `wolven-harness validate` in packed-package fixtures | Local protection boundary | Exit 0 after safe feature-branch install commit | Fix consumer output |
-| Remote proofs | R6–R9 evidence and main protection readback | Authorized remote boundary | All distinct proofs hold; existing CI/PR policy retained | Do not claim remediation complete |
+| Remote configuration | R6–R9 configuration evidence and main protection readback | Authorized remote boundary | Required settings hold; existing CI/PR policy retained; rejection/merge behavior explicitly unexercised | Fix configuration or reporting; do not claim exercised enforcement |
 | Spec obligations | Structural command below, plus manual source/AC review | Before `code-plan` | One named proof per obligation/acceptance, all 13 PRD ACs mapped and all nine dimensions landed | Do not plan |
 
 `proof-default-branch-safety-spec-obligations` is this real, doc-only command;
@@ -321,7 +318,7 @@ PY
 | Leak | Refuse / route |
 | --- | --- |
 | Live GitHub settings while drafting | Separately authorized remote integration boundary |
-| Incident attribution | Incident investigation; file/history cleanup is now in scope under the explicit addendum |
+| Incident attribution | Incident investigation; file cleanup through a normal PR is now in scope under the explicit addendum |
 | Consumer protection audit service | Out of approved setup scope; instructions only |
 | Plan units or implementation | `code-plan` after Human approves this spec |
 | Release publication or PR merge | Existing separately authorized release/merge workflow |
