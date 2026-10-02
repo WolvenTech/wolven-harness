@@ -2,12 +2,12 @@
 type: spec
 title: WRITING-PROFILE architecture-claims text survives harness-init — plan
 description: Work units to remove the WOLVEN.md pointer from WRITING-PROFILE copies and guard with a profile test.
-status: stable
+status: deprecated
 ---
 
 # WRITING-PROFILE architecture-claims text survives harness-init — plan
 
-**Spec:** [writing-profile-wolven-ref-spec.md](./writing-profile-wolven-ref-spec.md) (status `stable`)
+**Spec:** [writing-profile-wolven-ref-spec.md](./writing-profile-wolven-ref-spec.md) (status `deprecated`, archived)
 
 ## Structural gate
 
@@ -45,7 +45,7 @@ All obligations R1.1–R3.1 map to named proofs in the spec. Proceed.
 | Field | Value |
 | --- | --- |
 | Unit | 01 — Restate architecture claims in template WRITING-PROFILE |
-| Spec / plan | `docs/specs/writing-profile-wolven-ref/writing-profile-wolven-ref-spec.md` / `docs/specs/writing-profile-wolven-ref/writing-profile-wolven-ref-plan.md` |
+| Spec / plan | `docs/specs/archived/writing-profile-wolven-ref/writing-profile-wolven-ref-spec.md` / `docs/specs/archived/writing-profile-wolven-ref/writing-profile-wolven-ref-plan.md` |
 | Obligations | R1.1, R1.2 — done |
 | `HEAD` | *(pre-commit)* |
 | `git status` | dirty — template + spec/plan |
