@@ -30,7 +30,8 @@ and `comments`.
   and exits 0.
 - `--version` or `-v` as the first argument prints `<package name> <version>`
   and exits 0.
-- An unknown command writes a message and the usage to stderr and exits 1.
+- An unknown command writes the error message to stderr and usage to stdout,
+  then exits 1.
 - Every command exits 0 on success and 1 on any handled failure. No other
   exit code is used.
 

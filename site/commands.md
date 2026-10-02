@@ -4,18 +4,27 @@ description: Complete CLI reference for setup, validate, comments, flags, config
 
 # Commands
 
-`wolven-harness` installs and checks the harness in a Git repository. This page is the full reference for the three CLI commands, top-level options, setup configuration, output, and failure behavior. The public contract is recorded in [ADR-003](https://github.com/WolvenTech/wolven-harness/blob/main/docs/adrs/adr-003-public-contract.md).
+Use `wolven-harness` to set up the tools your coding agent needs, then check the harness as you work. Most people start with `setup`, ask their agent to run `harness-init`, and use `validate` and `comments` during development. This page starts with common examples and then gives the exact options and behavior for all three commands.
 
 ## Install and run
 
-Install the package as a development dependency, then run setup from the repository root:
+From the root of the repository you want to set up, install the package and run `setup`:
 
 ```sh
 pnpm add -D @wolven-tech/harness
 pnpm exec wolven-harness setup
 ```
 
-Once setup has added the package script aliases, use `pnpm harness:validate`, `pnpm harness:comments`, and `pnpm harness:score`. You can always call an installed CLI directly with `pnpm exec wolven-harness <command>`. If you run from a source checkout, first build with `pnpm build`, then use `node /path/to/wolven-harness/dist/cli.js <command>`.
+Next, ask your coding agent to run the `harness-init` skill. It walks through connecting the installed instructions to your repository's `AGENTS.md`; see [Setup](./harness-init) for that walkthrough.
+
+To check the harness as you work, run:
+
+```sh
+pnpm exec wolven-harness validate
+pnpm exec wolven-harness comments --base origin/main
+```
+
+When `setup` adds the package scripts, you can use `pnpm harness:validate`, `pnpm harness:comments`, and `pnpm harness:score` instead. The direct `pnpm exec wolven-harness <command>` form always works for an installed package. From a source checkout, build first with `pnpm build`, then run `node /path/to/wolven-harness/dist/cli.js <command>`.
 
 ## Command overview
 
@@ -31,7 +40,9 @@ wolven-harness --help
 wolven-harness --version
 ```
 
-The CLI also accepts `-h` for help and `-v` for version. Help and version are recognized when they are the first argument. A missing command prints help and exits successfully. An unknown command prints an error and help to stderr.
+Use `pnpm exec wolven-harness --help` to see the commands and options, or `pnpm exec wolven-harness --version` to check which version is installed. Running the CLI without a command also displays help. If you mistype a command, the CLI shows an error and the command list; use one of the commands in the examples above or check `--help` for the full list.
+
+The commands, flags, exit codes, finding codes, summary lines, and configuration schema are public contract; see [ADR-003](https://github.com/WolvenTech/wolven-harness/blob/main/docs/adrs/adr-003-public-contract.md).
 
 ## `setup`
 
@@ -39,9 +50,9 @@ The CLI also accepts `-h` for help and `-v` for version. Help and version are re
 wolven-harness setup [options]
 ```
 
-Run setup from the Git repository's top-level directory. Setup refuses to run outside a repository or from a subdirectory. It installs core skills, rules, documentation templates, and `WOLVEN.md`; it wires selected agent runtimes; and it adds missing harness scripts to an existing `package.json`.
+Run setup at the top level of the Git repository you want to prepare. It adds the harness files that are missing, wires the runtimes you choose, and adds check scripts to an existing `package.json` when those scripts are absent. Setup stops with an error if you run it outside a Git repository or from a subdirectory.
 
-Setup creates only missing template paths and leaves existing copies alone. It never creates or edits `AGENTS.md`, never adds dependencies, and never commits. It rewrites `.wolven-harness.json` on each successful run to save the selected options and current package version.
+You can safely run setup again: it leaves existing files and scripts in place. It does not create or edit `AGENTS.md`, install dependencies, or commit changes. After a successful run, `.wolven-harness.json` records your choices and the installed package version.
 
 ### Options
 
@@ -51,7 +62,7 @@ Setup creates only missing template paths and leaves existing copies alone. It n
 | `--runtimes <list>` | Comma-separated `claude`, `codex`, `cursor` | Selects runtimes to wire. Entries are trimmed and duplicates removed. At least one runtime is required. |
 | `--skills <list>` | Comma-separated `ship`, `discovery`, or `none` alone | Chooses optional skill sets. Core skills are always installed. `none` means core only on a fresh setup. |
 | `--verbose` | No value | Lists every file setup created and kept. |
-| `--debug` | No value | Traces setup steps to stderr. |
+| `--debug` | No value | Shows a step-by-step trace while setup runs. |
 
 Value options accept either `--option value` or `--option=value`. For example:
 
@@ -61,13 +72,13 @@ pnpm exec wolven-harness setup --git-host=gh --runtimes=claude,codex --skills=sh
 
 ### Prompts, detection, and defaults
 
-Setup resolves each value in this order: command-line flag, existing `.wolven-harness.json`, then an interactive prompt. Prompts appear only when both stdin and stdout are terminals. For missing repo settings, setup detects GitHub or Bitbucket from `origin` and detects runtime markers such as `.claude`, `CLAUDE.md`, `.codex`, `.cursor`, and `.cursorrules`; detected values are preselected in the prompts.
+Setup uses each value from its command-line flag first, then from `.wolven-harness.json`, and finally asks you when run in an interactive terminal. For missing repository settings, setup detects GitHub or Bitbucket from `origin` and detects runtime markers such as `.claude`, `CLAUDE.md`, `.codex`, `.cursor`, and `.cursorrules`; detected values are preselected when it asks.
 
-Without an interactive terminal, supply any missing required `--git-host` and `--runtimes` values as flags. The optional skill sets default to `ship` when no choice has been recorded. On an interactive run, `ship` is preselected, and you may select no optional sets.
+When setup runs in a script or CI, include any missing required `--git-host` and `--runtimes` values in the command. The optional skill sets default to `ship` when no choice has been recorded. In an interactive setup, `ship` is preselected, and you can choose no optional sets.
 
-An invalid flag value can be corrected in an interactive prompt. In non-interactive use it is an error. `--skills none` cannot be combined with another skill set. Re-running setup never removes skill files or optional sets already present; choosing `none` does not uninstall anything.
+If a flag value is invalid, setup lets you correct it when asking questions in a terminal; in a script or CI, correct the command and run it again. `--skills none` cannot be combined with another skill set. Re-running setup never removes skill files or optional sets already present; choosing `none` does not uninstall anything.
 
-Use `WOLVEN_HARNESS_DEBUG=1` to enable the same step trace as `--debug`.
+For the same setup trace in a script or CI, set `WOLVEN_HARNESS_DEBUG=1`.
 
 ### What setup writes
 
@@ -93,7 +104,7 @@ Run validation from anywhere inside a Git repository. It scans tracked files, ex
 3. **Legacy decisions:** ADRs outside `docs/adrs/` and decision folders the harness cannot interpret are reported as warnings so they can be migrated.
 4. **Harness structure:** Skill frontmatter, cited rules, integration of `WOLVEN.md`, and whether required harness paths are hidden by Git ignore rules.
 
-Warnings do not fail validation. `--verbose` includes legacy claim locations that are summarized by default. An invalid `ignore` entry stops validation early because the scan scope cannot be trusted.
+Warnings do not fail validation. `--verbose` includes legacy claim locations that are summarized by default. An invalid `ignore` entry stops validation early because the scan scope cannot be trusted; only the `ignore-entry` finding(s) and summary line are printed, without the other profile findings.
 
 ### Finding codes
 
@@ -136,7 +147,7 @@ A new comment should explain why, a hazard, or an invariant. Use a `why:`, `haza
 
 Tool directives such as `eslint`, `biome-ignore`, and `@ts-ignore`, plus generated-file banners, are not treated as ordinary comments.
 
-Findings include a root-relative path, line, kind, and explanation. A clean run prints `comments: ok (0 findings)` and exits 0. Any finding, malformed comments config, missing Git repository, unknown option, or unresolved base exits 1.
+Findings include a root-relative path, line, kind, and explanation. A clean run prints `comments: ok (0 findings)` and exits 0, or `comments: ok (0 findings, N skipped: no syntax)` when in-scope files lack configured comment syntax. With findings, the summary is `comments: N finding(s)`, with ` (N skipped: no syntax)` appended when applicable. Any finding, malformed comments config, missing Git repository, unknown option, or unresolved base exits 1.
 
 | Finding kind | What it flags |
 | --- | --- |
@@ -197,7 +208,7 @@ Any unknown top-level keys are retained when setup rewrites the file. Invalid JS
 Common setup problems:
 
 - **“setup must run at the git top-level”** — change to the directory containing `.git` and retry.
-- **Missing `--git-host` or `--runtimes`** — pass the missing flags in automation, or run with an interactive terminal.
+- **Missing `--git-host` or `--runtimes`** — add the missing values to the setup command in your script, for example `pnpm exec wolven-harness setup --git-host=gh --runtimes=claude,codex`, or run setup in a terminal to answer its questions.
 - **`harness-score` is missing** — install the version-specific command printed by setup before using `harness:score`.
 
 Common check problems:

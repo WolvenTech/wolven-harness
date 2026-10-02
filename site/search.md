@@ -39,4 +39,4 @@ For example, search for the npm publishing decision, exclude release troubleshoo
 
 ## Index lifecycle
 
-The `.qmd/index.yml` file defines the local collections. QMD builds and updates the actual index on the developer's machine; setup keeps the QMD local index out of Git. In this repository's Cloud Agent environment, bootstrap installs QMD and runs `qmd update` and `qmd embed`. Other repositories need their own QMD installation and index setup.
+The `.qmd/index.yml` file defines the local collections. QMD builds and updates the actual index on the developer's machine; setup keeps the QMD local index out of Git. In the wolven-harness repository's Cloud Agent setup, bootstrap installs QMD and runs `qmd update` and `qmd embed`. This is specific to this repository; other repositories need their own QMD installation and index setup.

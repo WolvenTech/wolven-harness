@@ -14,7 +14,7 @@ Run `setup` at your repository's Git top level. You need Node.js 22 or later, Gi
 pnpm add -D @wolven-tech/harness && pnpm exec wolven-harness setup
 ```
 
-`setup` installs nine core skills, three standing rules, document templates, a local search index configuration, and the `WOLVEN.md` entry file. Optional `ship` and `discovery` skill sets add nine more skills. Setup preserves existing copies and leaves `AGENTS.md` alone.
+`setup` installs nine core skills, three standing rules, document templates, a local search index configuration, and the `WOLVEN.md` entry file. Optional sets add up to nine more skills (`ship`: four, `discovery`: five). Setup preserves existing copies and leaves `AGENTS.md` alone.
 
 It adds missing check scripts to an existing `package.json` and saves setup choices and the package version in `.wolven-harness.json`. It does not install dependencies; setup prints the install command when `harness-score` is missing.
 
@@ -26,6 +26,6 @@ Ask your coding agent to run `harness-init`. It proposes how to connect the harn
 
 Follow the instructions and review the proposed diff before approving each write. [Setup](./harness-init) explains the steps.
 
-Then try a small change with the [Daily use](./cycle) example.
+Then try a small change with the [Development workflow](./cycle) example.
 
 `setup`, `validate`, and `comments` are terminal commands. `harness-init`, `code-spec`, `code-plan`, and `code-execute` are skills you ask the agent to run.
