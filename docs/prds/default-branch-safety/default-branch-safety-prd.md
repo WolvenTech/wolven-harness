@@ -2,7 +2,7 @@
 type: prd
 title: Default branch safety
 description: Prevent agent changes from bypassing the pull request workflow on the default branch.
-status: draft
+status: stable
 ---
 
 # Default branch safety
@@ -19,7 +19,7 @@ writing directly to the default branch, bypassing the pull request workflow.
 
 The default branch is the repository's configured integration branch, currently
 `main`. Rafael confirmed the decisions below during the requirements
-interview on 2026-10-02 and requested that this document remain a draft.
+interview and explicitly approved this PRD on 2026-10-02.
 
 ## Goals
 
@@ -179,7 +179,6 @@ confirmed scope and no-exceptions policy.
 
 ## Handoff
 
-Review this updated draft alongside incident #40 before promoting it to
-stable. Confirmation of the interview decisions did not approve that
-promotion. After explicit approval, proceed to `code-spec`. This PRD does not
-authorize implementation or live GitHub protection changes.
+Approved on 2026-10-02; proceed to `code-spec`. Specification approval is
+required before `code-plan`. This PRD does not authorize implementation or
+live GitHub protection changes.
