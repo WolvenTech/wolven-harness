@@ -7,7 +7,7 @@ status: draft
 
 # Drop duplicate tests and finished migration checks
 
-**Source:** confirmed ask — "explore the codebase and write a code-spec on stale things like artifacts and tests. i want to trim out this repo." Follow-up, confirmed: "what about old implementation or migration verifications? app is stable enough."
+**Source:** confirmed ask — "explore the codebase and write a code-spec on stale things like artifacts and tests. i want to trim out this repo." Follow-up, confirmed: "what about old implementation or migration verifications? app is stable enough." Follow-up: the test-sync skill at <https://mcpmarket.com/tools/skills/test-sync-maintenance> (jmagly, `test-sync` in [ai-writing-guide](https://github.com/jmagly/ai-writing-guide)). This spec uses its three categories and does not install the skill.
 **Next:** After the Human approves → `code-plan` → `code-execute`. One mutate batch. No wave stop.
 **Named proof (this spec's own structural gate):** `proof-repo-trim-spec-obligations`
 
@@ -18,6 +18,9 @@ status: draft
 | stale test | A `test()` whose every assertion is already made by another named test that this initiative keeps. Coined here. Checked against `docs/adrs/` (`qmd query -c adrs`): no ADR defines the term. [ADR-003](../../adrs/adr-003-public-contract.md) says every contract item needs a test; it does not ask for a second copy of the same assertion. |
 | migration verification | A test whose subject is a previous shape of this package: the retired `init` command, GitHub Packages install lines, or vocabulary carried in from the repo the templates were extracted from. Coined here. It is not the consumer legacy-ADR path. |
 | artifact | A tracked file outside `src/`, `templates/`, `test/`, and `docs/` that no README, site page, workflow, or `package.json` `"files"` entry cites. Survey term, coined here. The survey result is in Repository grounding. |
+| orphaned test | test-sync: a test whose source module no longer exists. In this repo that is a migration verification. A 1:1 `src/foo.ts` → `test/foo.test.ts` name match is not the rule here; tests call the CLI or read templates. |
+| missing test | test-sync: a source file with no test file of the same name. Not a deletion. This initiative does not add tests. |
+| implementation-coupled test | test-sync: a test of a private method, internal state, or a deep mock. The scan found none of those patterns under `test/`. Refactoring message assertions is out of scope. |
 
 [ADR-002](../../adrs/adr-002-public-npm-oidc.md) records that the first releases went to GitHub Packages and that current publishes go to public npmjs with no stored token. [ADR-001](../../adrs/adr-001-claim-path.md) still warns on a live legacy ADR and points that warning at `harness-init`. [ADR-003](../../adrs/adr-003-public-contract.md) still lists `legacy-adr`, `legacy-claim`, and `adr-status-mismatch`. Those three codes stay tested.
 
@@ -54,7 +57,17 @@ Searched `qmd query -c adrs` for the rename, the registry move, and what a stabl
   - Delete `readme-install: no GitHub Packages registry residue`.
   - In the release workflow test, drop the GitHub Packages assertions and retitle it to the check that remains: the workflow stores no `secrets.` reference.
   - Delete `test/template-residue.test.ts`.
-- **Out of mutate scope (unchanged):** `src/**`, `templates/**`, `.agents/**`, `video/**`, `assets/**`, `site/**` (including `site/search.md`, which names GitHub Packages as a search example), `package.json`, `docs/adrs/**`, `docs/**/archived/**`, `docs/specs/lean-init/**`, `CHANGELOG.md`, the consumer legacy-ADR tests named above, the other tests in `test/seed-extract.test.ts`, and `--version and -v print the package name and version`. Cite these from the `n/a` landings below.
+- **Out of mutate scope (unchanged):** `src/**`, `templates/**`, `.agents/**`, `video/**`, `assets/**`, `site/**` (including `site/search.md`, which names GitHub Packages as a search example), `package.json`, `docs/adrs/**`, `docs/**/archived/**`, `docs/specs/lean-init/**`, `CHANGELOG.md`, `.github/workflows/**`, the consumer legacy-ADR tests named above, the other tests in `test/seed-extract.test.ts`, and `--version and -v print the package name and version`. Cite these from the `n/a` landings below.
+
+## Test-sync audit
+
+Applied by hand. No `npx test-sync`, no `test_sync.py`, no `cleanup_orphans.py`. Every `from '../src/...'` import under `test/` resolves to a file that exists. No test matches the skill's private-method, internal-state, or stacked-mock patterns.
+
+| Category | Result in this repo | This spec |
+|----------|---------------------|-----------|
+| Orphaned | The retired `init` command, the GitHub Packages assertions, and `test/template-residue.test.ts`. R1's four duplicates are obsolete assertions with a survivor, not deleted modules. | R2 and R1. No further orphans. |
+| Missing | `src/` modules such as `src/git.ts`, `src/frontmatter.ts`, and `src/validate/claims.ts` have no same-named test file. The CLI suites (`test/claims.test.ts`, `test/profile.test.ts`, `test/spine.test.ts`, and the rest) already call `validate` and `setup`. | Do not add test files. |
+| Implementation-coupled | No matches for the skill's patterns. Many tests pin stdout and workflow YAML. Those pins stay; changing them is a refactor, not a deletion. | Out of scope. |
 
 ## Requirements (obligation ↔ proof)
 
@@ -119,6 +132,9 @@ None. The Human confirmed that finished migration verifications can go. The cons
 | Delete `assets/` or `site/public/wolven-logo-black.png` | 1 — one blob at two paths | 3 — `README.md` and VitePress each need their own path | **Refuse.** |
 | Delete `docs/**/archived/**` or archive `docs/specs/lean-init/` from this spec | 2 | 4 — closure sets `deprecated` and moves the folders | **Refuse.** Closure is `code-pr`. |
 | Replace the template-residue ban list with a shorter list | 0 — the Human said the verification can go | 3 | **Refuse.** R2.4 deletes the file. It does not invent a new ban list. |
+| Install test-sync, add `npx test-sync` to CI, or add its Python cleanup scripts | 2 — the three categories were useful once | 7 — a new tool, a CI gate, and a 1:1 file-name rule that does not match this suite | **Refuse.** The audit above is the use of that skill. |
+| Add a test file per `src/` module the audit marks "missing" | 1 — the CLI suites already exercise those modules | 6 — new tests for modules that are not untested | **Refuse.** |
+| Refactor stdout and workflow pins into looser assertions | 2 — they can break when wording changes | 6 — a sweep across the suite, and [ADR-003](../../adrs/adr-003-public-contract.md) already says messages are not contract | **Refuse.** Not a deletion. |
 | A new dependency, a new command, or an ADR | 0 | — | **Refuse.** |
 
 ## Acceptance
@@ -149,6 +165,7 @@ None. The Human confirmed that finished migration verifications can go. The cons
 | Link `video/harness-explainer.mp4` from the site or the README | A `site/` change. This spec leaves `video/` tracked. |
 | Rewrite `site/search.md` or [ADR-002](../../adrs/adr-002-public-npm-oidc.md) so they stop mentioning GitHub Packages | The history stays in the ADR. The search page stays a search example. |
 | Delete `test/legacy.test.ts` or the harness-init migration playbook tests | Consumer path. [ADR-001](../../adrs/adr-001-claim-path.md) and [ADR-003](../../adrs/adr-003-public-contract.md). |
+| Install the test-sync skill or its CI check | The audit table in this spec. No new tool. |
 | An executable plan from this skill | `code-plan` only |
 
 ## ADR
