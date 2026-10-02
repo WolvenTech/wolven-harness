@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.3.1](https://github.com/WolvenTech/wolven-harness/compare/v0.3.0...v0.3.1) (2026-10-02)
+
+
+### Features
+
+* **harness-init:** add a lean path for thin repos ([#32](https://github.com/WolvenTech/wolven-harness/issues/32)) ([6ddfb1a](https://github.com/WolvenTech/wolven-harness/commit/6ddfb1a871a1e3c87b5d1f27d17d9dc200782705))
+* **harness:** install this repo's harness and keep pre-1.0 feats on patch ([#24](https://github.com/WolvenTech/wolven-harness/issues/24)) ([9a0eb6b](https://github.com/WolvenTech/wolven-harness/commit/9a0eb6b0fd600c7df92f5759643b8f779fcefaec))
+* **skills:** add the-fool and the-jury discovery skills ([#26](https://github.com/WolvenTech/wolven-harness/issues/26)) ([7de21dc](https://github.com/WolvenTech/wolven-harness/commit/7de21dcfd20cb8514698ef154b04894768a80106))
+* **validate:** catch superseded ADRs kept stable in migration ([#20](https://github.com/WolvenTech/wolven-harness/issues/20)) ([9c993fd](https://github.com/WolvenTech/wolven-harness/commit/9c993fd234caf181642c347e2d9ffe1ba9c9824c))
+
+
+### Bug Fixes
+
+* **cloud:** bootstrap QMD for Cloud Agents ([#29](https://github.com/WolvenTech/wolven-harness/issues/29)) ([314124a](https://github.com/WolvenTech/wolven-harness/commit/314124a45594f3956bcafbbb2997e141f9a102bf))
+* **docs:** restate architecture claims in WRITING-PROFILE ([#38](https://github.com/WolvenTech/wolven-harness/issues/38)) ([f4fbc7d](https://github.com/WolvenTech/wolven-harness/commit/f4fbc7d2911eb53fc77d5798006647e72dbae9e7))
+
 ## [0.3.0](https://github.com/WolvenTech/wolven-harness/compare/v0.2.0...v0.3.0) (2026-09-29)
 
 
