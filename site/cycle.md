@@ -2,7 +2,7 @@
 description: Specify, plan, and implement a small change with your coding agent.
 ---
 
-# Daily use
+# Development workflow
 
 After [Setup](./harness-init), try a small change: add a retry limit to outbound calls.
 

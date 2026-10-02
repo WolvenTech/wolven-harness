@@ -1,156 +1,302 @@
+from pathlib import Path
+
 from manim import *
 
-BLUE_3B = "#58C4DD"; YEL = "#FFFF00"; GRN = "#83C167"; RED_3B = "#FC6255"; GREY_3B = "#888888"
-config.background_color = "#111111"
-F = "DejaVu Sans"
+# Wolven design system, from site/.vitepress/theme/custom.css
+GROUND = "#fcfcfb"
+SURFACE = "#ffffff"
+INK = "#1c1c1c"
+INK2 = "#3d3d3d"
+INK3 = "#8a8a8a"
+RULE = "#d9d9d9"
+FILL = "#f2f2f2"
+ACCENT = "#f8613f"
+SANS = "Archivo"
+DISPLAY = "Bai Jamjuree"
+LOGO = Path(__file__).resolve().parent.parent / "assets" / "wolven-logo-black.png"
 
-def T(s, size=32, color=WHITE, **k):
-    return Text(s, font=F, font_size=size, color=color, **k)
+config.background_color = GROUND
 
-def box(label, color=BLUE_3B, w=3.2, h=0.9, size=24):
-    r = RoundedRectangle(corner_radius=0.15, width=w, height=h, color=color, fill_opacity=0.12)
-    return VGroup(r, T(label, size, color).move_to(r))
+
+def display(s, size=44, color=INK):
+    return Text(s, font=DISPLAY, weight=BOLD, font_size=size, color=color)
+
+
+def body(s, size=26, color=INK2, weight=NORMAL):
+    return Text(s, font=SANS, font_size=size, color=color, weight=weight)
+
+
+def label(s, size=16, color=ACCENT):
+    return Text(s.upper(), font=SANS, font_size=size, color=color, weight=BOLD)
+
+
+def mono(s, size=22, color=INK):
+    return Text(s, font="DejaVu Sans Mono", font_size=size, color=color)
+
+
+def card(text, w=3.0, h=0.8, size=20, color=INK2, border=RULE, fill=SURFACE, upper=True):
+    r = Rectangle(width=w, height=h, stroke_color=border, stroke_width=2, fill_color=fill, fill_opacity=1)
+    t = (label(text, size, color) if upper else body(text, size, color)).move_to(r)
+    return VGroup(r, t)
+
+
+def accent_card(text, **k):
+    c = card(text, **k)
+    bar = Rectangle(width=0.08, height=c[0].height, stroke_width=0, fill_color=ACCENT, fill_opacity=1)
+    bar.align_to(c[0], LEFT).align_to(c[0], UP)
+    return VGroup(c, bar)
 
 
 class HarnessExplainer(Scene):
-    def title(self, s):
-        t = T(s, 40, YEL).to_edge(UP)
-        self.play(Write(t)); return t
+    def header(self, n, kicker, title):
+        k = label(f"{n:02d} · {kicker}", 18).to_corner(UL, buff=0.6)
+        t = display(title, 40).next_to(k, DOWN, aligned_edge=LEFT, buff=0.2)
+        rule = Line(LEFT * 7.1, RIGHT * 7.1, stroke_color=RULE, stroke_width=2).next_to(t, DOWN, buff=0.3)
+        rule.set_x(0)
+        self.play(FadeIn(k, shift=RIGHT * 0.2), Write(t), Create(rule), run_time=1)
+        return VGroup(k, t, rule)
+
+    def takeaway(self, s):
+        bar = Rectangle(width=0.08, height=0.55, stroke_width=0, fill_color=ACCENT, fill_opacity=1)
+        t = body(s, 26, INK, weight=MEDIUM)
+        g = VGroup(bar, t).arrange(RIGHT, buff=0.3).to_edge(DOWN, buff=0.6)
+        self.play(FadeIn(bar), Write(t), run_time=1.2)
+        return g
 
     def clear_all(self):
-        self.play(*[FadeOut(m) for m in self.mobjects]); self.wait(0.2)
+        self.play(*[FadeOut(m) for m in self.mobjects], run_time=0.6)
+        self.wait(0.2)
 
     def construct(self):
-        self.intro(); self.problem(); self.anatomy(); self.workflow()
-        self.claims(); self.checks(); self.score(); self.outro()
+        self.intro()
+        self.without()
+        self.context()
+        self.decisions()
+        self.verify()
+        self.scope()
+        self.control()
+        self.portable()
+        self.measurable()
+        self.outro()
 
     def intro(self):
-        name = T("wolven-harness", 64, BLUE_3B)
-        sub = T("um arnês para agentes de IA", 30, GREY_3B).next_to(name, DOWN)
-        self.play(Write(name)); self.play(FadeIn(sub, shift=UP*0.3)); self.wait(1.5)
+        logo = ImageMobject(str(LOGO)).scale_to_fit_height(1.4).shift(UP * 1.4)
+        name = display("wolven-harness", 64).next_to(logo, DOWN, buff=0.4)
+        q = body("Por que dar um harness ao seu agente?", 30, INK2).next_to(name, DOWN, buff=0.35)
+        line = Line(LEFT * 1, RIGHT * 1, stroke_color=ACCENT, stroke_width=6).next_to(q, DOWN, buff=0.4)
+        self.play(FadeIn(logo, scale=0.9))
+        self.play(Write(name))
+        self.play(FadeIn(q, shift=UP * 0.2), Create(line))
+        self.wait(1.5)
         self.clear_all()
 
-    def problem(self):
-        t = self.title("O problema")
-        agent = Circle(0.6, color=YEL, fill_opacity=0.3); al = T("agente", 22).next_to(agent, DOWN)
-        g = VGroup(agent, al).shift(LEFT*3)
-        self.play(GrowFromCenter(agent), FadeIn(al))
-        qs = ["onde ficam as instruções?", "o que já foi decidido?", "meu trabalho está certo?", "qual padrão seguir?"]
-        items = VGroup(*[T("? " + q, 24, RED_3B) for q in qs]).arrange(DOWN, aligned_edge=LEFT, buff=0.4).shift(RIGHT*2)
-        for it in items:
-            self.play(FadeIn(it, shift=LEFT*0.3), run_time=0.6)
-        self.play(Wiggle(agent)); self.wait(1)
-        ans = T("cada sessão começa do zero", 28, YEL).to_edge(DOWN)
-        self.play(Write(ans)); self.wait(1.5)
+    def without(self):
+        h = self.header(0, "o ponto de partida", "Sem harness, toda sessão começa do zero")
+        sessions = VGroup()
+        for i in range(4):
+            c = card(f"sessão {i + 1}", w=2.6, h=0.7, size=16)
+            bar_bg = Rectangle(width=2.6, height=0.18, stroke_width=0, fill_color=FILL, fill_opacity=1)
+            bar = Rectangle(width=2.6 * 0.7, height=0.18, stroke_width=0, fill_color=ACCENT, fill_opacity=1)
+            bar_bg.next_to(c, DOWN, buff=0.15)
+            bar.align_to(bar_bg, LEFT).align_to(bar_bg, UP)
+            sessions.add(VGroup(c, bar_bg, bar))
+        sessions.arrange(RIGHT, buff=0.5).shift(UP * 0.4)
+        legend = VGroup(
+            Rectangle(width=0.3, height=0.18, stroke_width=0, fill_color=ACCENT, fill_opacity=1),
+            body("re-explicar contexto, convenções e decisões", 20, INK3),
+        ).arrange(RIGHT, buff=0.2).next_to(sessions, DOWN, buff=0.6)
+        for s in sessions:
+            self.play(FadeIn(s[0]), FadeIn(s[1]), GrowFromEdge(s[2], LEFT), run_time=0.6)
+        self.play(FadeIn(legend))
+        self.wait(0.6)
+        harness = VGroup(*[s[2] for s in sessions])
+        thin = VGroup(*[
+            Rectangle(width=2.6 * 0.08, height=0.18, stroke_width=0, fill_color=ACCENT, fill_opacity=1)
+            .align_to(s[1], LEFT).align_to(s[1], UP)
+            for s in sessions
+        ])
+        with_label = label("com harness: o repositório já explica", 16, INK).next_to(legend, DOWN, buff=0.35)
+        self.play(Transform(harness, thin), FadeIn(with_label), run_time=1.4)
+        self.takeaway("O conhecimento mora no repositório, não na memória da conversa.")
+        self.wait(2)
         self.clear_all()
 
-    def anatomy(self):
-        t = self.title("Anatomia: um repositório que se explica")
-        center = box("AGENTS.md", YEL, w=3, h=1, size=30)
-        self.play(DrawBorderThenFill(center[0]), Write(center[1]))
-        parts = [("skills/", ".agents/skills", "UL"), ("rules/", ".agents/rules", "UR"),
-                 ("ADRs", "docs/adrs", "L"), ("specs + plans", "docs/specs", "R"),
-                 ("PRDs", "docs/prds", "DL"), ("deferrals", "docs/deferrals", "DR")]
-        pos = {"UL": [-4.5, 1.6, 0], "UR": [4.5, 1.6, 0], "L": [-4.8, 0, 0], "R": [4.8, 0, 0], "DL": [-4.5, -1.6, 0], "DR": [4.5, -1.6, 0]}
-        grp = VGroup()
-        for lab, path, d in parts:
-            b = box(lab, BLUE_3B, w=2.8, h=0.8).move_to(pos[d])
-            p = T(path, 16, GREY_3B).next_to(b, DOWN, buff=0.1)
-            a = Arrow(center.get_center(), b.get_center(), buff=1.0, color=GREY_3B, stroke_width=3)
-            self.play(GrowArrow(a), FadeIn(b), FadeIn(p), run_time=0.5); grp.add(a, b, p)
-        cap = T("o agente lê AGENTS.md e encontra tudo o resto", 26, GRN).to_edge(DOWN)
-        self.play(Write(cap)); self.wait(2)
-        inst = T("$ pnpm exec wolven-harness setup", 28, GRN)
-        self.play(FadeOut(grp), FadeOut(cap), center.animate.shift(UP*0.8))
-        inst.next_to(center, DOWN, buff=0.8)
-        note = T("cria só o que falta · nunca edita o seu AGENTS.md · nunca commita", 22, GREY_3B).next_to(inst, DOWN)
-        self.play(Write(inst)); self.play(FadeIn(note)); self.wait(2)
+    def context(self):
+        self.header(1, "vantagem", "Contexto que o agente encontra sozinho")
+        agents = accent_card("AGENTS.md", w=3.0, h=0.9, size=22, color=INK).shift(LEFT * 4 + DOWN * 0.3)
+        targets = ["skills", "rules", "ADRs", "specs", "PRDs", "deferrals"]
+        col = VGroup(*[card(t, w=2.6, h=0.6, size=16) for t in targets]).arrange(DOWN, buff=0.15)
+        col.shift(RIGHT * 0.6 + DOWN * 0.3)
+        arrows = VGroup(*[
+            Arrow(agents.get_right(), c.get_left(), buff=0.15, stroke_width=2, color=INK3, tip_length=0.15)
+            for c in col
+        ])
+        self.play(FadeIn(agents, shift=RIGHT * 0.2))
+        self.play(LaggedStart(*[AnimationGroup(GrowArrow(a), FadeIn(c)) for a, c in zip(arrows, col)], lag_ratio=0.12))
+        q = mono('qmd query -c adrs "..."', 20, INK2).next_to(col, RIGHT, buff=0.6).shift(UP * 0.4)
+        ql = label("busca antes de chutar", 14).next_to(q, UP, aligned_edge=LEFT, buff=0.15)
+        self.play(FadeIn(ql), Write(q))
+        self.play(col[2][0].animate.set_stroke(ACCENT, 3), run_time=0.6)
+        self.takeaway("Um ponto de entrada, um mapa — menos alucinação, menos repetição.")
+        self.wait(2)
         self.clear_all()
 
-    def workflow(self):
-        t = self.title("O fluxo: das ideias ao commit")
-        steps = [("create-prd", GREY_3B), ("code-spec", BLUE_3B), ("code-plan", BLUE_3B),
-                 ("code-execute", GRN), ("code-commit", YEL), ("code-pr", GREY_3B)]
-        bs = VGroup(*[box(s, c, w=2.0, h=0.8, size=20) for s, c in steps]).arrange(RIGHT, buff=0.3).shift(UP*0.5)
-        arrows = VGroup(*[Arrow(bs[i].get_right(), bs[i+1].get_left(), buff=0.05, stroke_width=3, max_tip_length_to_length_ratio=0.3) for i in range(5)])
-        desc = ["problema confirmado", "o que muda e como verificar", "passos ordenados", "implementa + checa", "quando você pedir", "abre PR, nunca faz merge"]
-        ds = VGroup(*[T(d, 15, GREY_3B).next_to(bs[i], DOWN if i % 2 == 0 else DOWN*3.2, buff=0.25) for i, d in enumerate(desc)])
-        for i in range(6):
-            anims = [FadeIn(bs[i], shift=UP*0.2), FadeIn(ds[i])]
-            if i: anims.append(GrowArrow(arrows[i-1]))
-            self.play(*anims, run_time=0.7)
-        dot = Dot(color=YEL, radius=0.12).move_to(bs[0])
+    def decisions(self):
+        self.header(2, "vantagem", "Decisões que não se perdem")
+        ax_left = LEFT * 3.6
+        ax_right = RIGHT * 3.6
+        lt = label("sem registro", 16, INK3).move_to(ax_left + UP * 1.6)
+        rt = label("com ADR stable", 16, ACCENT).move_to(ax_right + UP * 1.6)
+        origin_l = ax_left + LEFT * 2.6 + DOWN * 0.3
+        origin_r = ax_right + LEFT * 2.6 + DOWN * 0.3
+        drift = VGroup(*[
+            Line(origin_l, origin_l + RIGHT * 5.2 + UP * dy, stroke_color=c, stroke_width=3)
+            for dy, c in [(1.1, INK3), (0.4, INK2), (-0.5, INK3), (-1.2, INK2)]
+        ])
+        anchor = Line(origin_r, origin_r + RIGHT * 5.2, stroke_color=ACCENT, stroke_width=4)
+        held = VGroup(*[
+            Line(origin_r, origin_r + RIGHT * 5.2 + UP * dy, stroke_color=INK2, stroke_width=2)
+            for dy in [0.08, -0.08]
+        ])
+        dl = body("cada sessão decide de novo", 18, INK3).next_to(drift, DOWN, buff=0.3)
+        al = body("toda sessão cita a mesma decisão", 18, INK2).next_to(anchor, DOWN, buff=1.3)
+        divider = Line(UP * 1.8, DOWN * 1.9, stroke_color=RULE, stroke_width=2)
+        self.play(FadeIn(lt), FadeIn(rt), Create(divider))
+        self.play(LaggedStart(*[Create(l) for l in drift], lag_ratio=0.2), FadeIn(dl), run_time=1.6)
+        self.play(Create(anchor), LaggedStart(*[Create(l) for l in held], lag_ratio=0.2), FadeIn(al), run_time=1.6)
+        tag = mono("ADR-001", 18, ACCENT).next_to(anchor, UP, buff=0.15).align_to(anchor, LEFT)
+        self.play(FadeIn(tag))
+        self.takeaway("Citar um ADR é um contrato: o validate falha se ele não for stable.")
+        self.wait(2)
+        self.clear_all()
+
+    def verify(self):
+        self.header(3, "vantagem", "O agente confere o próprio trabalho")
+        steps = ["implementa", "validate", "comments", "score"]
+        nodes = VGroup(*[card(s, w=2.4, h=0.8, size=18) for s in steps])
+        pos = [UP * 0.9, RIGHT * 3.2 + DOWN * 0.3, DOWN * 1.5, LEFT * 3.2 + DOWN * 0.3]
+        for n, p in zip(nodes, pos):
+            n.move_to(p + DOWN * 0.1)
+        arcs = VGroup(*[
+            CurvedArrow(nodes[i].get_center(), nodes[(i + 1) % 4].get_center(), angle=-PI / 3, color=INK3, stroke_width=2, tip_length=0.18)
+            for i in range(4)
+        ])
+        for a in arcs:
+            a.scale(0.55)
+        self.play(LaggedStart(*[FadeIn(n) for n in nodes], lag_ratio=0.15))
+        self.play(LaggedStart(*[Create(a) for a in arcs], lag_ratio=0.15))
+        dot = Dot(radius=0.11, color=ACCENT).move_to(nodes[0])
         self.play(FadeIn(dot))
-        for i in range(1, 6):
-            self.play(dot.animate.move_to(bs[i]), Indicate(bs[i], color=YEL), run_time=0.6)
-        note = T("cada skill é um SKILL.md: instruções versionadas junto com o código", 22, GRN).to_edge(DOWN)
-        self.play(Write(note)); self.wait(2)
+        for i in [1, 2, 3, 0]:
+            self.play(dot.animate.move_to(nodes[i]), Indicate(nodes[i][0], color=ACCENT, scale_factor=1.05), run_time=0.5)
+        done = accent_card("entrega revisada", w=3.0, h=0.7, size=16, color=INK).next_to(nodes[1], DOWN, buff=0.6)
+        self.play(FadeIn(done, shift=RIGHT * 0.2))
+        self.takeaway("Você revisa intenção, não erros que uma checagem já pegaria.")
+        self.wait(2)
         self.clear_all()
 
-    def claims(self):
-        t = self.title("Decisões como contratos: ADRs")
-        file = box("src/qualquer.ts", WHITE, w=3.4, size=22).shift(LEFT*4)
-        claim = T('"conforme ADR-001"', 22, YEL).next_to(file, DOWN)
-        self.play(FadeIn(file), Write(claim))
-        adrs = VGroup(box("adr-001  stable", GRN, w=3.4, size=20),
-                      box("adr-002  draft", RED_3B, w=3.4, size=20),
-                      box("adr-003  deprecated", RED_3B, w=3.4, size=20)).arrange(DOWN, buff=0.3).shift(RIGHT*3.5)
-        self.play(LaggedStart(*[FadeIn(a) for a in adrs], lag_ratio=0.2))
-        a = Arrow(claim.get_right(), adrs[0].get_left(), color=GRN)
-        self.play(GrowArrow(a)); self.play(Indicate(adrs[0], color=GRN))
-        ok = T("✓ resolve para exatamente um ADR stable", 24, GRN).to_edge(DOWN).shift(UP*0.5)
-        self.play(Write(ok)); self.wait(1)
-        a2 = Arrow(claim.get_right(), adrs[1].get_left(), color=RED_3B)
-        bad = T("✗ draft, deprecated ou ambíguo → validate falha", 24, RED_3B).next_to(ok, DOWN)
-        self.play(ReplacementTransform(a, a2), Write(bad)); self.wait(2)
+    def scope(self):
+        self.header(4, "vantagem", "Escopo sob controle")
+        ask = card("pedido", w=2.4, h=0.8, size=18, color=INK).shift(LEFT * 4.5)
+        guard = accent_card("pragmatic-guard", w=3.0, h=0.9, size=18, color=INK)
+        build = card("constrói agora", w=2.8, h=0.7, size=16, color=INK).shift(RIGHT * 4.3 + UP * 1.0)
+        defer = card("docs/deferrals/", w=2.8, h=0.7, size=16, color=INK3, upper=False).shift(RIGHT * 4.3 + DOWN * 1.0)
+        trig = body("com gatilho de revisão", 16, INK3).next_to(defer, DOWN, buff=0.15)
+        a1 = Arrow(ask.get_right(), guard.get_left(), buff=0.1, color=INK3, stroke_width=2, tip_length=0.15)
+        a2 = Arrow(guard.get_right(), build.get_left(), buff=0.1, color=ACCENT, stroke_width=3, tip_length=0.15)
+        a3 = Arrow(guard.get_right(), defer.get_left(), buff=0.1, color=INK3, stroke_width=2, tip_length=0.15)
+        self.play(FadeIn(ask))
+        self.play(GrowArrow(a1), FadeIn(guard))
+        self.play(GrowArrow(a2), FadeIn(build), GrowArrow(a3), FadeIn(defer), FadeIn(trig))
+        q = body("“a gente pode precisar…” → precisa agora?", 20, INK2).next_to(guard, UP, buff=0.5)
+        self.play(Write(q))
+        self.takeaway("YAGNI estrito: o que fica de fora é registrado, não esquecido.")
+        self.wait(2)
         self.clear_all()
 
-    def checks(self):
-        t = self.title("Três verificações")
-        cols = [("validate", "perfil de escrita\n+ claims de ADR", BLUE_3B),
-                ("comments", "comentários why: /\nhazard: / invariant:", YEL),
-                ("score", "nota do harness\nL0 → L4", GRN)]
-        g = VGroup()
-        for name, d, c in cols:
-            b = box(name, c, w=3.2, h=1.0, size=30)
-            dd = T(d, 20, GREY_3B).next_to(b, DOWN)
-            g.add(VGroup(b, dd))
-        g.arrange(RIGHT, buff=0.8)
-        self.play(LaggedStart(*[FadeIn(x, shift=UP*0.3) for x in g], lag_ratio=0.3))
-        cmd = T("pnpm harness:validate · harness:comments · harness:score", 22, WHITE).to_edge(DOWN)
-        self.play(Write(cmd)); self.wait(2)
+    def control(self):
+        self.header(5, "vantagem", "Processo previsível, humano no comando")
+        steps = ["code-spec", "code-plan", "code-execute", "code-commit", "code-pr"]
+        row = VGroup(*[card(s, w=2.25, h=0.75, size=15) for s in steps]).arrange(RIGHT, buff=0.35).shift(UP * 0.3)
+        arrows = VGroup(*[
+            Arrow(row[i].get_right(), row[i + 1].get_left(), buff=0.04, stroke_width=2, color=INK3, tip_length=0.12)
+            for i in range(4)
+        ])
+        gates = VGroup()
+        for i in [0, 1, 3, 4]:
+            g = label("você aprova", 12, ACCENT).next_to(row[i], DOWN, buff=0.2)
+            gates.add(g)
+        self.play(LaggedStart(*[FadeIn(c, shift=UP * 0.15) for c in row], lag_ratio=0.12))
+        self.play(LaggedStart(*[GrowArrow(a) for a in arrows], lag_ratio=0.1))
+        self.play(LaggedStart(*[FadeIn(g) for g in gates], lag_ratio=0.15))
+        never = accent_card("nunca faz merge", w=3.0, h=0.7, size=16, color=INK).next_to(row[4], UP, buff=0.35)
+        never.align_to(row[4], RIGHT)
+        self.play(FadeIn(never, shift=DOWN * 0.15))
+        self.takeaway("Commits manuais por padrão; PR, review e CI só quando você pede.")
+        self.wait(2)
         self.clear_all()
 
-    def score(self):
-        t = self.title("Harness score: subindo de nível")
-        ax = Axes(x_range=[0, 5, 1], y_range=[0, 4.5, 1], x_length=8, y_length=4.2, tips=False,
-                  axis_config={"color": GREY_3B}).shift(DOWN*0.4)
-        self.play(Create(ax))
-        lv = ["L0", "L1", "L2", "L3", "L4"]
+    def portable(self):
+        self.header(6, "vantagem", "Um harness, vários agentes")
+        src = accent_card(".agents/skills", w=3.2, h=0.9, size=18, color=INK).shift(LEFT * 3.5 + DOWN * 0.3)
+        rts = VGroup(*[card(r, w=2.6, h=0.7, size=18) for r in ["Claude Code", "Codex", "Cursor"]])
+        rts.arrange(DOWN, buff=0.35).shift(RIGHT * 3 + DOWN * 0.3)
+        arrows = VGroup(*[
+            Arrow(src.get_right(), r.get_left(), buff=0.15, color=INK3, stroke_width=2, tip_length=0.15) for r in rts
+        ])
+        self.play(FadeIn(src))
+        self.play(LaggedStart(*[AnimationGroup(GrowArrow(a), FadeIn(r)) for a, r in zip(arrows, rts)], lag_ratio=0.2))
+        cmd = mono("--runtimes claude,codex,cursor", 18, INK2).next_to(src, DOWN, buff=0.5)
+        self.play(Write(cmd))
+        self.takeaway("Troque de agente sem reescrever suas regras.")
+        self.wait(2)
+        self.clear_all()
+
+    def measurable(self):
+        self.header(7, "vantagem", "Maturidade que se mede")
+        levels = ["L0", "L1", "L2", "L3", "L4"]
+        base = DOWN * 1.6
         bars = VGroup()
-        for i, l in enumerate(lv):
-            r = Rectangle(width=1.0, height=max(0.01, ax.y_axis.unit_size * i), fill_opacity=0.7,
-                          color=interpolate_color(ManimColor(RED_3B), ManimColor(GRN), i/4), stroke_width=0)
-            r.move_to(ax.c2p(i+0.5, 0), aligned_edge=DOWN)
-            lab = T(l, 22).next_to(ax.c2p(i+0.5, 0), DOWN)
-            bars.add(VGroup(r, lab))
-        self.play(LaggedStart(*[GrowFromEdge(b[0], DOWN) for b in bars], *[FadeIn(b[1]) for b in bars], lag_ratio=0.15))
-        tgt = DashedLine(ax.c2p(0, 3), ax.c2p(5, 3), color=YEL)
-        tl = T("--min-level 3", 20, YEL).next_to(tgt, UP, aligned_edge=RIGHT)
-        self.play(Create(tgt), Write(tl))
-        n = T("checks que o repo não quer construir são 'drops' visíveis no relatório", 20, GREY_3B).to_edge(DOWN)
-        self.play(FadeIn(n)); self.wait(2)
+        for i, lv in enumerate(levels):
+            h = 0.35 + i * 0.55
+            r = Rectangle(width=1.1, height=h, stroke_width=0,
+                          fill_color=ACCENT if i >= 3 else RULE, fill_opacity=1)
+            r.move_to(base + RIGHT * (i - 2) * 1.6, aligned_edge=DOWN)
+            t = label(lv, 18, INK).next_to(r, DOWN, buff=0.2)
+            bars.add(VGroup(r, t))
+        floor = Line(LEFT * 4.4, RIGHT * 4.4, stroke_color=INK3, stroke_width=2).move_to(base)
+        self.play(Create(floor))
+        self.play(LaggedStart(*[AnimationGroup(GrowFromEdge(b[0], DOWN), FadeIn(b[1])) for b in bars], lag_ratio=0.15))
+        y = base[1] + 0.35 + 3 * 0.55
+        tgt = DashedLine(LEFT * 4.4 + UP * y, RIGHT * 4.4 + UP * y, stroke_color=INK, stroke_width=2, dash_length=0.12)
+        tl = mono("harness-score --min-level 3", 18, INK).next_to(tgt, UP, buff=0.1).align_to(tgt, LEFT)
+        self.play(Create(tgt), FadeIn(tl))
+        self.takeaway("Checks que você descarta aparecem como drops no relatório.")
+        self.wait(2)
         self.clear_all()
 
     def outro(self):
-        a = T("instruções que o agente encontra", 30, BLUE_3B)
-        b = T("decisões que ele pode citar", 30, YEL)
-        c = T("verificações que ele mesmo roda", 30, GRN)
-        g = VGroup(a, b, c).arrange(DOWN, buff=0.5)
-        for x in g:
-            self.play(Write(x), run_time=0.9)
-        self.wait(1)
-        self.play(g.animate.shift(UP*1.2))
-        cmd = T("pnpm add -D @wolven-tech/harness", 28, WHITE).next_to(g, DOWN, buff=0.8)
-        self.play(Write(cmd)); self.wait(2.5)
-        self.clear_all()
+        items = [
+            "contexto encontrável",
+            "decisões que valem",
+            "trabalho auto-verificado",
+            "escopo enxuto",
+            "você no comando",
+        ]
+        rows = VGroup()
+        for i, s in enumerate(items):
+            n = label(f"{i + 1:02d}", 18)
+            t = display(s, 34)
+            rows.add(VGroup(n, t).arrange(RIGHT, buff=0.35))
+        rows.arrange(DOWN, aligned_edge=LEFT, buff=0.3).shift(UP * 0.7 + LEFT * 1.5)
+        for r in rows:
+            self.play(FadeIn(r, shift=RIGHT * 0.2), run_time=0.45)
+        self.wait(0.8)
+        box = Rectangle(width=9.4, height=0.9, stroke_color=RULE, stroke_width=2, fill_color=SURFACE, fill_opacity=1)
+        cmd = mono("pnpm add -D @wolven-tech/harness", 26, INK).move_to(box)
+        g = VGroup(box, cmd).to_edge(DOWN, buff=0.8)
+        self.play(FadeIn(box), Write(cmd))
+        logo = ImageMobject(str(LOGO)).scale_to_fit_height(0.8).to_corner(UR, buff=0.6)
+        self.play(FadeIn(logo))
+        self.wait(2.5)
+        self.play(*[FadeOut(m) for m in self.mobjects], run_time=0.8)
