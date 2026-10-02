@@ -16,6 +16,14 @@ Run `wolven-harness setup` to install the files, then ask your agent to run the 
 
 The skill offers three commits, covering entry, migration, setup; each is offered only after validation passes and you say yes. Declining a commit leaves that phase uncommitted.
 
+## Lean path
+
+On a fresh or thin-evidence repo, `harness-init` judges from the tree that the lean path fits. If you did not state a goal in your prompt, it asks one question for your immediate goal (one sentence) and records it as you give it.
+
+It then proposes deferring a few named items, listed in [`lean-path.md`](https://github.com/WolvenTech/wolven-harness/blob/main/templates/.agents/skills/harness-init/references/lean-path.md). Before continuing, each deferred step is named with why and what remaining work it leaves, and you can decline any of them. Those choices, with your goal, are recorded under **Deferred / skipped steps** in the session note. Skill proposals always run and are never deferred — they cite your recorded goal and available references, or an explicit thin-evidence basis when the tree is thin.
+
+For a worked example, see the [lean walkthrough note](https://github.com/WolvenTech/wolven-harness/blob/main/docs/notes/lean-init-walkthrough/lean-init-walkthrough-note.md).
+
 ## Check the setup
 
 ```sh
