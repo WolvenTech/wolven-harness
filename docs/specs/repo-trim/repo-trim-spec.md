@@ -46,6 +46,8 @@ Searched `qmd query -c adrs` for the rename, the registry move, and what a stabl
 | `test/template-residue.test.ts` | yes | Migration verification. The file only bans vocabulary from the repo the templates were extracted from (`canon`, `clickup`, `cynefin`, and the scoped bans). Deletes the file. |
 | `test/legacy.test.ts`, `test/validate-legacy-folders.test.ts`, `test/harness-init-migration.test.ts`, `test/behaviour-brownfield.test.ts` | yes | Consumer legacy-ADR path. Stay. They use fixtures. This package's own tree has no legacy ADRs. |
 | `video/harness-explainer.mp4`, `video/harness_explainer.py` | yes | Surveyed. About 3.5MB. Uncited. Restyled in `8a11541`. Stays. |
+| `.agents/skills/test-sync/SKILL.md` | yes | Dogfood skill. Adapted rules only. Not under `templates/`. |
+| `docs/deferrals/test-sync-package/test-sync-package-deferral.md` | yes | Promotion into the package waits on this deferral. |
 | `pnpm test`, `pnpm validate` | yes | Gates. `pnpm validate` is `node dist/cli.js validate`. |
 
 ## Surface walk
@@ -57,7 +59,7 @@ Searched `qmd query -c adrs` for the rename, the registry move, and what a stabl
   - Delete `readme-install: no GitHub Packages registry residue`.
   - In the release workflow test, drop the GitHub Packages assertions and retitle it to the check that remains: the workflow stores no `secrets.` reference.
   - Delete `test/template-residue.test.ts`.
-- **Out of mutate scope (unchanged):** `src/**`, `templates/**`, `.agents/**`, `video/**`, `assets/**`, `site/**` (including `site/search.md`, which names GitHub Packages as a search example), `package.json`, `docs/adrs/**`, `docs/**/archived/**`, `docs/specs/lean-init/**`, `CHANGELOG.md`, `.github/workflows/**`, the consumer legacy-ADR tests named above, the other tests in `test/seed-extract.test.ts`, and `--version and -v print the package name and version`. Cite these from the `n/a` landings below.
+- **Out of mutate scope (unchanged):** `src/**`, `templates/**` (no `test-sync` folder), `video/**`, `assets/**`, `site/**` (including `site/search.md`, which names GitHub Packages as a search example), `package.json`, `docs/adrs/**`, `docs/**/archived/**`, `docs/specs/lean-init/**`, `CHANGELOG.md`, `.github/workflows/**`, the consumer legacy-ADR tests named above, the other tests in `test/seed-extract.test.ts`, `--version and -v print the package name and version`, the rest of `.agents/**`, and `.agents/skills/test-sync/SKILL.md` (the deletion batch does not edit it). Cite these from the `n/a` landings below.
 
 ## Test-sync audit
 
@@ -67,7 +69,7 @@ Applied by hand. No `npx test-sync`, no `test_sync.py`, no `cleanup_orphans.py`.
 |----------|---------------------|-----------|
 | Orphaned | The retired `init` command, the GitHub Packages assertions, and `test/template-residue.test.ts`. R1's four duplicates are obsolete assertions with a survivor, not deleted modules. | R2 and R1. No further orphans. |
 | Missing | `src/` modules such as `src/git.ts`, `src/frontmatter.ts`, and `src/validate/claims.ts` have no same-named test file. The CLI suites (`test/claims.test.ts`, `test/profile.test.ts`, `test/spine.test.ts`, and the rest) already call `validate` and `setup`. | Do not add test files. |
-| Implementation-coupled | No matches for the skill's patterns. Many tests pin stdout and workflow YAML. Those pins stay; changing them is a refactor, not a deletion. | Out of scope. |
+| Implementation-coupled | No matches for the skill's patterns. Many tests pin stdout and workflow YAML. Those pins stay; changing them is a refactor, not a deletion. | Out of scope. The dogfood skill repeats that rule. |
 
 ## Requirements (obligation ↔ proof)
 
@@ -132,7 +134,7 @@ None. The Human confirmed that finished migration verifications can go. The cons
 | Delete `assets/` or `site/public/wolven-logo-black.png` | 1 — one blob at two paths | 3 — `README.md` and VitePress each need their own path | **Refuse.** |
 | Delete `docs/**/archived/**` or archive `docs/specs/lean-init/` from this spec | 2 | 4 — closure sets `deprecated` and moves the folders | **Refuse.** Closure is `code-pr`. |
 | Replace the template-residue ban list with a shorter list | 0 — the Human said the verification can go | 3 | **Refuse.** R2.4 deletes the file. It does not invent a new ban list. |
-| Install test-sync, add `npx test-sync` to CI, or add its Python cleanup scripts | 2 — the three categories were useful once | 7 — a new tool, a CI gate, and a 1:1 file-name rule that does not match this suite | **Refuse.** The audit above is the use of that skill. |
+| Paste the upstream test-sync skill, add `npx test-sync` to CI, or add its Python cleanup scripts | 2 — the three categories were useful once | 7 — a new tool, a CI gate, and a 1:1 file-name rule that does not match this suite | **Refuse.** `.agents/skills/test-sync/SKILL.md` is the adapted rules. Promotion is `docs/deferrals/test-sync-package/test-sync-package-deferral.md`. |
 | Add a test file per `src/` module the audit marks "missing" | 1 — the CLI suites already exercise those modules | 6 — new tests for modules that are not untested | **Refuse.** |
 | Refactor stdout and workflow pins into looser assertions | 2 — they can break when wording changes | 6 — a sweep across the suite, and [ADR-003](../../adrs/adr-003-public-contract.md) already says messages are not contract | **Refuse.** Not a deletion. |
 | A new dependency, a new command, or an ADR | 0 | — | **Refuse.** |
@@ -165,7 +167,7 @@ None. The Human confirmed that finished migration verifications can go. The cons
 | Link `video/harness-explainer.mp4` from the site or the README | A `site/` change. This spec leaves `video/` tracked. |
 | Rewrite `site/search.md` or [ADR-002](../../adrs/adr-002-public-npm-oidc.md) so they stop mentioning GitHub Packages | The history stays in the ADR. The search page stays a search example. |
 | Delete `test/legacy.test.ts` or the harness-init migration playbook tests | Consumer path. [ADR-001](../../adrs/adr-001-claim-path.md) and [ADR-003](../../adrs/adr-003-public-contract.md). |
-| Install the test-sync skill or its CI check | The audit table in this spec. No new tool. |
+| Ship test-sync in `templates/` or a skill set | `docs/deferrals/test-sync-package/test-sync-package-deferral.md` |
 | An executable plan from this skill | `code-plan` only |
 
 ## ADR
