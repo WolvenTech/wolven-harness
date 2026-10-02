@@ -11,6 +11,11 @@ status: draft
 **Next:** Human approval of this spec, then `code-plan`. No implementation or live protection change is authorized by drafting this spec.
 **Named proof:** `proof-default-branch-safety-spec-obligations`.
 
+**Scope addendum:** Rafael subsequently requested removal of the incident
+commit and the video files altogether during cleanup. This explicitly expands
+the approved PRD's original non-goal of video remediation. It records the
+cleanup outcome, not authorization to rewrite shared history now.
+
 ## Repository grounding
 
 | Surface | Present today | Role |
@@ -43,9 +48,14 @@ framework. New paths below are proposed surfaces, not files present today.
   CONTRIBUTING and site guidance; hook score configuration after evidence.
 - **Remote scope:** this repository's existing main protection only, as a
   separately authorized operational change after local gates pass.
+- **Cleanup scope:** remove `video/harness-explainer.mp4` and
+  `video/harness_explainer.py` altogether, not merely restore their versions
+  before the incident; remove incident commit
+  `8a1154186356ee9eb39c735b2ca519e1c0bc0f85` from the agreed published branch
+  history under the cleanup strategy resolved below.
 - **Unchanged:** CLI command set and exit codes, config schema version,
   dependency set, consumer AGENTS.md, existing consumer files, npm OIDC
-  publishing, merge ownership/review count, video content, consumer GitHub settings.
+  publishing, merge ownership/review count, consumer GitHub settings.
 
 ## Design
 
@@ -144,6 +154,27 @@ direct writes under the configured policy, not deliberate reconfiguration
 by an administrator. Agent credentials should not receive new administration
 permissions; separating existing admin credentials is an operational follow-up.
 
+### Incident cleanup
+
+The cleanup removes both tracked video files, including the generator and
+binary introduced before the incident. Remove any tracked references that
+would point to deleted assets, and verify the resulting repository still
+passes its gates. Preserve unrelated changes and commits.
+
+The requested commit removal is distinct from deleting files or creating a
+revert commit: a revert leaves the incident commit in history. A literal
+removal from published history needs a separately approved history strategy,
+including affected branches/tags, collaborator coordination, and a resolution
+of its conflict with the no-direct-write/no-bypass policy. Do not silently
+substitute a revert for the requested removal, force-push, or disable
+protection. Cleanup remains blocked on that decision; local safeguards and
+the spec review can proceed independently.
+
+Commit-history removal does not promise deletion of cached GitHub objects,
+PR records, forks, or copies already held by collaborators. The agreed
+verification boundary must be published refs rather than physical erasure
+from every copy of the repository.
+
 ## Requirements (obligation ↔ proof)
 
 Every proof names a distinct fixture case or evidence record. Local cases
@@ -169,6 +200,8 @@ integration verification; no unsafe live probe belongs in the unit suite.
 | R14 | Guard retries/install reruns are idempotent and race-safe | `proof-install-retry` | Two reruns and simultaneous create attempts preserve foreign bytes and avoid duplicate entries; failure stays pending |
 | R15 | Remote discovery failures deny writes without interactive hangs | `proof-discovery-failure` | Timeout/auth/unresolvable destination fixtures yield bounded denial and recovery reason; no credential output |
 | R16 | Guard state/logging preserves work and reports the denied operation | `proof-guard-diagnostics` | Capture allow/deny output; branch, destination, reason and next action present, no command payload/secrets logged |
+| R17 | Cleanup removes both video files and repairs tracked references | `proof-video-files-removed` | `git ls-files video` and tracked-reference inspection show neither asset nor dangling reference; repository gates pass |
+| R18 | Cleanup removes the incident commit from the explicitly agreed published history while preserving unrelated work | `proof-incident-commit-removed` | After approved history strategy, `git merge-base --is-ancestor 8a1154186356ee9eb39c735b2ca519e1c0bc0f85 <agreed-ref>` returns 1 for every agreed ref; preserved commits/content verified against pre-cleanup snapshot |
 
 ## Nine-dimension landings
 
@@ -194,6 +227,9 @@ These are safety boundaries, not executable work units or a plan.
   integration evidence. Entry requires the local gate to pass. Gate: readback
   of main protection with `gh api repos/WolvenTech/wolven-harness/branches/main/protection`
   plus the distinct remote proof records R6–R9. No automatic merge or publish.
+- **Incident cleanup:** requires resolution of `U-cleanup-history` before
+  execution. Gate: R17–R18 evidence plus the full local gate above. This
+  boundary must preserve enforcement rather than create an unapproved bypass.
 
 A failed gate stops before the next boundary. `code-plan` must encode those
 stops; this document does not assign implementation order within a boundary.
@@ -204,13 +240,14 @@ stops; this document does not assign implementation order within a boundary.
 | --- | --- | --- | --- | --- |
 | `U-remote-proof-environment` | Choose an authorized disposable GitHub repository and credentials for real rejection/merge proofs | Rafael | Blocks remote integration proof execution | Specify the concrete test target before any probe; never attempt an accepted test write on production main |
 | `U-runtime-proof-access` | Confirm available runtime versions and trusted sessions for live hook activation evidence | Maintainer implementing the spec | Blocks claiming runtime activation beyond schema/fixture tests | Record version and trust state; unsupported/pending is acceptable when explicitly reported |
+| `U-cleanup-history` | Resolve literal commit removal, affected published refs, and compatibility with the no-bypass policy | Rafael | Blocks incident cleanup execution and its completion claim | Present a concrete history strategy for explicit approval; no force-push or protection change is authorized by this spec update |
 
 ## Out of scope
 
 Consumer GitHub API calls or configuration; branch naming/merge ownership
 redesign; review-count changes; bootstrap commits in repositories without
 resolvable default branch; hooks that parse arbitrary scripts/MCP writes;
-immutable protection against admin reconfiguration; video remediation;
+immutable protection against admin reconfiguration; erasing all cached or forked copies of the incident;
 changing release triggers or npm publishing; a plan or implementation now.
 
 ## Pragmatic-guard refuses
@@ -239,6 +276,8 @@ the approved PRD, with compatibility preserved and partial coverage visible.
 - [ ] R14 — `pnpm test`: proof-install-retry PASS.
 - [ ] R15 — `pnpm test`: proof-discovery-failure PASS.
 - [ ] R16 — `pnpm test`: proof-guard-diagnostics PASS.
+- [ ] R17 — `git ls-files video`, reference inspection and local gates: proof-video-files-removed PASS.
+- [ ] R18 — agreed-ref ancestry checks after approved cleanup: proof-incident-commit-removed PASS.
 
 ## Eval / gates
 
@@ -260,7 +299,7 @@ from pathlib import Path
 p = Path('docs/specs/default-branch-safety/default-branch-safety-spec.md').read_text()
 prd = Path('docs/prds/default-branch-safety/default-branch-safety-prd.md').read_text()
 rows = re.findall(r'^\| (R\d+) \| (.*?) \| `(proof-[^`]+)` \|', p, re.M)
-assert len(rows) == 16
+assert len(rows) == 18
 assert len({r[0] for r in rows}) == len(rows)
 assert len({r[2] for r in rows}) == len(rows)
 acs = set(re.findall(r'^#### (AC-\d+\.\d+):', prd, re.M))
@@ -273,7 +312,7 @@ dimensions = ['validation', 'failure modes', 'idempotency and retry',
     'external-dependency failure', 'state transitions', 'observability']
 assert all(re.search(r'^\| ' + re.escape(d) + r' \| obligation ↔ proof \|', p, re.M) for d in dimensions)
 assert 'status: stable' in prd and 'status: draft' in p
-print('spec obligations: 16 pairs, 13 PRD criteria, 9 dimensions')
+print('spec obligations: 18 pairs, 13 PRD criteria, 9 dimensions')
 PY
 ```
 
@@ -282,7 +321,7 @@ PY
 | Leak | Refuse / route |
 | --- | --- |
 | Live GitHub settings while drafting | Separately authorized remote integration boundary |
-| Incident attribution or video rollback | Incident investigation and reviewed remediation PR |
+| Incident attribution | Incident investigation; file/history cleanup is now in scope under the explicit addendum |
 | Consumer protection audit service | Out of approved setup scope; instructions only |
 | Plan units or implementation | `code-plan` after Human approves this spec |
 | Release publication or PR merge | Existing separately authorized release/merge workflow |
