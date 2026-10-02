@@ -2,7 +2,7 @@
 type: prd
 title: Lean harness-init path for thin repos
 description: A fresh or mostly empty repo finishes harness-init on a lean path that names what it defers and still proposes skills.
-status: draft
+status: stable
 source_issue: https://github.com/WolvenTech/wolven-harness/issues/30
 ---
 
