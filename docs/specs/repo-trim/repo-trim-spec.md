@@ -2,13 +2,13 @@
 type: spec
 title: Drop duplicate tests and finished migration checks
 description: Delete tests that only repeat another proof or only pin a finished rename, registry move, or template extract, and leave the consumer legacy-ADR path and the concrete ADR-token scan in place.
-status: draft
+status: stable
 ---
 
 # Drop duplicate tests and finished migration checks
 
 **Source:** confirmed ask — "explore the codebase and write a code-spec on stale things like artifacts and tests. i want to trim out this repo." Follow-up, confirmed: "what about old implementation or migration verifications? app is stable enough." Follow-up: the test-sync skill at <https://mcpmarket.com/tools/skills/test-sync-maintenance> (jmagly, `test-sync` in [ai-writing-guide](https://github.com/jmagly/ai-writing-guide)). This spec uses its three categories and does not install the skill. Follow-up, confirmed: consolidate the test audit. The extract-vocabulary bans in `test/template-residue.test.ts` go. The concrete ADR-token scan in that file stays.
-**Next:** After the Human approves → `code-plan` → `code-execute`. One mutate batch. No wave stop.
+**Next:** Approved by the Human on 2026-10-02. The plan is `docs/specs/repo-trim/repo-trim-plan.md`. `code-execute` waits on approval of that plan. One mutate batch, then the batch gate. No second mutate wave.
 **Named proof (this spec's own structural gate):** `proof-repo-trim-spec-obligations`
 
 ## Term challenge
@@ -100,14 +100,14 @@ The Human confirmed the package is stable enough to drop verifications of shapes
 
 | Dimension | Landing kind | Landing |
 |-----------|---------------|---------|
-| validation | obligation ↔ proof | R1.1 / `proof-repo-trim-copy-check` through R1.4, and R2.1 / `proof-repo-trim-init-pin` through R2.4 / `proof-repo-trim-template-residue`. Each named survivor is still in the tree, and `pnpm test` exits 0. `pnpm validate` still exits 0. This batch edits no profile doc except by leaving this spec as `draft`. |
+| validation | obligation ↔ proof | R1.1 / `proof-repo-trim-copy-check` through R1.4, and R2.1 / `proof-repo-trim-init-pin` through R2.4 / `proof-repo-trim-template-residue`. Each named survivor is still in the tree, and `pnpm test` exits 0. `pnpm validate` still exits 0. This batch does not edit an ADR, a PRD, or this spec's obligations. It may check this spec's Acceptance boxes and write resume marks in `docs/specs/repo-trim/repo-trim-plan.md`. This spec stays `stable`. |
 | failure modes | obligation ↔ proof | R1.1 / `proof-repo-trim-copy-check` — if a survivor title is missing in the same edit, that `rg` proof fails and the batch stops. R2.4 / `proof-repo-trim-template-residue` — a later template that uses a formerly banned extract word is an accepted loss. The concrete ADR-token pattern is the survivor in that file: if `ADR-\d{3}` is gone, that `rg` proof fails and the batch stops. The batch also stops if `pnpm test` exits non-zero. |
 | idempotency and retry | obligation ↔ proof | R2.1 / `proof-repo-trim-init-pin` — the edit removes the pin and does not rewrite `test/contract.test.ts`. A second apply finds the pin already absent and the contract test byte-identical. The same shape applies to the other deletions. |
 | authorization | `n/a` | Unchanged surface: `.github/workflows/ci.yml` permissions stay `contents: read`, `pull-requests: read`, `checks: read`. The release workflow's `id-token: write` on the publish job stays; `test/release.test.ts` already pins that outside the assertions R2.3 removes. |
 | concurrency and ordering | `n/a` | Unchanged surface: the `concurrency` group in `.github/workflows/ci.yml`. One mutate batch, no second writer. |
 | data lifecycle | obligation ↔ proof | R2.2 / `proof-repo-trim-packages-readme` — the README residue test is removed and not copied into another file. [ADR-002](../../adrs/adr-002-public-npm-oidc.md) keeps the GitHub Packages history. This batch does not edit that ADR. |
 | external-dependency failure | `n/a` | Unchanged surface: `package.json` `dependencies` stay `yaml` and `@clack/prompts`. `video/harness_explainer.py` imports manim and stays; this batch does not run it and does not add manim. |
-| state transitions | `n/a` | Unchanged surface: `docs/WRITING-PROFILE.md` statuses stay `draft`, `stable`, and `deprecated`. No profile doc moves between them. |
+| state transitions | `n/a` | Unchanged surface: `docs/WRITING-PROFILE.md` statuses stay `draft`, `stable`, and `deprecated`. The mutate batch moves no profile doc between statuses. This spec is already `stable`. |
 | observability | `n/a` | Unchanged surface: the `validate: ok` and `comments: ok` summary lines in [ADR-003](../../adrs/adr-003-public-contract.md). This batch adds no log line. |
 
 ## Unresolved
