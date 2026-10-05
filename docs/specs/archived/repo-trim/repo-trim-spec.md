@@ -2,28 +2,28 @@
 type: spec
 title: Drop duplicate tests and finished migration checks
 description: Delete tests that only repeat another proof or only pin a finished rename, registry move, or template extract, and leave the consumer legacy-ADR path and the concrete ADR-token scan in place.
-status: stable
+status: deprecated
 ---
 
 # Drop duplicate tests and finished migration checks
 
 **Source:** confirmed ask — "explore the codebase and write a code-spec on stale things like artifacts and tests. i want to trim out this repo." Follow-up, confirmed: "what about old implementation or migration verifications? app is stable enough." Follow-up: the test-sync skill at <https://mcpmarket.com/tools/skills/test-sync-maintenance> (jmagly, `test-sync` in [ai-writing-guide](https://github.com/jmagly/ai-writing-guide)). This spec uses its three categories and does not install the skill. Follow-up, confirmed: consolidate the test audit. The extract-vocabulary bans in `test/template-residue.test.ts` go. The concrete ADR-token scan in that file stays.
-**Next:** Approved by the Human on 2026-10-02. The plan is `docs/specs/repo-trim/repo-trim-plan.md`. `code-execute` waits on approval of that plan. One mutate batch, then the batch gate. No second mutate wave.
+**Next:** Approved by the Human on 2026-10-02. The plan is `docs/specs/archived/repo-trim/repo-trim-plan.md`. `code-execute` waits on approval of that plan. One mutate batch, then the batch gate. No second mutate wave.
 **Named proof (this spec's own structural gate):** `proof-repo-trim-spec-obligations`
 
 ## Term challenge
 
 | Term | Resolution |
 |------|------------|
-| stale test | A `test()` whose every assertion is already made by another named test that this initiative keeps. Coined here. Checked against `docs/adrs/` (`qmd query -c adrs`): no ADR defines the term. [ADR-003](../../adrs/adr-003-public-contract.md) says every contract item needs a test; it does not ask for a second copy of the same assertion. |
+| stale test | A `test()` whose every assertion is already made by another named test that this initiative keeps. Coined here. Checked against `docs/adrs/` (`qmd query -c adrs`): no ADR defines the term. [ADR-003](../../../adrs/adr-003-public-contract.md) says every contract item needs a test; it does not ask for a second copy of the same assertion. |
 | migration verification | A test whose subject is a previous shape of this package: the retired `init` command, GitHub Packages install lines, or vocabulary carried in from the repo the templates were extracted from. Coined here. It is not the consumer legacy-ADR path, and it is not the concrete ADR-token scan. |
-| concrete ADR token | `ADR-` plus three digits, or `adr-` plus three digits and a slug, inside a template skill that `setup` copies. Coined here. [ADR-001](../../adrs/adr-001-claim-path.md) ignores `templates/**` in this repo, so a token there is invisible to this package's `validate` and becomes a claim after copy. |
+| concrete ADR token | `ADR-` plus three digits, or `adr-` plus three digits and a slug, inside a template skill that `setup` copies. Coined here. [ADR-001](../../../adrs/adr-001-claim-path.md) ignores `templates/**` in this repo, so a token there is invisible to this package's `validate` and becomes a claim after copy. |
 | artifact | A tracked file outside `src/`, `templates/`, `test/`, and `docs/` that no README, site page, workflow, or `package.json` `"files"` entry cites. Survey term, coined here. The survey result is in Repository grounding. |
 | orphaned test | test-sync: a test whose source module no longer exists. In this repo that is a migration verification. A 1:1 `src/foo.ts` → `test/foo.test.ts` name match is not the rule here; tests call the CLI or read templates. |
 | missing test | test-sync: a source file with no test file of the same name. Not a deletion. This initiative does not add tests. |
 | implementation-coupled test | test-sync: a test of a private method, internal state, or a deep mock. The scan found none of those patterns under `test/`. Refactoring message assertions is out of scope. |
 
-[ADR-002](../../adrs/adr-002-public-npm-oidc.md) records that the first releases went to GitHub Packages and that current publishes go to public npmjs with no stored token. [ADR-001](../../adrs/adr-001-claim-path.md) still warns on a live legacy ADR and points that warning at `harness-init`. [ADR-003](../../adrs/adr-003-public-contract.md) still lists `legacy-adr`, `legacy-claim`, and `adr-status-mismatch`. Those three codes stay tested.
+[ADR-002](../../../adrs/adr-002-public-npm-oidc.md) records that the first releases went to GitHub Packages and that current publishes go to public npmjs with no stored token. [ADR-001](../../../adrs/adr-001-claim-path.md) still warns on a live legacy ADR and points that warning at `harness-init`. [ADR-003](../../../adrs/adr-003-public-contract.md) still lists `legacy-adr`, `legacy-claim`, and `adr-status-mismatch`. Those three codes stay tested.
 
 ## Repository grounding
 
@@ -43,7 +43,7 @@ Searched `qmd query -c adrs` for the rename, the registry move, and what a stabl
 | `test/setup-surfaces.test.ts` — `setup-surfaces: creates exactly the expected paths` | yes | Survivor for `rules/qmd-first.md`, `rules/yagni-strict.md`, and `hooks/README.md`. |
 | `test/skill-qmd.test.ts` — `skill-qmd` and `skill-pragmatic-guard` shared-contract checks | yes | Survivor for those two `SKILL.md` files. |
 | `test/readme-install.test.ts` — `readme-install: no GitHub Packages registry residue` | yes | Migration verification. Deletes this `test()`. The add-then-setup test in the same file stays. |
-| `test/release.test.ts` — `release-oidc: the workflow stores no secret and names no GitHub Packages registry` | yes | Keeps the `secrets.` assertion ([ADR-002](../../adrs/adr-002-public-npm-oidc.md): no stored token). Drops the `npm.pkg.github.com` and `packages: read\|write` assertions, and drops "GitHub Packages" from the title. |
+| `test/release.test.ts` — `release-oidc: the workflow stores no secret and names no GitHub Packages registry` | yes | Keeps the `secrets.` assertion ([ADR-002](../../../adrs/adr-002-public-npm-oidc.md): no stored token). Drops the `npm.pkg.github.com` and `packages: read\|write` assertions, and drops "GitHub Packages" from the title. |
 | `test/template-residue.test.ts` | yes | Two jobs in one `test()`. The `GLOBAL` bans and the extract-scoped bans (`canon`, `clickup`, `cynefin`, Cursor in code-review, board/area/ticket, source-repo commit paths) are migration verification. The scoped rule `concrete ADR token in a skill` stays. It fails on `ADR-` plus three digits, or `adr-` plus three digits, under `templates/.agents/skills/adr/`, `templates/.agents/skills/code-review/`, and `templates/.agents/skills/code-spec/references/TEMPLATE.md`. No other test scans those three paths. |
 | `test/legacy.test.ts`, `test/validate-legacy-folders.test.ts`, `test/harness-init-migration.test.ts`, `test/behaviour-brownfield.test.ts` | yes | Consumer legacy-ADR path. Stay. They use fixtures. This package's own tree has no legacy ADRs. |
 | `video/harness-explainer.mp4`, `video/harness_explainer.py` | yes | Surveyed. About 3.5MB. Uncited. Restyled in `8a11541`. Stays. |
@@ -68,7 +68,7 @@ Applied by hand. No `npx test-sync`, no `test_sync.py`, no `cleanup_orphans.py`.
 
 | Category | Result in this repo | This spec |
 |----------|---------------------|-----------|
-| Orphaned | The retired `init` command, the GitHub Packages assertions, and the extract-vocabulary rules in `test/template-residue.test.ts`. The concrete ADR-token rule in that file is a live proof, because [ADR-001](../../adrs/adr-001-claim-path.md) ignores `templates/**` and `setup` copies those skills. R1's four duplicates are obsolete assertions with a survivor, not deleted modules. | R2 and R1. No further orphans. |
+| Orphaned | The retired `init` command, the GitHub Packages assertions, and the extract-vocabulary rules in `test/template-residue.test.ts`. The concrete ADR-token rule in that file is a live proof, because [ADR-001](../../../adrs/adr-001-claim-path.md) ignores `templates/**` and `setup` copies those skills. R1's four duplicates are obsolete assertions with a survivor, not deleted modules. | R2 and R1. No further orphans. |
 | Missing | `src/` modules such as `src/git.ts`, `src/frontmatter.ts`, and `src/validate/claims.ts` have no same-named test file. The CLI suites (`test/claims.test.ts`, `test/profile.test.ts`, `test/spine.test.ts`, and the rest) already call `validate` and `setup`. | Do not add test files. |
 | Implementation-coupled | No matches for the skill's patterns. Many tests pin stdout and workflow YAML. Those pins stay; changing them is a refactor, not a deletion. | Out of scope. The dogfood skill repeats that rule. |
 
@@ -100,22 +100,22 @@ The Human confirmed the package is stable enough to drop verifications of shapes
 
 | Dimension | Landing kind | Landing |
 |-----------|---------------|---------|
-| validation | obligation ↔ proof | R1.1 / `proof-repo-trim-copy-check` through R1.4, and R2.1 / `proof-repo-trim-init-pin` through R2.4 / `proof-repo-trim-template-residue`. Each named survivor is still in the tree, and `pnpm test` exits 0. `pnpm validate` still exits 0. This batch does not edit an ADR, a PRD, or this spec's obligations. It may check this spec's Acceptance boxes and write resume marks in `docs/specs/repo-trim/repo-trim-plan.md`. This spec stays `stable`. |
+| validation | obligation ↔ proof | R1.1 / `proof-repo-trim-copy-check` through R1.4, and R2.1 / `proof-repo-trim-init-pin` through R2.4 / `proof-repo-trim-template-residue`. Each named survivor is still in the tree, and `pnpm test` exits 0. `pnpm validate` still exits 0. This batch does not edit an ADR, a PRD, or this spec's obligations. It may check this spec's Acceptance boxes and write resume marks in `docs/specs/archived/repo-trim/repo-trim-plan.md`. This spec stays `stable`. |
 | failure modes | obligation ↔ proof | R1.1 / `proof-repo-trim-copy-check` — if a survivor title is missing in the same edit, that `rg` proof fails and the batch stops. R2.4 / `proof-repo-trim-template-residue` — a later template that uses a formerly banned extract word is an accepted loss. The concrete ADR-token pattern is the survivor in that file: if `ADR-\d{3}` is gone, that `rg` proof fails and the batch stops. The batch also stops if `pnpm test` exits non-zero. |
 | idempotency and retry | obligation ↔ proof | R2.1 / `proof-repo-trim-init-pin` — the edit removes the pin and does not rewrite `test/contract.test.ts`. A second apply finds the pin already absent and the contract test byte-identical. The same shape applies to the other deletions. |
 | authorization | `n/a` | Unchanged surface: `.github/workflows/ci.yml` permissions stay `contents: read`, `pull-requests: read`, `checks: read`. The release workflow's `id-token: write` on the publish job stays; `test/release.test.ts` already pins that outside the assertions R2.3 removes. |
 | concurrency and ordering | `n/a` | Unchanged surface: the `concurrency` group in `.github/workflows/ci.yml`. One mutate batch, no second writer. |
-| data lifecycle | obligation ↔ proof | R2.2 / `proof-repo-trim-packages-readme` — the README residue test is removed and not copied into another file. [ADR-002](../../adrs/adr-002-public-npm-oidc.md) keeps the GitHub Packages history. This batch does not edit that ADR. |
+| data lifecycle | obligation ↔ proof | R2.2 / `proof-repo-trim-packages-readme` — the README residue test is removed and not copied into another file. [ADR-002](../../../adrs/adr-002-public-npm-oidc.md) keeps the GitHub Packages history. This batch does not edit that ADR. |
 | external-dependency failure | `n/a` | Unchanged surface: `package.json` `dependencies` stay `yaml` and `@clack/prompts`. `video/harness_explainer.py` imports manim and stays; this batch does not run it and does not add manim. |
 | state transitions | `n/a` | Unchanged surface: `docs/WRITING-PROFILE.md` statuses stay `draft`, `stable`, and `deprecated`. The mutate batch moves no profile doc between statuses. This spec is already `stable`. |
-| observability | `n/a` | Unchanged surface: the `validate: ok` and `comments: ok` summary lines in [ADR-003](../../adrs/adr-003-public-contract.md). This batch adds no log line. |
+| observability | `n/a` | Unchanged surface: the `validate: ok` and `comments: ok` summary lines in [ADR-003](../../../adrs/adr-003-public-contract.md). This batch adds no log line. |
 
 ## Unresolved
 
 | Identifier | Decision needed | Owner | Blocking effect | Disposition |
 |------------|-------------------|-------|-------------------|--------------|
 
-None. The Human confirmed that finished migration verifications can go. The consumer legacy-ADR path stays because [ADR-001](../../adrs/adr-001-claim-path.md) and [ADR-003](../../adrs/adr-003-public-contract.md) still define it.
+None. The Human confirmed that finished migration verifications can go. The consumer legacy-ADR path stays because [ADR-001](../../../adrs/adr-001-claim-path.md) and [ADR-003](../../../adrs/adr-003-public-contract.md) still define it.
 
 ## Out of scope
 
@@ -124,7 +124,7 @@ None. The Human confirmed that finished migration verifications can go. The cons
 - `--version and -v print the package name and version`. It checks the printed line, which the contract test does not.
 - The remaining tests in `test/seed-extract.test.ts`.
 - `test/legacy.test.ts`, `test/validate-legacy-folders.test.ts`, `test/harness-init-migration.test.ts`, and `test/behaviour-brownfield.test.ts`.
-- A test that runs `-h`. [ADR-003](../../adrs/adr-003-public-contract.md) names it. Nothing in `test/` runs it. This trim does not add proofs.
+- A test that runs `-h`. [ADR-003](../../../adrs/adr-003-public-contract.md) names it. Nothing in `test/` runs it. This trim does not add proofs.
 - A new file to hold the concrete ADR-token scan. R2.4 keeps it in `test/template-residue.test.ts`.
 
 ## Pragmatic-guard refuses
@@ -138,10 +138,10 @@ None. The Human confirmed that finished migration verifications can go. The cons
 | Delete `docs/**/archived/**` or archive `docs/specs/lean-init/` from this spec | 2 | 4 — closure sets `deprecated` and moves the folders | **Refuse.** Closure is `code-pr`. |
 | Delete `test/template-residue.test.ts` because most of its bans are extract vocabulary | 2 — the extract bans are finished | 6 — the concrete ADR-token rule is the only scan of three template trees that `setup` copies and this repo's `validate` ignores | **Refuse.** R2.4 deletes the extract rules and keeps that one rule. |
 | Invent a new ban list to replace the extract vocabulary | 0 — those words are an accepted loss | 3 | **Refuse.** R2.4 deletes the extract rules. It does not write a replacement list. |
-| Add an `-h` test in this trim | 2 — [ADR-003](../../adrs/adr-003-public-contract.md) names `-h` and no test runs it | 3 — a new proof, outside a deletion batch | **Refuse.** Out of scope. |
+| Add an `-h` test in this trim | 2 — [ADR-003](../../../adrs/adr-003-public-contract.md) names `-h` and no test runs it | 3 — a new proof, outside a deletion batch | **Refuse.** Out of scope. |
 | Paste the upstream test-sync skill, add `npx test-sync` to CI, or add its Python cleanup scripts | 2 — the three categories were useful once | 7 — a new tool, a CI gate, and a 1:1 file-name rule that does not match this suite | **Refuse.** `.agents/skills/test-sync/SKILL.md` is the adapted rules. Promotion is `docs/deferrals/test-sync-package/test-sync-package-deferral.md`. |
 | Add a test file per `src/` module the audit marks "missing" | 1 — the CLI suites already exercise those modules | 6 — new tests for modules that are not untested | **Refuse.** |
-| Refactor stdout and workflow pins into looser assertions | 2 — they can break when wording changes | 6 — a sweep across the suite, and [ADR-003](../../adrs/adr-003-public-contract.md) already says messages are not contract | **Refuse.** Not a deletion. |
+| Refactor stdout and workflow pins into looser assertions | 2 — they can break when wording changes | 6 — a sweep across the suite, and [ADR-003](../../../adrs/adr-003-public-contract.md) already says messages are not contract | **Refuse.** Not a deletion. |
 | A new dependency, a new command, or an ADR | 0 | — | **Refuse.** |
 
 ## Acceptance
@@ -170,12 +170,12 @@ None. The Human confirmed that finished migration verifications can go. The cons
 |------|--------|
 | Archive `docs/specs/lean-init/`, its plan, and `docs/prds/lean-init/` | Pre-merge closure in `templates/.agents/skills/code-pr/references/pre-merge-closure.md` |
 | Link `video/harness-explainer.mp4` from the site or the README | A `site/` change. This spec leaves `video/` tracked. |
-| Rewrite `site/search.md` or [ADR-002](../../adrs/adr-002-public-npm-oidc.md) so they stop mentioning GitHub Packages | The history stays in the ADR. The search page stays a search example. |
-| Delete `test/legacy.test.ts` or the harness-init migration playbook tests | Consumer path. [ADR-001](../../adrs/adr-001-claim-path.md) and [ADR-003](../../adrs/adr-003-public-contract.md). |
+| Rewrite `site/search.md` or [ADR-002](../../../adrs/adr-002-public-npm-oidc.md) so they stop mentioning GitHub Packages | The history stays in the ADR. The search page stays a search example. |
+| Delete `test/legacy.test.ts` or the harness-init migration playbook tests | Consumer path. [ADR-001](../../../adrs/adr-001-claim-path.md) and [ADR-003](../../../adrs/adr-003-public-contract.md). |
 | Delete the concrete ADR-token scan, or move it into a new test file | R2.4. The scan stays in `test/template-residue.test.ts`. |
 | Ship test-sync in `templates/` or a skill set | `docs/deferrals/test-sync-package/test-sync-package-deferral.md` |
 | An executable plan from this skill | `code-plan` only |
 
 ## ADR
 
-None owed. Dropping a duplicate test, a retired-name pin, a registry-residue pin, or the extract-vocabulary rules in the template-residue test does not change a command, flag, exit code, finding code, or the config schema. [ADR-002](../../adrs/adr-002-public-npm-oidc.md) and [ADR-003](../../adrs/adr-003-public-contract.md) stay as they are. Do not add an ADR for this trim.
+None owed. Dropping a duplicate test, a retired-name pin, a registry-residue pin, or the extract-vocabulary rules in the template-residue test does not change a command, flag, exit code, finding code, or the config schema. [ADR-002](../../../adrs/adr-002-public-npm-oidc.md) and [ADR-003](../../../adrs/adr-003-public-contract.md) stay as they are. Do not add an ADR for this trim.

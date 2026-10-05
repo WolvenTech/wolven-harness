@@ -2,13 +2,13 @@
 type: spec
 title: Drop duplicate tests and finished migration checks — plan
 description: One mutate batch that deletes the duplicate tests and finished migration pins named in the repo-trim spec, then one gate over the eight proofs.
-status: draft
-source_spec: docs/specs/repo-trim/repo-trim-spec.md
+status: deprecated
+source_spec: docs/specs/archived/repo-trim/repo-trim-spec.md
 ---
 
 # Drop duplicate tests and finished migration checks — plan
 
-**Input:** `docs/specs/repo-trim/repo-trim-spec.md` (status `stable`). The Human approved it on 2026-10-02.
+**Input:** `docs/specs/archived/repo-trim/repo-trim-spec.md` (status `stable`). The Human approved it on 2026-10-02.
 **Next:** after the Human approves this plan → `code-execute`. Pushing and opening a review are a separate `code-pr` ask.
 
 ## Structural gate
@@ -26,7 +26,7 @@ source_spec: docs/specs/repo-trim/repo-trim-spec.md
 | `proof-repo-trim-packages-workflow` | R2.3 |
 | `proof-repo-trim-template-residue` | R2.4 |
 
-`n/a` surfaces: `.github/workflows/ci.yml` permissions and its `concurrency` group, `package.json` `dependencies`, `docs/WRITING-PROFILE.md` statuses, and the `validate: ok` / `comments: ok` lines in [ADR-003](../../adrs/adr-003-public-contract.md).
+`n/a` surfaces: `.github/workflows/ci.yml` permissions and its `concurrency` group, `package.json` `dependencies`, `docs/WRITING-PROFILE.md` statuses, and the `validate: ok` / `comments: ok` lines in [ADR-003](../../../adrs/adr-003-public-contract.md).
 
 The spec's Unresolved table is empty. This plan adds no blocker.
 
@@ -40,7 +40,7 @@ The spec's Unresolved table is empty. This plan adds no blocker.
 | 04 | Drop the README registry-residue test | — | `test/readme-install.test.ts` | `spawn` | `readme-install: no GitHub Packages registry residue` is absent. `readme-install: the add and setup commands appear, in that order` remains, and the file still contains `pnpm add -D @wolven-tech/harness` — proof: `proof-repo-trim-packages-readme` (`rg` half) |
 | 05 | Drop the release-workflow registry pins | — | `test/release.test.ts` | `spawn` | The file no longer mentions GitHub Packages, `npm.pkg.github.com`, or `packages: read\|write`. The test that asserted those lines is retitled `release-oidc: the workflow stores no secret` and still asserts no `secrets.` reference. The other tests in the file stay — proof: `proof-repo-trim-packages-workflow` (`rg` half) |
 | 06 | Drop the extract-vocabulary bans | — | `test/template-residue.test.ts` | `spawn` | `canon`, `clickup`, and `cynefin` are gone from the file. The remaining `test()` is titled `template-residue: copied skills contain no concrete ADR token` and still fails on `ADR-` plus three digits under `templates/.agents/skills/adr/`, `templates/.agents/skills/code-review/`, and `templates/.agents/skills/code-spec/references/TEMPLATE.md` — proof: `proof-repo-trim-template-residue` (`rg` half) |
-| 07 | **Batch gate** | 01, 02, 03, 04, 05, 06 | `docs/specs/repo-trim/repo-trim-spec.md` (Acceptance boxes only), `docs/specs/repo-trim/repo-trim-plan.md` (resume marks only) | `inline` | All eight `rg` proofs from R1.1–R2.4 pass on the tree. `pnpm test`, `pnpm validate`, and `pnpm comments` exit 0. The spec's Acceptance boxes are checked. Failure → **abort**. Do not start another mutate wave |
+| 07 | **Batch gate** | 01, 02, 03, 04, 05, 06 | `docs/specs/archived/repo-trim/repo-trim-spec.md` (Acceptance boxes only), `docs/specs/archived/repo-trim/repo-trim-plan.md` (resume marks only) | `inline` | All eight `rg` proofs from R1.1–R2.4 pass on the tree. `pnpm test`, `pnpm validate`, and `pnpm comments` exit 0. The spec's Acceptance boxes are checked. Failure → **abort**. Do not start another mutate wave |
 
 ## Wave stops
 
@@ -52,7 +52,7 @@ The spec names one mutate batch and no second wave. Units 01–06 are that batch
 
 ## Unresolved
 
-None. The locked spec's Unresolved table is empty. The consumer legacy-ADR path stays because [ADR-001](../../adrs/adr-001-claim-path.md) and [ADR-003](../../adrs/adr-003-public-contract.md) still define it.
+None. The locked spec's Unresolved table is empty. The consumer legacy-ADR path stays because [ADR-001](../../../adrs/adr-001-claim-path.md) and [ADR-003](../../../adrs/adr-003-public-contract.md) still define it.
 
 ## Frontier order
 
@@ -73,17 +73,17 @@ Parallel only while Owns stay disjoint. Unit 02 is the only writer of `test/cli.
 
 Resolved opt, read before mutate: `.agents/code-commit.config.yml` is absent. `autocommit: false` (default). `autocommit-rule: wave` (default). `code-commit` is installed at `.claude/skills/code-commit/` and is not invoked for this wave.
 
-Pre-start: frontier is units 01–06 in parallel, then unit 07. Spec `docs/specs/repo-trim/repo-trim-spec.md`. Plan `docs/specs/repo-trim/repo-trim-plan.md`. Ship gate is unit 07 (`pnpm test`, `pnpm validate`, `pnpm comments`, and the eight `rg` proofs). No second mutate wave. The Human approved execution on 2026-10-02. Plan `status` stays `draft` because the spec says the mutate batch moves no profile doc between statuses.
+Pre-start: frontier is units 01–06 in parallel, then unit 07. Spec `docs/specs/archived/repo-trim/repo-trim-spec.md`. Plan `docs/specs/archived/repo-trim/repo-trim-plan.md`. Ship gate is unit 07 (`pnpm test`, `pnpm validate`, `pnpm comments`, and the eight `rg` proofs). No second mutate wave. The Human approved execution on 2026-10-02. Plan `status` stays `draft` because the spec says the mutate batch moves no profile doc between statuses.
 
 ### Unit 01 — Drop the harness-init copy duplicate
 
 | Field | Value |
 |-------|-------|
 | Unit | 01 — Drop the harness-init copy duplicate (frontier, parallel with 02–06) |
-| Spec / plan | `docs/specs/repo-trim/repo-trim-spec.md` / `docs/specs/repo-trim/repo-trim-plan.md` |
+| Spec / plan | `docs/specs/archived/repo-trim/repo-trim-spec.md` / `docs/specs/archived/repo-trim/repo-trim-plan.md` |
 | Obligations | R1.1 / `proof-repo-trim-copy-check` — done |
 | `HEAD` | `e9ad58b` |
-| `git status` | dirty — `docs/specs/repo-trim/repo-trim-plan.md` resume section only; isolated from Owns; decision: resolved, do not revert |
+| `git status` | dirty — `docs/specs/archived/repo-trim/repo-trim-plan.md` resume section only; isolated from Owns; decision: resolved, do not revert |
 | Intended diff | `test/harness-init-stub.test.ts` |
 | Discrepancies | none |
 
@@ -92,10 +92,10 @@ Pre-start: frontier is units 01–06 in parallel, then unit 07. Spec `docs/specs
 | Field | Value |
 |-------|-------|
 | Unit | 02 — Drop the cli duplicates and the retired `init` pins (frontier, parallel with 01, 03–06) |
-| Spec / plan | `docs/specs/repo-trim/repo-trim-spec.md` / `docs/specs/repo-trim/repo-trim-plan.md` |
+| Spec / plan | `docs/specs/archived/repo-trim/repo-trim-spec.md` / `docs/specs/archived/repo-trim/repo-trim-plan.md` |
 | Obligations | R1.2 / `proof-repo-trim-help-version`, R1.3 / `proof-repo-trim-unknown-command`, R2.1 / `proof-repo-trim-init-pin` — done |
 | `HEAD` | `e9ad58b` |
-| `git status` | dirty — `docs/specs/repo-trim/repo-trim-plan.md` resume section only; isolated from Owns; decision: resolved, do not revert |
+| `git status` | dirty — `docs/specs/archived/repo-trim/repo-trim-plan.md` resume section only; isolated from Owns; decision: resolved, do not revert |
 | Intended diff | `test/cli.test.ts` |
 | Discrepancies | none |
 
@@ -104,10 +104,10 @@ Pre-start: frontier is units 01–06 in parallel, then unit 07. Spec `docs/specs
 | Field | Value |
 |-------|-------|
 | Unit | 03 — Drop the template-existence duplicate (frontier, parallel with 01–02, 04–06) |
-| Spec / plan | `docs/specs/repo-trim/repo-trim-spec.md` / `docs/specs/repo-trim/repo-trim-plan.md` |
+| Spec / plan | `docs/specs/archived/repo-trim/repo-trim-spec.md` / `docs/specs/archived/repo-trim/repo-trim-plan.md` |
 | Obligations | R1.4 / `proof-repo-trim-template-files` — done |
 | `HEAD` | `e9ad58b` |
-| `git status` | dirty — `docs/specs/repo-trim/repo-trim-plan.md` resume section only; isolated from Owns; decision: resolved, do not revert |
+| `git status` | dirty — `docs/specs/archived/repo-trim/repo-trim-plan.md` resume section only; isolated from Owns; decision: resolved, do not revert |
 | Intended diff | `test/seed-extract.test.ts` |
 | Discrepancies | none |
 
@@ -116,10 +116,10 @@ Pre-start: frontier is units 01–06 in parallel, then unit 07. Spec `docs/specs
 | Field | Value |
 |-------|-------|
 | Unit | 04 — Drop the README registry-residue test (frontier, parallel with 01–03, 05–06) |
-| Spec / plan | `docs/specs/repo-trim/repo-trim-spec.md` / `docs/specs/repo-trim/repo-trim-plan.md` |
+| Spec / plan | `docs/specs/archived/repo-trim/repo-trim-spec.md` / `docs/specs/archived/repo-trim/repo-trim-plan.md` |
 | Obligations | R2.2 / `proof-repo-trim-packages-readme` — done |
 | `HEAD` | `e9ad58b` |
-| `git status` | dirty — `docs/specs/repo-trim/repo-trim-plan.md` resume section only; isolated from Owns; decision: resolved, do not revert |
+| `git status` | dirty — `docs/specs/archived/repo-trim/repo-trim-plan.md` resume section only; isolated from Owns; decision: resolved, do not revert |
 | Intended diff | `test/readme-install.test.ts` |
 | Discrepancies | none |
 
@@ -128,10 +128,10 @@ Pre-start: frontier is units 01–06 in parallel, then unit 07. Spec `docs/specs
 | Field | Value |
 |-------|-------|
 | Unit | 05 — Drop the release-workflow registry pins (frontier, parallel with 01–04, 06) |
-| Spec / plan | `docs/specs/repo-trim/repo-trim-spec.md` / `docs/specs/repo-trim/repo-trim-plan.md` |
+| Spec / plan | `docs/specs/archived/repo-trim/repo-trim-spec.md` / `docs/specs/archived/repo-trim/repo-trim-plan.md` |
 | Obligations | R2.3 / `proof-repo-trim-packages-workflow` — done |
 | `HEAD` | `e9ad58b` |
-| `git status` | dirty — `docs/specs/repo-trim/repo-trim-plan.md` resume section only; isolated from Owns; decision: resolved, do not revert |
+| `git status` | dirty — `docs/specs/archived/repo-trim/repo-trim-plan.md` resume section only; isolated from Owns; decision: resolved, do not revert |
 | Intended diff | `test/release.test.ts` |
 | Discrepancies | none |
 
@@ -140,10 +140,10 @@ Pre-start: frontier is units 01–06 in parallel, then unit 07. Spec `docs/specs
 | Field | Value |
 |-------|-------|
 | Unit | 06 — Drop the extract-vocabulary bans (frontier, parallel with 01–05) |
-| Spec / plan | `docs/specs/repo-trim/repo-trim-spec.md` / `docs/specs/repo-trim/repo-trim-plan.md` |
+| Spec / plan | `docs/specs/archived/repo-trim/repo-trim-spec.md` / `docs/specs/archived/repo-trim/repo-trim-plan.md` |
 | Obligations | R2.4 / `proof-repo-trim-template-residue` — done |
 | `HEAD` | `e9ad58b` |
-| `git status` | dirty — `docs/specs/repo-trim/repo-trim-plan.md` resume section only; isolated from Owns; decision: resolved, do not revert |
+| `git status` | dirty — `docs/specs/archived/repo-trim/repo-trim-plan.md` resume section only; isolated from Owns; decision: resolved, do not revert |
 | Intended diff | `test/template-residue.test.ts` |
 | Discrepancies | none |
 
@@ -152,11 +152,11 @@ Pre-start: frontier is units 01–06 in parallel, then unit 07. Spec `docs/specs
 | Field | Value |
 |-------|-------|
 | Unit | 07 — Batch gate (after 01–06) |
-| Spec / plan | `docs/specs/repo-trim/repo-trim-spec.md` / `docs/specs/repo-trim/repo-trim-plan.md` |
+| Spec / plan | `docs/specs/archived/repo-trim/repo-trim-spec.md` / `docs/specs/archived/repo-trim/repo-trim-plan.md` |
 | Obligations | R1.1–R2.4 — done. Acceptance boxes checked. |
 | `HEAD` | `e9ad58b` |
 | `git status` | dirty — the six test files plus this plan and the spec Acceptance boxes; all in this wave; decision: resolved |
-| Intended diff | `docs/specs/repo-trim/repo-trim-spec.md` (Acceptance boxes only), `docs/specs/repo-trim/repo-trim-plan.md` (resume marks only) |
+| Intended diff | `docs/specs/archived/repo-trim/repo-trim-spec.md` (Acceptance boxes only), `docs/specs/archived/repo-trim/repo-trim-plan.md` (resume marks only) |
 | Discrepancies | none |
 
 Wave gate evidence, this session: eight `rg` proofs passed; `test/contract.test.ts` byte-identical; `pnpm test` 552 pass, 0 fail; `pnpm validate` `validate: ok` (93 claims, 0 failures); `pnpm comments` `comments: ok (0 findings)`. One wave, so one commit covers units 01–07.

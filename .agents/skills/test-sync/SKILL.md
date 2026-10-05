@@ -14,7 +14,7 @@ install it.
 An external skill is a name and a location. Its text stays in its own file.
 
 - External skill: jmagly `test-sync` — https://mcpmarket.com/tools/skills/test-sync-maintenance and https://github.com/jmagly/ai-writing-guide
-- Repo spec: `docs/specs/repo-trim/repo-trim-spec.md`
+- Repo spec: `docs/specs/archived/repo-trim/repo-trim-spec.md`
 - [ADR-001](../../../docs/adrs/adr-001-claim-path.md) and [ADR-003](../../../docs/adrs/adr-003-public-contract.md) — `legacy-adr`, `legacy-claim`, and the harness-init migration path still ship
 
 ## Local decision

@@ -11,7 +11,7 @@ status: stable
 
 **Why:** the upstream skill's one-file-per-module rule and its delete script do not match this suite. The dogfood skill is the adapted rules. Shipping that text to every consumer waits until those rules have been used once more in this repo.
 
-**Today:** `.agents/skills/test-sync/SKILL.md` is the local skill. `setup` does not install it. `docs/specs/repo-trim/repo-trim-spec.md` records the audit that produced the rules.
+**Today:** `.agents/skills/test-sync/SKILL.md` is the local skill. `setup` does not install it. `docs/specs/archived/repo-trim/repo-trim-spec.md` records the audit that produced the rules.
 
 ## Contract impact
 
