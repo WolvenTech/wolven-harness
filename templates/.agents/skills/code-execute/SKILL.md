@@ -242,8 +242,16 @@ explicitly asked for `code-pr`, `code-review`, or `code-ci`.
 
 ## Anti-patterns
 
-Each hard gate above is also a refusal (`pragmatic-guard`). Also avoid:
+Breaking a hard gate above is an anti-pattern in itself. Also avoid:
 
 - **Guessing a blank Subagent cell** instead of sending the plan back
+- **Skipping the pre-start print** on a multi-file unit
 - Auto-chaining `code-pr`, `code-review`, or `code-ci` after every unit
 - Packing the next wave into this one because capacity exists
+
+Refuse these as over-build (`pragmatic-guard`):
+
+- **Independent-verifier ceremony** — a separate verifier pass stacked on
+  the final check, which already proves the unit
+- **Execution log** — a running log or state file of the execution kept
+  beside the plan's seven-field resume section

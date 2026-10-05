@@ -19,10 +19,8 @@ test('skill-code-commit: keeps the atomic plan-completion mark', async () => {
   assert.match(skill.body, /same commit/i);
   assert.match(skill.body, /plan-completion mark/i);
   assert.match(skill.body, /docs\/specs\/<slug>\/<slug>-plan\.md/);
-  assert.match(
-    skill.body,
-    /never\s+flip\s+another\s+unit's\s+checkbox|never\s+leave\s+the\s+plan-completion\s+mark\s+for\s+a\s+later\s+commit/i,
-  );
+  assert.match(skill.body, /never\s+leave\s+the\s+plan-completion\s+mark\s+for\s+a\s+later\s+commit/i);
+  assert.match(skill.body, /never\s+flip\s+the\s+checkbox\s+of\s+a\s+unit\s+outside\s+the\s+batch/i);
 });
 
 test('skill-code-commit: keeps split heuristics for unrelated contexts', async () => {
