@@ -2,7 +2,7 @@
 type: spec
 title: Include untracked files in validate scans
 description: RepoContext lists tracked and untracked non-ignored paths so validate catches new docs before git add.
-status: stable
+status: deprecated
 ---
 
 # Include untracked files in validate scans

@@ -2,7 +2,7 @@
 type: spec
 title: Include untracked files in validate scans — plan
 description: Work units to merge untracked paths into RepoContext and prove with tests.
-status: stable
+status: deprecated
 ---
 
 # Include untracked files in validate scans — plan
@@ -41,7 +41,7 @@ All obligations in `validate-untracked-spec.md` map to named proofs below.
 | Field | Value |
 |-------|-------|
 | Unit | 01 — Merge untracked into RepoContext |
-| Spec / plan | `docs/specs/validate-untracked/validate-untracked-spec.md` / `docs/specs/validate-untracked/validate-untracked-plan.md` |
+| Spec / plan | `docs/specs/archived/validate-untracked/validate-untracked-spec.md` / `docs/specs/archived/validate-untracked/validate-untracked-plan.md` |
 | Obligations | R1.1, R1.2 — done |
 | `HEAD` | *(see git)* |
 | `git status` | dirty — unit 02 owns tests |
