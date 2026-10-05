@@ -42,3 +42,26 @@ export function parseMarkdownTables(md: string): MdTable[] {
   }
   return tables;
 }
+
+/**
+ * Returns the text under the first line that starts with `heading` (e.g. `'## Lean path'`),
+ * from the line after it up to the next heading of the same or a higher level, or to the
+ * end of `body`; `''` when no line matches. Lines inside fenced code blocks are never headings.
+ */
+export function section(body: string, heading: string): string {
+  const level = /^#+/.exec(heading)?.[0].length ?? 0;
+  const lines = body.split('\n');
+  const start = lines.findIndex((line) => line.startsWith(heading));
+  if (start === -1) return '';
+  let inFence = false;
+  let end = lines.length;
+  for (let i = start + 1; i < lines.length; i++) {
+    if (/^\s*(```|~~~)/.test(lines[i])) inFence = !inFence;
+    const depth = /^(#+)\s/.exec(lines[i])?.[1].length;
+    if (!inFence && depth !== undefined && depth <= level) {
+      end = i;
+      break;
+    }
+  }
+  return lines.slice(start + 1, end).join('\n');
+}

@@ -43,10 +43,11 @@ everything under a doc-folder's `archived/`, are not checked.
 
 ## Why this matters
 
-Any tracked file can reference an ADR as `ADR-NNN` or `adr-NNN-<slug>` — see
-`WOLVEN.md`'s architecture-claims rule. `wolven-harness validate` resolves
-every such reference against `docs/adrs/`, so a profile ADR that fails these
-rules breaks every claim that depends on it, not just itself.
+Any tracked file can reference an ADR as `ADR-NNN` or `adr-NNN-<slug>` — that
+reference is a claim: it must resolve to exactly one `stable` profile ADR under
+`docs/adrs/`, or the claim fails. `wolven-harness validate` resolves every
+such reference against `docs/adrs/`, so a profile ADR that fails these rules
+breaks every claim that depends on it, not just itself.
 
 ## Example
 

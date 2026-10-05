@@ -65,6 +65,25 @@ test('readme-install: the release page says to close and reopen the release PR b
   assert.match(release, /[Cc]lose and reopen the release PR before merging/);
 });
 
+test('readme-install: README and the harness-init page explain the lean path', async () => {
+  const readme = await readReadme();
+  const page = await readDoc('site/harness-init.md');
+  const lean = section(page, 'Lean path');
+
+  assert.match(readme, /lean path/i);
+  assert.match(readme, /skill proposals still run/i);
+  // invariant: the four deferrable items are listed only in lean-path.md; docs link there.
+  for (const doc of [readme, lean]) {
+    assert.match(doc, /references\/lean-path\.md/);
+    assert.doesNotMatch(doc, /per-dimension score-gap keep\/drop/i);
+    assert.doesNotMatch(doc, /deep discovery Q&A/i);
+  }
+  assert.match(lean, /thin-evidence/i);
+  assert.match(lean, /immediate goal/i);
+  assert.match(lean, /Deferred \/ skipped steps/);
+  assert.match(lean, /Skill proposals always run/i);
+});
+
 test('readme-install: the contributing page keeps clone-and-build with pnpm build', async () => {
   const contributingSection = section(await readDoc('site/contributing.md'), 'Contributing');
 

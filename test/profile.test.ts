@@ -435,6 +435,15 @@ test('profile-doc: templates/docs/WRITING-PROFILE.md is at most 80 lines', async
   assert.ok(lineCount <= 80, `expected <= 80 lines, got ${lineCount}`);
 });
 
+test('profile-doc: templates/docs/WRITING-PROFILE.md does not name WOLVEN.md for architecture claims', async () => {
+  const content = await readFile(writingProfilePath, 'utf8');
+
+  assert.ok(
+    !content.includes('WOLVEN.md'),
+    'expected WRITING-PROFILE.md to restate architecture claims without naming WOLVEN.md',
+  );
+});
+
 test('profile-doc: templates/docs/WRITING-PROFILE.md mentions every implemented rule term', async () => {
   const content = await readFile(writingProfilePath, 'utf8');
 

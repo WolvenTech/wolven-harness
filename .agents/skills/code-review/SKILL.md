@@ -11,11 +11,23 @@ refs it cites, and the diff — then posts grounded findings. It never
 merges, never fixes code, and never replies to or resolves a thread; that
 follow-through belongs to `code-ci`, on its own explicit ask.
 
-**Consult:** `pragmatic-guard`.
+**Consult:** when the session skill list includes `pragmatic-guard`, consult
+it, then follow this skill. When it is absent, follow this skill's own
+steps. The reply and the posted review include `pragmatic-guard was not
+consulted`. A folder on disk or a remembered name is not loaded. Name no
+install command. The run writes no deferral and no sentence that the guard
+ran.
+
+Reading `pragmatic-guard was not consulted` does not treat the guard as
+having run and does not claim merge-ready.
+
 **Input:** an open PR (URL or number) whose description cites the refs it
 implements.
 **Does not:** implement fixes, open a PR, reply to or resolve a thread,
 merge, enable auto-merge, or read merge settings.
+
+When `code-pr` is absent from the session skill list, stop before a host
+action, name `code-pr`, and do not copy the host procedure.
 
 **References (read when):**
 
@@ -31,6 +43,8 @@ invokes it automatically — not after `code-execute`, `code-commit`, or
 `code-pr` finishes.
 
 ## Grounding
+
+Host steps below follow the `code-pr` stop above.
 
 1. Read the PR and diff (read PR and diff — host operations).
 2. Read every ref the PR body cites: a spec
@@ -61,6 +75,10 @@ operations).
 See [review-criteria.md](references/review-criteria.md) for the full axis
 list and severity rules.
 
+When `harness:validate` cannot be run, post the other findings. The posted
+review says the ADR-claims axis was not checked. Do not judge those claims
+by eye.
+
 ## Never merges
 
 This skill never merges, approves-and-merges, or enables auto-merge, and
@@ -81,6 +99,15 @@ to perform one.
 6. **No fixes, no thread follow-through** — this skill posts findings; it
    does not edit code, reply to a thread, or resolve one. That
    follow-through is `code-ci`.
+7. **Missing guard** — consult `pragmatic-guard` only when the session skill
+   list includes it. When absent, the reply and the posted review include
+   `pragmatic-guard was not consulted`; write no deferral and no sentence
+   that the guard ran.
+8. **Missing `code-pr`** — stop before a host action, name `code-pr`, and do
+   not copy the host procedure.
+9. **ADR-claims axis** — when `harness:validate` cannot be run, post the
+   other findings, say that axis was not checked, and do not judge those
+   claims by eye.
 
 ## When not to use
 
@@ -93,15 +120,23 @@ to perform one.
 ## Workflow
 
 1. Confirm the explicit ask.
-2. Read PR and diff (host operations).
-3. Read every ref the PR body cites.
-4. List unresolved threads (host operations) to avoid duplicating an open
+2. Apply **Consult**. When `pragmatic-guard` is absent, the reply and the
+   posted review include `pragmatic-guard was not consulted`.
+3. When `code-pr` is absent from the session skill list, stop before a host
+   action, name `code-pr`, and do not copy the host procedure.
+4. Read PR and diff (host operations).
+5. Read every ref the PR body cites. Reading `pragmatic-guard was not
+   consulted` does not treat the guard as having run and does not claim
+   merge-ready.
+6. List unresolved threads (host operations) to avoid duplicating an open
    finding.
-5. Read [review-criteria.md](references/review-criteria.md); classify each
-   finding blocking or nit.
-6. Post each finding — post a review comment (host operations) — with
+7. Read [review-criteria.md](references/review-criteria.md); classify each
+   finding blocking or nit. When `harness:validate` cannot be run, post the
+   other findings, the posted review says the ADR-claims axis was not
+   checked, and do not judge those claims by eye.
+8. Post each finding — post a review comment (host operations) — with
    file:line, label, and a one-line why tied to a ref or diff line.
-7. End with a verdict (approve-with-nits / request-changes / needs-the-human)
+9. End with a verdict (approve-with-nits / request-changes / needs-the-human)
    — never a merge.
 
 ## Anti-patterns
@@ -113,3 +148,10 @@ to perform one.
   naming `code-ci`
 - Duplicating a finding an unresolved thread already has open
 - Running without an explicit ask
+- Loading `pragmatic-guard` from a folder on disk or a remembered name
+- Writing a deferral, or a sentence that the guard ran, when it is absent
+- Naming an install command for `pragmatic-guard`
+- Reading `pragmatic-guard was not consulted` as the guard having run, or as
+  merge-ready
+- Copying the host procedure when `code-pr` is absent
+- Judging ADR claims by eye when `harness:validate` cannot be run

@@ -10,8 +10,15 @@ Full companion for the **merge-ready loop** on an open pull request: conflicts
 → comments → CI → closure, in that strict order, repeated pass after pass
 until the pull request is green or genuinely blocked. No autopilot.
 
-**Consult:** `pragmatic-guard`.
-**Host steps:** [host operations](../code-pr/references/host-operations.md) — every git-host action below (push branch, list unresolved threads, reply to a thread, resolve a thread, read check status, read a failing log) goes through that table; try its MCP tool first, and fall back to its other route without asking.
+**Consult:** `pragmatic-guard`. Loaded means the session skill list from the
+runtime. When that list includes `pragmatic-guard`, consult it, then follow
+this skill. When it is absent, follow this skill's own steps; the reply and
+any durable text this run writes include `pragmatic-guard was not consulted`.
+A folder on disk or a remembered name is not loaded. Name no install command
+for `pragmatic-guard`. That run writes no deferral and no sentence that the
+guard ran. Reading `pragmatic-guard was not consulted` does not treat the
+guard as having run and does not claim the pull request is merge-ready.
+**Host steps:** [host operations](../code-pr/references/host-operations.md) — every git-host action below (push branch, list unresolved threads, reply to a thread, resolve a thread, read check status, read a failing log) goes through that table; try its MCP tool first, and fall back to its other route without asking. When `code-pr` is absent from the session skill list, stop before a host action, name `code-pr`, and do not copy the host procedure.
 **Input:** an open pull request + an **explicit ask**.
 **Output:** a merge-ready report, or **blocked** with TRIED / NEED — **never** a merge.
 
@@ -76,9 +83,13 @@ itself.
 1. Fetch and bring the base branch in locally.
 2. Resolve conflicts; if two changes genuinely conflict in intent rather
    than in text, stop and ask rather than guessing which side wins.
-3. Run `harness:validate` and the test suite on the resolved tree.
+3. Run `harness:validate` and the test suite on the resolved tree. When
+   `harness:validate` cannot be run, stop that step, name `setup`, and do
+   not claim the command passed or that the pull request is merge-ready.
 4. Commit the resolution through a commit step (never commit this loop's own
-   work with a raw, unreviewed message).
+   work with a raw, unreviewed message). When `code-commit` is absent from
+   the session skill list and the next step is a commit, stop, name
+   `code-commit`, and do not run `git commit`.
 5. Push branch (host operations), then restart the loop — checks re-run
    against the new head.
 
@@ -144,6 +155,8 @@ Lead with cause, not with a bare pass/fail. End every pass with one of:
 - **Merge-ready** — a fresh read shows no conflicts, required checks green,
   every thread resolved or answered, and `code-pr`'s pre-merge closure
   either done or explicitly still pending. Cite the evidence for each claim.
+  A review that says the ADR-claims axis was not checked is not a passed
+  axis and is not merge-ready.
 - **Blocked** — **TRIED** (what was attempted, with evidence) / **NEED**
   (the concrete decision or input required), with inherited vs in-scope
   named for any red check.

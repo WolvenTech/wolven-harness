@@ -11,13 +11,17 @@ Turns a rough ask into one lean PRD: a single problem statement, goals, user sto
 
 ## Workflow
 
+Loaded means the skill is in the list the runtime provided for this session. A folder on disk does not count. A name remembered from an earlier summary does not count.
+
 ### 1. Grill the problem
 
-Before anything else, run `grilling` on the problem, with no cap on the number of questions. Start the tree from who hurts, what the pain is, why now, and what evidence backs it, and keep going until there is one problem: one set of users and one pain.
+When the session skill list includes `grilling`, run `grilling` on the problem before drafting, with no cap on the number of questions. Start the tree from who hurts, what the pain is, why now, and what evidence backs it, and keep going until there is one problem: one set of users and one pain.
 
 If the grilling surfaces a second problem, split it into its own PRD or park it under Open questions — do not fold two problems into one draft.
 
 Stop grilling only when you can state the problem in one sentence and the Human confirms it. Anything still unanswered goes under Open questions rather than being invented.
+
+When `grilling` is absent from the session skill list, draft from the ask with the term check and the template. The PRD file and the reply include `grilling did not run`. Do not interview in place of grilling. Do not name an install command for `grilling`.
 
 ### 2. Term challenge
 
@@ -35,7 +39,7 @@ The approved PRD becomes `code-spec`'s input. Approval locks the requirements; i
 
 ### 5. ADR offer
 
-If the PRD settles a decision that should outlive this one change — a durable choice about architecture, a dependency, or a convention — offer to record it with the `adr` skill. The PRD itself states requirements; it is not the decision record.
+If the PRD settles a decision that should outlive this one change — a durable choice about architecture, a dependency, or a convention — and the session skill list includes `adr`, offer to record it with the `adr` skill. When `adr` is absent from the session skill list, write no decision record and name `adr` in the reply. The PRD itself states requirements; it is not the decision record.
 
 ## Template sections
 
@@ -55,7 +59,7 @@ If the PRD settles a decision that should outlive this one change — a durable 
 
 ## Anti-patterns
 
-- Drafting before the problem statement is confirmed, or before a surfaced second problem is split out.
+- Drafting before the problem statement is confirmed while `grilling` is on the session skill list, or before a surfaced second problem is split out.
 - Reusing a borrowed term without checking it against local docs first.
 - Setting `status: stable` without the Human's explicit approval.
 - Treating an approved PRD as permission to start writing code.
