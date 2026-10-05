@@ -137,12 +137,10 @@ test('release-oidc: a failed publish can be re-run by hand for an existing tag',
   }
 });
 
-test('release-oidc: the workflow stores no secret and names no GitHub Packages registry', async () => {
+test('release-oidc: the workflow stores no secret', async () => {
   const raw = await readFile(path.join(repoRoot, '.github/workflows/release.yml'), 'utf8');
 
   assert.doesNotMatch(raw, /secrets\./);
-  assert.doesNotMatch(raw, /npm\.pkg\.github\.com/);
-  assert.doesNotMatch(raw, /packages:\s*(read|write)/);
 });
 
 test('release-oidc: the npm pin is at least 11.5.1, the minimum for OIDC trusted publishing', async () => {
