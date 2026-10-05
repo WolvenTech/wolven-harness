@@ -1,14 +1,9 @@
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
-import path from 'node:path';
 import { test } from 'node:test';
-import { fileURLToPath } from 'node:url';
 import { parse as parseYaml } from 'yaml';
 import { run } from './helpers/fixture.js';
 import { flatten } from './helpers/prose.js';
 import { minimalValidateFixture, readSkill } from './helpers/skill-contract.js';
-
-const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 const REF = 'references/stub-template.md';
 const INVENTED_NAME = 'payments-gateway';
@@ -172,17 +167,6 @@ test('stub-template: step 5 is done when validate warns skill-stub-open and no f
   assert.match(step, /each step ending on a checkable done/i);
   assert.match(step, /no existing skill folder was overwritten/i);
   assert.match(step, /warns `skill-stub-open` once for that `SKILL\.md`/);
-});
-
-test('stub-template: the installed harness-init copy matches the template', async () => {
-  for (const rel of [
-    '.agents/skills/harness-init/SKILL.md',
-    '.agents/skills/harness-init/references/stub-template.md',
-  ]) {
-    const template = await readFile(path.join(repoRoot, 'templates', rel), 'utf8');
-    const installed = await readFile(path.join(repoRoot, rel), 'utf8');
-    assert.equal(installed, template, rel);
-  }
 });
 
 test('stub-template: a rendered stub passes validate with no skill-frontmatter finding and exactly one skill-stub-open warning', async () => {

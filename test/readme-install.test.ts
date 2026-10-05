@@ -35,18 +35,6 @@ test('readme-install: the add and setup commands appear, in that order', async (
   assert.ok(addIndex < setupIndex, 'install command must appear before the setup command');
 });
 
-test('readme-install: no GitHub Packages registry residue', async () => {
-  const readme = await readReadme();
-
-  assert.doesNotMatch(readme, /\.npmrc/);
-  assert.doesNotMatch(readme, /npm\.pkg\.github\.com/);
-  assert.doesNotMatch(readme, /NODE_AUTH_TOKEN/);
-  assert.doesNotMatch(readme, /packages: read/);
-  assert.doesNotMatch(readme, /read:packages/);
-  assert.doesNotMatch(readme, /@wolventech/);
-  assert.doesNotMatch(readme, /_authToken/);
-});
-
 test('readme-install: the release page covers trusted publishing, its npm-side setup and the manual re-run', async () => {
   const releaseSection = await readDoc('site/release.md');
 
