@@ -6,6 +6,11 @@ clean. The `adr` skill creates, promotes, and supersedes profile ADRs — it
 explicitly leaves migrating an older decision record out of scope, which is
 what this reference covers instead.
 
+**Contents:** [Rules](#rules) · [Status mapping](#status-mapping) ·
+[Before writing a status other than `stable`](#before-writing-a-status-other-than-stable) ·
+[Closure](#closure) · [Worked example](#worked-example) (one
+migration, before and after) · [Anti-patterns](#anti-patterns)
+
 ## Rules
 
 Apply these to every legacy ADR, one at a time, with the Human watching the

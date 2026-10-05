@@ -1,6 +1,6 @@
 ---
 name: create-prd
-description: Grill a problem to one confirmed statement, challenge its key terms against local docs, draft a lean PRD with user stories and Given/When/Then acceptance, and move it from draft to stable only on explicit approval
+description: "Grills a problem to one confirmed statement, challenges its key terms against local docs, drafts a lean PRD with user stories and Given/When/Then acceptance, and moves it from draft to stable only on explicit approval. Use when a rough ask, issue, or notes need to become a PRD."
 ---
 
 # Create PRD
@@ -11,7 +11,7 @@ Turns a rough ask into one lean PRD: a single problem statement, goals, user sto
 
 ## Workflow
 
-Loaded means the skill is in the list the runtime provided for this session. A folder on disk does not count. A name remembered from an earlier summary does not count.
+The session skill list is the list of skills the runtime provided for this session. A folder on disk does not count. A name remembered from an earlier summary does not count.
 
 ### 1. Grill the problem
 
@@ -29,25 +29,17 @@ Check the key terms the problem statement introduces against the local docs and 
 
 ### 3. Draft
 
-Write the PRD from `references/prd-template.md` to `docs/prds/<slug>/<slug>-prd.md`, with `status: draft`. Fill every section; leave nothing as the template's placeholder text.
+Write the PRD from `references/prd-template.md` to `docs/prds/<slug>/<slug>-prd.md`, with `status: draft`. Fill every section; leave nothing as the template's placeholder text. Give each goal an observable success signal. Give each `US-<n>` story a goal it traces to and `AC-<n>.<m>` acceptance in Given / When / Then for its happy path and at least one edge or error case. Give each open question an owner, or write "None".
 
 ### 4. Approve
 
 Revise the draft in place until the Human approves it, then change `status` from `draft` to `stable`. Only the Human's explicit word moves the status — a quiet absence of objection is not approval.
 
-The approved PRD becomes `code-spec`'s input. Approval locks the requirements; it does not authorize writing code.
+The approved PRD becomes `code-spec`'s input. Approval locks the requirements; it does not authorize writing code. At pre-merge closure, `code-pr` moves the whole PRD folder to `docs/prds/archived/<slug>/` with `status: deprecated`; that move is not this skill's job.
 
 ### 5. ADR offer
 
 If the PRD settles a decision that should outlive this one change — a durable choice about architecture, a dependency, or a convention — and the session skill list includes `adr`, offer to record it with the `adr` skill. When `adr` is absent from the session skill list, write no decision record and name `adr` in the reply. The PRD itself states requirements; it is not the decision record.
-
-## Template sections
-
-`references/prd-template.md` has six sections, in order: `## Problem` (who hurts, the pain, why now, and the evidence), `## Goals` (each with an observable success signal, plus non-goals), `## User stories` (`US-<n>` in As a / I want / so that, each followed by `AC-<n>.<m>` acceptance in Given / When / Then, covering its happy path and at least one edge or error case, and tracing back to a goal), `## Scope` (in and out), `## Open questions` (each with an owner, or "None"), and `## Handoff`.
-
-## Lifecycle
-
-`draft` moves to `stable` only on the Human's approval (step 4). At pre-merge closure, `code-pr` moves the whole PRD folder to `docs/prds/archived/<slug>/` with `status: deprecated`; that move is not this skill's job.
 
 ## Refuses
 

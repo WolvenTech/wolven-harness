@@ -62,14 +62,3 @@ behind it (a small, self-contained fix).
    axis and is not merge-ready. Only after this block is complete may the
    pull request's pre-merge closure checkboxes be ticked, and only then may
    a merge-ready claim be made for a repo initiative.
-
-## Anti-patterns
-
-- Leaving the spec, plan, or PRD at an active status after the branch
-  ships
-- An ADR still `draft` while the decision it records is already live
-- Ticking pre-merge closure boxes before the moves and the validate run
-  actually happened
-- Archiving a shipped skill, agent, or historical note as if it were a
-  spec or PRD
-- Running closure mid-initiative, before every wave has passed

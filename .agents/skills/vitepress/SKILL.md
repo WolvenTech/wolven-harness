@@ -1,18 +1,17 @@
 ---
 name: vitepress
-description: "Use when changing the docs site or how GitHub Pages publishes it."
+description: "Holds the conventions for the VitePress guide under site/ and its GitHub Pages deploy. Use when changing the guide's pages, sidebar, config, or theme, or how GitHub Pages builds and publishes it."
 ---
 
 # vitepress
 
-Change guide pages under `site/`, the VitePress config, or how GitHub
-Pages publishes the built site. The four steps below are filled. The
-workflow for VitePress is step 3.
+Change the guide pages under `site/`, the VitePress config and theme, or
+how GitHub Pages publishes the built site. The workflow is step 3.
 
 ## Cited evidence
 
-Cite each source that led here. An external skill is a name and a URL;
-its text stays in its own file.
+External skills are cited by name and URL; their text stays in their own
+files.
 
 - Decided tool: VitePress
 - Repo file: `site/.vitepress/`, the `docs:dev`, `docs:build`, and `docs:preview` scripts in `package.json`, and `.github/workflows/pages.yml`
@@ -26,32 +25,32 @@ When a cited skill conflicts with an existing workflow in this repo,
 record the conflict here and follow the local decision. The conflicting
 step stays out of this skill.
 
-- Conflict: the site in `site/`, `vitepress` `^1.6.4` in `package.json`, and the Pages upload of `site/.vitepress/dist` in `.github/workflows/pages.yml`. antfu/skills `vitepress` differs by targeting VitePress 2.0.0-alpha.20 and a migration off VitePress 1. jeremylongshore `vitepress-config-creator` differs by generating a VitePress config and a sidebar, and it records no VitePress version.
-- Follow: the site stays in `site/`. `pnpm docs:build` writes `site/.vitepress/dist`. Pages uploads that directory. Stay on VitePress `^1.6.4`. Keep the hand-written sidebar in `site/.vitepress/config.ts`.
+- Conflict: antfu/skills `vitepress` targets VitePress 2.0.0-alpha.20 and a migration off VitePress 1. jeremylongshore `vitepress-config-creator` generates a VitePress config and a sidebar, and records no VitePress version.
+- Follow: stay on VitePress `^1.6.4`, with the site in `site/`, the hand-written sidebar in `site/.vitepress/config.ts`, and the build-and-upload path under Conventions. Do not migrate to VitePress 2 or generate a config or sidebar.
 
-Done when: Conflict names the existing workflow and the cited step that
-differs, and Follow names the local decision.
+Done when: Conflict names the cited steps that differ from the existing
+workflow, and Follow names the local decision.
 
 ## Steps
 
 ### 1. Trigger
 
-Use this skill when changing the docs site or how GitHub Pages publishes
-it. That sentence is the `description`.
+The frontmatter `description` is the trigger.
 
-Done when: `description` starts with `Use when` and names that situation.
+Done when: `description` says in third person what the skill holds, and
+its `Use when` clause names changing the guide or how GitHub Pages
+publishes it.
 
 ### 2. Conventions
 
-- Guide pages are markdown files under `site/`, beside `site/index.md`. Each page has a `description` frontmatter field. Static files live in `site/public/`.
-- `site/.vitepress/config.ts` is the config. `base` is `/wolven-harness/`. `site/.vitepress/theme/index.ts` extends `vitepress/theme-without-fonts` and loads `site/.vitepress/theme/custom.css`.
-- The sidebar is the `themeConfig.sidebar` list written in `site/.vitepress/config.ts`.
-- `package.json` depends on `vitepress` `^1.6.4`. `pnpm docs:dev` is `vitepress dev site`, `pnpm docs:build` is `vitepress build site`, and `pnpm docs:preview` is `vitepress preview site`.
-- `pnpm docs:build` writes `site/.vitepress/dist`. `.github/workflows/pages.yml` uploads that directory on a push to `main`, and `workflow_dispatch` is the manual deploy. The repository Pages source is GitHub Actions.
+- Guide pages are markdown files under `site/`, beside `site/index.md`, and each has a `description` frontmatter field. Static files live in `site/public/`.
+- `site/.vitepress/config.ts` is the config: `base` is `/wolven-harness/`, and the sidebar is the explicit `themeConfig.sidebar` list. `site/.vitepress/theme/index.ts` extends `vitepress/theme-without-fonts` and loads `site/.vitepress/theme/custom.css`; the fonts come from the Google Fonts link in the config `head`.
+- `vitepress` `^1.6.4` is a devDependency. `pnpm docs:dev` is `vitepress dev site`, `pnpm docs:build` is `vitepress build site`, and `pnpm docs:preview` is `vitepress preview site`.
+- `pnpm docs:build` writes `site/.vitepress/dist`. `.github/workflows/pages.yml` builds and uploads that directory on a push to `main`, or by hand through `workflow_dispatch`. The repository Pages source is GitHub Actions.
 
 Done when: every bullet is a decision for this repo, and a reader can
-point at `site/`, `package.json`, or `.github/workflows/pages.yml` for
-each one.
+point at `site/`, `package.json`, `.github/workflows/pages.yml`, or the
+repository Pages settings for each one.
 
 ### 3. Workflow
 
@@ -76,7 +75,9 @@ later run can observe in a file's contents or a diff.
 pnpm docs:build
 ```
 
-Done when: `pnpm docs:build` exits 0. A failed build exits non-zero.
+Done when: `pnpm docs:build` exits 0. CI does not build the site and a PR
+branch does not deploy, so this local build is the only check before
+merge.
 
 ## Length
 

@@ -2,8 +2,8 @@
 
 Renders the ask-only stub step 5 writes for one skill the Human picked — a
 `SKILL.md` plus an `agents/openai.yaml`, both held here verbatim with
-placeholders. `description` is the trigger: when to use the skill. The
-body cites the evidence, stamps the tool version, and asks the Human to
+placeholders. `description` says what the skill does, in third person,
+then when to use it. The body cites the evidence, stamps the tool version, and asks the Human to
 fill each step up to its done line.
 
 ## Never overwrite
@@ -30,7 +30,7 @@ Length say how each remaining line is filled.
 ```markdown
 ---
 name: <name>
-description: "Use when <trigger>"
+description: "<What the skill does, in third person>. Use when <trigger>"
 metadata:
   wolven-harness: stub
 disable-model-invocation: true
@@ -71,12 +71,13 @@ decision whenever Conflict names one.
 
 ### 1. Trigger
 
-Ask the Human when an agent should reach for this skill. Write that into
-`description`, leading with the situation: `Use when …`. One distinct
-situation per branch.
+Ask the Human what this skill does and when an agent should reach for
+it. Write both into `description`: what it does, in third person, then
+`Use when …` with one distinct situation per branch.
 
-Done when: `description` starts with `Use when` and every branch is a
-situation the Human stated in this step.
+Done when: `description` opens with what the skill does, in third
+person, its `Use when` clause follows, and every branch is a situation
+the Human stated in this step.
 
 ### 2. Conventions
 
@@ -116,7 +117,7 @@ level down — and link it from that step.
 ```yaml
 interface:
   display_name: "<name>"
-  short_description: "Use when <trigger>"
+  short_description: "<What the skill does, in third person>. Use when <trigger>"
 policy:
   allow_implicit_invocation: false
 ```

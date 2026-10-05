@@ -16,8 +16,8 @@ placeholder, and delete the instructional comments before presenting. -->
 
 ## Findings
 
-<one claim per bullet or paragraph, each carrying an inline citation to the
-primary source that makes it true>
+<!-- One claim per bullet or paragraph, each carrying an inline citation to
+the primary source that makes it true. -->
 
 - <claim> ([source name](https://example.com/path))
 - <claim> (`path/in/repo:symbol`)

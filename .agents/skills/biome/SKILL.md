@@ -1,12 +1,12 @@
 ---
 name: biome
-description: "Use when changing lint, format, or the pre-commit check."
+description: "Holds this repo's Biome conventions for `biome.json`, the `pnpm lint` script, and the `simple-git-hooks` pre-commit check. Use when changing Biome lint or format settings, the lint script, or the pre-commit check."
 ---
 
 # biome
 
 Keep lint, format, and the pre-commit check on Biome for this repo.
-The four steps below are filled. The workflow for Biome is step 3.
+The workflow is step 3.
 
 ## Cited evidence
 
@@ -27,7 +27,7 @@ in this repo, record the conflict here and follow the local decision.
 The conflicting step stays out of the workflow below.
 
 - Conflict: TheBushidoCollective `biome-linting` is written for Biome 1. Its steps use `files.ignore`, `biome ci`, `biome check --write`, and husky. This repo's workflow is `files.includes` in `biome.json`, `pnpm lint` as `biome check`, and a `simple-git-hooks` pre-commit of `biome check --staged`.
-- Follow: `pnpm lint` is `biome check`. The hook is `biome check --staged`. `biome.json` uses `files.includes` for `src/**`, `test/**`, and `site/.vitepress/config.*`, line width 120, single quotes, and trailing commas. Do not run `biome init`, do not switch to `files.ignore`, and do not add `--write` to the hook or a `biome ci` step.
+- Follow: the Conventions below. Do not run `biome init`, do not switch to `files.ignore`, do not add `--write` to the `lint` script or the hook, and do not add a `biome ci` step. Running `pnpm exec biome check --write` by hand to apply fixes stays allowed (`CONTRIBUTING.md`).
 
 Done when: Conflict names the existing workflow and the cited steps that differ, and Follow names the local decision.
 
@@ -35,9 +35,9 @@ Done when: Conflict names the existing workflow and the cited steps that differ,
 
 ### 1. Trigger
 
-Use when changing lint, format, or the pre-commit check.
+The frontmatter `description` is the trigger.
 
-Done when: `description` starts with `Use when` and the situation is changing lint, format, or the pre-commit check.
+Done when: `description` says in third person what the skill holds, and its `Use when` clause names changing lint, format, or the pre-commit check.
 
 ### 2. Conventions
 
@@ -53,13 +53,13 @@ Done when: every bullet is a decision stated for this repo, and a reader can poi
 ### 3. Workflow
 
 1. Read `biome.json`, the `lint` script, and the `simple-git-hooks` pre-commit in `package.json` before editing.
-   Done when: the read shows `files.includes`, `"lint": "biome check"`, and the pre-commit `pnpm exec biome check --staged --no-errors-on-unmatched --files-ignore-unknown=true`.
+   Done when: the read matches the `lint` script, the pre-commit, and the `files.includes` bullets in Conventions.
 
-2. Apply the asked lint or format change in `biome.json`. Keep `files.includes` on `src/**`, `test/**`, and `site/.vitepress/config.*`. Keep line width 120, single quotes, and trailing commas `all` unless the ask changes that setting.
-   Done when: `biome.json` still lists those includes under `files.includes`, and the diff leaves `files.ignore` absent.
+2. Apply the asked lint or format change in `biome.json`. Keep the three `files.includes` entries from Conventions. Keep line width, quotes, and trailing commas as in Conventions unless the ask changes that setting.
+   Done when: `biome.json` still lists those three entries under `files.includes`, and the diff leaves `files.ignore` absent.
 
-3. If the ask changes the lint script or the hook, keep `scripts.lint` as `biome check` and the pre-commit as `pnpm exec biome check --staged --no-errors-on-unmatched --files-ignore-unknown=true`.
-   Done when: `package.json` shows those two strings, and the pre-commit string has no `--write`.
+3. Keep `scripts.lint` and the pre-commit string exactly as in Conventions, even when the ask touches the lint script or the hook.
+   Done when: `package.json` shows both strings unchanged, with no `--write` in the pre-commit.
 
 4. Leave `biome init` and `biome ci` out of the change.
    Done when: the diff contains neither `biome init` nor `biome ci`.
@@ -68,7 +68,7 @@ Done when: every step ends with a `Done when:` line whose result a later run can
 
 ### 4. Verify
 
-Run `pnpm lint`.
+Run `pnpm lint`. If it fails on fixable findings, run `pnpm exec biome check --write`, review what it changed, and run `pnpm lint` again.
 
 Done when: `pnpm lint` exits 0.
 

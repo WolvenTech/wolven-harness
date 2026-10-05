@@ -1,17 +1,13 @@
 # Pull request body template
 
-Normative body for `code-pr`. The title stays Conventional Commits
-(`type(scope): summary`) on every host. **Never merge** from this skill.
-
-Keep every section below. **Lean-out:** short Overview / What / Why / How —
-no path dump.
+Normative body for `code-pr`; its hard gates govern the title, the lean
+fill, and the evidence. Keep and fill every section below — an empty
+placeholder is not a valid fill.
 
 **Checkbox reset:** write every checkbox as `[ ]` first, then tick only
 those this session's evidence supports. Never copy ticks forward from a
 prior body. Pre-merge closure stays unchecked unless it already ran on this
 branch.
-
-Fill every section — an empty placeholder is not a valid fill.
 
 ```markdown
 ## Summary of Changes

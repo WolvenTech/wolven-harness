@@ -49,12 +49,8 @@ mutate batch to skip unit 04.
 
 ## Vertical unit shape (good)
 
-| # | Unit | Depends | Owns | Subagent | Done when |
-|---|------|---------|------|----------|-----------|
-| 02 | Implement avatar upload endpoint | 01 | `src/avatar/upload/**` | `spawn` | Endpoint accepts an image and stores it per the spec's storage disposition; spec-named proof (or gate check) inspectable |
-
-**Why good:** one coherent outcome end-to-end; Done when names behavior + a
-spec-named proof; agent-sized; Subagent stated explicitly.
+Unit 02 above: one coherent outcome end-to-end; Done when names behavior +
+a spec-named proof; agent-sized; Subagent stated explicitly.
 
 ## Layer-only slice (bad — re-slice)
 

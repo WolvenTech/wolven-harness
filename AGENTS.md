@@ -61,22 +61,22 @@ qmd query "<question>"
 
 | Skill | Use when |
 | --- | --- |
-| adr | Create, promote, and supersede architecture decision records under docs/adrs/, repointing claims when one supersedes another |
-| code-ci | Drive an open pull request to merge-ready through conflicts, unresolved comments, and failing checks, in that order, on an explicit ask, and never merge |
-| code-commit | Create Conventional Commits for repo work — invoked directly on an explicit ask, or from code-execute only when the resolved commit-cadence opt says to |
-| code-execute | Execute ordered work units from a locked plan in-repo — implement, validate, then invoke code-commit only when the resolved commit-cadence opt says to; PRs, reviews, and CI babysitting are always a separate ask |
-| code-plan | Turn a locked spec into ordered work units for repo execute, with dependencies, wave stops, and an explicit Subagent value per unit |
-| code-pr | Push the branch and open or amend a pull request for the current state, titled as a Conventional Commit and filled from the body template — ask-only, and it never merges |
-| code-review | Review an open PR's diff against the refs its description cites, and post blocking or nit findings — never merging |
-| code-spec | Freeze design and requirements for a code initiative into a spec, from a PRD or a confirmed ask, with obligation-proof pairs, nine dimensions, and typed Unresolved rows |
-| create-prd | Grill a problem to one confirmed statement, challenge its key terms against local docs, draft a lean PRD with user stories and Given/When/Then acceptance, and move it from draft to stable only on explicit approval |
-| grilling | Interview relentlessly about a plan, decision, or idea until every open branch is settled, one question at a time |
+| adr | Creates, promotes, and supersedes architecture decision records (ADRs) under docs/adrs/, repointing claims when one supersedes another. Use when a durable choice about architecture, a dependency, or a convention needs a record, a draft ADR is confirmed, or a decision replaces an earlier one. |
+| code-ci | Drives an open pull request to merge-ready through conflicts, unresolved comments, and failing checks, in that order, and never merges. Use only when the Human explicitly asks to get an open PR merge-ready. |
+| code-commit | Creates Conventional Commits for repo work. Use when the Human explicitly asks for a commit, or from code-execute only when the resolved commit-cadence opt says to commit. |
+| code-execute | Executes ordered work units from a locked plan in-repo: implements, validates, and invokes code-commit only when the resolved commit-cadence opt says to. Use when a locked plan's units are ready to build; PRs, reviews, and CI babysitting are always a separate ask. |
+| code-plan | Turns a locked spec into ordered work units for code-execute, with dependencies, owned paths, an observable Done when, wave stops, and an explicit Subagent value per unit. Use when a spec is locked and needs a plan before execution. |
+| code-pr | Pushes the branch and opens or amends a pull request for the current state, titled as a Conventional Commit and filled from the body template, and never merges. Use only when the Human explicitly asks to open or update a PR. |
+| code-review | Reviews an open PR's diff against the refs its description cites and posts blocking or nit findings, and never merges. Use when the Human asks for a review of an open PR. |
+| code-spec | Freezes design and requirements for a code initiative into a spec, from a PRD or a confirmed ask, with obligation-proof pairs, nine dimensions, and typed Unresolved rows. Use when an approved PRD or a confirmed code-shaped ask needs a spec before planning. |
+| create-prd | Grills a problem to one confirmed statement, challenges its key terms against local docs, drafts a lean PRD with user stories and Given/When/Then acceptance, and moves it from draft to stable only on explicit approval. Use when a rough ask, issue, or notes need to become a PRD. |
+| grilling | Interviews relentlessly about a plan, decision, or idea, one question at a time, until every open branch is settled. Use when a plan still has open choices to settle with the Human before acting, or when the Human asks to be grilled. |
 | handoff | Save a handoff document to the OS temp directory so a fresh session can pick up the work — ask-only, never invoked automatically |
-| harness-init | Guide a repo through initial harness setup — fold the entry file into AGENTS.md, offer legacy ADR migration, discover the repo, research its decided tools, suggest skills, write stubs, score the harness, and close with a session note |
-| pragmatic-guard | Strict YAGNI enforcement. Challenge over-build, record deferrals under docs/deferrals/, refuse scope expansion without triggers. Use when adding features, abstractions, deps, or "we might need" work. |
+| harness-init | Guides a repo through initial harness setup: folds the entry file into AGENTS.md, offers legacy ADR migration, discovers the repo, researches its decided tools, suggests skills, writes stubs, scores the harness, and closes with a session note. Use when a repo has just run `wolven-harness setup`, or has only a bare `.agents/skills/` tree. |
+| pragmatic-guard | Enforces strict YAGNI — challenges over-build, refuses additions without a present need, and records deferrals with revisit triggers under docs/deferrals/. Use when adding features, abstractions, dependencies, or "we might need" work. |
 | prototype | Build a throwaway prototype that answers one question — a runnable program for logic and state, or a few switchable variations for UI — then discard or promote it deliberately |
-| qmd | Search local markdown knowledge bases, notes, docs, and wikis with QMD. Use when users ask to find notes, retrieve documents, inspect a wiki, answer from indexed markdown, or set up QMD access. |
-| research | Investigate a question against primary sources, cite every claim, and land the answer as a note in the repository. Refuses secondary-only summaries. |
+| qmd | Searches local markdown knowledge bases, notes, docs, and wikis with QMD. Use when users ask to find notes, retrieve documents, inspect a wiki, answer from indexed markdown, or set up QMD access. |
+| research | Investigates a question against primary sources, cites every claim, and lands the answer as a note in the repository; refuses secondary-only summaries. Use when a question about a tool, API, library, spec, or standard needs an answer backed by evidence rather than memory. |
 
 ### Standing rules
 

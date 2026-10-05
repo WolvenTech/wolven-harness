@@ -1,9 +1,16 @@
 # Entry Modes
 
 Step 0 folds `WOLVEN.md` into `AGENTS.md` in one of three modes — full,
-light, or mention-only — and runs four checks alongside whichever mode the
+light, or mention-only — and runs five checks alongside whichever mode the
 Human picks. `WOLVEN.md`'s own first line names this step; every mode drops
 that line from whatever it carries forward.
+
+**Contents:** [Full](#full) · [Light](#light) ·
+[Mention-only](#mention-only) · [Deletion rule](#deletion-rule) ·
+[Already integrated](#already-integrated) ·
+[Recommending a mode](#recommending-a-mode) ·
+[Before writing](#before-writing) (the five checks) ·
+[Re-include rules](#re-include-rules)
 
 ## Full
 

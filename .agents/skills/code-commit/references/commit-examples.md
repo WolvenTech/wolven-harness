@@ -3,6 +3,11 @@
 Why-focused subjects. Bodies are optional — use one when the context helps a
 reviewer.
 
+**Contents:** Good (outcome, small fix, docs-only, multi-commit split,
+atomic plan completion) · Type quick reference · HEREDOC (required shape) ·
+Bad examples (process ran, file-dump, vague feat, wrong type, secrets, split
+plan completion, failed commit leaves false green).
+
 ## Good
 
 ### States the outcome (why-focused)
@@ -54,8 +59,9 @@ squashed into one message.
 
 ### Atomic plan completion (after a wave gate)
 
-One commit stages **both** the proven work and **only** that unit's plan
-Done-when / completion mark (`docs/specs/<slug>/<slug>-plan.md`).
+One commit stages **both** the batch's proven work and **only** the batch's
+plan-completion marks (`docs/specs/<slug>/<slug>-plan.md`) — here a
+one-unit wave.
 
 ```text
 feat(avatar-upload): stream large uploads instead of buffering in memory
@@ -75,7 +81,7 @@ docs/specs/avatar-upload/avatar-upload-plan.md   # only this unit's row [ ] -> [
 
 **Why good:** the work and its matching plan-completion mark share one
 commit; the message says what the handler now does, not that a gate ran. No
-other unit's checkbox moves.
+checkbox outside the batch moves.
 
 ## Type quick reference
 
@@ -88,6 +94,8 @@ other unit's checkbox moves.
 | `refactor` | Structure change, same behavior |
 | `test` | Tests only |
 | `ci` | CI workflow changes |
+| `style` | Formatting only, same behavior |
+| `perf` | Performance change, same behavior |
 
 ## HEREDOC (required shape)
 
@@ -104,8 +112,7 @@ EOF
 
 ## Bad examples — what not to do
 
-Everything below is an anti-pattern. Do not copy these — each one exists
-only to contrast with a good example above.
+Everything below is an anti-pattern, shown only for contrast — do not copy.
 
 ### States which process ran (bad)
 
@@ -119,8 +126,7 @@ Ran the checklist and closed out the retry item; validation confirmed.
 
 **Why bad:** the subject and body describe the *process that ran* —
 checklist, item, validation confirmed — not the actual change. A reader
-still doesn't know what the retry bug was or how it's fixed now. Compare to
-the real fix above.
+still doesn't know what the retry bug was or how it's fixed now.
 
 ### File-dump subject
 

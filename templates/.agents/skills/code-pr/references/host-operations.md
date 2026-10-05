@@ -1,6 +1,6 @@
 # Host operations
 
-The nine steps below are the only git-host actions any ship skill performs.
+The nine operations below are the only git-host actions any ship skill performs.
 Read `gitHost` from `.wolven-harness.json` (`gh` = GitHub, `bit` = Bitbucket
 Cloud) and use the matching half of the table. When `.wolven-harness.json`
 has no `gitHost`, the host action does not happen, the reply names `setup`,

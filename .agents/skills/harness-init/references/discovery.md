@@ -7,11 +7,7 @@ its decided tools, and suggesting skills from what both turned up.
 
 Read what the repo already shows before asking the Human anything: manifests,
 lockfiles, `README`, `AGENTS.md`, CI config, `docs/adrs/`, installed skills
-(`.agents/skills/`), and the top-level layout. Most of what discovery needs is
-already sitting in the tree.
-
-Before reading any of that by hand, check for a local search index this repo
-already keeps over its own documentation:
+(`.agents/skills/`), and the top-level layout. First:
 
 > Before reading files by hand, check whether the repository already has a
 > local search index over its own documentation (for example, a QMD
