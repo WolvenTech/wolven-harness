@@ -5,6 +5,7 @@ import { runComments } from './comments/index.js';
 import { runSetup } from './setup/index.js';
 import { resolveOwnPackage } from './setup/own-package.js';
 import type { Io } from './setup/types.js';
+import { runSkills } from './skills/index.js';
 import { runValidate } from './validate/index.js';
 
 function printUsage(io: Io): void {
@@ -20,6 +21,7 @@ function printUsage(io: Io): void {
       '             [--debug]   trace each step on stderr (or WOLVEN_HARNESS_DEBUG=1)',
       '  validate   Check the repo against the writing profile and claim gate',
       '  comments   Judge comment lines added since a base ref [--base <ref>]',
+      '  skills     Copy chosen skills into the load paths claude, codex, and cursor already read',
       '',
       '  --version, -v  Print the package name and version',
       '',
@@ -50,6 +52,8 @@ export async function main(argv: string[], io: Io): Promise<number> {
       return runValidate(rest, io);
     case 'comments':
       return runComments(rest, io);
+    case 'skills':
+      return runSkills(rest, io);
     default:
       io.stderr.write(`wolven-harness: unknown command "${command}"\n\n`);
       printUsage(io);

@@ -11,6 +11,15 @@ Two entry paths share this contract: a direct commit request, or
 `code-execute` invoking it only when the resolved commit-cadence opt says to.
 
 **Consult:** `pragmatic-guard`.
+
+Loaded means the skill is in the session skill list the runtime provided. A
+folder on disk does not count. A name remembered from an earlier summary does
+not count. A folder on disk or a remembered name is not loaded. When that list
+includes `pragmatic-guard`, consult it, then follow this skill. When it is
+absent, follow this skill's own steps. The reply and the commit message
+include `pragmatic-guard was not consulted`. That run writes no deferral and
+no sentence that says the guard ran.
+
 **Invoked two ways:** directly, on an explicit commit request with no gate
 involved; or from `code-execute`, after that batch's validate PASS, only when
 the resolved commit-cadence opt says to.

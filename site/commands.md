@@ -1,10 +1,10 @@
 ---
-description: Reference for setup, validate, and comments — flags and failure modes.
+description: Reference for setup, skills, validate, and comments — flags and failure modes.
 ---
 
 # Commands
 
-`wolven-harness --help` (or `-h`) prints the command list. `wolven-harness --version` (or `-v`) prints the package name and version. Flags, exit codes, and finding codes are stable; see [ADR-003](https://github.com/WolvenTech/wolven-harness/blob/main/docs/adrs/adr-003-public-contract.md). Run `setup` at the git top level; `validate` and `comments` work from anywhere inside the repo. `setup` is the only one that writes. With a local install, prefix each command below with `pnpm exec`.
+`wolven-harness --help` (or `-h`) prints the command list. `wolven-harness --version` (or `-v`) prints the package name and version. Flags, exit codes, and finding codes are stable; see [ADR-003](https://github.com/WolvenTech/wolven-harness/blob/main/docs/adrs/adr-003-public-contract.md). Run `setup` at the git top level; `validate` and `comments` work from anywhere inside the repo. `setup` and `skills` write. With a local install, prefix each command below with `pnpm exec`.
 
 ## `wolven-harness setup`
 
@@ -17,6 +17,16 @@ It also adds missing `harness:validate`, `harness:comments` and `harness:score` 
 `harness:score` runs [harness-score](https://github.com/paladini/harness-score), which rates the repo's agent harness from L0 to L4. `setup` writes a starter `.harness-score.json`, where the repo drops the checks it chooses not to build. The `harness-init` skill walks through them.
 
 Add a skill set later with `--skills` (for example `--skills ship,discovery`). Re-runs never remove one.
+
+## `wolven-harness skills`
+
+Copies chosen ship and discovery skill folders into the directories Claude, Codex, and Cursor already read. It does not run `setup`. Core skills are installed by `setup`.
+
+Asks for the runtimes (`claude`, `codex`, `cursor`), the scope (`project`, `global`, or `project,global`), and the skills, or takes `--runtimes`, `--scope`, and `--skills`. Those flags are required when stdout or stdin is not a TTY. `--skills` takes `ship`, `discovery`, or a skill in those sets, for example `--skills ship` or `--skills create-prd`.
+
+`project` writes under the current directory. `global` writes under your home directory. Cursor and Codex share `.agents/skills/<skill>/`. Claude uses `.claude/skills/<skill>/`. Choosing Cursor and Codex writes each skill once. It does not need a git repository, and it does not write harness config, rules, or package scripts.
+
+A folder that already matches the package copy is left in place. When a chosen folder differs, a terminal asks before replacing it. Without a terminal, that folder stays and a missing chosen skill is still added. Cancelling a prompt writes nothing and exits 1. A core skill name writes nothing and exits 1.
 
 ## `wolven-harness validate`
 

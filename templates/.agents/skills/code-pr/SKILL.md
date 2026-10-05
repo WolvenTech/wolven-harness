@@ -11,7 +11,13 @@ right now — a create when this head has no open PR, an amend when it does.
 Ask-only: `disable-model-invocation: true` stays set, and nothing merges
 from here.
 
-**Consult:** `pragmatic-guard`.
+**Consult:** `pragmatic-guard`. Loaded means the session skill list from the
+runtime. When that list includes `pragmatic-guard`, consult it, then follow
+this skill. When it is absent, follow this skill's own steps; the reply and
+the pull request body include `pragmatic-guard was not consulted`. A folder
+on disk or a remembered name is not loaded. Name no install command for
+`pragmatic-guard`. That run writes no deferral and no sentence that the
+guard ran.
 **Body template:** [pr-body-template.md](references/pr-body-template.md).
 **Closure (last batch before merge):** [pre-merge-closure.md](references/pre-merge-closure.md).
 **Host operations:** [host-operations.md](references/host-operations.md) — every host action this skill performs (push branch, open PR, read PR and diff) goes through that table; its MCP tool is tried first, with a silent fallback to the row's other route.
@@ -39,7 +45,9 @@ for more work to land first.
    never open a pull request from the default branch.
 4. **Commit when needed** — if the tree has uncommitted in-scope changes,
    commit them via `code-commit` before pushing; leave out unrelated dirty
-   files and never stage a secret.
+   files and never stage a secret. When `code-commit` is absent from the
+   session skill list and the next step is a commit, stop, name
+   `code-commit`, and do not run `git commit`.
 5. **Push every run** — push branch (host operations), every time this
    skill runs, not only when the branch is new. A branch that already
    tracks a remote can still hold unpushed local commits.
@@ -81,8 +89,11 @@ for more work to land first.
    unrelated dirty files.
 2. **Branch** — on a detached checkout or the default branch, create or
    check out a feature branch for this work.
-3. **Commit** — when uncommitted in-scope changes remain, commit them via
-   `code-commit`. Skip when the tree is already clean.
+3. **Commit** — when uncommitted in-scope changes remain and `code-commit`
+   is on the session skill list, commit them via `code-commit`. Skip when
+   the tree is already clean. When `code-commit` is absent from the session
+   skill list and the next step is a commit, stop, name `code-commit`, and
+   do not run `git commit`.
 4. **Push** — push branch (host operations). Run this whenever step 3
    committed anything, and also when local commits are already ahead on an
    existing branch; skip only when nothing new is local.

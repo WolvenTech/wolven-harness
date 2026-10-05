@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 import { test } from 'node:test';
 import { makeRepo, run } from './helpers/fixture.js';
 
-test('--help lists setup, validate, and comments', async () => {
+test('--help lists setup, validate, comments, and skills', async () => {
   const dir = await makeRepo({});
   const result = await run(['--help'], { cwd: dir });
 
@@ -12,9 +12,10 @@ test('--help lists setup, validate, and comments', async () => {
   assert.doesNotMatch(result.stdout, /\binit\b/);
   assert.match(result.stdout, /\bvalidate\b/);
   assert.match(result.stdout, /\bcomments\b/);
+  assert.match(result.stdout, /^\s+skills\s/m);
 });
 
-test('no args prints usage listing setup, validate, and comments', async () => {
+test('no args prints usage listing setup, validate, comments, and skills', async () => {
   const dir = await makeRepo({});
   const result = await run([], { cwd: dir });
 
@@ -23,6 +24,23 @@ test('no args prints usage listing setup, validate, and comments', async () => {
   assert.doesNotMatch(result.stdout, /\binit\b/);
   assert.match(result.stdout, /\bvalidate\b/);
   assert.match(result.stdout, /\bcomments\b/);
+  assert.match(result.stdout, /^\s+skills\s/m);
+});
+
+test('proof-skills-command-usage', async () => {
+  const dir = await makeRepo({});
+
+  const help = await run(['--help'], { cwd: dir });
+  assert.equal(help.code, 0);
+  assert.match(help.stdout, /^\s+skills\s/m);
+
+  const usage = await run([], { cwd: dir });
+  assert.equal(usage.code, 0);
+  assert.match(usage.stdout, /^\s+skills\s/m);
+
+  const unknown = await run(['bogus'], { cwd: dir });
+  assert.equal(unknown.code, 1);
+  assert.match(unknown.stderr, /unknown command/);
 });
 
 test('unknown command exits 1', async () => {
