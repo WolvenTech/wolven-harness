@@ -114,7 +114,7 @@ test('wolven-template: skills table lists every template skill', async () => {
   const ctx: Context = { root: '/unused', templatesDir: repoTemplatesDir, io: makeIo('/unused') };
   const rendered = await renderWolven(ctx);
 
-  assert.match(rendered, /\| Skill \| Use when \|/);
+  assert.match(rendered, /\| Skill \| Description \|/);
 
   for (const name of templateSkillNames()) {
     const skillMd = readFileSync(path.join(repoTemplatesDir, '.agents', 'skills', name, 'SKILL.md'), 'utf8');

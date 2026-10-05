@@ -59,7 +59,7 @@ qmd query "<question>"
 
 ### Skills
 
-| Skill | Use when |
+| Skill | Description |
 | --- | --- |
 | adr | Creates, promotes, and supersedes architecture decision records (ADRs) under docs/adrs/, repointing claims when one supersedes another. Use when a durable choice about architecture, a dependency, or a convention needs a record, a draft ADR is confirmed, or a decision replaces an earlier one. |
 | code-ci | Drives an open pull request to merge-ready through conflicts, unresolved comments, and failing checks, in that order, and never merges. Use only when the Human explicitly asks to get an open PR merge-ready. |

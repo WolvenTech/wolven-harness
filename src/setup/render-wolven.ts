@@ -61,7 +61,7 @@ async function collectSkills(templatesDir: string, only?: readonly string[]): Pr
 }
 
 function renderSkillsTable(skills: SkillFrontmatter[]): string {
-  const header = '| Skill | Use when |\n| --- | --- |';
+  const header = '| Skill | Description |\n| --- | --- |';
   const rows = skills.map((s) => `| ${s.name} | ${s.description} |`);
   return [header, ...rows].join('\n');
 }
