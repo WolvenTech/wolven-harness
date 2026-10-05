@@ -8,7 +8,7 @@ An ADR is a durable, checkable record of one architecture decision — not a mee
 ## Numbering and shape
 
 - Path: `docs/adrs/adr-NNN-<slug>.md` — flat, no folder per decision; `<slug>` is a short kebab-case name taken from the title.
-- `NNN` is the next free three-digit number: one more than the highest `NNN` among the `adr-NNN-<slug>.md` files under `docs/adrs/`. Never reuse, skip, or renumber, even when an old decision was later deprecated.
+- `NNN` is the next free three-digit number: one more than the highest number among the `docs/adrs/adr-NNN-<slug>.md` files and every legacy ADR in the repo. A legacy ADR is any `adr-NNN….md` or `adrNNN….md` file outside `docs/adrs/`, archived ones included; `harness:validate` names the live ones as `legacy ADR-NNN (<path>)`. A migrated legacy ADR keeps its number, and a profile ADR sharing a legacy number makes that number's claims fail. Never reuse or renumber, even when an old decision was later deprecated.
 - Frontmatter: `type: adr`, `title`, `description`, `status` (`draft`, `stable`, or `deprecated`), and `superseded_by` (the superseding ADR's filename without `.md`, required only once `status` is `deprecated`).
 
 ## Create
