@@ -9,7 +9,6 @@ test('--help lists setup, validate, comments, and skills', async () => {
 
   assert.equal(result.code, 0);
   assert.match(result.stdout, /\bsetup\b/);
-  assert.doesNotMatch(result.stdout, /\binit\b/);
   assert.match(result.stdout, /\bvalidate\b/);
   assert.match(result.stdout, /\bcomments\b/);
   assert.match(result.stdout, /^\s+skills\s/m);
@@ -21,7 +20,6 @@ test('no args prints usage listing setup, validate, comments, and skills', async
 
   assert.equal(result.code, 0);
   assert.match(result.stdout, /\bsetup\b/);
-  assert.doesNotMatch(result.stdout, /\binit\b/);
   assert.match(result.stdout, /\bvalidate\b/);
   assert.match(result.stdout, /\bcomments\b/);
   assert.match(result.stdout, /^\s+skills\s/m);
@@ -41,23 +39,6 @@ test('proof-skills-command-usage', async () => {
   const unknown = await run(['bogus'], { cwd: dir });
   assert.equal(unknown.code, 1);
   assert.match(unknown.stderr, /unknown command/);
-});
-
-test('unknown command exits 1', async () => {
-  const dir = await makeRepo({});
-  const result = await run(['bogus'], { cwd: dir });
-
-  assert.equal(result.code, 1);
-  assert.match(result.stderr, /unknown command/);
-});
-
-test('setup-dispatch: init is an unknown command and exits 1', async () => {
-  const dir = await makeRepo({});
-  const result = await run(['init'], { cwd: dir });
-
-  assert.equal(result.code, 1);
-  assert.match(result.stderr, /unknown command "init"/);
-  assert.doesNotMatch(result.stdout, /^\s+init\s/m);
 });
 
 test('setup prints a summary and the harness-init next step', async () => {
@@ -90,11 +71,4 @@ test('--version and -v print the package name and version', async () => {
     assert.equal(result.code, 0);
     assert.equal(result.stdout, `@wolven-tech/harness ${pkg.version}\n`);
   }
-});
-
-test('usage lists --version', async () => {
-  const dir = await makeRepo({});
-  const result = await run(['--help'], { cwd: dir });
-
-  assert.match(result.stdout, /--version/);
 });

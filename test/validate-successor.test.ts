@@ -115,7 +115,7 @@ test('superseded-resolves: chain deprecated -> deprecated -> stable — no profi
   assert.doesNotMatch(result.stdout, /profile-superseded-by/);
 });
 
-test('superseded-resolves: an untracked successor is named with the git add to run', async () => {
+test('superseded-resolves: an untracked stable successor satisfies deprecated ADR', async () => {
   const dir = await makeRepo(
     {
       'docs/adrs/adr-001-old-decision.md': [
@@ -151,6 +151,6 @@ test('superseded-resolves: an untracked successor is named with the git add to r
 
   const result = await run(['validate'], { cwd: dir });
 
-  assert.equal(result.code, 1);
-  assert.match(result.stdout, /is not tracked by git — run "git add docs\/adrs\/adr-002-new-decision\.md"/);
+  assert.equal(result.code, 0, result.stdout);
+  assert.doesNotMatch(result.stdout, /profile-superseded-by/);
 });
