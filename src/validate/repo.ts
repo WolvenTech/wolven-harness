@@ -4,9 +4,9 @@ import { execGit, gitTopLevel } from '../git.js';
 import { isUnderDir } from '../path-exists.js';
 
 /**
- * Everything the check modules need: the git root, the tracked/non-ignored
- * file list, the ignore entries that were applied (and how many files they
- * dropped), and a root-relative file reader.
+ * Everything the check modules need: the git root, the scanned file list
+ * (tracked and untracked, non-ignored), the ignore entries that were
+ * applied (and how many files they dropped), and a root-relative file reader.
  */
 export interface RepoContext {
   root: string;
@@ -26,15 +26,29 @@ export async function resolveGitRoot(cwd: string): Promise<string> {
 
 /**
  * Lists every tracked file under `root` via `git ls-files -z` (no shell),
- * root-relative and sorted.
+ * root-relative.
  */
 async function listTrackedFiles(root: string): Promise<string[]> {
   const { stdout } = await execGit(root, ['ls-files', '-z']);
 
-  return stdout
-    .split('\0')
-    .filter((f) => f.length > 0)
-    .sort();
+  return stdout.split('\0').filter((f) => f.length > 0);
+}
+
+/**
+ * Lists untracked, non-ignored files under `root` — same set `comments`
+ * uses when unioning changed paths.
+ */
+async function listUntrackedFiles(root: string): Promise<string[]> {
+  const { stdout } = await execGit(root, ['ls-files', '--others', '--exclude-standard', '-z']);
+
+  return stdout.split('\0').filter((f) => f.length > 0);
+}
+
+/** Tracked plus untracked non-ignored paths, deduped and sorted. */
+async function listScannedFiles(root: string): Promise<string[]> {
+  const [tracked, untracked] = await Promise.all([listTrackedFiles(root), listUntrackedFiles(root)]);
+
+  return [...new Set([...tracked, ...untracked])].sort();
 }
 
 interface BuildRepoContextOptions {
@@ -43,12 +57,12 @@ interface BuildRepoContextOptions {
 }
 
 /**
- * Builds the `RepoContext` handed to check modules: lists tracked files,
- * drops those under any `ignoreEntries` directory, and records how many
- * files each entry dropped in total.
+ * Builds the `RepoContext` handed to check modules: lists tracked and
+ * untracked non-ignored files, drops those under any `ignoreEntries`
+ * directory, and records how many files each entry dropped in total.
  */
 export async function buildRepoContext(root: string, opts: BuildRepoContextOptions): Promise<RepoContext> {
-  const allFiles = await listTrackedFiles(root);
+  const allFiles = await listScannedFiles(root);
   const dirs = opts.ignoreEntries.map((entry) => entry.slice(0, -'/**'.length));
 
   const files = allFiles.filter((f) => !dirs.some((dir) => isUnderDir(f, dir)));
