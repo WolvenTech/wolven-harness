@@ -2,12 +2,12 @@
 type: spec
 title: Install ship and discovery skills without the harness
 description: Ordered units for the skills command and the one package copy that skips a missing consult and stops when the next procedure lives elsewhere.
-status: draft
+status: deprecated
 ---
 
 # Install ship and discovery skills without the harness — plan
 
-**Source:** `docs/specs/skills-command/skills-command-spec.md` (status `stable`).
+**Source:** `docs/specs/archived/skills-command/skills-command-spec.md` (status `stable`).
 **Next:** Units 01–12 are verified complete. The documentation follow-up in unit 13 prepares the successor contract for human review. Promotion and pre-merge closure remain pending.
 
 ## Structural gate
@@ -79,7 +79,7 @@ Those paths are absent here; no historical dirty-state claim is carried forward.
 | Field | Value |
 |-------|-------|
 | Unit | 01 — `create-prd` names a missing grill — verified complete on 2026-10-05. |
-| Spec / plan | `docs/specs/skills-command/skills-command-spec.md` / `docs/specs/skills-command/skills-command-plan.md` |
+| Spec / plan | `docs/specs/archived/skills-command/skills-command-spec.md` / `docs/specs/archived/skills-command/skills-command-plan.md` |
 | Obligations | R6.4 — done |
 | `HEAD` | `f356692` — inspected verification snapshot |
 | `git status` | clean at inspection; documentation follow-up edits only afterward |
@@ -92,7 +92,7 @@ Those paths are absent here; no historical dirty-state claim is carried forward.
 | Field | Value |
 |-------|-------|
 | Unit | 02 — `code-commit` names a missing guard — verified complete on 2026-10-05. |
-| Spec / plan | `docs/specs/skills-command/skills-command-spec.md` / `docs/specs/skills-command/skills-command-plan.md` |
+| Spec / plan | `docs/specs/archived/skills-command/skills-command-spec.md` / `docs/specs/archived/skills-command/skills-command-plan.md` |
 | Obligations | R6.1, R6.2 — done |
 | `HEAD` | `f356692` — inspected verification snapshot |
 | `git status` | clean at inspection; documentation follow-up edits only afterward |
@@ -105,7 +105,7 @@ Those paths are absent here; no historical dirty-state claim is carried forward.
 | Field | Value |
 |-------|-------|
 | Unit | 03 — `code-pr` names a missing guard and a missing commit — verified complete on 2026-10-05. |
-| Spec / plan | `docs/specs/skills-command/skills-command-spec.md` / `docs/specs/skills-command/skills-command-plan.md` |
+| Spec / plan | `docs/specs/archived/skills-command/skills-command-spec.md` / `docs/specs/archived/skills-command/skills-command-plan.md` |
 | Obligations | R6.1, R6.2, R6.6 — done |
 | `HEAD` | `f356692` — inspected verification snapshot |
 | `git status` | clean at inspection; documentation follow-up edits only afterward |
@@ -118,7 +118,7 @@ Those paths are absent here; no historical dirty-state claim is carried forward.
 | Field | Value |
 |-------|-------|
 | Unit | 04 — Host action stops without `gitHost` — verified complete on 2026-10-05. |
-| Spec / plan | `docs/specs/skills-command/skills-command-spec.md` / `docs/specs/skills-command/skills-command-plan.md` |
+| Spec / plan | `docs/specs/archived/skills-command/skills-command-spec.md` / `docs/specs/archived/skills-command/skills-command-plan.md` |
 | Obligations | R6.7 — done |
 | `HEAD` | `f356692` — inspected verification snapshot |
 | `git status` | clean at inspection; documentation follow-up edits only afterward |
@@ -131,7 +131,7 @@ Those paths are absent here; no historical dirty-state claim is carried forward.
 | Field | Value |
 |-------|-------|
 | Unit | 05 — Closure stops on a missing procedure — verified complete on 2026-10-05. |
-| Spec / plan | `docs/specs/skills-command/skills-command-spec.md` / `docs/specs/skills-command/skills-command-plan.md` |
+| Spec / plan | `docs/specs/archived/skills-command/skills-command-spec.md` / `docs/specs/archived/skills-command/skills-command-plan.md` |
 | Obligations | R6.6, R6.8, R6.9, R6.10 — done |
 | `HEAD` | `f356692` — inspected verification snapshot |
 | `git status` | clean at inspection; documentation follow-up edits only afterward |
@@ -144,7 +144,7 @@ Those paths are absent here; no historical dirty-state claim is carried forward.
 | Field | Value |
 |-------|-------|
 | Unit | 06 — `code-review` names a missing guard, a missing host skill, and a skipped axis — verified complete on 2026-10-05. |
-| Spec / plan | `docs/specs/skills-command/skills-command-spec.md` / `docs/specs/skills-command/skills-command-plan.md` |
+| Spec / plan | `docs/specs/archived/skills-command/skills-command-spec.md` / `docs/specs/archived/skills-command/skills-command-plan.md` |
 | Obligations | R6.1, R6.2, R6.3, R6.5, R6.10 — done |
 | `HEAD` | `f356692` — inspected verification snapshot |
 | `git status` | clean at inspection; documentation follow-up edits only afterward |
@@ -157,7 +157,7 @@ Those paths are absent here; no historical dirty-state claim is carried forward.
 | Field | Value |
 |-------|-------|
 | Unit | 07 — `code-ci` names a missing guard and the coupled stops — verified complete on 2026-10-05. |
-| Spec / plan | `docs/specs/skills-command/skills-command-spec.md` / `docs/specs/skills-command/skills-command-plan.md` |
+| Spec / plan | `docs/specs/archived/skills-command/skills-command-spec.md` / `docs/specs/archived/skills-command/skills-command-plan.md` |
 | Obligations | R6.1, R6.2, R6.3, R6.5, R6.6, R6.8, R6.10 — done |
 | `HEAD` | `f356692` — inspected verification snapshot |
 | `git status` | clean at inspection; documentation follow-up edits only afterward |
@@ -170,7 +170,7 @@ Those paths are absent here; no historical dirty-state claim is carried forward.
 | Field | Value |
 |-------|-------|
 | Unit | 08 — `skills` writes the chosen folders and is a command — verified complete on 2026-10-05. |
-| Spec / plan | `docs/specs/skills-command/skills-command-spec.md` / `docs/specs/skills-command/skills-command-plan.md` |
+| Spec / plan | `docs/specs/archived/skills-command/skills-command-spec.md` / `docs/specs/archived/skills-command/skills-command-plan.md` |
 | Obligations | R1.1, R1.2, R1.3, R4.1, R4.5 — done |
 | `HEAD` | `f356692` — inspected verification snapshot |
 | `git status` | clean at inspection; documentation follow-up edits only afterward |
@@ -183,7 +183,7 @@ Those paths are absent here; no historical dirty-state claim is carried forward.
 | Field | Value |
 |-------|-------|
 | Unit | 09 — Choices accept sets and refuse core — verified complete on 2026-10-05. |
-| Spec / plan | `docs/specs/skills-command/skills-command-spec.md` / `docs/specs/skills-command/skills-command-plan.md` |
+| Spec / plan | `docs/specs/archived/skills-command/skills-command-spec.md` / `docs/specs/archived/skills-command/skills-command-plan.md` |
 | Obligations | R2.1, R2.2, R2.3, R2.4, R4.2, R4.3, R4.4, R4.6 — done |
 | `HEAD` | `f356692` — inspected verification snapshot |
 | `git status` | clean at inspection; documentation follow-up edits only afterward |
@@ -196,7 +196,7 @@ Those paths are absent here; no historical dirty-state claim is carried forward.
 | Field | Value |
 |-------|-------|
 | Unit | 10 — replacement and write error — verified complete on 2026-10-05. |
-| Spec / plan | `docs/specs/skills-command/skills-command-spec.md` / `docs/specs/skills-command/skills-command-plan.md` |
+| Spec / plan | `docs/specs/archived/skills-command/skills-command-spec.md` / `docs/specs/archived/skills-command/skills-command-plan.md` |
 | Obligations | R3.1–R3.6, R5.1 — done |
 | `HEAD` | `f356692` — inspected verification snapshot |
 | `git status` | clean at inspection; documentation follow-up edits only afterward |
@@ -209,7 +209,7 @@ Those paths are absent here; no historical dirty-state claim is carried forward.
 | Field | Value |
 |-------|-------|
 | Unit | 11 — The guide names `skills` — verified complete on 2026-10-05. |
-| Spec / plan | `docs/specs/skills-command/skills-command-spec.md` / `docs/specs/skills-command/skills-command-plan.md` |
+| Spec / plan | `docs/specs/archived/skills-command/skills-command-spec.md` / `docs/specs/archived/skills-command/skills-command-plan.md` |
 | Obligations | R5.2 — done |
 | `HEAD` | `f356692` — inspected verification snapshot |
 | `git status` | clean at inspection; documentation follow-up edits only afterward |
@@ -222,7 +222,7 @@ Those paths are absent here; no historical dirty-state claim is carried forward.
 | Field | Value |
 |-------|-------|
 | Unit | 12 — Ship gate — verified complete on 2026-10-05. |
-| Spec / plan | `docs/specs/skills-command/skills-command-spec.md` / `docs/specs/skills-command/skills-command-plan.md` |
+| Spec / plan | `docs/specs/archived/skills-command/skills-command-spec.md` / `docs/specs/archived/skills-command/skills-command-plan.md` |
 | Obligations | R6.11 and the spec eval gates — done |
 | `HEAD` | `f356692` — inspected verification snapshot |
 | `git status` | clean at inspection; documentation follow-up edits only afterward |
@@ -235,7 +235,7 @@ Those paths are absent here; no historical dirty-state claim is carried forward.
 | Field | Value |
 |-------|-------|
 | Unit | 13 — successor draft, verified complete on 2026-10-05 |
-| Spec / plan | `docs/specs/skills-command/skills-command-spec.md` / `docs/specs/skills-command/skills-command-plan.md` |
+| Spec / plan | `docs/specs/archived/skills-command/skills-command-spec.md` / `docs/specs/archived/skills-command/skills-command-plan.md` |
 | Obligations | Spec ADR section — `proof-skills-command-successor-draft` — done |
 | `HEAD` | `f356692` — inspected verification snapshot |
 | `git status` | documentation follow-up only: new draft, plan records, and spec acceptance evidence |
@@ -262,9 +262,9 @@ Those paths are absent here; no historical dirty-state claim is carried forward.
 
 ### Approval and closure
 
-- [ ] Human confirms the successor contract as written.
-- [ ] The `adr` skill promotes the successor, repoints claims, and deprecates ADR-003 in one consistent pass.
-- [ ] Pre-merge closure archives the initiative documents and validates the closed tree.
+- [x] Human confirms the successor contract as written.
+- [x] The `adr` skill promotes the successor, repoints claims, and deprecates ADR-003 in one consistent pass.
+- [x] Pre-merge closure archives the initiative documents and validates the closed tree.
 
-The draft and this verification do not establish merge readiness. Contract
-tests and existing claims still target stable ADR-003 until promotion.
+ADR-004 is stable and supersedes ADR-003. Contract tests and claims target
+ADR-004.

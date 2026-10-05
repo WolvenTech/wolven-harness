@@ -2,7 +2,7 @@
 type: adr
 title: Extend the public contract with standalone skills installation
 description: Carry forward the existing CLI contract and add standalone skills installation as an additive command with explicit load paths, consent, and failure guarantees.
-status: draft
+status: stable
 ---
 
 # Extend the public contract with standalone skills installation
@@ -15,10 +15,10 @@ The standalone skills initiative adds one command without changing those
 existing guarantees. Its spec requires a complete successor contract so
 consumers can read the four commands in one decision record.
 
-This draft carries forward the existing contract and records the new
+This record carries forward the existing contract and records the new
 command from `src/skills/`, the initiative spec, and its named proofs. It
-proposes treating a new command that preserves existing behavior as additive.
-It does not promote the decision or change release configuration.
+treats a new command that preserves existing behavior as additive, and it
+leaves the release configuration unchanged.
 
 ## Decision
 
@@ -270,11 +270,8 @@ number is not the guarantee. This policy is.
   codes, finding codes, output contracts, and configuration schema stay
   intact; this addition does not require a deprecation release or a breaking
   commit. The pre-1.0 release-please policy above remains unchanged.
-- This record is a proposed successor to ADR-003. Until the Human confirms
-  the text and the `adr` skill promotes it, ADR-003 remains stable and all
-  existing claims and contract tests continue to target it. Promotion,
-  claim repointing, and deprecation happen together in the later closure
-  pass. A draft must not be cited by other tracked files.
+- This record supersedes ADR-003, which stays unedited as the 0.3.0
+  history. Claims and contract tests target this record.
 - Consumers can pin CI to exit codes, finding codes and the config file, and
   upgrade minor versions without a surprise.
 - Adding a rule that fails builds now costs a superseding ADR and a

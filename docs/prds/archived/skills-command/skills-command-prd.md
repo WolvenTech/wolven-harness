@@ -2,7 +2,7 @@
 type: prd
 title: Install ship and discovery skills without the harness
 description: A skills command writes one package copy of chosen ship and discovery skills into the directories claude, codex, and cursor already load, and that copy skips a missing consult and stops when the next procedure lives elsewhere.
-status: stable
+status: deprecated
 ---
 
 # Install ship and discovery skills without the harness
@@ -333,4 +333,4 @@ None. The command word, the flag spelling, the Cursor paths, and the per-folder 
 
 ## Handoff
 
-Approved, including the skill-text requirements folded into this file. `docs/prds/archived/standalone-completion/standalone-completion-prd.md` is retired. Next is `code-plan` after `docs/specs/skills-command/skills-command-spec.md` is approved. This PRD does not authorize implementation.
+Approved, including the skill-text requirements folded into this file. `docs/prds/archived/standalone-completion/standalone-completion-prd.md` is retired. Next is `code-plan` after `docs/specs/archived/skills-command/skills-command-spec.md` is approved. This PRD does not authorize implementation.

@@ -7,14 +7,14 @@ status: deprecated
 
 # Best effort when a consult is missing
 
-Retired. The requirements live in `docs/prds/skills-command/skills-command-prd.md`. This file is not a second contract.
+Retired. The requirements live in `docs/prds/archived/skills-command/skills-command-prd.md`. This file is not a second contract.
 
 ## Problem
 
 - **Who:** A person who installed a `ship` or `discovery` skill without another skill, or without a harness file, that the text consults.
 - **Pain:** The text stops on that consult, or it would need a second version of the skill for each level of harness adoption.
 - **Why now:** [Install ship and discovery skills without the harness](../skills-command/skills-command-prd.md) can write one skill folder. A full substitute for every missing skill is not the rewrite. Some couplings stay.
-- **Evidence:** `docs/specs/skills-command/skills-command-spec.md` (Standalone use); `src/setup/skill-sets.ts`; grilling recorded in `.scratch/standalone-completion/`.
+- **Evidence:** `docs/specs/archived/skills-command/skills-command-spec.md` (Standalone use); `src/setup/skill-sets.ts`; grilling recorded in `.scratch/standalone-completion/`.
 
 **Best effort** means the skill does the steps in its own text. If a consulted skill is loaded, it uses that skill. If the consult is missing, it continues those steps. The reply names that skill and says the consult did not run. The same sentence is in every durable text that run writes: the PRD file, the commit message, the pull request body, or the posted review. The skill does not reconstruct the missing skill, does not write that skill's artifacts, and does not point at the skills command or at `setup` as the way to install it.
 

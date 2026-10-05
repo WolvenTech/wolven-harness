@@ -2,13 +2,13 @@
 type: spec
 title: Install ship and discovery skills without the harness
 description: The skills command copies one package copy of chosen ship and discovery skills into the load paths claude, codex, and cursor already read, and that copy skips a missing consult and stops when the next procedure lives elsewhere.
-status: stable
+status: deprecated
 ---
 
 # Install ship and discovery skills without the harness
 
-**Source:** `docs/prds/skills-command/skills-command-prd.md` (status `stable`).
-**Next:** Implementation and named proofs verified on 2026-10-05 at `f356692`. The plan records the successor draft follow-up; human promotion and pre-merge closure remain pending.
+**Source:** `docs/prds/archived/skills-command/skills-command-prd.md` (status `stable`).
+**Next:** Implementation and named proofs verified on 2026-10-05 at `f356692`. ADR-004 was promoted and this spec archived at pre-merge closure.
 **Named proof (this spec's own structural gate):** `proof-skills-command-spec-obligations`
 
 A **skills command** is `wolven-harness skills`. It does not run `setup`. A **load path** is the directory a runtime already reads for one scope. **Project** is that directory under `io.cwd`. **Global** is that directory under `os.homedir()`, read when the command resolves destinations. **Package copy** is the file tree at `templates/.agents/skills/<skill>/`.
@@ -152,8 +152,8 @@ Flag values are trimmed and deduplicated. `--flag value` and `--flag=value` both
 Verified on 2026-10-05 (America/Sao_Paulo), HEAD `f356692`: `pnpm test`
 passed 579 tests; source validation passed. The R6 files were read directly,
 the site proof was inspected, and the four excluded directories have no diff
-against `origin/main`. These checks establish implementation evidence; ADR
-promotion and pre-merge closure remain pending.
+against `origin/main`. These checks establish implementation evidence. ADR-004
+promotion and pre-merge closure followed before merge.
 
 - [x] `proof-skills-command-claude-project` PASS — `pnpm test`
 - [x] `proof-skills-command-multi-path` PASS — `pnpm test`
@@ -211,7 +211,7 @@ promotion and pre-merge closure remain pending.
 
 ## ADR
 
-The successor draft has been prepared, and it carries the whole public contract: `setup`, `validate`, `comments`, and `skills`. ADR-003 stays the 0.3.0 contract and is not edited. The successor is a draft under `docs/adrs/`. This spec does not cite it: a claim against a draft ADR fails validate. After a human confirms the text, the `adr` skill promotes it, repoints claims from ADR-003, and marks ADR-003 `deprecated`.
+The successor draft has been prepared, and it carries the whole public contract: `setup`, `validate`, `comments`, and `skills`. ADR-003 stays the 0.3.0 contract and is not edited. The successor is a draft under `docs/adrs/`. This spec does not cite it: a claim against a draft ADR fails validate. A human confirmed the text, and the `adr` skill promoted it as ADR-004, repointed claims from ADR-003, and marked ADR-003 `deprecated`.
 
 ## Section checklist
 

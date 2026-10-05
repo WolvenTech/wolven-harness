@@ -15,7 +15,7 @@ status: stable
 
 ## Contract impact
 
-None. [ADR-003](../../adrs/adr-003-public-contract.md) leaves the set of skills and skill-set membership out of the contract. A new skill in `templates/` would still be a product change, not a contract change.
+None. [ADR-004](../../adrs/adr-004-standalone-skills-contract.md) leaves the set of skills and skill-set membership out of the contract. A new skill in `templates/` would still be a product change, not a contract change.
 
 ## Triggers
 

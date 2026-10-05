@@ -2,7 +2,8 @@
 type: adr
 title: Version 0.3.0 freezes the public contract
 description: wolven-harness 0.3.0 is the first stable release and freezes its commands, flags, exit codes, finding codes, summary lines and .wolven-harness.json schema v1; a breaking change needs a superseding ADR, a deprecation release and a breaking commit.
-status: stable
+status: deprecated
+superseded_by: adr-004-standalone-skills-contract
 ---
 
 # ADR-003 — Version 0.3.0 freezes the public contract

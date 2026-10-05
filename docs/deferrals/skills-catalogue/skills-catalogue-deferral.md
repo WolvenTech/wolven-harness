@@ -15,7 +15,7 @@ status: stable
 
 ## Contract impact
 
-None. [ADR-003](../../adrs/adr-003-public-contract.md) leaves the set of skills, the skill sets' membership and prompt wording out of the contract. A new `--skills` value would be an additive change to a flag.
+None. [ADR-004](../../adrs/adr-004-standalone-skills-contract.md) leaves the set of skills, the skill sets' membership and prompt wording out of the contract. A new `--skills` value would be an additive change to a flag.
 
 ## Triggers
 

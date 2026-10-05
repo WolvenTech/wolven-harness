@@ -43,7 +43,7 @@ wolven-harness --version
 
 Use `pnpm exec wolven-harness --help` to see the commands and options, or `pnpm exec wolven-harness --version` to check which version is installed. Running the CLI without a command also displays help. If you mistype a command, the CLI shows an error and the command list; use one of the commands in the examples above or check `--help` for the full list.
 
-The commands, flags, exit codes, finding codes, summary lines, and configuration schema are public contract; see [ADR-003](https://github.com/WolvenTech/wolven-harness/blob/main/docs/adrs/adr-003-public-contract.md).
+The commands, flags, exit codes, finding codes, summary lines, and configuration schema are public contract; see [ADR-004](https://github.com/WolvenTech/wolven-harness/blob/main/docs/adrs/adr-004-standalone-skills-contract.md).
 
 ## `setup`
 
@@ -115,7 +115,7 @@ wolven-harness validate [--verbose]
 Run validation from anywhere inside a Git repository. It scans tracked files, except paths excluded by valid `ignore` entries, and reports findings from four areas:
 
 1. **Document profile:** ADR naming and layout; required frontmatter; document type, slug folder, and status; required main documents; deprecated ADR successors.
-2. **ADR claims:** References such as `ADR-003` must resolve to one valid, stable ADR. A claim that points to a draft, deprecated, invalid, missing, duplicate, or slug-mismatched decision fails.
+2. **ADR claims:** References such as `ADR-004` must resolve to one valid, stable ADR. A claim that points to a draft, deprecated, invalid, missing, duplicate, or slug-mismatched decision fails.
 3. **Legacy decisions:** ADRs outside `docs/adrs/` and decision folders the harness cannot interpret are reported as warnings so they can be migrated.
 4. **Harness structure:** Skill frontmatter, cited rules, integration of `WOLVEN.md`, and whether required harness paths are hidden by Git ignore rules.
 
