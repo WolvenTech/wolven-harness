@@ -8,7 +8,7 @@ status: stable
 # Install ship and discovery skills without the harness
 
 **Source:** `docs/prds/skills-command/skills-command-prd.md` (status `stable`).
-**Next:** Approved. `code-plan` writes `docs/specs/skills-command/skills-command-plan.md`. `code-execute` starts after that plan is approved. One mutate batch, no wave split.
+**Next:** Implementation and named proofs verified on 2026-10-05 at `f356692`. The plan records the successor draft follow-up; human promotion and pre-merge closure remain pending.
 **Named proof (this spec's own structural gate):** `proof-skills-command-spec-obligations`
 
 A **skills command** is `wolven-harness skills`. It does not run `setup`. A **load path** is the directory a runtime already reads for one scope. **Project** is that directory under `io.cwd`. **Global** is that directory under `os.homedir()`, read when the command resolves destinations. **Package copy** is the file tree at `templates/.agents/skills/<skill>/`.
@@ -149,39 +149,45 @@ Flag values are trimmed and deduplicated. `--flag value` and `--flag=value` both
 
 ## Acceptance
 
-- [ ] `proof-skills-command-claude-project` PASS — `pnpm test`
-- [ ] `proof-skills-command-multi-path` PASS — `pnpm test`
-- [ ] `proof-skills-command-shared-agents` PASS — `pnpm test`
-- [ ] `proof-skills-command-set-select` PASS — `pnpm test`
-- [ ] `proof-skills-command-core-disabled` PASS — `pnpm test`
-- [ ] `proof-skills-command-flag-expand` PASS — `pnpm test`
-- [ ] `proof-skills-command-core-flag` PASS — `pnpm test`
-- [ ] `proof-skills-command-decline` PASS — `pnpm test`
-- [ ] `proof-skills-command-replace` PASS — `pnpm test`
-- [ ] `proof-skills-command-per-folder` PASS — `pnpm test`
-- [ ] `proof-skills-command-no-tty-keep` PASS — `pnpm test`
-- [ ] `proof-skills-command-identical` PASS — `pnpm test`
-- [ ] `proof-skills-command-cancel-atomic` PASS — `pnpm test`
-- [ ] `proof-skills-command-nontty-ok` PASS — `pnpm test`
-- [ ] `proof-skills-command-missing-flag` PASS — `pnpm test`
-- [ ] `proof-skills-command-scope-both` PASS — `pnpm test`
-- [ ] `proof-skills-command-reask` PASS — `pnpm test`
-- [ ] `proof-skills-command-usage` PASS — `pnpm test`
-- [ ] `proof-skills-command-help` PASS — `pnpm test`
-- [ ] `proof-skills-command-write-error` PASS — `pnpm test`
-- [ ] `proof-skills-command-site` PASS — `site/commands.md` and `site/index.md` name `skills`
-- [ ] `proof-skills-command-guard-skip` PASS — read the four ship `SKILL.md` files
-- [ ] `proof-skills-command-no-guard-artifact` PASS — read the four ship `SKILL.md` files
-- [ ] `proof-skills-command-skip-reader` PASS — read `code-review` and `code-ci`
-- [ ] `proof-skills-command-grilling-skip` PASS — read `create-prd/SKILL.md`
-- [ ] `proof-skills-command-host-coupled` PASS — read `code-review` and `code-ci`
-- [ ] `proof-skills-command-commit-coupled` PASS — read `code-pr`, `code-ci`, and `pre-merge-closure.md`
-- [ ] `proof-skills-command-githost` PASS — read `host-operations.md`
-- [ ] `proof-skills-command-validate-stop` PASS — read `code-ci` and `pre-merge-closure.md`
-- [ ] `proof-skills-command-adr-promote` PASS — read `pre-merge-closure.md`
-- [ ] `proof-skills-command-adr-axis` PASS — read `code-review`, `code-ci`, and `pre-merge-closure.md`
-- [ ] `proof-skills-command-discovery-unchanged` PASS — `git diff` shows no change under `prototype/`, `the-fool/`, `the-jury/`, or `handoff/`
-- [ ] `pnpm exec tsx src/cli.ts validate` exits 0
+Verified on 2026-10-05 (America/Sao_Paulo), HEAD `f356692`: `pnpm test`
+passed 579 tests; source validation passed. The R6 files were read directly,
+the site proof was inspected, and the four excluded directories have no diff
+against `origin/main`. These checks establish implementation evidence; ADR
+promotion and pre-merge closure remain pending.
+
+- [x] `proof-skills-command-claude-project` PASS — `pnpm test`
+- [x] `proof-skills-command-multi-path` PASS — `pnpm test`
+- [x] `proof-skills-command-shared-agents` PASS — `pnpm test`
+- [x] `proof-skills-command-set-select` PASS — `pnpm test`
+- [x] `proof-skills-command-core-disabled` PASS — `pnpm test`
+- [x] `proof-skills-command-flag-expand` PASS — `pnpm test`
+- [x] `proof-skills-command-core-flag` PASS — `pnpm test`
+- [x] `proof-skills-command-decline` PASS — `pnpm test`
+- [x] `proof-skills-command-replace` PASS — `pnpm test`
+- [x] `proof-skills-command-per-folder` PASS — `pnpm test`
+- [x] `proof-skills-command-no-tty-keep` PASS — `pnpm test`
+- [x] `proof-skills-command-identical` PASS — `pnpm test`
+- [x] `proof-skills-command-cancel-atomic` PASS — `pnpm test`
+- [x] `proof-skills-command-nontty-ok` PASS — `pnpm test`
+- [x] `proof-skills-command-missing-flag` PASS — `pnpm test`
+- [x] `proof-skills-command-scope-both` PASS — `pnpm test`
+- [x] `proof-skills-command-reask` PASS — `pnpm test`
+- [x] `proof-skills-command-usage` PASS — `pnpm test`
+- [x] `proof-skills-command-help` PASS — `pnpm test`
+- [x] `proof-skills-command-write-error` PASS — `pnpm test`
+- [x] `proof-skills-command-site` PASS — `site/commands.md` and `site/index.md` name `skills`
+- [x] `proof-skills-command-guard-skip` PASS — read the four ship `SKILL.md` files
+- [x] `proof-skills-command-no-guard-artifact` PASS — read the four ship `SKILL.md` files
+- [x] `proof-skills-command-skip-reader` PASS — read `code-review` and `code-ci`
+- [x] `proof-skills-command-grilling-skip` PASS — read `create-prd/SKILL.md`
+- [x] `proof-skills-command-host-coupled` PASS — read `code-review` and `code-ci`
+- [x] `proof-skills-command-commit-coupled` PASS — read `code-pr`, `code-ci`, and `pre-merge-closure.md`
+- [x] `proof-skills-command-githost` PASS — read `host-operations.md`
+- [x] `proof-skills-command-validate-stop` PASS — read `code-ci` and `pre-merge-closure.md`
+- [x] `proof-skills-command-adr-promote` PASS — read `pre-merge-closure.md`
+- [x] `proof-skills-command-adr-axis` PASS — read `code-review`, `code-ci`, and `pre-merge-closure.md`
+- [x] `proof-skills-command-discovery-unchanged` PASS — `git diff` shows no change under `prototype/`, `the-fool/`, `the-jury/`, or `handoff/`
+- [x] `pnpm exec tsx src/cli.ts validate` exits 0
 
 ## Eval / gates
 
@@ -205,7 +211,7 @@ Flag values are trimmed and deduplicated. `--flag value` and `--flag=value` both
 
 ## ADR
 
-A successor ADR is owed, and it carries the whole public contract: `setup`, `validate`, `comments`, and `skills`. ADR-003 stays the 0.3.0 contract and is not edited. The successor is a draft under `docs/adrs/`. This spec does not cite it: a claim against a draft ADR fails validate. After a human confirms the text, the `adr` skill promotes it, repoints claims from ADR-003, and marks ADR-003 `deprecated`.
+The successor draft has been prepared, and it carries the whole public contract: `setup`, `validate`, `comments`, and `skills`. ADR-003 stays the 0.3.0 contract and is not edited. The successor is a draft under `docs/adrs/`. This spec does not cite it: a claim against a draft ADR fails validate. After a human confirms the text, the `adr` skill promotes it, repoints claims from ADR-003, and marks ADR-003 `deprecated`.
 
 ## Section checklist
 
