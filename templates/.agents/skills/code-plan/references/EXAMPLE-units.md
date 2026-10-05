@@ -30,13 +30,13 @@ decided.
 
 | # | Unit | Depends | Owns | Subagent | Done when |
 |---|------|---------|------|----------|-----------|
-| 01 | Record disposition `U-example-storage` | — | `docs/specs/avatar-upload/avatar-upload-plan.md` (Unresolved table) | `inline` | Disposition filled; storage choice named; Wave 1 unblocked **or** escalated and stopped — proof: Unresolved row inspectable |
-| 02 | Implement avatar upload endpoint | 01 | `src/avatar/upload/**` | `spawn` | Endpoint accepts an image and stores it per the spec's storage disposition; spec-named proof (or gate check) inspectable |
-| 03 | Implement image resize pipeline | 01 | `src/avatar/resize/**` | `spawn` | Uploaded image is resized to the spec's named thumbnail sizes; spec-named proof (or gate check) inspectable |
-| 04 | **Wave 1 gate** | 02, 03 | — | `inline` | Structural inspection satisfies units 02–03's proofs; `harness:validate` PASS; failure → **abort** before Wave 2 |
-| 05 | Wire the avatar into the profile page | 04 | `src/profile/**` | `spawn` | Profile page shows the uploaded avatar after a successful upload; spec-named proof (or gate check) inspectable |
-| 06 | Record disposition `U-example-size-limit` + enforce it | 04 | `src/avatar/upload/**`, `docs/specs/avatar-upload/avatar-upload-plan.md` (Unresolved table) | `inline` | Disposition filled; size limit enforced to match; Wave 2 unblocked **or** escalated and stopped |
-| 07 | **Wave 2 gate** | 05, 06 | — | `inline` | Structural inspection satisfies units 05–06's proofs; `harness:validate` PASS; failure → **abort** |
+| 01 | Record disposition `U-example-storage` | — | `docs/specs/avatar-upload/avatar-upload-plan.md` (Unresolved table) | `inline` | [ ] Disposition filled; storage choice named; Wave 1 unblocked **or** escalated and stopped — proof: Unresolved row inspectable |
+| 02 | Implement avatar upload endpoint | 01 | `src/avatar/upload/**` | `spawn` | [ ] Endpoint accepts an image and stores it per the spec's storage disposition; spec-named proof (or gate check) inspectable |
+| 03 | Implement image resize pipeline | 01 | `src/avatar/resize/**` | `spawn` | [ ] Uploaded image is resized to the spec's named thumbnail sizes; spec-named proof (or gate check) inspectable |
+| 04 | **Wave 1 gate** | 02, 03 | — | `inline` | [ ] Structural inspection satisfies units 02–03's proofs; `harness:validate` PASS; failure → **abort** before Wave 2 |
+| 05 | Wire the avatar into the profile page | 04 | `src/profile/**` | `spawn` | [ ] Profile page shows the uploaded avatar after a successful upload; spec-named proof (or gate check) inspectable |
+| 06 | Record disposition `U-example-size-limit` + enforce it | 04 | `src/avatar/upload/**`, `docs/specs/avatar-upload/avatar-upload-plan.md` (Unresolved table) | `inline` | [ ] Disposition filled; size limit enforced to match; Wave 2 unblocked **or** escalated and stopped |
+| 07 | **Wave 2 gate** | 05, 06 | — | `inline` | [ ] Structural inspection satisfies units 05–06's proofs; `harness:validate` PASS; failure → **abort** |
 
 ## Frontier order
 
@@ -56,7 +56,7 @@ a spec-named proof; agent-sized; Subagent stated explicitly.
 
 | # | Unit | Depends | Owns | Subagent | Done when |
 |---|------|---------|------|----------|-----------|
-| 98 | Update every avatar module file | — | `src/avatar/upload/**`, `src/avatar/resize/**`, `src/profile/**` | `spawn` | All avatar files touched; formatting cleaned up |
+| 98 | Update every avatar module file | — | `src/avatar/upload/**`, `src/avatar/resize/**`, `src/profile/**` | `spawn` | [ ] All avatar files touched; formatting cleaned up |
 
 **Why bad:** layer-only (files/formatting), no observable behavior, no
 named proof, mixes Owns across unrelated outcomes. Safety valve → stop and
@@ -67,7 +67,7 @@ gate check).
 
 | # | Unit | Depends | Done when |
 |---|------|---------|-----------|
-| 99 | Ship the avatar feature | — | Upload, resize, and profile wiring all built; tests pass |
+| 99 | Ship the avatar feature | — | [ ] Upload, resize, and profile wiring all built; tests pass |
 
 **Why bad:** not agent-sized; no per-outcome proof; safety valve → stop and
 split.
@@ -76,8 +76,8 @@ split.
 
 | # | Unit | Depends | Subagent | Done when | Validate |
 |---|------|---------|----------|-----------|----------|
-| 02 | Implement avatar upload endpoint | 01 | `spawn` | Behavior + spec-named proof (or gate check) ready | Unit-specific structural check; `harness:validate` at the wave gate |
-| 04 | **Wave 1 gate** | 02, 03 | `inline` | Units 02–03's proofs PASS | `harness:validate` PASS |
+| 02 | Implement avatar upload endpoint | 01 | `spawn` | [ ] Behavior + spec-named proof (or gate check) ready | Unit-specific structural check; `harness:validate` at the wave gate |
+| 04 | **Wave 1 gate** | 02, 03 | `inline` | [ ] Units 02–03's proofs PASS | `harness:validate` PASS |
 
 Gate units own `harness:validate` and the wave's named proofs;
 implementation units name unit-specific behavior + proof readiness.

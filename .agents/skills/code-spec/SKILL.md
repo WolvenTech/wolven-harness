@@ -73,7 +73,9 @@ A PRD is optional input: when the `create-prd` skill is installed it drafts and 
     and supersession live in `adr`; this section only decides whether one
     is owed.
 11. Present the draft for the Human to approve; revise in place, and
-    present again whenever a revision changes something material.
+    present again whenever a revision changes something material. Once the
+    Human explicitly approves, change `status` from `draft` to `stable` —
+    only the Human's explicit word moves it.
 12. Hand off to `code-plan` once approved.
 
 ## When not to use
@@ -94,3 +96,4 @@ placeholder spec, or one with no Eval / gates table.
 - One proof reused across more than one obligation
 - Citing a doc path that doesn't exist yet instead of a `<slug>`
   placeholder
+- Setting `status: stable` without the Human's explicit approval

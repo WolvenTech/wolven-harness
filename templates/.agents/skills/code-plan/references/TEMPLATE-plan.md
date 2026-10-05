@@ -15,7 +15,7 @@ status: draft
 
 | # | Unit | Depends | Owns | Subagent | Done when |
 |---|------|---------|------|----------|-----------|
-| 01 | <unit-one-title> | — | <unit-one-owns> | <unit-one-subagent> | <unit-one-done-when> |
+| 01 | <unit-one-title> | — | <unit-one-owns> | <unit-one-subagent> | [ ] <unit-one-done-when> |
 
 ## Wave stops
 

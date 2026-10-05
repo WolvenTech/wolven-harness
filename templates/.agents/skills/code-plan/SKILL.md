@@ -32,8 +32,8 @@ with a vague unit — stop and get the proof named first.
 
 ## Hard gates
 
-1. The spec is locked (or explicitly skipped for tiny work — then skip this
-   skill too).
+1. The spec is locked (`status: stable`), or explicitly skipped for tiny
+   work — then skip this skill too.
 2. Units are **agent-sized vertical slices** — each owns one coherent
    observable outcome end-to-end, never a layer-only cut ("all templates"
    then "all tests") that `code-execute` can't verify per obligation.
@@ -58,7 +58,10 @@ with a vague unit — stop and get the proof named first.
 1. Read the spec, including any phased execution and its Unresolved rows,
    and pass the structural gate.
 2. Draft a numbered units table: `#`, title, Depends, Owns, **Subagent**,
-   Done when — see [EXAMPLE-units.md](references/EXAMPLE-units.md).
+   Done when — see [EXAMPLE-units.md](references/EXAMPLE-units.md). Each
+   Done when opens with an unchecked `[ ]`: the unit's plan-completion
+   mark, which `code-execute` flips to `[x]` in the same commit as the
+   unit's work.
 3. Carry every blocking open question into the typed Unresolved table,
    mapped to the unit or wave it blocks.
 4. Check the draft against the safety valve; re-slice or escalate until
