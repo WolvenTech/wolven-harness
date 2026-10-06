@@ -13,7 +13,7 @@ pnpm validate   # node dist/cli.js validate — run after `pnpm build`
 pnpm score      # harness-score --min-level 3, with drops in .harness-score.json
 ```
 
-`pnpm install` runs `prepare`, which installs a pre-commit hook (simple-git-hooks) that runs `biome check --staged`.
+`pnpm install` runs `prepare`, which installs simple-git-hooks: pre-commit refuses the default branch, then runs `biome check --staged`; pre-push refuses a push to the default branch.
 
 ## Layout
 
