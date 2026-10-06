@@ -1,13 +1,13 @@
 ---
 type: spec
-title: Lean harness-init path — review-fix plan
+title: Lean harness-init path — iteration 1 plan
 description: Ordered work units that fix the ten code-review findings on PR 32 by moving the lean path into one reference file and closing its resume, credential, wiring and empty-repo gaps.
 status: stable
 source_spec: docs/specs/lean-init/lean-init-spec.md
 source_pr: https://github.com/WolvenTech/wolven-harness/pull/32
 ---
 
-# Lean harness-init path — review-fix plan
+# Lean harness-init path — iteration 1 plan
 
 **Input:** the code review of PR 32 (`feat/lean-init`, ten findings) against
 `docs/specs/lean-init/lean-init-spec.md` (status `draft`).
@@ -99,7 +99,7 @@ changes a status without the Human's approval.
 | Field | Value |
 |-------|-------|
 | Unit | 01 — Amend the spec with the review obligations (Wave 1, frontier 1) |
-| Spec / plan | `docs/specs/lean-init/lean-init-spec.md` / `docs/specs/lean-init/lean-init-review-fix-plan.md` |
+| Spec / plan | `docs/specs/lean-init/lean-init-spec.md` / `docs/specs/lean-init/lean-init-iteration-1-plan.md` |
 | Obligations | R6.1–R6.5 added (F1, F2, F3/F4, F5, F6); R5.1 evidence is now `pnpm test`; term, grounding, refusal exception and dispositions recorded — done; `proof-lean-init-spec-obligations` holds by inspection; `harness:validate` and `harness:comments` ok |
 | `HEAD` | `f95bca1` |
 | `git status` | dirty — this plan (untracked) and `lean-init-spec.md` (modified), both this unit's Owns |
@@ -111,7 +111,7 @@ changes a status without the Human's approval.
 | Field | Value |
 |-------|-------|
 | Unit | 02 — Wave 1 gate |
-| Spec / plan | `docs/specs/lean-init/lean-init-spec.md` / `docs/specs/lean-init/lean-init-review-fix-plan.md` |
+| Spec / plan | `docs/specs/lean-init/lean-init-spec.md` / `docs/specs/lean-init/lean-init-iteration-1-plan.md` |
 | Obligations | Dispositions recorded — done; `harness:validate` ok — done; the Human confirmed the amended spec ("continue", 2026-10-02) — done; Wave 1 gate PASS |
 | `HEAD` | `f95bca1` |
 | `git status` | dirty — unit 01's two files only |
@@ -123,7 +123,7 @@ changes a status without the Human's approval.
 | Field | Value |
 |-------|-------|
 | Unit | 03 — Copies-identical proof and section helper; 08 — The note template renders a lean run without ambiguity (parallel, disjoint Owns) |
-| Spec / plan | `docs/specs/lean-init/lean-init-spec.md` / `docs/specs/lean-init/lean-init-review-fix-plan.md` |
+| Spec / plan | `docs/specs/lean-init/lean-init-spec.md` / `docs/specs/lean-init/lean-init-iteration-1-plan.md` |
 | Obligations | 03: R5.1 — pending; 08: R2.2, R6.5, R4.1 — pending |
 | `HEAD` | `f95bca1` |
 | `git status` | dirty — unit 01's spec and this plan only (not in 03's or 08's Owns; left alone) |
@@ -137,7 +137,7 @@ Units 03 and 08 returned complete: `comments: ok (0 findings)`, `validate: ok`, 
 | Field | Value |
 |-------|-------|
 | Unit | 04 — Move the lean path into `references/lean-path.md` (Wave 2, frontier 2) |
-| Spec / plan | `docs/specs/lean-init/lean-init-spec.md` / `docs/specs/lean-init/lean-init-review-fix-plan.md` |
+| Spec / plan | `docs/specs/lean-init/lean-init-spec.md` / `docs/specs/lean-init/lean-init-iteration-1-plan.md` |
 | Obligations | R6.1 — pending; R1.1–R1.4, R2.1, R3.1 re-pointed — pending; R5.1 — done (unit 03); R2.2, R6.5 — done (unit 08) |
 | `HEAD` | `f95bca1` |
 | `git status` | dirty — unit 01 spec + this plan; units 03 and 08 Owns (landed, uncommitted); none in 04's Owns except the session-note-template copies, which 04 must not touch |
@@ -151,7 +151,7 @@ Unit 04 returned complete: `pnpm test` 555 pass / 0 fail, lint clean, `comments:
 | Field | Value |
 |-------|-------|
 | Unit | 05 — Docs point to the single source (`spawn`); 06 — Resume and re-run run before the lean decision (`inline`) |
-| Spec / plan | `docs/specs/lean-init/lean-init-spec.md` / `docs/specs/lean-init/lean-init-review-fix-plan.md` |
+| Spec / plan | `docs/specs/lean-init/lean-init-spec.md` / `docs/specs/lean-init/lean-init-iteration-1-plan.md` |
 | Obligations | 05: R4.2 — pending; 06: R6.2 — pending |
 | `HEAD` | `f95bca1` |
 | `git status` | dirty — units 01, 03, 04, 08 landed uncommitted; 05's Owns clean; 06's Owns hold unit 04's work (expected input) |
@@ -167,7 +167,7 @@ Unit 05 done (spawn): `README.md` and `site/harness-init.md` link `lean-path.md`
 | Field | Value |
 |-------|-------|
 | Unit | 07 — Boundary rows hold on every thin repo (Wave 2, frontier 4; unit 05 still running on disjoint paths) |
-| Spec / plan | `docs/specs/lean-init/lean-init-spec.md` / `docs/specs/lean-init/lean-init-review-fix-plan.md` |
+| Spec / plan | `docs/specs/lean-init/lean-init-spec.md` / `docs/specs/lean-init/lean-init-iteration-1-plan.md` |
 | Obligations | R6.3, R6.4 — pending |
 | `HEAD` | `f95bca1` |
 | `git status` | dirty — units 01, 03, 04, 06, 08 landed uncommitted; unit 05 in flight on `README.md`, `site/harness-init.md`, `test/readme-install.test.ts` (isolated, not touched) |
@@ -181,7 +181,7 @@ Unit 07 done (inline): the score-gap row and `### Harness score (step 6)` say a 
 | Field | Value |
 |-------|-------|
 | Unit | 09 — Wave 2 gate |
-| Spec / plan | `docs/specs/lean-init/lean-init-spec.md` / `docs/specs/lean-init/lean-init-review-fix-plan.md` |
+| Spec / plan | `docs/specs/lean-init/lean-init-spec.md` / `docs/specs/lean-init/lean-init-iteration-1-plan.md` |
 | Obligations | R4.1–R4.3, R6.1–R6.5 and the copies proof — done |
 | `HEAD` | `f95bca1` |
 | `git status` | dirty — units 01, 03–08 landed uncommitted, all inside their Owns |
@@ -195,7 +195,7 @@ Gate result: PASS on 2026-10-02 — `pnpm build` ok; `pnpm test` 558 pass, 0 fai
 | Field | Value |
 |-------|-------|
 | Unit | 10 — PRD and spec lifecycle (Wave 3, frontier 1) |
-| Spec / plan | `docs/specs/lean-init/lean-init-spec.md` / `docs/specs/lean-init/lean-init-review-fix-plan.md` |
+| Spec / plan | `docs/specs/lean-init/lean-init-spec.md` / `docs/specs/lean-init/lean-init-iteration-1-plan.md` |
 | Obligations | `U-prd-spec-approval` — resolved: the Human approved ("approve", 2026-10-02); all fifteen Acceptance proofs PASS (45/45 in their four suites) |
 | `HEAD` | `f95bca1` |
 | `git status` | dirty — Waves 1–2 landed uncommitted, all inside their Owns |
@@ -209,7 +209,7 @@ Unit 10 done (inline): `lean-init-prd.md` and `lean-init-spec.md` are `stable`; 
 | Field | Value |
 |-------|-------|
 | Unit | 11 — Ship gate |
-| Spec / plan | `docs/specs/lean-init/lean-init-spec.md` / `docs/specs/lean-init/lean-init-review-fix-plan.md` |
+| Spec / plan | `docs/specs/lean-init/lean-init-spec.md` / `docs/specs/lean-init/lean-init-iteration-1-plan.md` |
 | Obligations | Wave 2 gate checks re-run; ten findings re-reported — done |
 | `HEAD` | `f95bca1` |
 | `git status` | dirty — Waves 1–3 landed uncommitted, all inside their Owns |

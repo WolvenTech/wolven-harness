@@ -9,8 +9,10 @@
 
 Every other doc-folder holds one slug folder per document:
 `docs/<folder>/<slug>/<slug>-<type>.md`. `docs/specs/<slug>/` may also hold
-`<slug>-plan.md` (also `type: spec`). Other files in a slug folder, and
-everything under a doc-folder's `archived/`, are not checked.
+`<slug>-plan.md` (also `type: spec`) and review-fix rounds
+`<slug>-iteration-<N>-spec.md` / `<slug>-iteration-<N>-plan.md`, whose
+violations only warn. Other files in a slug folder, and everything under a
+doc-folder's `archived/`, are not checked.
 
 ## Type map
 

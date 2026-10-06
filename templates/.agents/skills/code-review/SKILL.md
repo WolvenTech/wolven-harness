@@ -103,6 +103,9 @@ to perform one.
    file:line, label, and a one-line why tied to a ref or diff line.
 7. End with a verdict (approve-with-nits / request-changes / needs-the-human)
    — never a merge.
+8. **Review-fix handoff** — name the next free N in `docs/specs/<slug>/`;
+   obligation-adding findings go `code-spec` then `code-plan`, plan-only
+   ones `code-plan`, as `<slug>-iteration-<N>-{spec,plan}.md`.
 
 ## Anti-patterns
 

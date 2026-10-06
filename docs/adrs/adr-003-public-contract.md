@@ -106,6 +106,7 @@ Finding codes:
 | `claim-draft` | error |
 | `claim-deprecated` | error |
 | `claim-slug-mismatch` | error |
+| `profile-iteration-doc` | warn |
 | `skill-stub-open` | warn |
 | `step0-pending` | warn |
 | `adr-unrecognized` | warn |
@@ -214,3 +215,5 @@ number is not the guarantee. This policy is.
   for a breaking change marked `feat!` or `BREAKING CHANGE`.
   `bump-patch-for-minor-pre-major` is set, and `bump-minor-pre-major` stays
   set so a breaking change stays a minor. Chosen by the maintainer.
+
+- 2026-10-05: `profile-iteration-doc` starts as a warning.
