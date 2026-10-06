@@ -1,6 +1,6 @@
 ---
 name: code-pr
-description: Push the branch and open or amend a pull request for the current state, titled as a Conventional Commit and filled from the body template — ask-only, and it never merges
+description: "Pushes the branch and opens or amends a pull request for the current state, titled as a Conventional Commit and filled from the body template, and never merges. Use only when the Human explicitly asks to open or update a PR."
 disable-model-invocation: true
 ---
 
@@ -11,10 +11,16 @@ right now — a create when this head has no open PR, an amend when it does.
 Ask-only: `disable-model-invocation: true` stays set, and nothing merges
 from here.
 
-**Consult:** `pragmatic-guard`.
+**Consult:** `pragmatic-guard`. Loaded means the session skill list from the
+runtime. When that list includes `pragmatic-guard`, consult it, then follow
+this skill. When it is absent, follow this skill's own steps; the reply and
+the pull request body include `pragmatic-guard was not consulted`. A folder
+on disk or a remembered name is not loaded. Name no install command for
+`pragmatic-guard`. That run writes no deferral and no sentence that the
+guard ran.
 **Body template:** [pr-body-template.md](references/pr-body-template.md).
 **Closure (last batch before merge):** [pre-merge-closure.md](references/pre-merge-closure.md).
-**Host operations:** [host-operations.md](references/host-operations.md) — every host action this skill performs (push branch, open PR, read PR and diff) goes through that table; its MCP tool is tried first, with a silent fallback to the row's other route.
+**Host operations:** [host-operations.md](references/host-operations.md) — every host action this skill performs (push branch, open PR, read PR and diff) goes through that table.
 
 ## When not to use
 
@@ -22,92 +28,75 @@ from here.
 - Leave findings or reply on review threads → `code-review`.
 - Babysit checks and conflicts to a merge-ready state → `code-ci`.
 
-**Not a refusal:** partial work, a docs-only diff, or open plan units still
-get a create or amend with the current state — never refuse, and never wait
-for more work to land first.
-
 ## Hard gates
 
 1. **Explicit ask** — run only when asked directly for a pull request; never
    as the automatic last step of another skill.
 2. **Current state, not full scope** — open or amend for what the branch
-   holds now, whether that is a docs-only change, partial work, or a
-   finished piece. Never refuse because an earlier step was skipped, and
-   never implement missing work instead of opening the PR.
+   holds now. **Not a refusal:** a docs-only change, partial work, open plan
+   units, or a skipped earlier step. Never refuse, never wait for more work
+   to land first, and never implement missing work instead of opening the PR.
 3. **Branch first** — on a detached checkout or the repository's default
    branch, create or check out a feature branch before doing anything else;
    never open a pull request from the default branch.
-4. **Commit when needed** — if the tree has uncommitted in-scope changes,
-   commit them via `code-commit` before pushing; leave out unrelated dirty
-   files and never stage a secret.
-5. **Push every run** — push branch (host operations), every time this
-   skill runs, not only when the branch is new. A branch that already
-   tracks a remote can still hold unpushed local commits.
+4. **Commit when needed** — commit uncommitted in-scope changes via
+   `code-commit` before pushing; leave out unrelated dirty files and never
+   stage a secret. When `code-commit` is absent from the session skill list
+   and the next step is a commit, stop, name `code-commit`, and do not run
+   `git commit`.
+5. **Push every run** — push branch (host operations) every time this skill
+   runs, not only when the branch is new: a branch that already tracks a
+   remote can still hold unpushed local commits.
 6. **Find before open** — read PR and diff (host operations) to list open
-   pull requests whose head is this branch. Zero → create. One → amend it;
-   never open a second. More than one → stop and ask.
-7. **Title** — always Conventional Commits shape, `type(scope): summary`.
-   A host that squash-merges takes the pull request title as the resulting
-   commit's subject, so the title carries that meaning on every host; make
-   no other assumption about how a host merges.
+   pull requests whose head is this branch; a named PR number or link
+   overrides the search. Zero → create. One → amend it; never open a second.
+   More than one → stop and ask.
+7. **Title** — always Conventional Commits shape, `type(scope): summary`, on
+   every host: a host that squash-merges takes the pull request title as the
+   resulting commit's subject. Make no other assumption about how a host
+   merges.
 8. **Read before rewrite** — on amend, read the pull request's current
-   title, body, and comments (read PR and diff — host operations) before
-   replacing anything.
+   title, body, and comments (read PR and diff) before replacing anything.
 9. **Fill the template** — [pr-body-template.md](references/pr-body-template.md)
-   in full; short Overview/What/Why/How, no path dump.
+   in full; short Overview/What/Why/How describing the actual diff, no path
+   dump.
 10. **Checkbox reset** — write every template checkbox as `[ ]` first, then
     tick only what this session's evidence supports. Never copy ticks
     forward from a prior body. Pre-merge closure boxes stay unchecked
     unless closure already ran on this branch.
 11. **Pre-merge closure is not a precondition** — it is not needed to
     **open** or **amend** a pull request; it is needed only to claim
-    merge-ready or to tick a closure checkbox in the body. A docs-only
-    change, a partial wave, or a mid-initiative state still gets a create
-    or amend with pre-merge closure left unchecked.
+    merge-ready or to tick a closure checkbox in the body.
 12. **Real evidence** — Verification & Testing and the Checklist cite
-    commands actually run this session on this diff; N/A is valid only for
-    a docs-only change with no gate to run.
-13. **Create or amend, never a second PR** — open PR (host operations)
-    creates when none exists; the same operation's amend path is how an
-    existing pull request's title and body get updated. Return the PR URL.
-14. **Never merge** — no merge, no enabling auto-merge, no reading merge
-    settings, and no reply on review threads — that belongs to a review or
-    check-babysitting skill.
+    commands actually run this session on this diff; N/A, with a stated
+    reason, is valid only for a docs-only change with no gate to run.
+13. **Never merge** — no merge, no enabling auto-merge, no marking the pull
+    request ready to merge, no reading merge settings, and no reply on
+    review threads — that belongs to a review or check-babysitting skill.
 
 ## Workflow
 
-1. **Snapshot** — check status, diff, and this branch against the resolved
-   base, to know what the pull request will actually contain; set aside
+1. **Snapshot** — resolve the base (the repository's default branch unless
+   told to target another), then check status, diff, and this branch
+   against it to know what the pull request will contain; set aside
    unrelated dirty files.
-2. **Branch** — on a detached checkout or the default branch, create or
-   check out a feature branch for this work.
-3. **Commit** — when uncommitted in-scope changes remain, commit them via
-   `code-commit`. Skip when the tree is already clean.
-4. **Push** — push branch (host operations). Run this whenever step 3
-   committed anything, and also when local commits are already ahead on an
-   existing branch; skip only when nothing new is local.
-5. **Resolve base** — default to the repository's default branch unless
-   told to target another.
-6. **Find** — read PR and diff (host operations) to list open pull requests
-   whose head is this branch. A named PR number or link overrides the
-   search. Zero → create. One → amend. More than one → stop and ask.
-7. **Read before rewrite** — on amend, load the current title, body, and
-   comments (host operations); rewrite the body from that plus the latest
-   diff and this session's evidence. On create, draft straight from the
-   template and the latest state.
-8. **Lean fill** — keep every template section; short Overview/What/Why/How
-   describing the actual diff, never a path dump.
-9. **Verification & Testing** — commands run on this diff this session, or
-   N/A with a stated reason for a docs-only change.
-10. **Checkbox reset** — every box starts `[ ]`; tick only from this
-    session's evidence. Leave pre-merge closure unchecked unless it already
-    ran on this branch.
-11. **Create or amend** — open PR (host operations): create a new pull
-    request, or update title and body on the one found. Never open a
-    second pull request for the same head. Print the PR found or created
-    and the resolved base, and return the PR URL.
-12. **Stop** — no review, no check-babysitting, no merge, no reply on
-    review threads, and no pre-merge closure unless separately asked.
+2. **Branch** — leave a detached checkout or the default branch per
+   **Branch first**.
+3. **Commit** — per **Commit when needed**; skip when the tree is already
+   clean.
+4. **Push** — per **Push every run**.
+5. **Find** — per **Find before open**.
+6. **Draft** — on amend, rewrite from the current title, body, and comments
+   (**Read before rewrite**) plus the latest diff and this session's
+   evidence; on create, draft straight from the template and the latest
+   state. Fill per **Fill the template**, **Checkbox reset**, and **Real
+   evidence**.
+7. **Create or amend** — open PR (host operations): create a new pull
+   request, or update title and body on the one found through the same
+   operation's amend path. Print the PR found or created and the resolved
+   base, and return the PR URL.
+8. **Stop** — no review, no check-babysitting, no merge, no reply on
+   review threads, and no pre-merge closure unless separately asked.
 
 ## EXAMPLE — filled verification (a feature PR, current state)
 
@@ -146,14 +135,6 @@ while pre-merge closure boxes are unticked, and replying on review threads.
 
 ## Anti-patterns
 
-- Refusing to open a PR because an earlier step was skipped or the work
-  is incomplete
-- Implementing missing work instead of opening the PR with current state
-- Running pre-merge closure before the branch is actually merge-ready
-- An unticked Verification checklist with no narrative when a gate ran
+- Refusing to open a PR, or implementing missing work, because an earlier step was skipped
 - "Tests pass" with no command or session evidence named
-- Opening a second pull request when one already targets this head
-- Copying checkbox ticks from a prior body instead of a checkbox reset
-- A path dump in Overview/What/Why/How
-- Replying on review threads from this skill
-- Merging, enabling auto-merge, or marking a pull request ready to merge
+- Copying checkbox ticks from a prior body instead of resetting them

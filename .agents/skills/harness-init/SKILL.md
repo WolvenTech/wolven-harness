@@ -1,6 +1,6 @@
 ---
 name: harness-init
-description: Guide a repo through initial harness setup — fold the entry file into AGENTS.md, offer legacy ADR migration, discover the repo, research its decided tools, suggest skills, write stubs, score the harness, and close with a session note
+description: "Guides a repo through initial harness setup: folds the entry file into AGENTS.md, offers legacy ADR migration, discovers the repo, researches its decided tools, suggests skills, writes stubs, scores the harness, and closes with a session note. Use when a repo has just run `wolven-harness setup`, or has only a bare `.agents/skills/` tree."
 ---
 
 # Harness Init
@@ -12,10 +12,6 @@ a short list of suggested skills stubbed out, the harness scored, and a
 session note recording what happened. The Human steers every write.
 
 **Consult:** `adr`, `research`, `code-commit` (when installed), `qmd`, `grilling`.
-
-This skill is a runtime playbook, not a scripted fix: it gives the agent
-rules for what it will meet in an unfamiliar repo, not a transcript to
-replay.
 
 ## Hard gates
 
@@ -64,14 +60,13 @@ as well, for the migration phase — offer one commit of that phase's paths
 through `code-commit`, and commit only on the Human's yes. When `code-commit`
 is not installed (no `.agents/skills/code-commit/`), ask the Human before each
 phase's commit and make it with plain `git commit` of that phase's paths, again
-only on their yes. Never a single
-commit at the end of the whole run, and never a commit per file, ADR,
-claim, or stub. A declined commit leaves that phase uncommitted, and the
-next phase's offer covers only its own paths — the two never merge into
-one.
+only on their yes. Never a single commit at the end of the whole run, and
+never a commit per file, ADR, claim, or stub. A declined commit leaves that
+phase uncommitted, and the next phase's offer covers only its own paths —
+the two never merge into one.
 
-Every writing step also runs `harness:validate` right after it writes,
-shows the Human the diff before writing, and waits for the Human's choice
+Every writing step also shows the Human the diff before writing, runs
+`harness:validate` right after it writes, and waits for the Human's choice
 before moving on.
 
 ## Re-run skips
@@ -83,7 +78,8 @@ A re-run does not redo what an earlier run already finished:
 - An `AGENTS.md` that already holds the harness section was integrated by
   an earlier run, even when `setup` has since brought `WOLVEN.md` back:
   never fold it a second time; show the diff, ask whether to refresh the
-  section, then delete `WOLVEN.md`.
+  section, then delete `WOLVEN.md` (see "Already integrated" in
+  [references/entry-modes.md](references/entry-modes.md)).
 - Step 1 is skipped when there are no legacy-ADR warnings left.
 - A `draft` session note from an interrupted run is resumed, not replaced,
   with the mode, immediate goal and deferrals it already records.
@@ -110,11 +106,6 @@ re-include rules), and existing content in the five doc folders the
 writing profile governs. See
 [references/entry-modes.md](references/entry-modes.md).
 
-Skipped on a re-run once `WOLVEN.md` is gone or `AGENTS.md` already
-mentions it. When `AGENTS.md` already holds the harness section, the step
-offers a refresh instead of a second fold (see "Already integrated" in the
-reference).
-
 ### 1. Legacy ADR migration (optional)
 
 Offered only when `harness:validate` reports `legacy-adr`. Turns each
@@ -125,8 +116,6 @@ first) — and closes the step by recomputing links, working every failing
 claim with the Human, and checking that each claim to a touched ADR names
 the right decision, until `harness:validate` exits 0 with `0 legacy-warn`. See
 [references/adr-migration.md](references/adr-migration.md).
-
-Skipped on a re-run with no legacy-ADR warnings left.
 
 ### 2. Discovery
 

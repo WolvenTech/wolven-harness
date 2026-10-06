@@ -21,6 +21,7 @@ your Owns is read-only to you.
 - **Spec / plan:** `<docs/specs/<slug>/<slug>-spec.md>` / `<docs/specs/<slug>/<slug>-plan.md>`
 - **Wave / gate:** `<wave name>` — gate command that must PASS before the
   next wave: `<gate command>`
+- **Already landed on the branch:** `<units or commits already in>`
 
 ## Owns and must-not-touch
 
@@ -32,7 +33,10 @@ your Owns is read-only to you.
 1. **Edit only your Owns.** Everything else is read-only. Other units may
    be worked on in this same repo right now, on disjoint paths — do not
    touch, revert, or "fix" their files. If you cannot finish inside Owns,
-   stop and report a blocker instead of reaching outside it.
+   stop and report a blocker instead of reaching outside it. Report
+   anything you find outside Owns under **Outside Owns / blockers** —
+   never fix it yourself, even if it looks like a quick, obviously
+   correct change.
 2. **Tests only — no build, no commit, no push.** Run the project's test
    command for your own files while iterating. Never run a build command,
    never commit, never push. The parent owns the build artifact, the
@@ -65,7 +69,3 @@ Paste both outputs in full in your return, even when they pass cleanly.
 - `harness:validate` — (pasted)
 **Outside Owns / blockers:** none | list
 ```
-
-Report anything you found outside your Owns as a blocker in that last
-field — never fix it yourself, even if it looks like a quick, obviously
-correct change.

@@ -28,4 +28,4 @@ Follow the instructions and review the proposed diff before approving each write
 
 Then try a small change with the [Development workflow](./cycle) example.
 
-`setup`, `validate`, and `comments` are terminal commands. `harness-init`, `code-spec`, `code-plan`, and `code-execute` are skills you ask the agent to run.
+`setup`, `skills`, `validate`, and `comments` are terminal commands. `harness-init`, `code-spec`, `code-plan`, and `code-execute` are skills you ask the agent to run.

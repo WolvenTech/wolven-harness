@@ -2,7 +2,8 @@
 type: adr
 title: Version 0.3.0 freezes the public contract
 description: wolven-harness 0.3.0 is the first stable release and freezes its commands, flags, exit codes, finding codes, summary lines and .wolven-harness.json schema v1; a breaking change needs a superseding ADR, a deprecation release and a breaking commit.
-status: stable
+status: deprecated
+superseded_by: adr-004-standalone-skills-contract
 ---
 
 # ADR-003 — Version 0.3.0 freezes the public contract
@@ -106,7 +107,6 @@ Finding codes:
 | `claim-draft` | error |
 | `claim-deprecated` | error |
 | `claim-slug-mismatch` | error |
-| `profile-iteration-doc` | warn |
 | `skill-stub-open` | warn |
 | `step0-pending` | warn |
 | `adr-unrecognized` | warn |
@@ -215,5 +215,3 @@ number is not the guarantee. This policy is.
   for a breaking change marked `feat!` or `BREAKING CHANGE`.
   `bump-patch-for-minor-pre-major` is set, and `bump-minor-pre-major` stays
   set so a breaking change stays a minor. Chosen by the maintainer.
-
-- 2026-10-05: `profile-iteration-doc` starts as a warning.

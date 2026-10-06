@@ -1,10 +1,10 @@
 ---
-description: Complete CLI reference for setup, validate, comments, flags, configuration, output, and exit codes.
+description: Complete CLI reference for setup, skills, validate, comments, flags, configuration, output, and exit codes.
 ---
 
 # Commands
 
-Use `wolven-harness` to set up the tools your coding agent needs, then check the harness as you work. Most people start with `setup`, ask their agent to run `harness-init`, and use `validate` and `comments` during development. This page starts with common examples and then gives the exact options and behavior for all three commands.
+Use `wolven-harness` to set up the tools your coding agent needs, then check the harness as you work. Most people start with `setup`, ask their agent to run `harness-init`, and use `validate` and `comments` during development. This page starts with common examples and then gives the exact options and behavior for all four commands.
 
 ## Install and run
 
@@ -31,6 +31,7 @@ When `setup` adds the package scripts, you can use `pnpm harness:validate`, `pnp
 | Command | What it does | Where to run it |
 | --- | --- | --- |
 | `setup` | Installs missing harness files, wires selected runtimes, records setup choices, and adds missing package scripts. | At the Git repository root only. |
+| `skills` | Copies selected ship and discovery skills into runtime load paths without installing the harness. | Any directory; no Git repository required. |
 | `validate` | Checks documentation structure, ADR references, installed skills and rules, and harness paths. | Anywhere inside a Git repository. |
 | `comments` | Checks newly added comment blocks against the repository's comment rules. | Anywhere inside a Git repository. |
 
@@ -42,7 +43,7 @@ wolven-harness --version
 
 Use `pnpm exec wolven-harness --help` to see the commands and options, or `pnpm exec wolven-harness --version` to check which version is installed. Running the CLI without a command also displays help. If you mistype a command, the CLI shows an error and the command list; use one of the commands in the examples above or check `--help` for the full list.
 
-The commands, flags, exit codes, finding codes, summary lines, and configuration schema are public contract; see [ADR-003](https://github.com/WolvenTech/wolven-harness/blob/main/docs/adrs/adr-003-public-contract.md).
+The commands, flags, exit codes, finding codes, summary lines, and configuration schema are public contract; see [ADR-004](https://github.com/WolvenTech/wolven-harness/blob/main/docs/adrs/adr-004-standalone-skills-contract.md).
 
 ## `setup`
 
@@ -91,6 +92,20 @@ For the same setup trace in a script or CI, set `WOLVEN_HARNESS_DEBUG=1`.
 
 Existing files and scripts are preserved. Setup does not install `harness-score`; when it is needed but absent, setup prints the command to add it. If there is no `package.json`, no scripts are added.
 
+## `skills`
+
+```sh
+pnpm exec wolven-harness skills --runtimes codex --scope project --skills ship
+```
+
+Copies chosen ship and discovery skill folders into the directories Claude, Codex, and Cursor already read. It does not run `setup`. Core skills are installed by `setup`.
+
+Asks for the runtimes (`claude`, `codex`, `cursor`), the scope (`project`, `global`, or `project,global`), and the skills, or takes `--runtimes`, `--scope`, and `--skills`. Those flags are required when stdout or stdin is not a TTY. `--skills` takes `ship`, `discovery`, or a skill in those sets, for example `--skills ship` or `--skills create-prd`.
+
+`project` writes under the current directory. `global` writes under your home directory. Cursor and Codex share `.agents/skills/<skill>/`. Claude uses `.claude/skills/<skill>/`. Choosing Cursor and Codex writes each skill once. It does not need a git repository, and it does not write harness config, rules, or package scripts.
+
+A folder that already matches the package copy is left in place. When a chosen folder differs, a terminal asks before replacing it. Without a terminal, that folder stays and a missing chosen skill is still added. Cancelling a prompt writes nothing and exits 1. A core skill name writes nothing and exits 1.
+
 ## `validate`
 
 ```text
@@ -100,7 +115,7 @@ wolven-harness validate [--verbose]
 Run validation from anywhere inside a Git repository. It scans tracked files, except paths excluded by valid `ignore` entries, and reports findings from four areas:
 
 1. **Document profile:** ADR naming and layout; required frontmatter; document type, slug folder, and status; required main documents; deprecated ADR successors.
-2. **ADR claims:** References such as `ADR-003` must resolve to one valid, stable ADR. A claim that points to a draft, deprecated, invalid, missing, duplicate, or slug-mismatched decision fails.
+2. **ADR claims:** References such as `ADR-004` must resolve to one valid, stable ADR. A claim that points to a draft, deprecated, invalid, missing, duplicate, or slug-mismatched decision fails.
 3. **Legacy decisions:** ADRs outside `docs/adrs/` and decision folders the harness cannot interpret are reported as warnings so they can be migrated.
 4. **Harness structure:** Skill frontmatter, cited rules, integration of `WOLVEN.md`, and whether required harness paths are hidden by Git ignore rules.
 

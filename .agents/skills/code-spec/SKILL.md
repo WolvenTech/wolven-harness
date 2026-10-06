@@ -1,13 +1,11 @@
 ---
 name: code-spec
-description: Freeze design and requirements for a code initiative into a spec, from a PRD or a confirmed ask, with obligation-proof pairs, nine dimensions, and typed Unresolved rows
+description: "Freezes design and requirements for a code initiative into a spec, from a PRD or a confirmed ask, with obligation-proof pairs, nine dimensions, and typed Unresolved rows. Use when an approved PRD or a confirmed code-shaped ask needs a spec before planning."
 ---
 
 # Code Spec
 
-Turns an approved PRD, or a confirmed code-shaped ask, into a frozen spec:
-obligations paired with proofs, the nine-dimension sweep, typed Unresolved
-rows, wave stops when the work spans more than one mutate batch, and gates —
+Turns an approved PRD, or a confirmed code-shaped ask, into a frozen spec
 ready for `code-plan` to slice into units.
 
 **Consult:** `pragmatic-guard`.
@@ -21,7 +19,7 @@ iteration of `<slug>` after `code-review` writes
 | File | When to read |
 |------|--------------|
 | [TEMPLATE.md](references/TEMPLATE.md) | Before drafting — the spec skeleton |
-| [EXAMPLE.md](references/EXAMPLE.md) | A short worked example of the obligation ↔ proof, nine-dimension, waves, and eval shapes |
+| [EXAMPLE.md](references/EXAMPLE.md) | Unsure how to fill an obligation ↔ proof row, a nine-dimension landing, a Waves diagram, or an Eval / gates row |
 
 ## Where this sits
 
@@ -56,55 +54,48 @@ A PRD is optional input: when the `create-prd` skill is installed it drafts and 
 4. **Surface walk.** Name the paths and systems in mutate scope, and those
    deliberately left out of scope.
 5. Draft from [TEMPLATE.md](references/TEMPLATE.md): obligation ↔ proof
-   requirements, acceptance boxes, nine-dimension landings, typed
-   Unresolved rows, out-of-scope, refuses.
-6. **Nine-dimension landings.** Land all nine: validation, failure modes,
-   idempotency and retry, authorization, concurrency and ordering, data
-   lifecycle, external-dependency failure, state transitions, and
-   observability. Each row is an obligation ↔ proof pair, an `n/a` naming
-   the unchanged surface, or a typed row under Unresolved — never invented
-   behavior.
+   requirements, each paired with an acceptance box, plus out of scope and
+   refuses.
+6. **Nine-dimension landings.** Land all nine, each as gate 4 requires:
+   validation, failure modes, idempotency and retry, authorization,
+   concurrency and ordering, data lifecycle, external-dependency failure,
+   state transitions, and observability.
 7. **Waves.** When the work spans more than one mutate batch, add a Waves
-   section: name each wave and its gate command, state that a failed gate
-   aborts before the next wave, and encode the same stops as unit
-   boundaries in `code-plan`. Prefer not mixing waves inside one batch.
+   section: name each wave and its gate command, and state that a failed
+   gate aborts before the next wave, so `code-plan` can encode the same
+   stops as unit boundaries. Prefer not mixing waves inside one batch.
 8. **Eval / gates.** Fill the Eval / gates table with the deterministic
    checks a builder must run, including a structural check that every
    acceptance box pairs with a named obligation ↔ proof row, before handoff
-   to `code-plan`. Consumers run `harness:validate`.
+   to `code-plan`. The integrity gate is `harness:validate`.
 9. **Cross-domain leaks.** Fill the Cross-domain leak table with asks that
    belong to a different lane, and name where each one actually belongs.
 10. **ADR.** When the spec settles a durable architecture decision, use the
     `adr` skill, by name, to create, promote, or supersede it. Numbering
     and supersession live in `adr`; this section only decides whether one
     is owed.
-11. Present the draft for the Human to confirm when it changes something
-    material; revise in place.
-12. Hand off to `code-plan` once approved. This skill never emits an
-    executable plan itself.
+11. Present the draft for the Human to approve; revise in place, and
+    present again whenever a revision changes something material. Once the
+    Human explicitly approves, change `status` from `draft` to `stable` —
+    only the Human's explicit word moves it.
+12. Hand off to `code-plan` once approved.
 
 ## When not to use
 
-- A one-file tooling change — skip straight to `code-execute` plus
-  `harness:validate`.
-- The scope is still undecided — chart it first, then come back once the
-  destination is clear.
+- The scope is still undecided — settle it first (`grilling`, or
+  `create-prd` when installed), then come back once the destination is
+  clear.
 - Slicing an already-frozen spec into ordered work — that is `code-plan`.
 
 ## Pragmatic-guard
 
-Refuse an empty placeholder spec, a spec with no Eval / gates table, a
-spec that emits its own plan units, invented product behavior where a
-typed Unresolved row belongs, and a boilerplate `n/a` that names no
-surface. Prefer the thinnest spec that unblocks `code-plan`.
+Prefer the thinnest spec that unblocks `code-plan`. Refuse an empty
+placeholder spec, or one with no Eval / gates table.
 
 ## Anti-patterns
 
-- A "deepen later" acceptance box marked done
-- Skipping the nine-dimension sweep, or filling a row with a guess instead
-  of a typed Unresolved row
 - Mixing two waves into one mutate batch to skip a gate
-- Emitting a plan file or a unit table from this skill
 - One proof reused across more than one obligation
 - Citing a doc path that doesn't exist yet instead of a `<slug>`
   placeholder
+- Setting `status: stable` without the Human's explicit approval

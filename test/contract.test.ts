@@ -8,12 +8,12 @@ import { SetupError } from '../src/setup/types.js';
 import { makeRepo, run } from './helpers/fixture.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const ADR = path.join(ROOT, 'docs', 'adrs', 'adr-003-public-contract.md');
+const ADR = path.join(ROOT, 'docs', 'adrs', 'adr-004-standalone-skills-contract.md');
 
-/** Text of ADR-003 from the line starting with `start` up to the next line starting with `end` (or the end of the file). */
+/** Text of ADR-004 from the line starting with `start` up to the next line starting with `end` (or the end of the file). */
 function adrSection(adr: string, start: string, end?: string): string {
   const from = adr.indexOf(start);
-  assert.notEqual(from, -1, `ADR-003 has no "${start}" section`);
+  assert.notEqual(from, -1, `ADR-004 has no "${start}" section`);
   const rest = adr.slice(from + start.length);
   const to = end === undefined ? -1 : rest.indexOf(end);
   return to === -1 ? rest : rest.slice(0, to);
@@ -57,33 +57,33 @@ function assertSameSet(what: string, actual: Set<string>, documented: Set<string
   const stale = [...documented].filter((c) => !actual.has(c)).sort();
   assert.ok(
     undocumented.length === 0 && stale.length === 0,
-    `${what} drifted from ADR-003 (update the ADR with a superseding ADR, or revert):\n` +
+    `${what} drifted from ADR-004 (update the ADR with a superseding ADR, or revert):\n` +
       `  emitted by src/ but missing from the ADR: ${undocumented.join(', ') || '(none)'}\n` +
       `  listed in the ADR but not emitted by src/: ${stale.join(', ') || '(none)'}`,
   );
 }
 
-test('contract: validate finding codes match ADR-003', async () => {
+test('contract: validate finding codes match ADR-004', async () => {
   const adr = await readFile(ADR, 'utf8');
   const table = adrSection(adr, 'Finding codes:', '### `comments`');
   const documented = new Set(backticked(table, /^[a-z0-9]+(-[a-z0-9]+)+$/));
-  assert.ok(documented.size > 0, 'ADR-003 lists no validate finding codes');
+  assert.ok(documented.size > 0, 'ADR-004 lists no validate finding codes');
 
   const files = await tsFiles(path.join(ROOT, 'src', 'validate'));
   assertSameSet('validate finding codes', await literalsFor('rule', files), documented);
 });
 
-test('contract: comments finding kinds match ADR-003', async () => {
+test('contract: comments finding kinds match ADR-004', async () => {
   const adr = await readFile(ADR, 'utf8');
   const para = adrSection(adr, 'Finding kinds:', '### `.wolven-harness.json`');
   const documented = new Set(backticked(para, /^[a-z]+(-[a-z]+)*$/));
-  assert.ok(documented.size > 0, 'ADR-003 lists no comments finding kinds');
+  assert.ok(documented.size > 0, 'ADR-004 lists no comments finding kinds');
 
   const files = ['rules.ts', 'leak-rules.ts'].map((f) => path.join(ROOT, 'src', 'comments', f));
   assertSameSet('comments finding kinds', await literalsFor('kind', files), documented);
 });
 
-test('contract: setup flags match ADR-003', async () => {
+test('contract: setup flags match ADR-004', async () => {
   const adr = await readFile(ADR, 'utf8');
   const table = adrSection(adr, 'Flags. Each value flag', '- Any other argument');
   const documented = new Set(backticked(table, /^--[a-z-]+$/));

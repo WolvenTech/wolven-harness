@@ -1,8 +1,10 @@
 # Host operations
 
-The nine steps below are the only git-host actions any ship skill performs.
+The nine operations below are the only git-host actions any ship skill performs.
 Read `gitHost` from `.wolven-harness.json` (`gh` = GitHub, `bit` = Bitbucket
-Cloud) and use the matching half of the table. For each operation, try the
+Cloud) and use the matching half of the table. When `.wolven-harness.json`
+has no `gitHost`, the host action does not happen, the reply names `setup`,
+and the skill does not assume GitHub. For each operation, try the
 MCP tool for that host first; if the MCP tool is absent or the call fails,
 fall back to the `gh` command or the Bitbucket REST route in the same row
 without asking. Never merge, enable auto-merge, or read merge settings —

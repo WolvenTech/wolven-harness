@@ -96,7 +96,7 @@ test('stub-template: renders a SKILL.md stub whose frontmatter carries the stub 
   const frontmatter = parseYaml(match![1]) as Record<string, unknown>;
 
   assert.equal(frontmatter.name, INVENTED_NAME);
-  assert.equal(frontmatter.description, 'Use when <trigger>');
+  assert.equal(frontmatter.description, '<What the skill does, in third person>. Use when <trigger>');
   assert.ok(!(frontmatter.description as string).includes('|'), 'description must not contain "|"');
   assert.doesNotMatch(frontmatter.description as string, /stub skill/i);
   assert.doesNotMatch(frontmatter.description as string, /not yet defined/i);
@@ -132,7 +132,7 @@ test('stub-template: renders an agents/openai.yaml whose policy blocks implicit 
   };
 
   assert.equal(parsed.policy?.allow_implicit_invocation, false);
-  assert.equal(parsed.interface?.short_description, 'Use when <trigger>');
+  assert.equal(parsed.interface?.short_description, '<What the skill does, in third person>. Use when <trigger>');
 });
 
 test('stub-template: a cited skill that conflicts with a local ADR or workflow is recorded and left out', async () => {

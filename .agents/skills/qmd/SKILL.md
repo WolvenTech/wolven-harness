@@ -1,6 +1,6 @@
 ---
 name: qmd
-description: Search local markdown knowledge bases, notes, docs, and wikis with QMD. Use when users ask to find notes, retrieve documents, inspect a wiki, answer from indexed markdown, or set up QMD access.
+description: "Searches local markdown knowledge bases, notes, docs, and wikis with QMD. Use when users ask to find notes, retrieve documents, inspect a wiki, answer from indexed markdown, or set up QMD access."
 license: MIT
 compatibility: Requires qmd CLI or MCP server. Install via `npm install -g @tobilu/qmd`.
 metadata:
@@ -39,22 +39,27 @@ qmd multi-get "#abc123,#def432" --format md
 ```
 
 **Default to structured `qmd query` with `intent:`, `lex:`, `vec:`, and
-`hyde:` fields that you write yourself.** You are a better query expander
-than the built-in model: you know the actual goal, the domain vocabulary, and
-the nearby-but-wrong ideas to avoid. Do not just paste the user's words into
-`qmd query "..."` and hope the expansion model guesses right.
+`hyde:` fields that you write yourself**, including as the `<question>`
+above. You are a better query expander than the built-in model: you know the
+actual goal, the domain vocabulary, and the nearby-but-wrong ideas to avoid.
+Do not just paste the user's words into `qmd query "..."` and hope the
+expansion model guesses right.
 
 ```bash
 qmd query $'intent: Find the ADR that fixed the retry policy, not the general HTTP client setup.\nlex: retry backoff outbound calls policy\nvec: how many retries before giving up\nhyde: An ADR records the retry policy: exponential backoff, capped attempts, a dead-letter path.'
 ```
 
-- `intent:` what you are trying to find **and what to avoid**.
+- `intent:` what you are trying to find **and what to avoid**; always add it
+  when the user's wording is ambiguous.
 - `lex:` exact terms, aliases, titles, rare words you expect.
 - `vec:` paraphrases the idea in natural language.
 - `hyde:` describes the document or answer that would satisfy the request.
 
-Write at least `intent:` plus one of `lex:`/`vec:`. If you have nothing to
-expand (a single rare token, a verbatim phrase), use `qmd search` instead.
+Write at least `intent:` plus one of `lex:`/`vec:`. Use `qmd search` (BM25,
+no LLM) instead when you have nothing to expand (a single rare token, a
+verbatim phrase) or already know the exact titles or terms — it is faster.
+If a model-backed `qmd query` or its reranking fails, fall back to
+`qmd search` with stronger lexical terms.
 
 ## Retrieve documents
 
@@ -62,7 +67,7 @@ Search results include docids like `#abc123` and `qmd://...` paths:
 
 ```bash
 qmd get "#abc123"
-qmd get qmd://specs/outbound-calls.md
+qmd get qmd://specs/outbound-calls/outbound-calls-spec.md
 qmd multi-get "#abc123,#def432" --format md    # add --format json to parse
 ```
 
@@ -118,24 +123,24 @@ Query types: `lex` (BM25 keyword search), `vec` (vector semantic search),
 
 ## Setup and maintenance
 
-Only mutate indexes when asked for setup or maintenance — searching and
-retrieving are safe, but index mutation is not a casual first step:
+Only mutate the index when asked for setup or maintenance — searching and
+retrieving are safe, but `qmd collection add`, `qmd update`, and `qmd embed`
+change local state and are not a casual first step. The collections are
+already declared in `.qmd/index.yml`, which `qmd` finds from any directory
+inside the repo:
 
 ```bash
 npm install -g @tobilu/qmd
-qmd collection add docs --name adrs
-qmd update
-qmd embed
+qmd update        # re-index the collections declared in .qmd/index.yml
+qmd embed         # refresh vector embeddings after content changes
 ```
 
-Health and diagnostics: `qmd doctor`, `qmd status`, `qmd pull`.
+Diagnostics: `qmd doctor` checks config, models, and GPU setup — run it
+before changing configuration when a model-backed command fails.
+`qmd pull` downloads the models.
 
-## Pitfalls
+## Anti-patterns
 
-- **Do not stop at snippets.** Fetch documents before making claims.
-- **Do not slice files with `sed`/`head`/`tail`.** Use `path:from:count` or `--from`/`-l`.
-- **Do not lean on query expansion.** Write `intent:`/`lex:`/`vec:`/`hyde:` yourself.
-- **Do not overuse semantic search.** If you know exact titles or terms, BM25 is faster.
-- **Do not mutate indexes casually.** `qmd collection add`/`update`/`embed` change local state.
-- **Model-backed commands can be environment-sensitive.** Fall back to `qmd search` with stronger lexical terms if a query or reranking step fails.
-- **Ambiguous wording needs `intent:`.** Add it rather than hoping query expansion guesses right.
+- Stopping at snippets: fetch the document before making a claim from it.
+- Slicing files with `sed`/`head`/`tail`: use `path:from:count` or `--from`/`-l`.
+- Running `qmd collection add`, `update`, or `embed` outside a setup or maintenance ask.

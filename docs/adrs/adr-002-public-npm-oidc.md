@@ -25,7 +25,8 @@ only the publish job holds `id-token: write`, it installs no project
 dependencies, and npmjs trusts this repository's `release.yml` as the only
 publisher. No npm token is stored anywhere. The package's publishing access
 is set to disallow tokens; that setting and the trusted publisher live on
-npmjs, not in this repository, so the README's Release section lists them.
+npmjs, not in this repository, so the release guide (`site/release.md`,
+One-time npm setup) lists them.
 Every published version carries a provenance attestation. The command stays `wolven-harness`.
 
 A trusted publisher can only be attached to a package that already exists,

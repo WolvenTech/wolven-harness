@@ -300,7 +300,7 @@ export async function checkProfile(ctx: RepoContext): Promise<Finding[]> {
     }
     const iterationFindings: Finding[] = [];
     checkFile(rel, dir, restPath, content, iterationFindings, adrFiles, untrackedAdrFiles);
-    // why: iteration docs went unchecked through 0.3.0, and ADR-003 lets a new check only warn.
+    // why: iteration docs went unchecked through 0.3.0, and ADR-004 lets a new check only warn.
     for (const finding of iterationFindings) {
       findings.push({
         ...finding,

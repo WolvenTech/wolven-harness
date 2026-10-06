@@ -35,9 +35,8 @@ confirmed ask, quoted in one line, when there is no PRD.
 ## Waves
 
 <!-- Required once the work spans more than one mutate batch; omit for
-single-wave work. Name each wave and its gate command; state that a failed
-gate aborts before the next wave; encode the same stops as unit boundaries
-in code-plan. Prefer not mixing waves inside one batch. -->
+single-wave work. Name each wave and its gate command; a failed gate aborts
+before the next wave. -->
 
 ```mermaid
 flowchart TD
@@ -113,10 +112,12 @@ invented behavior. -->
 
 ## ADR
 
-If this spec settles a durable architecture decision, use the `adr` skill —
-by name — to create, promote, or supersede it. Numbering and supersession
-live in `adr`, not here. Use placeholder tokens only: `ADR-NNN` /
-`adr-NNN-<slug>` — never a concrete number until `adr` creates the file.
+<!-- If this spec settles a durable architecture decision, use the
+`adr` skill — by name — to create, promote, or supersede it. Numbering and
+supersession live in `adr`, not here. Use placeholder tokens only: `ADR-NNN`
+/ `adr-NNN-<slug>` — never a concrete number until `adr` creates the file. -->
+
+… — or "None needed this initiative."
 
 ## Section checklist
 
@@ -128,14 +129,10 @@ live in `adr`, not here. Use placeholder tokens only: `ADR-NNN` /
 | Waves | The work spans more than one mutate batch |
 | Requirements with obligation ↔ proof | Always |
 | Nine-dimension landings | Always — all nine named |
-| Unresolved | Always when a product or contract decision is open; an empty table is fine when none is |
+| Unresolved | Always — an empty table is fine when no product or contract decision is open |
 | Out of scope | Always |
 | Pragmatic-guard refuses | Always |
 | Acceptance | Always — tick a box only once its evidence exists |
 | Eval / gates | Always |
 | Cross-domain leak table | Always |
 | ADR | Always — even when the answer is "none needed this initiative" |
-
-**`n/a` rule:** every `n/a` landing cites the unchanged surface (a path, a
-gate, or a section left alone). A boilerplate `n/a` fails this spec's own
-`proof-<slug>-spec-obligations` structural gate.
