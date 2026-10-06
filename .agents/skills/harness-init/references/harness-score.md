@@ -24,8 +24,29 @@ Record the level and score in the note as the "before" figure.
 ## One question per dimension
 
 Group the failing checks by the dimension the report lists them under. For
-each dimension with a failing check, ask one question, listing the check IDs
-and what each one wants:
+each dimension with a failing check, ask one question in plain language:
+
+- **State what the repo lacks and what building it means.** Lead with the
+  missing capability and the concrete work, not check acronyms. For example:
+  "There is no root README. Should creating one stay on the to-do list, or does
+  this repo not need one?" or "There is no script named `test` in `package.json`.
+  Should adding a unified test runner script stay on the to-do list, or does
+  this repo run its checks differently?"
+- **Put check IDs after the question.** Check IDs (`SNS-01`, `SKL-03`, etc.)
+  are references for `.harness-score.json`, never the subject or headline of
+  the question. Place them in parentheses or a reference bullet after the
+  plain-language question.
+- **Explain non-obvious failure causes.** When the cause of a failure isn't
+  obvious from the check description, state why it failed — for example,
+  when a test runner check fails because scripts exist under names like
+  `deck:test` or `sheet:test` but none is named `test`.
+- **Spell out what a drop costs.** Before asking to drop checks or an entire
+  dimension, state what dropping them costs in terms of maturity level. For
+  example: "Dropping CI caps the level at L2, because L3 requires CI ≥ 50%."
+  Check the maturity prerequisites (L1 Context, L2 Sensors, L3 CI and Hygiene,
+  L4 Hooks) and name any level cap a drop would impose.
+
+Frame each dimension's question with these three options:
 
 1. **Keep as gaps.** The checks stay failing and go into the note's next steps
    as work to build later. Recommended when the repo already has part of that

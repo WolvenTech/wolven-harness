@@ -149,6 +149,8 @@ test('runtime-rules: the four runtime gates are present under Hard gates', async
   assert.match(gates, /never invent/i);
   assert.match(gates, /no status, successor ADR, entry mode, or decision/i);
   assert.match(gates, /names? no specific consumer repository|no consumer names/i);
+  assert.match(gates, /questions are plain language/i);
+  assert.match(gates, /supporting detail, never the subject/i);
 });
 
 test('runtime-rules: a failing claim after migration is expected input, not a defect', async () => {
@@ -183,6 +185,7 @@ test('skill-harness-init: asks how harness:validate is wired, with three options
   assert.match(step, /Nothing is written without the Human's yes/);
 
   const ref = flatten(await skill.read('references/validate-wiring.md'));
+  assert.match(ref, /ask in plain language how `harness:validate` should run/i);
   assert.match(ref, /`\.github\/workflows\/\*\.yml`/);
   assert.match(ref, /`bitbucket-pipelines\.yml`/);
   assert.match(ref, /`pnpm install --frozen-lockfile`/);
@@ -206,6 +209,7 @@ test('skill-harness-init: step 0 puts the entry mode to the Human as a question 
 
   const modes = flatten(await skill.read('references/entry-modes.md'));
   assert.match(modes, /Never pick a mode silently/);
+  assert.match(modes, /put to the Human as one question phrased in plain language/i);
 
   const note = flatten(await skill.read('references/session-note-template.md'));
   assert.match(note, /the mode question as asked, the mode recommended and why, and the Human's answer/);
@@ -230,6 +234,11 @@ test('skill-harness-init: step 6 scores the harness, asks per dimension, and nev
   );
 
   const ref = flatten(await skill.read('references/harness-score.md'));
+  assert.match(ref, /ask one question in plain language/i);
+  assert.match(ref, /state what the repo lacks and what building it means/i);
+  assert.match(ref, /check IDs.*never the subject/i);
+  assert.match(ref, /explain non-obvious failure causes/i);
+  assert.match(ref, /spell out what a drop costs/i);
   assert.match(ref, /`HYG-03`, `HYG-04` and `HYG-06` detect leaked credentials and can never be dropped/);
   assert.match(ref, /add `"no-hooks"` to `extends`/);
   assert.match(ref, /Never build a failing check inside this run/);

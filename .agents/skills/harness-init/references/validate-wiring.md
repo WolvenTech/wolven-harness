@@ -16,17 +16,23 @@ Read what already exists before asking, and use it to frame the options:
 
 ## The question
 
-Ask how `harness:validate` should run, naming the evidence found:
+Ask in plain language how `harness:validate` should run, naming the evidence
+found and what each choice means in practice:
 
-1. **(a) A CI job on pull requests** — recommended when a CI config exists or
-   the repo is hosted on a platform that provides one.
-2. **(b) Chained into the existing script** — offered when a `validate` or
-   `test` script exists; name the script.
-3. **(c) Local only** — nothing is added; the Human runs `harness:validate`
-   by hand.
+1. **(a) A CI job on pull requests** — run validation automatically on every
+   pull request so doc formatting issues or broken ADR references are caught
+   before merge. Recommended when a CI config exists or the repo is hosted on
+   a platform that provides one.
+2. **(b) Chained into the existing script** — run validation whenever the
+   existing `validate` or `test` script runs; name the script and current
+   command. Offered when a `validate` or `test` script exists.
+3. **(c) Local only** — run validation by hand only when invoked; nothing is
+   added to CI or package scripts.
 
 List (b) only when there is a script to chain, and put whichever option the
-evidence supports best first.
+evidence supports best first. Lead with what the choice does in everyday
+workflow; the option letters (a, b, c) are supporting references, never the
+headline of the question.
 
 ## What each answer does
 

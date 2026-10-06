@@ -51,6 +51,16 @@ section, a table cell, a header note) maps to the profile's `status`:
 The agent never guesses a status mapping outside this table's first three
 rows.
 
+Phrase every status mapping question in plain language: describe what the
+decision was about, what the legacy record says happened, and what each option
+means for current architecture and callers (for example: "The caching decision
+named Memcached, but its status notes Redis replaced it. Should we record
+Redis as a new decision record and mark Memcached deprecated, or did the
+decision drop entirely?"). The ADR number and filename are supporting
+references, never the headline of the question. Spell out what each choice
+costs: choosing `draft` or `deprecated` makes every claim pointing to that ADR
+fail until repointed, reworded, or supported by a new decision.
+
 ### Before writing a status other than `stable`
 
 A `draft` or `deprecated` status makes every claim to that ADR fail, and a
@@ -77,11 +87,14 @@ has is migrated:
   or keep it where it is with its links rewritten to the new paths.
 - **Work the claim loop.** Run `harness:validate`. For each claim it now
   reports as failing (a claim that pointed at a legacy ADR now pointing at
-  a `deprecated` one, say), take it to the Human and either repoint the
-  claim to the right ADR, reword the sentence so it no longer makes the
-  claim, or record a new decision through `adr` when the claim was really
-  pointing at a decision that was never written down. A claim that starts
-  failing after migration is expected input to work through, not a defect.
+  a `deprecated` one, say), take it to the Human as a plain-language
+  question: explain which statement or file cites the decision, what the
+  current status means, and either repoint the claim to the right ADR,
+  reword the sentence so it no longer makes the claim, or record a new
+  decision through `adr` when the claim was really pointing at a decision
+  that was never written down. Put the citing file, line, and ADR number as
+  supporting references. A claim that starts failing after migration is
+  expected input to work through, not a defect.
 - **Check what each claim means.** `harness:validate` proves a claim's
   number resolves, not that it names the right decision — an older
   renumbering can leave a claim pointing at an unrelated ADR that happens
@@ -89,7 +102,9 @@ has is migrated:
   line as `file:line` with `ok` or `mismatch → <the Human's answer>`. A
   title written next to the token (`ADR-NNN: <Title>`) must match that
   ADR's title. Take each mismatch to the Human, one at a time: repoint it,
-  reword it, or leave it as is. The list goes into the session note's
+  reword it, or leave it as is. Frame the question in plain language: explain
+  what title was expected and what the cited ADR actually decides, with the
+  citing line as supporting reference. The list goes into the session note's
   meaning check.
 - **Done condition.** The step is done only when `harness:validate` exits 0
   with `0 legacy-warn` and no `adr-status-mismatch`. Short of that, keep working the loop above.
