@@ -73,6 +73,8 @@ locally unless a separate, explicit ask to push or open a review request.
    commit gate above).
 6. **Git safety** — no `git config` changes; no force-push; no `--no-verify`
    unless explicitly asked; no push (pushing is a separate skill's job).
+7. **Not on the default branch** — never commit on the branch `origin/HEAD`
+   names; `git switch -c <feature>` first, keeping the working tree as is.
 
 ## When not to use
 

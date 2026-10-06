@@ -54,6 +54,7 @@
     "vitepress": "^1.6.4"
   },
   "simple-git-hooks": {
-    "pre-commit": "pnpm exec biome check --staged --no-errors-on-unmatched --files-ignore-unknown=true"
+    "pre-commit": "sh .agents/hooks/default-branch.sh && pnpm exec biome check --staged --no-errors-on-unmatched --files-ignore-unknown=true",
+    "pre-push": "sh .agents/hooks/default-branch.sh pre-push"
   }
 }
