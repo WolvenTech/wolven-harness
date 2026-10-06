@@ -83,3 +83,16 @@ test('skill-code-review: links host operations and names the operations in plain
   assert.match(skill.body, /list unresolved threads/i);
   assert.match(skill.body, /post a review comment/i);
 });
+
+test('proof-skills-command-handoff-absent', async () => {
+  const skill = await readSkill('code-review');
+  const handoff = skill.body.indexOf('**Review-fix handoff**');
+  const verdict = skill.body.indexOf('End with one verdict');
+
+  assert.match(
+    skill.body,
+    /`code-spec`\s+or\s+`code-plan`\s+is\s+absent\s+from\s+the\s+session\s+skill\s+list,\s+name\s+it\s+and\s+the\s+next\s+free\s+N/,
+  );
+  assert.ok(handoff >= 0 && verdict >= 0, 'expected both steps');
+  assert.ok(handoff < verdict, 'handoff step comes before the verdict step');
+});

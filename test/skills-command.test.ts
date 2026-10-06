@@ -195,8 +195,20 @@ test('proof-skills-command-core-flag', async () => {
     const before = await readdir(dir);
     const result = await run(['skills', '--skills', skills, '--runtimes', 'codex', '--scope', 'project'], { cwd: dir });
     assert.equal(result.code, 1);
-    assert.match(result.stderr, /adr/);
+    assert.match(result.stderr, /adr is installed by setup/);
+    assert.deepEqual(await readdir(dir), before);
+  }
+});
+
+test('proof-skills-command-unknown-skill', async () => {
+  for (const skills of ['code-reviw', 'create-prd,code-reviw']) {
+    const dir = await makeRepo({});
+    const before = await readdir(dir);
+    const result = await run(['skills', '--skills', skills, '--runtimes', 'codex', '--scope', 'project'], { cwd: dir });
+    assert.equal(result.code, 1);
+    assert.match(result.stderr, /code-reviw/);
     assert.match(result.stderr, /setup/);
+    assert.doesNotMatch(result.stderr, /code-reviw is installed by setup/);
     assert.deepEqual(await readdir(dir), before);
   }
 });

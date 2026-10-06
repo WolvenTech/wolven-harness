@@ -106,8 +106,9 @@ function unknownToken(raw: string, allowed: readonly string[]): string | undefin
 }
 
 /**
- * Expands set names to their skill folders. A core or unknown name fails
- * and names `setup`, because this command does not install those folders.
+ * Expands set names to their skill folders. A core name fails as installed by
+ * `setup`; any other name outside the ship and discovery skills fails as
+ * unknown and still names `setup`, because this command installs neither.
  */
 function expandSkills(raw: string, io: Io): string[] | undefined {
   const parts = splitList(raw);
@@ -120,8 +121,9 @@ function expandSkills(raw: string, io: Io): string[] | undefined {
       }
       continue;
     }
-    if ((CORE_SKILLS as readonly string[]).includes(part) || !SHIP_AND_DISCOVERY.includes(part)) {
-      return fail(io, `${part} is installed by setup`);
+    if ((CORE_SKILLS as readonly string[]).includes(part)) return fail(io, `${part} is installed by setup`);
+    if (!SHIP_AND_DISCOVERY.includes(part)) {
+      return fail(io, `${part} is not a ship or discovery skill; core skills are installed by setup`);
     }
     if (!skills.includes(part)) skills.push(part);
   }
@@ -199,7 +201,8 @@ async function resolveSkills(flags: SkillsFlagValues, io: Io, interactive: boole
 
 /**
  * Resolves runtimes, then scope, then skills. A terminal re-asks an omitted
- * or invalid runtime or scope. A core or unknown skill name fails and names setup.
+ * or invalid runtime or scope. A core skill name fails as installed by setup,
+ * and an unknown skill name fails as not a ship or discovery skill.
  */
 export async function resolveChoices(flags: SkillsFlagValues, io: Io): Promise<SkillChoices | undefined> {
   const interactive = canPrompt(io);

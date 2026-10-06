@@ -69,11 +69,15 @@ A finding with no cited diff line and no ref it violates is not posted.
 3. When `harness:validate` cannot be run, post the other findings, the
    posted review says the ADR-claims axis was not checked, and do not judge
    those claims by eye.
-4. End with one verdict from review-criteria.md's Verdict table (Approve
-   with nits / Request changes / Needs the Human) — never a merge.
-5. **Review-fix handoff** — name the next free N in `docs/specs/<slug>/`;
+4. **Review-fix handoff** — name the next free N in `docs/specs/<slug>/`;
    obligation-adding findings go `code-spec` then `code-plan`, plan-only
-   ones `code-plan`, as `<slug>-iteration-<N>-{spec,plan}.md`.
+   ones `code-plan`, as `<slug>-iteration-<N>-{spec,plan}.md`. When
+   `code-spec` or `code-plan` is absent from the session skill list, name
+   it and the next free N; do not draft the iteration spec or plan or
+   copy that skill's procedure. A folder on disk or a remembered name is
+   not loaded. Name no install command.
+5. End with one verdict from review-criteria.md's Verdict table (Approve
+   with nits / Request changes / Needs the Human) — never a merge.
 
 ## Never merges
 
@@ -99,6 +103,9 @@ the merge, not authority to perform one.
    do not copy the host procedure.
 9. **ADR-claims axis** — when `harness:validate` cannot be run, say that
    axis was not checked; never judge those claims by eye.
+10. **Missing `code-spec` / `code-plan`** — name the absent skill and the
+    next free N at the handoff, do not draft the iteration spec or plan
+    or copy its procedure, and name no install command.
 
 ## When not to use
 
