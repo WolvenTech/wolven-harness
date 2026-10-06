@@ -12,8 +12,9 @@ comments, or babysits CI; `code-pr`, `code-review`, and `code-ci` run only
 when asked for separately.
 
 **Consult:** `pragmatic-guard`, `code-commit`.
-**Input:** `docs/specs/<slug>/<slug>-plan.md` (+ its spec) when a plan
-exists — a one-file change can skip straight here with `harness:validate`.
+**Input:** `docs/specs/<slug>/<slug>-plan.md` or
+`<slug>-iteration-<N>-plan.md` (+ its spec) when a plan exists — a one-file
+change can skip straight here with `harness:validate`.
 **Validate:** `harness:validate` before any commit, asked for or automatic.
 
 **References (read when):**

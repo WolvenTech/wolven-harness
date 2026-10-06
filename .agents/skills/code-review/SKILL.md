@@ -71,6 +71,9 @@ A finding with no cited diff line and no ref it violates is not posted.
    those claims by eye.
 4. End with one verdict from review-criteria.md's Verdict table (Approve
    with nits / Request changes / Needs the Human) — never a merge.
+5. **Review-fix handoff** — name the next free N in `docs/specs/<slug>/`;
+   obligation-adding findings go `code-spec` then `code-plan`, plan-only
+   ones `code-plan`, as `<slug>-iteration-<N>-{spec,plan}.md`.
 
 ## Never merges
 

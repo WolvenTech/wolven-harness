@@ -53,6 +53,19 @@ with a vague unit — stop and get the proof named first.
 8. Do not start execution from this skill — hand off only after the plan is
    approved.
 
+## On-disk layout
+
+| Output | Path |
+|--------|------|
+| Spec | `docs/specs/<slug>/<slug>-spec.md` |
+| Plan | `docs/specs/<slug>/<slug>-plan.md` |
+| Iteration spec (delta) | `docs/specs/<slug>/<slug>-iteration-<N>-spec.md` |
+| Iteration plan (review fixes) | `docs/specs/<slug>/<slug>-iteration-<N>-plan.md` |
+
+All live in the same slug folder under `docs/specs/`. An iteration plan
+includes a finding → unit map and a closing unit that re-reports every
+finding as `fixed`, `skipped` or `no_change_needed`.
+
 ## Workflow
 
 1. Read the spec, including any phased execution and its Unresolved rows,

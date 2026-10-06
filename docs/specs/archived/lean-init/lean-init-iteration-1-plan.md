@@ -1,16 +1,16 @@
 ---
 type: spec
-title: Lean harness-init path — review-fix plan
+title: Lean harness-init path — iteration 1 plan
 description: Ordered work units that fix the ten code-review findings on PR 32 by moving the lean path into one reference file and closing its resume, credential, wiring and empty-repo gaps.
-status: stable
-source_spec: docs/specs/lean-init/lean-init-spec.md
+status: deprecated
+source_spec: docs/specs/archived/lean-init/lean-init-spec.md
 source_pr: https://github.com/WolvenTech/wolven-harness/pull/32
 ---
 
-# Lean harness-init path — review-fix plan
+# Lean harness-init path — iteration 1 plan
 
 **Input:** the code review of PR 32 (`feat/lean-init`, ten findings) against
-`docs/specs/lean-init/lean-init-spec.md` (status `draft`).
+`docs/specs/archived/lean-init/lean-init-spec.md` (status `draft`).
 **Next:** after the Human approves this plan → `code-execute`, one wave at a
 time. Pushing to the PR is a separate `code-pr` ask.
 
@@ -41,7 +41,7 @@ spec's own **Next** line already names.
 
 | # | Unit | Depends | Owns | Subagent | Done when |
 |---|------|---------|------|----------|-----------|
-| 01 | Amend the spec with the review obligations | — | `docs/specs/lean-init/lean-init-spec.md` | `inline` | Spec gains R6 (one obligation ↔ named proof row each for F1, F2, F3/F4, F5, F6), R5.1 evidence becomes a `pnpm test` proof, the **lean path** term and grounding table name the agreed fork shape, the plan-file refusal names this plan as the exception, and the Unresolved table carries the dispositions from `U-fork-shape`, `U-lean-after-full` and `U-mode-field` — proof: `proof-lean-init-spec-obligations` holds on the amended spec; `pnpm harness:validate` PASS |
+| 01 | Amend the spec with the review obligations | — | `docs/specs/archived/lean-init/lean-init-spec.md` | `inline` | Spec gains R6 (one obligation ↔ named proof row each for F1, F2, F3/F4, F5, F6), R5.1 evidence becomes a `pnpm test` proof, the **lean path** term and grounding table name the agreed fork shape, the plan-file refusal names this plan as the exception, and the Unresolved table carries the dispositions from `U-fork-shape`, `U-lean-after-full` and `U-mode-field` — proof: `proof-lean-init-spec-obligations` holds on the amended spec; `pnpm harness:validate` PASS |
 | 02 | **Wave 1 gate** | 01 | — | `inline` | The Human has confirmed the amended spec; every row in this plan's Unresolved table except `U-prd-spec-approval` has a Disposition; `pnpm harness:validate` PASS — failure → **abort** before Wave 2 |
 | 03 | Copies-identical proof and section helper | 02 | `test/helpers/markdown.ts`, `test/skill-copies.test.ts` (new) | `spawn` | `pnpm test` fails when any file differs between a skill folder in `.agents/skills/` and the same-named folder in `templates/.agents/skills/` (all sixteen shared skills are identical on `main` today), and `markdown.ts` exports one `section(body, heading)` extractor — proof: `proof-lean-init-copies-identical` as a test; editing one copy locally turns it red |
 | 04 | Move the lean path into `references/lean-path.md` | 03 | `templates/.agents/skills/harness-init/**` and `.agents/skills/harness-init/**` (except `references/session-note-template.md`), `test/skill-harness-init.test.ts` | `spawn` | Per `U-fork-shape`: the lean rules (choosing lean, the goal question, the boundary table, the deferral prompt, proposals never deferred, must-run list) live only in `references/lean-path.md`; `SKILL.md` keeps one fork line that loads it when lean applies, plus the two lean anti-patterns; steps 2, 3, 4 and 6 and `discovery.md`, `harness-score.md`, `validate-wiring.md` return to their `main` wording; lean tests read `lean-path.md` through `section()`, check the boundary by parsing its table rows with `parseMarkdownTables`, and the stale `doesNotMatch(/defer only these\|only these three/)` guard is gone; the references test lists six files — proof: `proof-lean-init-fork-single-source` (new, R6) and the existing R1.x / R3.1 proofs re-pointed at `lean-path.md` PASS |
@@ -50,7 +50,7 @@ spec's own **Next** line already names.
 | 07 | Boundary rows hold on every thin repo | 06 | `references/lean-path.md` (boundary table), `test/skill-harness-init.test.ts` (boundary tests) | `inline` | The score-gap row says a `HYG-03`, `HYG-04` or `HYG-06` failure is never deferred and stops the run as on the full path; the discovery-Q&A row applies when the tree is thin or empty, and an empty context list is recorded as empty rather than blocking the deferral — proof: `proof-lean-init-credential-stop` and `proof-lean-init-empty-repo` (new, R6) PASS |
 | 08 | The note template renders a lean run without ambiguity | 02 | `templates/.agents/skills/harness-init/references/session-note-template.md` and its installed copy, `docs/notes/lean-init-walkthrough/lean-init-walkthrough-note.md`, `test/harness-init-note.test.ts` | `spawn` | The `**Path:**` field is renamed per `U-mode-field` so it no longer collides with the reference's `## Path` section; **Validate wiring** says "deferred — see Deferred / skipped steps" when the question was deferred; the walkthrough uses both — proof: `proof-lean-init-note-fields` and `proof-lean-init-wiring-deferred` (new, R6) PASS; `proof-lean-init-walkthrough` PASS |
 | 09 | **Wave 2 gate** | 05, 07, 08 | — | `inline` | `pnpm test`, `pnpm lint`, `pnpm harness:validate` and `pnpm harness:comments` exit 0; `diff -r .agents/skills/harness-init templates/.agents/skills/harness-init` prints nothing; `grep -rilw lean` (whole word, so `clean` in `adr-migration.md` does not match) under `harness-init/` matches only `SKILL.md` (fork line and anti-patterns), `references/lean-path.md` and `references/session-note-template.md` — failure → **abort** before Wave 3 |
-| 10 | PRD and spec lifecycle | 09 | `docs/prds/lean-init/lean-init-prd.md`, `docs/specs/lean-init/lean-init-spec.md` (frontmatter `status` and the Acceptance checkboxes) | `inline` | Per `U-prd-spec-approval`: on the Human's approval both docs move `draft` → `stable` and the spec's Acceptance boxes match the passing proofs; with no approval the unit stops and the PR description states that both are still `draft` — proof: frontmatter inspectable; `pnpm harness:validate` PASS |
+| 10 | PRD and spec lifecycle | 09 | `docs/prds/archived/lean-init/lean-init-prd.md`, `docs/specs/archived/lean-init/lean-init-spec.md` (frontmatter `status` and the Acceptance checkboxes) | `inline` | Per `U-prd-spec-approval`: on the Human's approval both docs move `draft` → `stable` and the spec's Acceptance boxes match the passing proofs; with no approval the unit stops and the PR description states that both are still `draft` — proof: frontmatter inspectable; `pnpm harness:validate` PASS |
 | 11 | **Ship gate** | 10 | — | `inline` | Wave 2 gate checks still pass; the ten findings are re-reported with an outcome each (`fixed`, `skipped` or `no_change_needed`); this plan's status is set to match — failure → do not hand off to `code-pr` |
 
 Finding → unit: F1 → 06 · F2 → 07 · F3 → 04 · F4 → 04, 05 · F5 → 08 ·
@@ -99,11 +99,11 @@ changes a status without the Human's approval.
 | Field | Value |
 |-------|-------|
 | Unit | 01 — Amend the spec with the review obligations (Wave 1, frontier 1) |
-| Spec / plan | `docs/specs/lean-init/lean-init-spec.md` / `docs/specs/lean-init/lean-init-review-fix-plan.md` |
+| Spec / plan | `docs/specs/archived/lean-init/lean-init-spec.md` / `docs/specs/archived/lean-init/lean-init-iteration-1-plan.md` |
 | Obligations | R6.1–R6.5 added (F1, F2, F3/F4, F5, F6); R5.1 evidence is now `pnpm test`; term, grounding, refusal exception and dispositions recorded — done; `proof-lean-init-spec-obligations` holds by inspection; `harness:validate` and `harness:comments` ok |
 | `HEAD` | `f95bca1` |
 | `git status` | dirty — this plan (untracked) and `lean-init-spec.md` (modified), both this unit's Owns |
-| Intended diff | `docs/specs/lean-init/lean-init-spec.md`, this plan's Unresolved table and resume section |
+| Intended diff | `docs/specs/archived/lean-init/lean-init-spec.md`, this plan's Unresolved table and resume section |
 | Discrepancies | The spec refuses a lean plan file; resolved by unit 01 adding this plan as the exception |
 
 ### Unit 02 — Wave 1 gate
@@ -111,7 +111,7 @@ changes a status without the Human's approval.
 | Field | Value |
 |-------|-------|
 | Unit | 02 — Wave 1 gate |
-| Spec / plan | `docs/specs/lean-init/lean-init-spec.md` / `docs/specs/lean-init/lean-init-review-fix-plan.md` |
+| Spec / plan | `docs/specs/archived/lean-init/lean-init-spec.md` / `docs/specs/archived/lean-init/lean-init-iteration-1-plan.md` |
 | Obligations | Dispositions recorded — done; `harness:validate` ok — done; the Human confirmed the amended spec ("continue", 2026-10-02) — done; Wave 1 gate PASS |
 | `HEAD` | `f95bca1` |
 | `git status` | dirty — unit 01's two files only |
@@ -123,7 +123,7 @@ changes a status without the Human's approval.
 | Field | Value |
 |-------|-------|
 | Unit | 03 — Copies-identical proof and section helper; 08 — The note template renders a lean run without ambiguity (parallel, disjoint Owns) |
-| Spec / plan | `docs/specs/lean-init/lean-init-spec.md` / `docs/specs/lean-init/lean-init-review-fix-plan.md` |
+| Spec / plan | `docs/specs/archived/lean-init/lean-init-spec.md` / `docs/specs/archived/lean-init/lean-init-iteration-1-plan.md` |
 | Obligations | 03: R5.1 — pending; 08: R2.2, R6.5, R4.1 — pending |
 | `HEAD` | `f95bca1` |
 | `git status` | dirty — unit 01's spec and this plan only (not in 03's or 08's Owns; left alone) |
@@ -137,7 +137,7 @@ Units 03 and 08 returned complete: `comments: ok (0 findings)`, `validate: ok`, 
 | Field | Value |
 |-------|-------|
 | Unit | 04 — Move the lean path into `references/lean-path.md` (Wave 2, frontier 2) |
-| Spec / plan | `docs/specs/lean-init/lean-init-spec.md` / `docs/specs/lean-init/lean-init-review-fix-plan.md` |
+| Spec / plan | `docs/specs/archived/lean-init/lean-init-spec.md` / `docs/specs/archived/lean-init/lean-init-iteration-1-plan.md` |
 | Obligations | R6.1 — pending; R1.1–R1.4, R2.1, R3.1 re-pointed — pending; R5.1 — done (unit 03); R2.2, R6.5 — done (unit 08) |
 | `HEAD` | `f95bca1` |
 | `git status` | dirty — unit 01 spec + this plan; units 03 and 08 Owns (landed, uncommitted); none in 04's Owns except the session-note-template copies, which 04 must not touch |
@@ -151,7 +151,7 @@ Unit 04 returned complete: `pnpm test` 555 pass / 0 fail, lint clean, `comments:
 | Field | Value |
 |-------|-------|
 | Unit | 05 — Docs point to the single source (`spawn`); 06 — Resume and re-run run before the lean decision (`inline`) |
-| Spec / plan | `docs/specs/lean-init/lean-init-spec.md` / `docs/specs/lean-init/lean-init-review-fix-plan.md` |
+| Spec / plan | `docs/specs/archived/lean-init/lean-init-spec.md` / `docs/specs/archived/lean-init/lean-init-iteration-1-plan.md` |
 | Obligations | 05: R4.2 — pending; 06: R6.2 — pending |
 | `HEAD` | `f95bca1` |
 | `git status` | dirty — units 01, 03, 04, 08 landed uncommitted; 05's Owns clean; 06's Owns hold unit 04's work (expected input) |
@@ -167,7 +167,7 @@ Unit 05 done (spawn): `README.md` and `site/harness-init.md` link `lean-path.md`
 | Field | Value |
 |-------|-------|
 | Unit | 07 — Boundary rows hold on every thin repo (Wave 2, frontier 4; unit 05 still running on disjoint paths) |
-| Spec / plan | `docs/specs/lean-init/lean-init-spec.md` / `docs/specs/lean-init/lean-init-review-fix-plan.md` |
+| Spec / plan | `docs/specs/archived/lean-init/lean-init-spec.md` / `docs/specs/archived/lean-init/lean-init-iteration-1-plan.md` |
 | Obligations | R6.3, R6.4 — pending |
 | `HEAD` | `f95bca1` |
 | `git status` | dirty — units 01, 03, 04, 06, 08 landed uncommitted; unit 05 in flight on `README.md`, `site/harness-init.md`, `test/readme-install.test.ts` (isolated, not touched) |
@@ -181,7 +181,7 @@ Unit 07 done (inline): the score-gap row and `### Harness score (step 6)` say a 
 | Field | Value |
 |-------|-------|
 | Unit | 09 — Wave 2 gate |
-| Spec / plan | `docs/specs/lean-init/lean-init-spec.md` / `docs/specs/lean-init/lean-init-review-fix-plan.md` |
+| Spec / plan | `docs/specs/archived/lean-init/lean-init-spec.md` / `docs/specs/archived/lean-init/lean-init-iteration-1-plan.md` |
 | Obligations | R4.1–R4.3, R6.1–R6.5 and the copies proof — done |
 | `HEAD` | `f95bca1` |
 | `git status` | dirty — units 01, 03–08 landed uncommitted, all inside their Owns |
@@ -195,7 +195,7 @@ Gate result: PASS on 2026-10-02 — `pnpm build` ok; `pnpm test` 558 pass, 0 fai
 | Field | Value |
 |-------|-------|
 | Unit | 10 — PRD and spec lifecycle (Wave 3, frontier 1) |
-| Spec / plan | `docs/specs/lean-init/lean-init-spec.md` / `docs/specs/lean-init/lean-init-review-fix-plan.md` |
+| Spec / plan | `docs/specs/archived/lean-init/lean-init-spec.md` / `docs/specs/archived/lean-init/lean-init-iteration-1-plan.md` |
 | Obligations | `U-prd-spec-approval` — resolved: the Human approved ("approve", 2026-10-02); all fifteen Acceptance proofs PASS (45/45 in their four suites) |
 | `HEAD` | `f95bca1` |
 | `git status` | dirty — Waves 1–2 landed uncommitted, all inside their Owns |
@@ -209,7 +209,7 @@ Unit 10 done (inline): `lean-init-prd.md` and `lean-init-spec.md` are `stable`; 
 | Field | Value |
 |-------|-------|
 | Unit | 11 — Ship gate |
-| Spec / plan | `docs/specs/lean-init/lean-init-spec.md` / `docs/specs/lean-init/lean-init-review-fix-plan.md` |
+| Spec / plan | `docs/specs/archived/lean-init/lean-init-spec.md` / `docs/specs/archived/lean-init/lean-init-iteration-1-plan.md` |
 | Obligations | Wave 2 gate checks re-run; ten findings re-reported — done |
 | `HEAD` | `f95bca1` |
 | `git status` | dirty — Waves 1–3 landed uncommitted, all inside their Owns |

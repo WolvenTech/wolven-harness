@@ -30,6 +30,9 @@ const KEBAB_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*\.md$/;
 /** `adr-NNN-<kebab-slug>.md` — a three-digit number, dash, kebab slug. */
 const ADR_NAME_RE = /^adr-\d{3}-[a-z0-9]+(?:-[a-z0-9]+)*\.md$/;
 
+/** What follows `<slug>` in a review-fix iteration doc: `-iteration-<N>-spec|plan.md`, N from 1. */
+const ITERATION_SUFFIX_RE = /^-iteration-[1-9]\d*-(spec|plan)\.md$/;
+
 /** Status words in an ADR body that contradict `status: stable`. */
 const RETIRED_STATUS_RE = /^(superseded|deprecated|rejected|obsolete)\b/i;
 
@@ -231,10 +234,10 @@ function addTo(map: Map<string, Set<string>>, key: string, value: string): void 
 /**
  * Enforces the writing profile on `docs/adrs/*.md` (flat, unchanged) and on
  * the doc-folder layout `docs/{prds,specs,notes,deferrals}/<slug>/<slug>-<type>.md`
- * (plus `<slug>-plan.md` for specs). A flat `.md` under a doc-folder fails,
- * naming the expected doc-folder path; a slug folder without its main doc
- * fails too. Other files in a slug folder, and everything under a doc-folder's
- * `archived/`, are out of scope.
+ * (plus `<slug>-plan.md` and `<slug>-iteration-<N>-{spec,plan}.md` for specs). A
+ * flat `.md` under a doc-folder fails, naming the expected doc-folder path; a slug
+ * folder without its main doc fails too. Other files in a slug folder, and
+ * everything under a doc-folder's `archived/`, are out of scope.
  */
 export async function checkProfile(ctx: RepoContext): Promise<Finding[]> {
   const findings: Finding[] = [];
@@ -279,14 +282,33 @@ export async function checkProfile(ctx: RepoContext): Promise<Finding[]> {
     const isDirectChild = !restPath.includes('/');
     const isMainDoc = isDirectChild && restPath === `${slug}-${expectedType}.md`;
     const isPlanDoc = dir === 'specs' && isDirectChild && restPath === `${slug}-plan.md`;
-    if (!isMainDoc && !isPlanDoc) continue; // other files in the folder are not checked.
+    const isIterationDoc =
+      dir === 'specs' &&
+      isDirectChild &&
+      restPath.startsWith(slug) &&
+      ITERATION_SUFFIX_RE.test(restPath.slice(slug.length));
+    if (!isMainDoc && !isPlanDoc && !isIterationDoc) continue; // other files in the folder are not checked.
 
     if (isMainDoc) {
       addTo(mainDocSeen, dir, slug);
     }
 
     const content = await ctx.read(rel);
-    checkFile(rel, dir, restPath, content, findings, adrFiles, untrackedAdrFiles);
+    if (!isIterationDoc) {
+      checkFile(rel, dir, restPath, content, findings, adrFiles, untrackedAdrFiles);
+      continue;
+    }
+    const iterationFindings: Finding[] = [];
+    checkFile(rel, dir, restPath, content, iterationFindings, adrFiles, untrackedAdrFiles);
+    // why: iteration docs went unchecked through 0.3.0, and ADR-004 lets a new check only warn.
+    for (const finding of iterationFindings) {
+      findings.push({
+        ...finding,
+        level: 'warn',
+        rule: 'profile-iteration-doc',
+        message: `${finding.rule}: ${finding.message}`,
+      });
+    }
   }
 
   for (const [dir, slugs] of slugsSeen) {

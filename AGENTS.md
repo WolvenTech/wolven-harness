@@ -13,7 +13,7 @@ pnpm validate   # node dist/cli.js validate — run after `pnpm build`
 pnpm score      # harness-score --min-level 3, with drops in .harness-score.json
 ```
 
-`pnpm install` runs `prepare`, which installs a pre-commit hook (simple-git-hooks) that runs `biome check --staged`.
+`pnpm install` runs `prepare`, which installs simple-git-hooks: pre-commit refuses the default branch, then runs `biome check --staged`; pre-push refuses a push to the default branch.
 
 ## Layout
 
@@ -40,7 +40,7 @@ pnpm score      # harness-score --min-level 3, with drops in .harness-score.json
 | `.agents/hooks/` | Hook scripts and wiring (placeholder until the project needs one) |
 | `docs/adrs/` | Architecture decision records (profile ADRs), flat: `adr-NNN-<slug>.md` |
 | `docs/prds/<slug>/` | Product requirement docs: `docs/prds/<slug>/<slug>-prd.md` |
-| `docs/specs/<slug>/` | Active specs: `docs/specs/<slug>/<slug>-spec.md` (plus `<slug>-plan.md`) |
+| `docs/specs/<slug>/` | Active specs: `<slug>-spec.md`, optional `<slug>-plan.md`, and review-fix `<slug>-iteration-<N>-{spec,plan}.md` |
 | `docs/notes/<slug>/` | Research notes: `docs/notes/<slug>/<slug>-note.md` |
 | `docs/deferrals/<slug>/` | Deferred scope with revisit triggers: `docs/deferrals/<slug>/<slug>-deferral.md` |
 | `docs/WRITING-PROFILE.md` | The four rules every `docs/**` markdown file follows |

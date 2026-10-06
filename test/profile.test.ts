@@ -428,6 +428,56 @@ test('doc-layout: docs/notes/archived/a/a.md is not checked', async () => {
   assert.equal(result.code, 0, result.stdout);
 });
 
+const iterationDoc = '---\ntype: spec\ntitle: Z\ndescription: fixture\nstatus: stable\n---\n';
+
+test('doc-layout: iteration spec and plan beside the base spec pass with no findings', async () => {
+  const dir = await makeRepo(
+    {
+      'docs/specs/z/z-spec.md': iterationDoc,
+      'docs/specs/z/z-iteration-1-spec.md': iterationDoc,
+      'docs/specs/z/z-iteration-1-plan.md': iterationDoc,
+    },
+    { git: true },
+  );
+  const result = await run(['validate'], { cwd: dir });
+  assert.equal(result.code, 0, result.stdout);
+  assert.doesNotMatch(result.stdout, /profile-/);
+});
+
+test('doc-layout: an iteration doc missing status warns profile-iteration-doc and exits 0', async () => {
+  const dir = await makeRepo(
+    {
+      'docs/specs/z/z-spec.md': iterationDoc,
+      'docs/specs/z/z-iteration-1-plan.md': iterationDoc.replace('status: stable\n', ''),
+    },
+    { git: true },
+  );
+  const result = await run(['validate'], { cwd: dir });
+  assert.equal(result.code, 0, result.stdout);
+  assert.match(result.stdout, /warn \[profile-iteration-doc\].*z-iteration-1-plan\.md/);
+});
+
+test('doc-layout: an iteration doc without its base spec exits 1 on profile-missing-main-doc', async () => {
+  const dir = await makeRepo({ 'docs/specs/z/z-iteration-1-plan.md': iterationDoc }, { git: true });
+  const result = await run(['validate'], { cwd: dir });
+  assert.equal(result.code, 1);
+  assert.match(result.stdout, /error \[profile-missing-main-doc\]/);
+});
+
+test('doc-layout: a wrong slug prefix or a zero-padded N is not an iteration doc', async () => {
+  const dir = await makeRepo(
+    {
+      'docs/specs/z/z-spec.md': iterationDoc,
+      'docs/specs/z/other-iteration-1-plan.md': '# no frontmatter',
+      'docs/specs/z/z-iteration-01-plan.md': '# no frontmatter',
+    },
+    { git: true },
+  );
+  const result = await run(['validate'], { cwd: dir });
+  assert.equal(result.code, 0, result.stdout);
+  assert.doesNotMatch(result.stdout, /profile-iteration-doc/);
+});
+
 test('profile-doc: templates/docs/WRITING-PROFILE.md is at most 80 lines', async () => {
   const content = await readFile(writingProfilePath, 'utf8');
   const lineCount = content.split('\n').length;
