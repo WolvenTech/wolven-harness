@@ -2,7 +2,7 @@
 type: spec
 title: Install ship and discovery skills without the harness — iteration 1 plan
 description: Ordered work units that fix the four code-review nits on PR 33 at bfa454b; the code-review handoff names an absent planning skill and runs before the verdict, and an unknown skill name gets its own diagnostic.
-status: stable
+status: deprecated
 source_spec: docs/specs/archived/skills-command/skills-command-iteration-1-spec.md
 source_pr: https://github.com/WolvenTech/wolven-harness/pull/33
 ---

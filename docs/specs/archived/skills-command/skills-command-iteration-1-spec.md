@@ -2,7 +2,7 @@
 type: spec
 title: Install ship and discovery skills without the harness — iteration 1 spec
 description: Delta obligations from the code review of PR 33 at bfa454b; the code-review handoff names an absent code-spec or code-plan, and an unknown skill name is not reported as installed by setup.
-status: stable
+status: deprecated
 source_spec: docs/specs/archived/skills-command/skills-command-spec.md
 source_pr: https://github.com/WolvenTech/wolven-harness/pull/33
 ---
