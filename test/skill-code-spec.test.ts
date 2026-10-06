@@ -32,6 +32,12 @@ test('skill-code-spec: writes the spec into the doc-folder layout', async () => 
   assert.match(skill.body, /docs\/specs\/<slug>\/<slug>-spec\.md/);
 });
 
+test('skill-code-spec: supports iteration N delta specs beside the base spec', async () => {
+  const skill = await readSkill('code-spec');
+
+  assert.match(skill.body, /iteration-<N>-spec\.md/);
+});
+
 test('skill-code-spec: names create-prd, code-plan, and code-execute as the surrounding skills', async () => {
   const skill = await readSkill('code-spec');
 

@@ -69,6 +69,12 @@ test('skill-code-review: does not fix code or follow through on threads itself',
   assert.match(skill.body, /reply to or resolve a thread/i);
 });
 
+test('skill-code-review: directs review-fix rounds through iteration spec and plan paths', async () => {
+  const skill = await readSkill('code-review');
+
+  assert.match(skill.body, /iteration-<N>-\{spec,plan\}\.md/);
+});
+
 test('skill-code-review: links host operations and names the operations in plain words', async () => {
   const skill = await readSkill('code-review');
 

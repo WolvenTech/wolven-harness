@@ -12,7 +12,9 @@ ready for `code-plan` to slice into units.
 
 **Consult:** `pragmatic-guard`.
 **Input:** an approved PRD, or a code-shaped ask the Human confirms directly.
-**Output:** `docs/specs/<slug>/<slug>-spec.md` (frontmatter `type: spec`).
+**Output:** `docs/specs/<slug>/<slug>-spec.md` (frontmatter `type: spec`); an
+iteration of `<slug>` after `code-review` writes
+`<slug>-iteration-<N>-spec.md` with only the delta obligations.
 
 **References (read when):**
 

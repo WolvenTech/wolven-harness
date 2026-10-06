@@ -37,6 +37,11 @@ test('builder-brief: validate must pass before a commit is asked for', async () 
   assert.match(skill.body, /harness:validate/);
 });
 
+test('builder-brief: takes an iteration plan as input', async () => {
+  const skill = await readSkill('code-execute');
+  assert.match(skill.body, /iteration-<N>-plan\.md/);
+});
+
 test('builder-brief: the plan mark lands in the same commit as the work', async () => {
   const skill = await readSkill('code-execute');
   assert.match(skill.body, /plan('s)? mark[s]? land[s]?[^.\n]*(same|one) commit/i);

@@ -2,15 +2,15 @@
 type: spec
 title: Lean harness-init path for thin repos
 description: Freeze the lean harness-init playbook, its session-note fields, walkthrough, and docs, apart from individual skill install.
-status: stable
+status: deprecated
 source_issue: https://github.com/WolvenTech/wolven-harness/issues/30
-source_prd: docs/prds/lean-init/lean-init-prd.md
+source_prd: docs/prds/archived/lean-init/lean-init-prd.md
 ---
 
 # Lean harness-init path for thin repos
 
-**Source:** `docs/prds/lean-init/lean-init-prd.md` (status `stable`) — issue #30.
-**Next:** After the Human approves → `code-execute` against the lean playbook already in the branch. The first pass was one mutate batch with no plan file; the PR 32 review fixes (R6) run from `docs/specs/lean-init/lean-init-review-fix-plan.md`.
+**Source:** `docs/prds/archived/lean-init/lean-init-prd.md` (status `deprecated`, archived) — issue #30.
+**Next:** After the Human approves → `code-execute` against the lean playbook already in the branch. The first pass was one mutate batch with no plan file; the PR 32 review fixes (R6) run from `docs/specs/archived/lean-init/lean-init-iteration-1-plan.md`.
 **Named proof (this spec's own structural gate):** `proof-lean-init-spec-obligations`
 
 ## Term challenge
@@ -128,7 +128,7 @@ source_prd: docs/prds/lean-init/lean-init-prd.md
 - Deferring skill proposals on the lean path.
 - Silently skipping a lean step without naming it, why, and remaining work before proceeding.
 - A lean flag, a CLI verb, or any `src/` change when playbook text suffices.
-- A lean-path plan file or a second lean spec: this spec is what the playbook is reviewed against. The one exception is `lean-init-review-fix-plan.md`, which the Human asked for to order the PR 32 review fixes.
+- A lean-path plan file or a second lean spec: this spec is what the playbook is reviewed against. The one exception is `lean-init-iteration-1-plan.md`, which the Human asked for to order the PR 32 review fixes.
 
 ## Acceptance
 

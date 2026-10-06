@@ -47,6 +47,12 @@ test('skill-code-plan: writes the plan at docs/specs/<slug>/<slug>-plan.md next 
   assert.match(skill.body, /docs\/specs\/<slug>\/<slug>-spec\.md/);
 });
 
+test('skill-code-plan: documents the iteration plan finding map', async () => {
+  const skill = await readSkill('code-plan');
+
+  assert.match(skill.body, /finding → unit map/);
+});
+
 test('skill-code-plan: documents phase stops with an explicit STOP gate', async () => {
   const skill = await readSkill('code-plan');
   assert.ok(skill.headings.some((h) => /-stop pattern/i.test(h)));
