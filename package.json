@@ -1,6 +1,6 @@
 {
   "name": "@wolven-tech/harness",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "AI-assisted development harness to plan and implement changes, initialize an AGENTS.md-based skill tree, wire runtimes, and validate architecture decisions.",
   "license": "MIT",
   "repository": {

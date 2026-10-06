@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.3.1](https://github.com/WolvenTech/wolven-harness/compare/v0.3.0...v0.3.1) (2026-10-06)
+
+
+### Features
+
+* **cli:** add a skills command for standalone skills installation ([#33](https://github.com/WolvenTech/wolven-harness/issues/33)) ([b6c2d5e](https://github.com/WolvenTech/wolven-harness/commit/b6c2d5e500b73aa51b622fc15ac49d5ab86905d9))
+* **harness-init:** add a lean path for thin repos ([#32](https://github.com/WolvenTech/wolven-harness/issues/32)) ([6ddfb1a](https://github.com/WolvenTech/wolven-harness/commit/6ddfb1a871a1e3c87b5d1f27d17d9dc200782705))
+* **harness:** install this repo's harness and keep pre-1.0 feats on patch ([#24](https://github.com/WolvenTech/wolven-harness/issues/24)) ([9a0eb6b](https://github.com/WolvenTech/wolven-harness/commit/9a0eb6b0fd600c7df92f5759643b8f779fcefaec))
+* **harness:** standardize review-fix rounds as iteration spec and plan files ([#43](https://github.com/WolvenTech/wolven-harness/issues/43)) ([2443634](https://github.com/WolvenTech/wolven-harness/commit/2443634d7037d1c8923ea928bb60429759ba84c1))
+* **skills:** add the-fool and the-jury discovery skills ([#26](https://github.com/WolvenTech/wolven-harness/issues/26)) ([7de21dc](https://github.com/WolvenTech/wolven-harness/commit/7de21dcfd20cb8514698ef154b04894768a80106))
+* **validate:** catch superseded ADRs kept stable in migration ([#20](https://github.com/WolvenTech/wolven-harness/issues/20)) ([9c993fd](https://github.com/WolvenTech/wolven-harness/commit/9c993fd234caf181642c347e2d9ffe1ba9c9824c))
+
+
+### Bug Fixes
+
+* **cloud:** bootstrap QMD for Cloud Agents ([#29](https://github.com/WolvenTech/wolven-harness/issues/29)) ([314124a](https://github.com/WolvenTech/wolven-harness/commit/314124a45594f3956bcafbbb2997e141f9a102bf))
+* **docs:** restate architecture claims in WRITING-PROFILE ([#38](https://github.com/WolvenTech/wolven-harness/issues/38)) ([f4fbc7d](https://github.com/WolvenTech/wolven-harness/commit/f4fbc7d2911eb53fc77d5798006647e72dbae9e7))
+* **hooks:** refuse commits and pushes to the default branch ([#41](https://github.com/WolvenTech/wolven-harness/issues/41)) ([16f81fb](https://github.com/WolvenTech/wolven-harness/commit/16f81fb894944c25d70e3c23710b4d8292dd3061))
+* **validate:** include untracked files in harness checks ([#42](https://github.com/WolvenTech/wolven-harness/issues/42)) ([98d4090](https://github.com/WolvenTech/wolven-harness/commit/98d4090176e4cf73b6ee5e37d8ef83236f2986fe))
+
 ## [0.3.0](https://github.com/WolvenTech/wolven-harness/compare/v0.2.0...v0.3.0) (2026-09-29)
 
 
