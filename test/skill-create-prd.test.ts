@@ -109,3 +109,13 @@ test('skill-create-prd: a PRD rendered from the template passes validate', async
 
   assert.equal(result.code, 0, result.stdout + result.stderr);
 });
+
+test('proof-cloud-session-skills-consults-stay', async () => {
+  const skill = await readSkill('create-prd');
+  const flat = skill.body.replace(/\s+/g, ' ');
+
+  assert.match(flat, /A folder on disk does not count/);
+  assert.match(flat, /A name remembered from an earlier summary does not count/);
+  assert.match(flat, /When the session skill list includes `grilling`/);
+  assert.match(flat, /the session skill list includes `adr`/);
+});

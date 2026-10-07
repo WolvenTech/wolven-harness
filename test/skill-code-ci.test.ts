@@ -95,3 +95,35 @@ test('skill-code-ci: reports merge-ready or blocked with tried and need, never a
   assert.match(skill.body, /\*\*TRIED\*\*/);
   assert.match(skill.body, /\*\*NEED\*\*/);
 });
+
+test('proof-cloud-session-skills-code-pr-installed', async () => {
+  const skill = await readSkill('code-ci');
+  const flat = skill.body.replace(/\s+/g, ' ');
+
+  assert.match(
+    flat,
+    /A host action follows `code-pr\/references\/host-operations\.md` when `code-pr\/SKILL\.md` is at `\.agents\/skills\/code-pr\/SKILL\.md` or `\.claude\/skills\/code-pr\/SKILL\.md`/,
+  );
+  assert.match(
+    flat,
+    /When that file is on neither path, stop before the host action, name `code-pr`, and do not copy the host procedure/,
+  );
+  assert.match(flat, /That check does not consult the session skill list/);
+});
+
+test('proof-cloud-session-skills-consults-stay', async () => {
+  const skill = await readSkill('code-ci');
+  const flat = skill.body.replace(/\s+/g, ' ');
+  const consultAt = flat.indexOf('**Consult:**');
+  const hostAt = flat.indexOf('**Host steps:**');
+
+  assert.ok(consultAt >= 0 && hostAt > consultAt, 'expected the consult before host steps');
+  const consult = flat.slice(consultAt, hostAt);
+  assert.match(
+    consult,
+    /Loaded means the session skill list from the runtime\. When that list includes `pragmatic-guard`/,
+  );
+  assert.match(consult, /A folder on disk or a remembered name is not loaded/);
+  assert.doesNotMatch(consult, /That check does not consult the session skill list/);
+  assert.match(flat, /That check does not consult the session skill list/);
+});

@@ -53,11 +53,12 @@ behind it (a small, self-contained fix).
    `archived/` content itself, but claims made against an ADR are
    unaffected by where the spec or PRD that raised them now lives; keep
    the moved files' frontmatter valid.
-5. When `code-commit` is absent from the session skill list and the next
-   step is a commit, stop, name `code-commit`, and do not run `git commit`.
-   When `code-commit` is on the session skill list, commit the moves via
-   `code-commit`, then push branch (see
-   [host operations](host-operations.md)).
+5. A commit goes through `code-commit` when `code-commit/SKILL.md` is at
+   `.agents/skills/code-commit/SKILL.md` or
+   `.claude/skills/code-commit/SKILL.md` (either project load path), then
+   push branch (see [host operations](host-operations.md)). When that file
+   is on neither path, stop, name `code-commit`, and do not run
+   `git commit`. That check does not consult the session skill list.
 6. A review that says the ADR-claims axis was not checked is not a passed
    axis and is not merge-ready. Only after this block is complete may the
    pull request's pre-merge closure checkboxes be ticked, and only then may
