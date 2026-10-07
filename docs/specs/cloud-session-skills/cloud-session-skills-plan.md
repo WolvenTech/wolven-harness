@@ -29,7 +29,7 @@ The spec's Unresolved table is empty. No unit adds a runtime, a plugin, a copied
 | 02 | Ask-only flags and consults stay | 01 | `test/skill-code-review.test.ts`, `test/skill-code-ci.test.ts`, `test/skill-code-pr.test.ts`, `test/skill-create-prd.test.ts` | `spawn` | [x] `code-review`, `code-pr`, `code-ci`, and `handoff` still set `disable-model-invocation: true` and `allow_implicit_invocation: false` in both trees. `pragmatic-guard`, `grilling`, the `create-prd` `adr` offer, `pre-merge-closure.md` `adr` promotion, and the `code-review` handoff for `code-spec` or `code-plan` still key off the session skill list, and those consult paragraphs still say a folder on disk or a remembered name is not loaded. `proof-cloud-session-skills-ask-only` and `proof-cloud-session-skills-consults-stay` pass |
 | 03 | **Wave 1 gate** | 01, 02 | — | `inline` | [x] `pnpm test` passes, including the four wave-1 proofs. `pnpm harness:validate` exits 0. Failure aborts before wave 2 |
 | 04 | Smoke note from the Human's report | 03 | `docs/notes/cloud-session-skills/cloud-session-skills-note.md`, `test/cloud-session-skills-smoke.test.ts` | `inline` | [x] The note has `type: note` and a Codex, Cursor, and Claude Code section. Each section has `Smoke: proceeded —` or `Smoke: stopped —` plus one sentence taken from the report the Human brings back after wave 1 is in the checkout. A proceeded line states that an explicit `code-review` or `code-ci` ask performed a host action while `code-pr` was off the implicit session skill list. A stopped line states why the session stopped. `proof-cloud-session-skills-smoke` passes |
-| 05 | **Wave 2 / ship gate** | 04 | — | `inline` | [ ] `pnpm test` passes, including `proof-cloud-session-skills-smoke`. `pnpm harness:validate` exits 0. Failure aborts. Wave 2 is the last wave |
+| 05 | **Wave 2 / ship gate** | 04 | — | `inline` | [x] `pnpm test` passes, including `proof-cloud-session-skills-smoke`. `pnpm harness:validate` exits 0. Failure aborts. Wave 2 is the last wave |
 
 ## Wave stops
 
@@ -90,3 +90,28 @@ Unit 04 is off the frontier until the Human brings back the Codex, Cursor, and C
 | `git status` summary | dirty — uncommitted wave 1 edits on the twelve unit 01/02 paths. Unrelated untracked: `.pnpm-store/`, `docs/deferrals/codex-cloud-plugin/`, `docs/deferrals/grok-cloud-runtime/`, `docs/deferrals/skill-tree-copy/`. Untracked `docs/specs/cloud-session-skills/` holds this resume record |
 | Intended diff scope | none — unit Owns is empty. Gate only |
 | Decision on every discrepancy | resolved — `autocommit: false` (config absent, default) so Done-when marks stay unchecked and no commit. Unrelated untracked paths stay untouched. Wave 2 waits for the Human smoke report |
+
+### Unit 04 — Smoke note from the Human's report
+
+| Field | Value |
+|-------|-------|
+| Unit identifier | 04 — Smoke note from the Human's report (wave 2, frontier position 1 of 2; depends on 03) |
+| Spec/plan paths | `docs/specs/cloud-session-skills/cloud-session-skills-spec.md` / `docs/specs/cloud-session-skills/cloud-session-skills-plan.md` |
+| Obligation / proof status | R3.1 / `proof-cloud-session-skills-smoke` — done (`8747101`) |
+| `HEAD` commit | `8747101` from `git rev-parse --short HEAD` |
+| `git status` summary | clean |
+| Intended diff scope | `docs/notes/cloud-session-skills/cloud-session-skills-note.md`, `test/cloud-session-skills-smoke.test.ts` |
+| Decision on every discrepancy | resolved — landed in `8747101` |
+
+### Unit 05 — Wave 2 / ship gate
+
+| Field | Value |
+|-------|-------|
+| Unit identifier | 05 — Wave 2 / ship gate (wave 2, frontier position 2 of 2; depends on 04). STOP. Wave 2 is the last wave |
+| Spec/plan paths | `docs/specs/cloud-session-skills/cloud-session-skills-spec.md` / `docs/specs/cloud-session-skills/cloud-session-skills-plan.md` |
+| Obligation / proof status | R1.1, R1.2, R2.1, R2.2, R3.1 — all done |
+| `HEAD` commit | `8747101` from `git rev-parse --short HEAD` |
+| `git status` summary | clean |
+| Intended diff scope | none — unit Owns is empty (`—`). Gate only |
+| Decision on every discrepancy | resolved — all checks passed (pnpm test 597 pass, harness:comments ok, harness:validate ok); wave 2 ship gate marked complete for commit |
+
