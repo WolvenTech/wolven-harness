@@ -104,6 +104,8 @@ test('migrate-rules: the status mapping table carries Accepted, Proposed, Supers
   assert.match(flat, /offer options that are true to the ADR's own Status section/i);
   assert.doesNotMatch(flat, /offer only the options that would pass/i);
   assert.match(flat, /never guesses a status mapping/i);
+  assert.match(flat, /status mapping question in plain language/i);
+  assert.match(flat, /ADR number and filename are supporting references, never the headline/i);
 });
 
 test('migrate-rules: a superseded ADR that still partly applies is asked about, never deprecated directly', async () => {

@@ -117,9 +117,14 @@ first, but the Human always picks:
 - Anything in between is a question to the Human, the recommended option
   listed first, same as any other ambiguity this skill meets.
 
-The mode is always put to the Human as one question: the recommended mode
-first with the reason, the other two modes as the remaining options. Never
-pick a mode silently, even when one recommendation looks obvious.
+The mode is always put to the Human as one question phrased in plain language:
+explain what each option does to the repo's instructions (full embeds the
+complete harness router and skills table directly into `AGENTS.md`; light adds
+a concise summary block with pointers to `.agents/`; mention-only keeps
+`WOLVEN.md` as a separate router file with one pointer line in `AGENTS.md`).
+Present the recommended mode first with the reason, and the other two modes as
+the remaining options. Mode names are supporting references, never unexplained
+jargon. Never pick a mode silently, even when one recommendation looks obvious.
 
 ## Before writing
 

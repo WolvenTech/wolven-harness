@@ -23,7 +23,9 @@ These rules hold across every step below.
 2. **One question at a time.** An ambiguity — an entry mode, an ADR status,
    a successor, anything the repo or the Human hasn't settled — becomes a
    single question to the Human, the recommended option listed first (see
-   `grilling`).
+   `grilling`). Questions are plain language: phrase each as what the repo
+   has or lacks and what the choice means in practice; check IDs, codes,
+   and acronyms are supporting detail, never the subject.
 3. **Never invent.** No status, successor ADR, entry mode, or decision is
    assumed on the agent's own judgment; each one comes from what the Human
    answers or what `harness:validate` reports. A claim that starts failing
@@ -155,10 +157,12 @@ warns `skill-stub-open` once for that `SKILL.md`.
 ### 6. Score, session note and hand-back
 
 First run `harness:score` and record the level and score. For each dimension
-with a failing check, ask one question: keep its checks as gaps to build
-later, or drop them in `.harness-score.json`. Never build a check in this run,
-and never drop one without the Human's yes. Score again and record the level,
-the score and every drop. See
+with a failing check, ask one question in plain language: state what the repo
+lacks and what building it means, with check IDs as supporting references,
+and spell out any maturity cap dropping them would cause. Keep its checks as
+gaps to build later, or drop them in `.harness-score.json`. Never build a check
+in this run, and never drop one without the Human's yes. Score again and record
+the level, the score and every drop. See
 [references/harness-score.md](references/harness-score.md).
 
 Then put one question to the Human: how should `harness:validate` be wired —
