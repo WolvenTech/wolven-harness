@@ -19,7 +19,7 @@ None. [ADR-004](../../adrs/adr-004-standalone-skills-contract.md) leaves the set
 
 ## Triggers
 
-- [ ] `harness-init`'s suggest-and-stub flow is proven in at least one brownfield consumer. Then collect the skills Humans stubbed by hand as the catalogue's first entries.
+- [x] `harness-init`'s suggest-and-stub flow is proven in at least one brownfield consumer. Then collect the skills Humans stubbed by hand as the catalogue's first entries. Fired: agentic-mkt (WolvenTech/agentic-mkt#6, 2026-09-29) stubbed `n8n-workflow-builders` and `clickup-contract`, which are the first candidate entries. The catalogue still waits for the second trigger.
 - [ ] The Human opens a spec for the catalogue picker.
 
 ## Non-goals while deferred

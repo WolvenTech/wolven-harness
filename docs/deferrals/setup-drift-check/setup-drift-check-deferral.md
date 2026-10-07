@@ -19,7 +19,7 @@ A new `setup` flag is additive under [ADR-004](../../adrs/adr-004-standalone-ski
 
 ## Triggers
 
-- [ ] The first release after 0.3.0 changes a template file. Then build `setup --check` in that release, so consumers can see what changed.
+- [x] The first release after 0.3.0 changes a template file. Then build `setup --check` in that release, so consumers can see what changed. Fired: 0.3.1 changed 50 files under `templates/` and shipped without the check. The build is tracked in [#45](https://github.com/WolvenTech/wolven-harness/issues/45).
 - [ ] A consumer reports a skill folder with mixed versions. Then build it and point that consumer at it.
 
 ## Non-goals while deferred
