@@ -96,3 +96,51 @@ test('proof-skills-command-handoff-absent', async () => {
   assert.ok(handoff >= 0 && verdict >= 0, 'expected both steps');
   assert.ok(handoff < verdict, 'handoff step comes before the verdict step');
 });
+
+test('proof-cloud-session-skills-code-pr-installed', async () => {
+  const skill = await readSkill('code-review');
+  const flat = skill.body.replace(/\s+/g, ' ');
+
+  assert.match(
+    flat,
+    /A host action follows `code-pr\/references\/host-operations\.md` when `code-pr\/SKILL\.md` is at `\.agents\/skills\/code-pr\/SKILL\.md` or `\.claude\/skills\/code-pr\/SKILL\.md`/,
+  );
+  assert.match(
+    flat,
+    /When that file is on neither path, stop before the host action, name `code-pr`, and do not copy the host procedure/,
+  );
+  assert.match(flat, /That check does not consult the session skill list/);
+});
+
+test('proof-cloud-session-skills-ask-only', async () => {
+  for (const name of ['code-review', 'code-pr', 'code-ci', 'handoff']) {
+    const skill = await readSkill(name);
+
+    assert.equal(skill.frontmatter['disable-model-invocation'], true, name);
+
+    const raw = await skill.read('agents/openai.yaml');
+    const parsed = parseYaml(raw) as { policy?: { allow_implicit_invocation?: boolean } };
+
+    assert.equal(parsed.policy?.allow_implicit_invocation, false, name);
+  }
+});
+
+test('proof-cloud-session-skills-consults-stay', async () => {
+  const skill = await readSkill('code-review');
+  const flat = skill.body.replace(/\s+/g, ' ');
+  const consultAt = flat.indexOf('**Consult:**');
+  const hostAt = flat.indexOf('**Host steps:**');
+  const handoffAt = flat.indexOf('**Review-fix handoff**');
+  const verdictAt = flat.indexOf('End with one verdict');
+
+  assert.ok(consultAt >= 0 && hostAt > consultAt, 'expected the consult before host steps');
+  const consult = flat.slice(consultAt, hostAt);
+  assert.match(consult, /when the session skill list includes `pragmatic-guard`/);
+  assert.match(consult, /A folder on disk or a remembered name is not loaded/);
+  assert.doesNotMatch(consult, /That check does not consult the session skill list/);
+
+  assert.ok(handoffAt >= 0 && verdictAt > handoffAt, 'expected the handoff before the verdict');
+  const handoff = flat.slice(handoffAt, verdictAt);
+  assert.match(handoff, /`code-spec` or `code-plan` is absent from the session skill list/);
+  assert.match(handoff, /A folder on disk or a remembered name is not loaded/);
+});
