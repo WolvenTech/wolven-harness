@@ -2,12 +2,12 @@
 type: spec
 title: Plain-Language Questions for Harness Init
 description: Freeze requirements and test proofs for plain-language interactive question guidance in harness-init.
-status: stable
+status: deprecated
 ---
 
 # Plain-Language Questions for Harness Init
 
-**Source:** `docs/prds/harness-init-plain-language/harness-init-plain-language-prd.md` (status `stable`) — issue #48.
+**Source:** `docs/prds/archived/harness-init-plain-language/harness-init-plain-language-prd.md` (status `deprecated`) — issue #48.
 **Next:** After the Human approves → `code-plan` → `code-execute`.
 **Named proof (this spec's own structural gate):** `proof-harness-init-plain-language-spec-obligations`
 

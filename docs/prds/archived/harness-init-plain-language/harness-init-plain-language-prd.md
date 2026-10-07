@@ -2,7 +2,7 @@
 type: prd
 title: Plain-Language Questions for Harness Init
 description: Requires harness-init interactive questions to lead with plain-language explanations of repository needs and impacts rather than check codes or acronyms.
-status: stable
+status: deprecated
 ---
 
 # Plain-Language Questions for Harness Init

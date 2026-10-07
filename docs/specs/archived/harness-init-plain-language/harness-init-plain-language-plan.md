@@ -2,12 +2,12 @@
 type: spec
 title: Plain-Language Questions for Harness Init — plan
 description: Work-unit index and execution plan for plain-language question guidance in harness-init.
-status: draft
+status: deprecated
 ---
 
 # Plain-Language Questions for Harness Init — plan
 
-**Spec:** `docs/specs/harness-init-plain-language/harness-init-plain-language-spec.md` (status `stable`)
+**Spec:** `docs/specs/archived/harness-init-plain-language/harness-init-plain-language-spec.md` (status `deprecated`)
 **Named proof:** `proof-harness-init-plain-language-spec-obligations`
 
 ## Structural gate
@@ -21,7 +21,7 @@ All nine spec obligations (`R1.1`–`R1.5`, `R2.1`–`R2.3`, `R3.1`–`R3.2`) ma
 | Field | Value |
 |---|---|
 | Unit identifier | 05 — Ship gate (frontier position: complete) |
-| Spec/plan paths | `docs/specs/harness-init-plain-language/harness-init-plain-language-spec.md` / `docs/specs/harness-init-plain-language/harness-init-plain-language-plan.md` |
+| Spec/plan paths | `docs/specs/archived/harness-init-plain-language/harness-init-plain-language-spec.md` / `docs/specs/archived/harness-init-plain-language/harness-init-plain-language-plan.md` |
 | Obligation / proof status | `R1.1`–`R1.5`, `R2.1`–`R2.3`, `R3.1`–`R3.2` — done |
 | `HEAD` commit | `b46fed8` |
 | `git status` summary | dirty — untracked plan and spec files |
