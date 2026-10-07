@@ -17,7 +17,7 @@ A folder on disk or a remembered name is not loaded. Name no install command
 for `pragmatic-guard`. That run writes no deferral and no sentence that the
 guard ran. Reading `pragmatic-guard was not consulted` does not treat the
 guard as having run and does not claim the pull request is merge-ready.
-**Host steps:** [host operations](../code-pr/references/host-operations.md) — every git-host action below (push branch, list unresolved threads, reply to a thread, resolve a thread, read check status, read a failing log) goes through that table; try its MCP tool first, and fall back to its other route without asking. When `code-pr` is absent from the session skill list, stop before a host action, name `code-pr`, and do not copy the host procedure.
+**Host steps:** [host operations](../code-pr/references/host-operations.md) — every git-host action below (push branch, list unresolved threads, reply to a thread, resolve a thread, read check status, read a failing log) goes through that table; try its MCP tool first, and fall back to its other route without asking. A host action follows `code-pr/references/host-operations.md` when `code-pr/SKILL.md` is at `.agents/skills/code-pr/SKILL.md` or `.claude/skills/code-pr/SKILL.md`. When that file is on neither path, stop before the host action, name `code-pr`, and do not copy the host procedure. That check does not consult the session skill list.
 **Input:** an open pull request + an **explicit ask**.
 **Output:** a merge-ready report, or **blocked** with TRIED / NEED — **never** a merge.
 
@@ -61,9 +61,11 @@ itself.
 3. Run `harness:validate` and the test suite on the resolved tree. When
    `harness:validate` cannot be run, stop that step, name `setup`, and do
    not claim the command passed or that the pull request is merge-ready.
-4. When `code-commit` is absent from the session skill list and the next
-   step is a commit, stop, name `code-commit`, and do not run `git commit`.
-   Otherwise commit the resolution through `code-commit`.
+4. A commit goes through `code-commit` when `code-commit/SKILL.md` is at
+   `.agents/skills/code-commit/SKILL.md` or
+   `.claude/skills/code-commit/SKILL.md` (either project load path). When
+   that file is on neither path, stop, name `code-commit`, and do not run
+   `git commit`. That check does not consult the session skill list.
 5. Push branch (host operations), then restart the loop — checks re-run
    against the new head.
 

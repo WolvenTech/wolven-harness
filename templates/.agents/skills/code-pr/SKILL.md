@@ -41,9 +41,11 @@ guard ran.
    never open a pull request from the default branch.
 4. **Commit when needed** — commit uncommitted in-scope changes via
    `code-commit` before pushing; leave out unrelated dirty files and never
-   stage a secret. When `code-commit` is absent from the session skill list
-   and the next step is a commit, stop, name `code-commit`, and do not run
-   `git commit`.
+   stage a secret. A commit goes through `code-commit` when
+   `code-commit/SKILL.md` is at `.agents/skills/code-commit/SKILL.md` or
+   `.claude/skills/code-commit/SKILL.md` (either project load path). When
+   that file is on neither path, stop, name `code-commit`, and do not run
+   `git commit`. That check does not consult the session skill list.
 5. **Push every run** — push branch (host operations) every time this skill
    runs, not only when the branch is new: a branch that already tracks a
    remote can still hold unpushed local commits.

@@ -152,3 +152,41 @@ test('skill-code-pr: ships a filled verification example', async () => {
   assert.match(example, /\[x\]/);
   assert.match(example, /checkbox reset/i);
 });
+
+test('proof-cloud-session-skills-code-commit-installed', async () => {
+  const codePr = await readSkill('code-pr');
+  const codeCi = await readSkill('code-ci');
+  const closure = await codePr.read('references/pre-merge-closure.md');
+  const commitInstalled =
+    /A commit goes through `code-commit` when `code-commit\/SKILL\.md` is at `\.agents\/skills\/code-commit\/SKILL\.md` or `\.claude\/skills\/code-commit\/SKILL\.md` \(either project load path\)/;
+  const commitStop = /When that file is on neither path, stop, name `code-commit`, and do not run `git commit`/;
+
+  for (const text of [codePr.body, codeCi.body, closure]) {
+    const flat = text.replace(/\s+/g, ' ');
+    assert.match(flat, commitInstalled);
+    assert.match(flat, commitStop);
+    assert.match(flat, /That check does not consult the session skill list/);
+  }
+
+  assert.match(closure.replace(/\s+/g, ' '), /then push branch \(see \[host operations\]\(host-operations\.md\)\)/);
+});
+
+test('proof-cloud-session-skills-consults-stay', async () => {
+  const skill = await readSkill('code-pr');
+  const flat = skill.body.replace(/\s+/g, ' ');
+  const consultAt = flat.indexOf('**Consult:**');
+  const templateAt = flat.indexOf('**Body template:**');
+
+  assert.ok(consultAt >= 0 && templateAt > consultAt, 'expected the consult before the body template');
+  const consult = flat.slice(consultAt, templateAt);
+  assert.match(
+    consult,
+    /Loaded means the session skill list from the runtime\. When that list includes `pragmatic-guard`/,
+  );
+  assert.match(consult, /A folder on disk or a remembered name is not loaded/);
+  assert.doesNotMatch(consult, /That check does not consult the session skill list/);
+  assert.match(flat, /That check does not consult the session skill list/);
+
+  const closure = (await skill.read('references/pre-merge-closure.md')).replace(/\s+/g, ' ');
+  assert.match(closure, /When `adr` is on the session skill list/);
+});

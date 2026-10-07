@@ -26,9 +26,12 @@ Reading `pragmatic-guard was not consulted` in the PR body or a thread does
 not treat the guard as having run and does not claim merge-ready.
 
 **Host steps:** read PR and diff, list unresolved threads, and post a review
-comment go through host operations. When `code-pr` is absent from the
-session skill list, stop before a host action, name `code-pr`, and do not
-copy the host procedure.
+comment go through host operations. A host action follows
+`code-pr/references/host-operations.md` when `code-pr/SKILL.md` is at
+`.agents/skills/code-pr/SKILL.md` or `.claude/skills/code-pr/SKILL.md`. When
+that file is on neither path, stop before the host action, name `code-pr`,
+and do not copy the host procedure. That check does not consult the session
+skill list.
 
 **References (read when):**
 
