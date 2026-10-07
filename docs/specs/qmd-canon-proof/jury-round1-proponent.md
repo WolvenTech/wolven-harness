@@ -1,0 +1,16 @@
+**Choice:** B — narrow authentic behavioral evidence with controls, followed by evidence-led amendments.
+
+**Rationale:** B directly tests the project's principal upside: an agent searches ADRs, retrieves decisive content, determines current applicability and uses it correctly. Existing instructions already prescribe ADR-first search and full retrieval; ADR-000/001 verify references, not execution. More prose alone therefore cannot establish compliance. R1–R7 address the strongest false-positive routes, including ceremonial retrieval, leaked answers, snippet-only conclusions and unavailable tools. One executor and deterministic generated facts keep the effort bounded while producing evidence sufficient to decide whether stronger enforcement is warranted. C adds substantial runtime contracts before demonstrating which failures require them. B remains a proposed evaluation, however: U-executor is unresolved and no live proof exists.
+
+**Main risk if wrong:** A well-calibrated synthetic campaign passes while consumer agents still skip retrieval or apply stale indexed canon. Calling those results a general guarantee would misrepresent the central product benefit.
+
+**Own confidence:** High in choosing B; medium that the present design covers “current canon” adequately.
+
+**Concrete recommended amendments:**
+
+1. **Move one freshness check into the core gate.** Fresh isolated indexes test authority selection but cannot expose stale index behavior. Add a bounded subcase within C2: index an initial stable decision, change the authoritative source/value, then run against the stale index. Read-only agents must identify the mismatch and block; maintenance-authorized agents may update/requery and must use the new value. Defer broader freshness matrices, not this basic check.
+2. **Specify independent source-hash comparison.** Bind retrieved decisive content to the authoritative corpus snapshot using an evaluator-owned manifest inaccessible to the agent. A hash captured from QMD's response proves what was returned, not whether it was current.
+3. **Make executor feasibility a preliminary stop gate.** Before committing to the campaign, demonstrate one natural goal with authentic search/get events, isolated oracle, loaded instruction hashes and cancellation cleanup. If this cannot be demonstrated, report “B blocked on executor,” rather than allowing scorer tests to substitute for live evidence.
+4. **Clarify the baseline-pass branch of R9.** Run 60 baseline cases first. If they meet the calibrated gate, report that result and make no instruction amendment; a duplicate 60-run candidate campaign should require an actual candidate change.
+5. **Resolve the existing maintenance-instruction conflict through R8.** The skill authorizes index mutation only for setup/maintenance, while the always-applied rule directs updates after meaningful documentation writes. Record observed behavior under read-only and maintenance-authorized goals, then amend that wording if the campaign diagnoses unauthorized updates or stale-answer failures.
+6. **State the escalation threshold operationally.** Any ready, valid critical bypass after one targeted amendment triggers an enforcement decision before claiming the affected workflow compliant. A consumer incident requiring prevention can trigger that review immediately, as the deferral already allows.
