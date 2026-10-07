@@ -2,14 +2,14 @@
 type: spec
 title: Cloud session skill discovery plan
 description: Ordered units that retarget required-companion checks onto a checkout SKILL.md, then record the three cloud smoke lines from the Human's report.
-status: stable
+status: deprecated
 ---
 
 # Cloud session skill discovery — plan
 
 ## Structural gate
 
-The locked spec is `docs/specs/cloud-session-skills/cloud-session-skills-spec.md` (`status: stable`). Every obligation maps to one named proof.
+The locked spec is `docs/specs/archived/cloud-session-skills/cloud-session-skills-spec.md` (`status: deprecated`). Every obligation maps to one named proof.
 
 | Obligation | Named proof |
 |------------|-------------|
@@ -60,7 +60,7 @@ Unit 04 is off the frontier until the Human brings back the Codex, Cursor, and C
 | Field | Value |
 |-------|-------|
 | Unit identifier | 01 — Companion install predicates (wave 1, frontier position 1 of 3) |
-| Spec/plan paths | `docs/specs/cloud-session-skills/cloud-session-skills-spec.md` / `docs/specs/cloud-session-skills/cloud-session-skills-plan.md` |
+| Spec/plan paths | `docs/specs/archived/cloud-session-skills/cloud-session-skills-spec.md` / `docs/specs/archived/cloud-session-skills/cloud-session-skills-plan.md` |
 | Obligation / proof status | R1.1 / `proof-cloud-session-skills-code-pr-installed` — done (subagent report, parent diff check); R1.2 / `proof-cloud-session-skills-code-commit-installed` — done (same). Plan Done-when boxes stay unchecked (`autocommit: false`) |
 | `HEAD` commit | `47e781c` from `git rev-parse --short HEAD` |
 | `git status` summary | dirty — unit 01 Owns modified, uncommitted. Unrelated untracked: `.pnpm-store/`, `docs/deferrals/codex-cloud-plugin/`, `docs/deferrals/grok-cloud-runtime/`, `docs/deferrals/skill-tree-copy/`. Untracked `docs/specs/cloud-session-skills/` holds this resume record |
@@ -72,7 +72,7 @@ Unit 04 is off the frontier until the Human brings back the Codex, Cursor, and C
 | Field | Value |
 |-------|-------|
 | Unit identifier | 02 — Ask-only flags and consults stay (wave 1, frontier position 2 of 3; depends on 01) |
-| Spec/plan paths | `docs/specs/cloud-session-skills/cloud-session-skills-spec.md` / `docs/specs/cloud-session-skills/cloud-session-skills-plan.md` |
+| Spec/plan paths | `docs/specs/archived/cloud-session-skills/cloud-session-skills-spec.md` / `docs/specs/archived/cloud-session-skills/cloud-session-skills-plan.md` |
 | Obligation / proof status | R2.1 / `proof-cloud-session-skills-ask-only` — done (wave gate `pnpm test` 596 pass); R2.2 / `proof-cloud-session-skills-consults-stay` — done (same). Plan Done-when boxes stay unchecked (`autocommit: false`) |
 | `HEAD` commit | `47e781c` from `git rev-parse --short HEAD` |
 | `git status` summary | dirty — unit 01 skill markdown is outside this unit's Owns (do not touch). Three test files in Owns already hold unit 01 proofs. Unrelated untracked: `.pnpm-store/`, `docs/deferrals/codex-cloud-plugin/`, `docs/deferrals/grok-cloud-runtime/`, `docs/deferrals/skill-tree-copy/`, `docs/specs/cloud-session-skills/` |
@@ -84,7 +84,7 @@ Unit 04 is off the frontier until the Human brings back the Codex, Cursor, and C
 | Field | Value |
 |-------|-------|
 | Unit identifier | 03 — Wave 1 gate (wave 1, frontier position 3 of 3; depends on 01, 02). STOP. Wave 2 not started |
-| Spec/plan paths | `docs/specs/cloud-session-skills/cloud-session-skills-spec.md` / `docs/specs/cloud-session-skills/cloud-session-skills-plan.md` |
+| Spec/plan paths | `docs/specs/archived/cloud-session-skills/cloud-session-skills-spec.md` / `docs/specs/archived/cloud-session-skills/cloud-session-skills-plan.md` |
 | Obligation / proof status | R1.1, R1.2, R2.1, R2.2 — done at the gate. R3.1 — not started |
 | `HEAD` commit | `47e781c` from `git rev-parse --short HEAD` |
 | `git status` summary | dirty — uncommitted wave 1 edits on the twelve unit 01/02 paths. Unrelated untracked: `.pnpm-store/`, `docs/deferrals/codex-cloud-plugin/`, `docs/deferrals/grok-cloud-runtime/`, `docs/deferrals/skill-tree-copy/`. Untracked `docs/specs/cloud-session-skills/` holds this resume record |
@@ -96,7 +96,7 @@ Unit 04 is off the frontier until the Human brings back the Codex, Cursor, and C
 | Field | Value |
 |-------|-------|
 | Unit identifier | 04 — Smoke note from the Human's report (wave 2, frontier position 1 of 2; depends on 03) |
-| Spec/plan paths | `docs/specs/cloud-session-skills/cloud-session-skills-spec.md` / `docs/specs/cloud-session-skills/cloud-session-skills-plan.md` |
+| Spec/plan paths | `docs/specs/archived/cloud-session-skills/cloud-session-skills-spec.md` / `docs/specs/archived/cloud-session-skills/cloud-session-skills-plan.md` |
 | Obligation / proof status | R3.1 / `proof-cloud-session-skills-smoke` — done (`8747101`) |
 | `HEAD` commit | `8747101` from `git rev-parse --short HEAD` |
 | `git status` summary | clean |
@@ -108,7 +108,7 @@ Unit 04 is off the frontier until the Human brings back the Codex, Cursor, and C
 | Field | Value |
 |-------|-------|
 | Unit identifier | 05 — Wave 2 / ship gate (wave 2, frontier position 2 of 2; depends on 04). STOP. Wave 2 is the last wave |
-| Spec/plan paths | `docs/specs/cloud-session-skills/cloud-session-skills-spec.md` / `docs/specs/cloud-session-skills/cloud-session-skills-plan.md` |
+| Spec/plan paths | `docs/specs/archived/cloud-session-skills/cloud-session-skills-spec.md` / `docs/specs/archived/cloud-session-skills/cloud-session-skills-plan.md` |
 | Obligation / proof status | R1.1, R1.2, R2.1, R2.2, R3.1 — all done |
 | `HEAD` commit | `8747101` from `git rev-parse --short HEAD` |
 | `git status` summary | clean |

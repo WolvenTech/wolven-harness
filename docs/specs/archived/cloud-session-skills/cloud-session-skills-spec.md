@@ -2,13 +2,13 @@
 type: spec
 title: Cloud session skill discovery
 description: Required companion skills count as installed from the checkout, while ask-only flags and optional consults stay on the session skill list.
-status: stable
+status: deprecated
 ---
 
 # Cloud session skill discovery
 
 **Source:** confirmed ask, [issue 50](https://github.com/WolvenTech/wolven-harness/issues/50), including the issue comment that records the Antigravity / Gemini session on PR #49.
-**Next:** Plan is `docs/specs/cloud-session-skills/cloud-session-skills-plan.md`. After the Human approves the plan → `code-execute`, wave **1 → 2**.
+**Next:** Plan is `docs/specs/archived/cloud-session-skills/cloud-session-skills-plan.md`.
 **Named proof (this spec's own structural gate):** `proof-cloud-session-skills-spec-obligations`
 
 A **session skill list** is the list of skills the runtime provided for this session. A **required companion** is a skill the current skill must have installed before it performs that companion's procedure: `code-pr` before a host action in `code-review` and `code-ci`, and `code-commit` before `git commit` in `code-pr`, `code-ci`, and `code-pr/references/pre-merge-closure.md`. **Installed** means `SKILL.md` is at `.agents/skills/<name>/SKILL.md` or `.claude/skills/<name>/SKILL.md` in the checkout. A remembered name is not installed. An **optional consult** is `pragmatic-guard`, `grilling`, or the `adr` offer. Those stay on the session skill list.
