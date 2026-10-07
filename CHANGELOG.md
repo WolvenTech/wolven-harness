@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.3.2](https://github.com/WolvenTech/wolven-harness/compare/v0.3.1...v0.3.2) (2026-10-07)
+
+
+### Features
+
+* **harness-init:** ask plain-language questions instead of leading with check IDs ([#49](https://github.com/WolvenTech/wolven-harness/issues/49)) ([a4c7da1](https://github.com/WolvenTech/wolven-harness/commit/a4c7da185aef65318f665c678c50eb9e7843f94c))
+
+
+### Bug Fixes
+
+* **skills:** let an installed companion authorize host actions ([#51](https://github.com/WolvenTech/wolven-harness/issues/51)) ([1eee4e0](https://github.com/WolvenTech/wolven-harness/commit/1eee4e0284f1402c2928b5b624af45d8368387fb))
+
 ## [0.3.1](https://github.com/WolvenTech/wolven-harness/compare/v0.3.0...v0.3.1) (2026-10-06)
 
 
