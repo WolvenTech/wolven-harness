@@ -239,6 +239,10 @@ test('skill-harness-init: step 6 scores the harness, asks per dimension, and nev
   assert.match(ref, /check IDs.*never the subject/i);
   assert.match(ref, /explain non-obvious failure causes/i);
   assert.match(ref, /spell out what a drop costs/i);
+  assert.match(
+    ref,
+    /L1 Context ≥ 40%; L2 Context ≥ 60%, Skills ≥ 30% or Hooks ≥ 30%, Hygiene ≥ 50%; L3 Sensors ≥ 60%, CI ≥ 50%; L4 Hooks ≥ 70%, Total ≥ 80%/,
+  );
   assert.match(ref, /`HYG-03`, `HYG-04` and `HYG-06` detect leaked credentials and can never be dropped/);
   assert.match(ref, /add `"no-hooks"` to `extends`/);
   assert.match(ref, /Never build a failing check inside this run/);

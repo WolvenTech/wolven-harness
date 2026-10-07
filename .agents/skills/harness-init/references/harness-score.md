@@ -43,8 +43,9 @@ each dimension with a failing check, ask one question in plain language:
 - **Spell out what a drop costs.** Before asking to drop checks or an entire
   dimension, state what dropping them costs in terms of maturity level. For
   example: "Dropping CI caps the level at L2, because L3 requires CI ≥ 50%."
-  Check the maturity prerequisites (L1 Context, L2 Sensors, L3 CI and Hygiene,
-  L4 Hooks) and name any level cap a drop would impose.
+  Check the maturity prerequisites (L1 Context ≥ 40%; L2 Context ≥ 60%, Skills
+  ≥ 30% or Hooks ≥ 30%, Hygiene ≥ 50%; L3 Sensors ≥ 60%, CI ≥ 50%; L4 Hooks
+  ≥ 70%, Total ≥ 80%) and name any level cap a drop would impose.
 
 Frame each dimension's question with these three options:
 
