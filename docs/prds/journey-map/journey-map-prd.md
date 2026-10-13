@@ -1,7 +1,7 @@
 ---
 type: prd
 title: Journey Map Skill
-description: Requires a discovery-set journey-map skill that draws a branching flow as a clickable whiteboard map from a JSON tree, so the Human sees the whole flow and sends feedback back to the agent in any runtime.
+description: Requires a discovery-set journey-map skill that draws a branching flow as a clickable whiteboard map from a JSON tree, so the Human walks the flow one decision at a time, can see all of it on demand, and sends feedback back to the agent in any runtime.
 status: stable
 ---
 
@@ -10,15 +10,15 @@ status: stable
 ## Problem
 
 - **Who:** A Human in a consumer repo who shapes a branching flow with an agent: CLI prompts, a skill's steps, or a product's user journeys in UX discovery work.
-- **Pain:** Prose specs and one-question chat rounds flatten a branching flow. The Human cannot see every branch, default and dead end at once, so gaps and wrong defaults surface only after the flow is built.
+- **Pain:** Prose specs and one-question chat rounds flatten a branching flow. The Human cannot see every branch, default and dead end at once, so gaps and wrong defaults surface only after the flow is built. Drawing every branch at once has the opposite problem: a wall of nodes the Human can't walk through the way the flow's user would.
 - **Why now:** The `harness-init` redesign is still being settled on a map, and every later change to `setup`, `skills` or `harness-init` meets the same blind spot. The working renderer exists only as a one-off HTML file outside the repo and will be lost if it is not captured. A UX design engagement with discovery phases is being sold and would need it.
-- **Evidence:** One case. A map of `wolven-harness setup` and a proposed `harness-init` redesign surfaced a redesign that prose rounds had not, across five versions and seven resolved comment threads ([published prototype](https://claude.ai/artifact/34b68WuinuZE25ZtjKS5dt)). Demand beyond this repo is an assumption.
+- **Evidence:** Two cases. A map of `wolven-harness setup` and a proposed `harness-init` redesign surfaced a redesign that prose rounds had not, across five versions and seven resolved comment threads ([published prototype](https://claude.ai/artifact/34b68WuinuZE25ZtjKS5dt)). A second, data-driven prototype drew a Lord of the Rings mock flow from a JSON tree. Over three feedback rounds in Codex and Claude, every pasted feedback block named its nodes clearly enough to act on, and the Human asked for upcoming nodes to stay hidden until a decision ([prototype note](../../notes/journey-map-prototype/journey-map-prototype-note.md)). Demand beyond this repo is an assumption.
 
 A **journey map** here is a drawing of a flow's branches, choices and steps on a pan-and-zoom whiteboard. It is not the UX research artifact of the same name, which charts a persona's stages and emotions; the name was kept by choice.
 
 ## Goals
 
-- The Human sees a whole branching flow at once. — success signal: the `harness-init` redesign map from the prototype is redrawn from a JSON tree alone, with every path, step and hand-back on one canvas.
+- The Human walks a branching flow one decision at a time, and can see all of it on demand. — success signal: the `harness-init` redesign map from the prototype is redrawn from a JSON tree alone. Walking it reveals one path step by step, and "Show whole map" puts every path, step and hand-back on one canvas.
 - The agent writes data, not HTML. — success signal: two different maps are produced by writing only their JSON trees; the renderer the skill ships is byte-identical in both.
 - Feedback on a map reaches the agent in every runtime. — success signal: in Codex or Cursor, one paste of the page's feedback block lets the agent revise the map without asking which node was meant; in Claude, an artifact comment does the same.
 - The skill ships to consumers with no contract change. — success signal: `setup --skills discovery` installs it, the skill-set partition test passes, and `validate` and ADR-004 are unchanged.
@@ -34,6 +34,8 @@ A **journey map** here is a drawing of a flow's branches, choices and steps on a
 - Updating `harness-init` to match the redesign drawn on the map.
 - Keeping a map in sync with the flow after it ships.
 - Designing for client stakeholders as users: sharing, access control, or their own feedback loop.
+- Saving answers across page reloads. The "Copy for agent" text is the record.
+- Themes, dark mode, or exporting a map as an image.
 
 ## User stories
 
@@ -43,18 +45,18 @@ A **journey map** here is a drawing of a flow's branches, choices and steps on a
 **I want** the agent to draw it as a journey map from a small JSON tree,
 **so that** I see every branch at once instead of reading it in prose.
 
-Traces to goal: The Human sees a whole branching flow at once; The agent writes data, not HTML.
+Traces to goal: The Human walks a branching flow one decision at a time, and can see all of it on demand; The agent writes data, not HTML.
 
 #### AC-1.1: Map beside the doc it serves
 
 **Given** a PRD, spec or note exists for the work under `docs/<folder>/<slug>/`
 **When** the Human asks for a map, or accepts the agent's one-line offer of one
-**Then** the agent writes `<slug>-map.json` and a self-contained `<slug>-map.html` in that slug folder, the HTML opens in a browser as one pan-and-zoom canvas, and the agent wrote no HTML by hand
+**Then** the agent writes `<slug>-map.json` and a self-contained `<slug>-map.html` in that slug folder. The HTML opens in a browser as one pan-and-zoom canvas, and the agent wrote no HTML by hand.
 
 #### AC-1.2: Reference map
 
 **Given** the `harness-init` redesign drawn in the prototype
-**When** an agent following only the skill writes its JSON tree
+**When** an agent following only the skill writes its JSON tree, and the Human turns on "Show whole map"
 **Then** the map shows both paths, the goal text box, the "How much should we change your current AGENTS.md?" choice, the full-tour checklist, the skills fork, the checks choice, the commits checklist and the hand-back, reached from a `setup` tree by a dashed arrow
 
 #### AC-1.3: No doc yet
@@ -78,16 +80,16 @@ Traces to goal: The Human sees a whole branching flow at once; The agent writes 
 ### US-2: Click through the flow
 
 **As a** Human reviewing a map,
-**I want** to choose, tick and type my way through it as its user would,
+**I want** to choose, tick and type my way through it as its user would, one decision at a time,
 **so that** I find wrong defaults and dead ends before anything is built.
 
-Traces to goal: The Human sees a whole branching flow at once.
+Traces to goal: The Human walks a branching flow one decision at a time, and can see all of it on demand.
 
 #### AC-2.1: Choose a branch
 
-**Given** a single-choice step with several options
+**Given** a single-choice step with several options, and nothing after it shown yet
 **When** the Human clicks one option
-**Then** the unchosen branches fade but stay visible, and the view moves to the chosen branch's next step
+**Then** the steps after that option appear, the unchosen options dim but stay visible, the steps behind them stay hidden, and the view moves to the newly shown steps
 
 #### AC-2.2: Checklist fades skipped steps
 
@@ -99,13 +101,25 @@ Traces to goal: The Human sees a whole branching flow at once.
 
 **Given** a Human with no pointer device
 **When** they use Tab, Enter and Space
-**Then** they can reach and operate every choice, checkbox, text box and button on the map
+**Then** they can reach and operate every choice, checkbox, text box and button on the map, including "Continue" and "Show whole map"
 
 #### AC-2.4: Drag is not a click
 
 **Given** the pointer goes down on an option
 **When** the Human drags to pan before releasing
 **Then** the canvas pans and no option is chosen
+
+#### AC-2.5: Steps wait for the Human
+
+**Given** a checklist or a text box on the path the Human has reached
+**When** the Human has not pressed its "Continue" button
+**Then** nothing after it is shown, and pressing "Continue" shows the next steps and moves the view to them
+
+#### AC-2.6: Show the whole map
+
+**Given** a map with steps the Human has not reached
+**When** the Human turns on "Show whole map"
+**Then** every node and edge draws, with unreached nodes drawn faint, and turning it off hides them again without losing any answer
 
 ### US-3: Send feedback back to the agent
 
@@ -165,7 +179,7 @@ Traces to goal: A map can show planning tickets for a later `wayfinder` skill.
 
 **Given** a JSON tree with tickets whose `status` is `open`, `claimed` or `closed`
 **When** the page opens
-**Then** each status draws distinctly, and a ticket's `claimed_by` shows on a claimed ticket
+**Then** each status draws distinctly, a ticket's `claimed_by` shows on a claimed ticket, and a tree made only of tickets shows in full with no decision needed
 
 #### AC-5.2: Blocked tickets
 
@@ -178,9 +192,10 @@ Traces to goal: A map can show planning tickets for a later `wayfinder` skill.
 **In**
 
 - A `journey-map` skill under `templates/.agents/skills/`, added to `SET_SKILLS.discovery`.
-- A shared renderer shipped inside the skill folder; maps load rough.js and fonts from a CDN, with no npm runtime dependency and no build step.
+- A shared renderer and a small Node script shipped inside the skill folder. Maps load rough.js and fonts from a CDN, with no npm dependency and no bundler.
+- A polished whiteboard look: clean cards with a soft shadow, a hand-drawn line kept only on arrows and notes.
 - The JSON tree: single-choice steps, checklists, text boxes, waypoints, leaf and summary cards, free annotations with arrows, links between trees, and tickets with blocked-by edges.
-- Click-through, checklist fading, per-node notes, "Copy for agent", pan and zoom, and keyboard operation.
+- Click-through that reveals steps as the Human decides, a "Show whole map" toggle, checklist fading, per-node notes, "Copy for agent", pan and zoom, and keyboard operation.
 - Publishing the map as an artifact when the runtime is Claude.
 - Map files beside the doc they serve, or beside a new short note.
 
@@ -191,9 +206,6 @@ Traces to goal: A map can show planning tickets for a later `wayfinder` skill.
 
 ## Open questions
 
-- How the HTML is assembled from the renderer and the JSON tree with no build step, for example the agent inlining both or a small script in the skill folder. — owner: `code-spec`
-- The JSON tree's exact fields per node kind, and the format of the "Copy for agent" text. — owner: `code-spec`
-- Whether maps that load jsDelivr and Google Fonts are acceptable in a client's repo for the UX engagement. — owner: Rafael
 - The `wayfinder` PRD, which renders through this skill and closes `docs/deferrals/wayfinder-maps/`. — owner: Rafael
 
 ## Handoff
