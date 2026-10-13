@@ -1,8 +1,23 @@
 // why: a classic script with no DOM and no modules, so the page inlines it and node:vm loads it unchanged.
 (() => {
-  const KINDS = ['start', 'choice', 'checklist', 'text', 'waypoint', 'card', 'ticket'];
-  const TICKET_TYPES = ['research', 'prototype', 'grilling', 'task'];
-  const TICKET_STATUSES = ['open', 'claimed', 'closed'];
+  const KINDS = ['start', 'choice', 'checklist', 'text', 'waypoint', 'card'];
+
+  const JOURNEY_FIELDS = ['mood', 'thought', 'touchpoints', 'pains', 'opportunities'];
+
+  const MOOD = [
+    { value: -2, face: '\u{1F641}', name: 'Frustrated', color: '#dc2626', soft: '#fde4e4' },
+    { value: -1, face: '\u{1F615}', name: 'Uneasy', color: '#ea7a1a', soft: '#fdeedd' },
+    { value: 0, face: '\u{1F610}', name: 'Neutral', color: '#8b8fa3', soft: '#eceef3' },
+    { value: 1, face: '\u{1F642}', name: 'Positive', color: '#65a30d', soft: '#ecf7d6' },
+    { value: 2, face: '\u{1F603}', name: 'Delighted', color: '#12a150', soft: '#dcf5e7' },
+  ];
+
+  /** The MOOD entry for a node's `mood`, or null when it has none. */
+  const moodOf = (node) => (node.mood === undefined ? null : MOOD[node.mood + 2]);
+
+  /** A waypoint is a journey step on a map (or layout options) with a persona, or when it carries any journey field. */
+  const isStep = (node, map) =>
+    node.kind === 'waypoint' && (map?.persona !== undefined || JOURNEY_FIELDS.some((field) => node[field] !== undefined));
 
   const all = (map) => (map.trees || []).flatMap((tree) => tree.nodes || []);
 
@@ -26,6 +41,10 @@
     if (map.version !== 1) errors.push('map: version must be 1');
     if (!Array.isArray(map.trees) || !map.trees.length) errors.push('map: trees must be a nonempty array');
 
+    if (map.persona !== undefined && typeof map.persona?.name !== 'string') {
+      errors.push('map: persona.name must be a string');
+    }
+
     for (const node of nodes) {
       if (typeof node.id !== 'string' || !node.id) fail(node.id, 'missing id');
       if (byId.has(node.id)) fail(node.id, 'duplicate id');
@@ -34,14 +53,10 @@
       if (typeof node.label !== 'string' || !node.label.trim()) fail(node.id, 'missing label');
     }
 
-    /**
-     * Checks that `value` names a node. `ticketOnly` demands a ticket; `local`,
-     * when given, is the set of ids in the source node's own tree.
-     */
-    const checkTarget = (id, field, value, { ticketOnly = false, local = null } = {}) => {
+    /** Checks that `value` names a node; `local`, when given, is the set of ids in the source node's own tree. */
+    const checkTarget = (id, field, value, { local = null } = {}) => {
       const target = byId.get(value);
       if (!target) fail(id, `${field} target ${value} does not exist`);
-      else if (ticketOnly && target.kind !== 'ticket') fail(id, `${field} target ${value} is not a ticket`);
       else if (local && !local.has(value)) fail(id, `${field} crosses trees; use links`);
     };
 
@@ -75,25 +90,33 @@
       }
     };
 
-    const checkTicket = (node, local) => {
-      if (!TICKET_TYPES.includes(node.ticket)) fail(node.id, `bad ticket ${node.ticket}`);
-      if (!TICKET_STATUSES.includes(node.status)) fail(node.id, `bad status ${node.status}`);
-      for (const blocker of node.blocked_by || []) {
-        checkTarget(node.id, 'blocked_by', blocker, { ticketOnly: true, local });
+    /** Journey fields belong on a waypoint; each is checked for shape. */
+    const checkJourney = (node) => {
+      const present = JOURNEY_FIELDS.filter((field) => node[field] !== undefined);
+      if (present.length && node.kind !== 'waypoint') fail(node.id, `${present.join(', ')} only on a waypoint`);
+      if (node.mood !== undefined && (!Number.isInteger(node.mood) || node.mood < -2 || node.mood > 2)) {
+        fail(node.id, `mood must be a whole number from -2 to 2 (got ${JSON.stringify(node.mood)})`);
+      }
+      if (node.thought !== undefined && typeof node.thought !== 'string') fail(node.id, 'thought must be a string');
+      for (const field of ['touchpoints', 'pains', 'opportunities']) {
+        const value = node[field];
+        if (value !== undefined && (!Array.isArray(value) || value.some((item) => typeof item !== 'string'))) {
+          fail(node.id, `${field} must be a list of strings`);
+        }
       }
     };
 
     const checkNode = (node, local) => {
+      checkJourney(node);
       if (['start', 'checklist'].includes(node.kind) && !node.next) fail(node.id, 'missing next');
       for (const next of outgoing(node)) checkTarget(node.id, 'next', next, { local });
       if (node.kind === 'choice') checkChoice(node);
       if (node.kind === 'checklist') checkChecklist(node, local);
       if (node.kind === 'waypoint' && typeof node.tag !== 'string') fail(node.id, 'missing tag');
       if (node.kind === 'card' && !Array.isArray(node.sections)) fail(node.id, 'missing sections');
-      if (node.kind === 'ticket') checkTicket(node, local);
     };
 
-    /** Depth-first walk over next/option/blocked_by edges inside one tree; reaching a node already on the path is a cycle. */
+    /** Depth-first walk over next/option edges inside one tree; reaching a node already on the path is a cycle. */
     const checkCycles = (treeNodes, local) => {
       const onPath = new Set();
       const done = new Set();
@@ -106,8 +129,7 @@
         onPath.add(id);
         const node = byId.get(id);
         if (node) {
-          const next = node.kind === 'ticket' ? node.blocked_by || [] : outgoing(node);
-          for (const to of next) if (local.has(to)) visit(to);
+          for (const to of outgoing(node)) if (local.has(to)) visit(to);
         }
         onPath.delete(id);
         done.add(id);
@@ -119,9 +141,7 @@
       const treeNodes = tree.nodes || [];
       const local = new Set(treeNodes.map((node) => node.id));
       if (!treeNodes.length) fail(tree.id, 'empty tree');
-      // why: a tree made only of tickets is a dependency board and has no start.
-      const isFlow = treeNodes.some((node) => node.kind !== 'ticket');
-      if (isFlow && treeNodes.filter((node) => node.kind === 'start').length !== 1) {
+      if (treeNodes.filter((node) => node.kind === 'start').length !== 1) {
         fail(tree.id, 'tree requires exactly one start');
       }
       for (const node of treeNodes) checkNode(node, local);
@@ -137,14 +157,9 @@
     return [...new Set(errors)];
   }
 
-  /** Every edge the page draws: ticket dependencies (blocker to ticket), flow edges, then cross-tree links. */
+  /** Every edge the page draws: flow edges, then cross-tree links. */
   function edges(map) {
-    const fromNodes = all(map).flatMap((node) => {
-      if (node.kind === 'ticket') {
-        return (node.blocked_by || []).map((from) => ({ from, to: node.id, dependency: true }));
-      }
-      return outgoing(node).map((to) => ({ from: node.id, to }));
-    });
+    const fromNodes = all(map).flatMap((node) => outgoing(node).map((to) => ({ from: node.id, to })));
     return [...fromNodes, ...(map.links || []).map((link) => ({ ...link, link: true }))];
   }
 
@@ -194,16 +209,43 @@
     sectionHead: 24,
     sectionItem: 19,
     sectionChars: 36,
-    ticketRow: 30,
+    band: 22,
+    dbar: 32,
+    chipLine: 28,
+    chipChars: 260,
+    cloudChars: 26,
+    noteSlot: 48,
+    annoChars: 32,
+    annoLine: 22,
   };
+
+  const chipW = (text) => Math.round(text.length * 6.6 + 20);
+
+  /** Greedy wrap of touchpoint chips into lines no wider than `width`, each chip `{ t, w }`. */
+  function chipRows(items, width = M.chipChars) {
+    const result = [[]];
+    let used = 0;
+    for (const t of items) {
+      const w = chipW(t);
+      if (used && used + w + 6 > width) {
+        result.push([]);
+        used = 0;
+      }
+      result[result.length - 1].push({ t, w });
+      used += w + 6;
+    }
+    return result;
+  }
+
+  const stickyH = (items) => 22 + items.reduce((h, item) => h + lines(item, 30).length * M.body + 2, 0) + 20;
 
   /** Height of a label plus its optional hint, wrapped the way option and checklist rows are drawn. */
   const labelAndHint = (entry) =>
     lines(entry.label, M.optChars).length * M.optLabel +
     (entry.hint ? lines(entry.hint, M.optHintChars).length * M.optHint : 0);
 
-  /** The ordered rows a node is drawn as, each `{ kind, h, ...extra }`; `height` sums them. */
-  function rows(node) {
+  /** The rows of a plain node, each `{ kind, h, ...extra }`. */
+  function baseRows(node) {
     const result = [];
     const add = (kind, h, extra = {}) => result.push({ kind, h, ...extra });
 
@@ -244,38 +286,99 @@
         add('section', lines(section.head, M.sectionChars).length * M.sectionHead + itemsHeight + 10, { section });
       }
     }
-    if (node.kind === 'ticket') {
-      add('status', M.ticketRow);
-      if (node.claimed_by) add('claimed', M.ticketRow);
-      if (node.blocked_by?.length) add('blocked', M.ticketRow);
+    return result;
+  }
+
+  /**
+   * The rows of a journey step, each `{ zone, kind, h, ...extra }`. `opts.open` is the set
+   * of expanded step ids. invariant: the cloud is a top row and the stickies are bottom rows, so
+   * layout reserves both and no neighbour can be covered.
+   */
+  function stepRows(node, opts) {
+    const result = [];
+    const add = (zone, kind, h, extra = {}) => result.push({ zone, kind, h, ...extra });
+    const touchpoints = node.touchpoints || [];
+    const pains = node.pains || [];
+    const opportunities = node.opportunities || [];
+    const hasLists = touchpoints.length + pains.length + opportunities.length > 0;
+    const isOpen = Boolean(opts.open?.has(node.id));
+
+    if (node.thought) add('top', 'cloud', lines(node.thought, M.cloudChars).length * 22 + 24 + 14 + 38);
+    add('card', 'band', M.band);
+    add('card', 'eyebrow', M.eyebrow);
+    add('card', 'title', lines(node.label, M.titleChars).length * M.title + 6);
+    if (hasLists && !isOpen) add('card', 'dbar', M.dbar);
+    if (isOpen && touchpoints.length) {
+      add('card', 'chips', 24 + chipRows(touchpoints).length * M.chipLine + 2, { items: touchpoints });
+    }
+    if (isOpen && pains.length) add('bottom', 'sticky', stickyH(pains) + 8, { tone: 'pain', items: pains });
+    if (isOpen && opportunities.length) {
+      add('bottom', 'sticky', stickyH(opportunities) + 8, { tone: 'idea', items: opportunities });
     }
     return result;
   }
 
-  /** A node's box height: its rows plus padding; a start node has a minimum. */
-  function height(node) {
-    const body = rows(node).reduce((h, row) => h + row.h, 0);
-    return node.kind === 'start' ? Math.max(76, body + 2 * M.pad) : body + M.pad + 14;
+  /** The persona header rows that sit in the first tree's start node. */
+  function personaRows(opts) {
+    const { persona } = opts;
+    const result = [{ kind: 'pheader', h: 54 }];
+    if (persona.goal) result.push({ kind: 'pgoal', h: 20 + lines(persona.goal, 34).length * M.body + 6 });
+    if (opts.scenario) result.push({ kind: 'pscen', h: lines(opts.scenario, 36).length * M.body + 8 });
+    return result;
   }
 
   /**
-   * Column of each node in one tree, by longest path: a ticket sits one column
-   * right of its deepest blocker; a flow node one right of its deepest parent.
-   * Cycles are rejected by `validate`, so the ticket recursion terminates.
+   * Options every layout and draw call shares: the persona header belongs to the
+   * first tree's start, and `annotations` maps a target id to the annotations on it.
    */
-  function columnDepths(treeNodes, byId, isTicketTree) {
-    const depths = new Map();
-    if (isTicketTree) {
-      const depthOf = (id) => {
-        if (depths.has(id)) return depths.get(id);
-        const blockers = byId.get(id).blocked_by || [];
-        const depth = blockers.length ? 1 + Math.max(...blockers.map(depthOf)) : 0;
-        depths.set(id, depth);
-        return depth;
-      };
-      for (const node of treeNodes) depthOf(node.id);
-      return depths;
+  function ctx(map, extra = {}) {
+    const first = map.trees?.[0]?.nodes?.find((node) => node.kind === 'start');
+    const annotations = new Map();
+    for (const annotation of map.annotations || []) {
+      if (!annotations.has(annotation.target)) annotations.set(annotation.target, []);
+      annotations.get(annotation.target).push(annotation);
     }
+    return { persona: map.persona, scenario: map.scenario, personaFor: first?.id, annotations, ...extra };
+  }
+
+  /**
+   * The ordered rows a node is drawn as, each `{ kind, h, zone?, ...extra }`; a row with no
+   * zone is in the card. An annotated node ends with a note slot and one row per annotation,
+   * both in the bottom zone, so the room is reserved whatever the answers are.
+   */
+  function rows(node, opts = {}) {
+    let result;
+    if (node.kind === 'start' && opts.persona && opts.personaFor === node.id) result = personaRows(opts);
+    else if (isStep(node, opts)) result = stepRows(node, opts);
+    else result = baseRows(node);
+    const annotations = opts.annotations?.get(node.id) || [];
+    if (annotations.length) {
+      result = [...result, { zone: 'bottom', kind: 'noteslot', h: M.noteSlot }];
+      for (const annotation of annotations) {
+        const text = lines(annotation.text, M.annoChars);
+        result.push({ zone: 'bottom', kind: 'annotation', h: text.length * M.annoLine + 16, id: annotation.id, text });
+      }
+    }
+    return result;
+  }
+
+  /** Box geometry: `inset` rows sit above the card, `tail` rows below it, `card` is the framed part. */
+  function parts(node, opts = {}) {
+    const result = rows(node, opts);
+    const sum = (zone) => result.filter((row) => (row.zone || 'card') === zone).reduce((h, row) => h + row.h, 0);
+    const body = sum('card');
+    const card = node.kind === 'start' ? Math.max(76, body + 2 * M.pad) : body + M.pad + 14;
+    const inset = sum('top');
+    const tail = sum('bottom');
+    return { rows: result, inset, card, tail, h: inset + card + tail };
+  }
+
+  /** A node's box height: the top zone, the card (its rows plus padding, with a minimum for a start) and the bottom zone. */
+  const height = (node, opts) => parts(node, opts).h;
+
+  /** Column of each node in one tree, by longest path: a node sits one column right of its deepest parent. */
+  function columnDepths(treeNodes) {
+    const depths = new Map();
     for (const node of treeNodes) depths.set(node.id, 0);
     // why: relaxing once per node bounds the passes for any acyclic tree, so no topological sort is needed.
     for (let pass = 0; pass < treeNodes.length; pass++) {
@@ -288,8 +391,8 @@
     return depths;
   }
 
-  /** Ids in drawing order: a depth-first walk from the start (every ticket, for a ticket tree), then any unreachable node. */
-  function drawOrder(treeNodes, byId, isTicketTree) {
+  /** Ids in drawing order: a depth-first walk from the start, then any unreachable node. */
+  function drawOrder(treeNodes, byId) {
     const order = [];
     const visited = new Set();
     const walk = (id) => {
@@ -300,8 +403,7 @@
       order.push(id);
       for (const to of outgoing(node)) walk(to);
     };
-    if (isTicketTree) order.push(...treeNodes.map((node) => node.id));
-    else walk(treeNodes.find((node) => node.kind === 'start').id);
+    walk(treeNodes.find((node) => node.kind === 'start').id);
     for (const node of treeNodes) if (!order.includes(node.id)) order.push(node.id);
     return order;
   }
@@ -310,20 +412,20 @@
    * Places every node: trees stack top to bottom, columns run left to right, and
    * each column is centred on its tree's midline. Returns `{ boxes, edges, width, height }`.
    */
-  function layout(map) {
+  function layout(map, extra = {}) {
+    const opts = ctx(map, extra);
     const boxes = [];
     const byId = new Map(all(map).map((node) => [node.id, node]));
     let top = 110;
 
     for (const tree of map.trees) {
       const treeNodes = tree.nodes;
-      const isTicketTree = treeNodes.every((node) => node.kind === 'ticket');
-      const depths = columnDepths(treeNodes, byId, isTicketTree);
+      const depths = columnDepths(treeNodes);
       const columns = new Map();
-      drawOrder(treeNodes, byId, isTicketTree).forEach((id, index) => {
+      drawOrder(treeNodes, byId).forEach((id, index) => {
         const column = depths.get(id);
         if (!columns.has(column)) columns.set(column, []);
-        columns.get(column).push({ id, index, h: height(byId.get(id)) });
+        columns.get(column).push({ id, index, ...parts(byId.get(id), opts) });
       });
 
       const stackHeight = (list) => list.reduce((sum, b) => sum + b.h, 0) + M.rowGap * (list.length - 1);
@@ -332,7 +434,19 @@
       for (const [column, list] of columns) {
         let y = midline - stackHeight(list) / 2;
         for (const b of list) {
-          boxes.push({ id: b.id, tree: tree.id, column, row: b.index, x: 60 + column * M.col, y, w: M.w, h: b.h });
+          boxes.push({
+            id: b.id,
+            tree: tree.id,
+            column,
+            row: b.index,
+            x: 60 + column * M.col,
+            y,
+            w: M.w,
+            h: b.h,
+            inset: b.inset,
+            tail: b.tail,
+            ay: y + b.inset + b.card / 2,
+          });
           y += b.h + M.rowGap;
         }
       }
@@ -346,36 +460,16 @@
     };
   }
 
-  /** True while any of the ticket's blockers is not closed. */
-  function blocked(map, node) {
-    const byId = new Map(all(map).map((n) => [n.id, n]));
-    return (node.blocked_by || []).some((id) => byId.get(id)?.status !== 'closed');
-  }
-
-  /** Fill and stroke palette names for a ticket status; the three statuses never share a pair. */
-  function ticketStyle(status) {
-    return {
-      open: { fill: 'yellow', stroke: 'ink' },
-      claimed: { fill: 'blue', stroke: 'select' },
-      closed: { fill: 'green', stroke: 'muted' },
-    }[status];
-  }
-
-  const isTicketTree = (tree) => tree.nodes.every((node) => node.kind === 'ticket');
   const startOf = (tree) => tree.nodes.find((node) => node.kind === 'start');
 
   /**
    * Node ids shown before "show whole map". A flow tree stops at each
-   * unanswered choice and at each checklist or text box not yet continued;
-   * ticket trees always show in full.
+   * unanswered choice and at each checklist or text box not yet continued. With
+   * `opts.stepwise` it also stops at each waypoint until that waypoint carries `done`.
    */
-  function revealed(map, answers = {}) {
+  function revealed(map, answers = {}, opts = {}) {
     const shown = new Set();
     for (const tree of map.trees) {
-      if (isTicketTree(tree)) {
-        for (const node of tree.nodes) shown.add(node.id);
-        continue;
-      }
       const byId = new Map(tree.nodes.map((node) => [node.id, node]));
       const walk = (id) => {
         const node = byId.get(id);
@@ -387,12 +481,63 @@
         } else if (node.kind === 'checklist' || node.kind === 'text') {
           if (answer.done) walk(node.next);
         } else if (node.next) {
-          walk(node.next);
+          if (!(opts.stepwise && node.kind === 'waypoint' && !answer.done)) walk(node.next);
         }
       };
       walk(startOf(tree).id);
     }
     return shown;
+  }
+
+  /**
+   * Ordered node ids along the walk in the first tree. At a choice it follows the answer, or
+   * under `showAll` the default option; it stops at an unanswered choice, and with `opts.stepwise` at the first undone waypoint.
+   */
+  function walked(map, answers = {}, showAll = false, opts = {}) {
+    const tree = map.trees[0];
+    const byId = new Map(tree.nodes.map((node) => [node.id, node]));
+    const path = [];
+    const seen = new Set();
+    let id = startOf(tree).id;
+    while (id && !seen.has(id) && byId.has(id)) {
+      seen.add(id);
+      path.push(id);
+      const node = byId.get(id);
+      const answer = answers[id] || {};
+      if (node.kind === 'choice') {
+        const key = answer.choice ?? (showAll ? (node.default ?? node.options[0].key) : undefined);
+        id = node.options.find((option) => option.key === key)?.next;
+        continue;
+      }
+      if ((node.kind === 'checklist' || node.kind === 'text') && !answer.done && !showAll) break;
+      if (opts.stepwise && !showAll && node.kind === 'waypoint' && !answer.done) break;
+      id = node.next;
+    }
+    return path;
+  }
+
+  /** The waypoint the stepwise walk is holding at (the one a forward step would release), or null. */
+  function pending(map, answers = {}) {
+    const path = walked(map, answers, false, { stepwise: true });
+    const id = path[path.length - 1];
+    const node = all(map).find((n) => n.id === id);
+    return node?.kind === 'waypoint' && node.next && !answers[id]?.done ? id : null;
+  }
+
+  /**
+   * The id of the node whose answer "Prev" clears so the last node shown is hidden, or null
+   * when nothing can be undone. Only a stepwise, not show-all, walk has a Prev.
+   */
+  function prevTarget(map, answers = {}, opts = {}) {
+    if (!opts.stepwise || opts.showAll) return null;
+    const byId = new Map(all(map).map((node) => [node.id, node]));
+    const path = walked(map, answers, false, { stepwise: true });
+    for (let i = path.length - 2; i >= 0; i--) {
+      const node = byId.get(path[i]);
+      const answer = answers[node.id];
+      if (node.kind === 'choice' ? answer?.choice !== undefined : node.kind !== 'start' && answer?.done) return node.id;
+    }
+    return null;
   }
 
   /** Whether a checklist item counts as ticked: the answer wins, then the item's `on`, then true. */
@@ -407,7 +552,6 @@
     const fade = new Set();
     const later = new Set();
     for (const tree of map.trees) {
-      if (isTicketTree(tree)) continue;
       const byId = new Map(tree.nodes.map((node) => [node.id, node]));
       const reachable = new Set();
       const walk = (id) => {
@@ -457,6 +601,8 @@
         const ticked = node.items.filter((item) => isTicked(item, answer)).map((item) => item.key);
         const unticked = node.items.filter((item) => !isTicked(item, answer)).map((item) => item.key);
         result.push(`${prefix}ticked ${ticked.join(', ')}; unticked ${unticked.join(', ')}`);
+      } else if (node.kind === 'checklist' && answer.done) {
+        result.push(`${prefix}continued with no change`);
       }
       if (answer.text !== undefined) result.push(`${prefix}typed ${JSON.stringify(answer.text)}`);
       if (answer.note !== undefined) result.push(`${prefix}note ${JSON.stringify(answer.note)}`);
@@ -496,5 +642,5 @@
     return { points, label: { x: to.x - 22, y: gapY - 26 } };
   }
 
-  globalThis.JourneyMapLogic = { validate, linkRoute, revealed, faded, feedback, layout, edges, blocked, ticketStyle, lines, all, outgoing, rows, height, M };
+  globalThis.JourneyMapLogic = { validate, linkRoute, revealed, walked, pending, prevTarget, faded, feedback, layout, edges, isStep, MOOD, moodOf, chipRows, ctx, parts, lines, all, outgoing, rows, height, M };
 })();

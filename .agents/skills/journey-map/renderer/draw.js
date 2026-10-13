@@ -54,14 +54,7 @@
     text: ['Your answer', '--k-text'],
     waypoint: ['Step', '--k-step'],
     card: ['Summary', '--k-card'],
-    ticket: ['Ticket', '--k-ticket'],
   };
-  const STATUS = {
-    open: ['Open', '--s-open'],
-    claimed: ['Claimed', '--s-claimed'],
-    closed: ['Closed', '--s-closed'],
-  };
-
   let state = Object.create(null);
   let noteOpen = new Set();
   let showAll = false;
@@ -287,11 +280,6 @@
       return;
     }
     el('rect', { x, y, width: w, height: h, rx: 14, class: `card k-${n.kind}` }, g);
-    if (n.kind === 'ticket') {
-      const [, color] = STATUS[n.status];
-      const d = `M${x + 14} ${y} H${x + 6} Q${x} ${y} ${x} ${y + 6} V${y + h - 6} Q${x} ${y + h} ${x + 6} ${y + h} H${x + 14} Z`;
-      el('path', { d, style: `fill:var(${color})` }, g);
-    }
     if (n.kind === 'card') {
       el(
         'rect',
@@ -303,8 +291,7 @@
 
   function drawEyebrow(g, n, x, top) {
     const [name, color] = KIND[n.kind];
-    const label = n.kind === 'ticket' ? `${n.ticket} ticket` : name;
-    const t = text(g, x, top + 17, label.toUpperCase(), FONT.eyebrow, `var(${color})`);
+    const t = text(g, x, top + 17, name.toUpperCase(), FONT.eyebrow, `var(${color})`);
     t.style.letterSpacing = '0.08em';
   }
 
@@ -415,30 +402,6 @@
     }
   }
 
-  function drawStatus(g, n, x, top) {
-    const [name, color] = STATUS[n.status];
-    el('circle', { cx: x + M.pad + 5, cy: top + 13, r: 5, style: `fill:var(${color})` }, g);
-    text(g, x + M.pad + 16, top + 18, name, FONT.label, 'var(--ink)');
-  }
-
-  function drawClaimed(g, n, x, top) {
-    el('circle', { cx: x + M.pad + 10, cy: top + 13, r: 10, class: 'avatar' }, g);
-    text(g, x + M.pad + 10, top + 17.5, n.claimed_by.slice(0, 1).toUpperCase(), FONT.small, '#fff', 'middle');
-    text(g, x + M.pad + 28, top + 18, n.claimed_by, FONT.body, 'var(--ink)');
-  }
-
-  function drawBlocked(g, n, x, top) {
-    const waiting = L.blocked(map, n);
-    pill(
-      g,
-      x + M.pad,
-      top + 3,
-      waiting ? 'blocked: waiting on a ticket' : 'dependencies closed',
-      waiting ? 'var(--warn)' : 'var(--muted)',
-      waiting ? 'var(--warn-bg)' : 'var(--tag-bg)',
-    );
-  }
-
   function drawRow(g, n, b, r, top, a) {
     const { x } = b;
     if (r.kind === 'eyebrow') drawEyebrow(g, n, x + M.pad, top);
@@ -453,9 +416,6 @@
     if (r.kind === 'input') input(g, n.id, x + M.pad, top + 4, b.w - 2 * M.pad, a.text, n.placeholder);
     if (r.kind === 'continue') drawContinue(g, n, b, top, a);
     if (r.kind === 'section') drawSection(g, n, b, r, top);
-    if (r.kind === 'status') drawStatus(g, n, x, top);
-    if (r.kind === 'claimed') drawClaimed(g, n, x, top);
-    if (r.kind === 'blocked') drawBlocked(g, n, x, top);
   }
 
   function drawNote(g, n, b, a) {

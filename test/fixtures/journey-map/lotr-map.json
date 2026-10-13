@@ -167,7 +167,7 @@
             },
             {
               "head": "What next",
-              "items": ["Review the Council tickets.", "Return to the Shire."],
+              "items": ["Return to the Shire."],
               "numbered": true
             }
           ]
@@ -210,56 +210,18 @@
           ]
         }
       ]
-    },
-    {
-      "id": "council-tickets",
-      "label": "Council tickets",
-      "nodes": [
-        {
-          "id": "scout",
-          "kind": "ticket",
-          "label": "Scout the paths from Rivendell",
-          "ticket": "research",
-          "status": "closed"
-        },
-        {
-          "id": "bridge",
-          "kind": "ticket",
-          "label": "Try a bridge over the ravine",
-          "ticket": "prototype",
-          "status": "claimed",
-          "claimed_by": "Gimli",
-          "blocked_by": ["scout"]
-        },
-        {
-          "id": "council",
-          "kind": "ticket",
-          "label": "Reassess how to continue through Moria",
-          "ticket": "grilling",
-          "status": "open",
-          "blocked_by": ["bridge"]
-        },
-        {
-          "id": "depart",
-          "kind": "ticket",
-          "label": "Lead the Fellowship onward",
-          "ticket": "task",
-          "status": "open",
-          "blocked_by": ["council"]
-        }
-      ]
     }
   ],
   "links": [
     {
       "from": "doom",
-      "to": "scout",
-      "label": "Back to the Council"
+      "to": "shire",
+      "label": "Back to the Shire"
     },
     {
       "from": "halt",
-      "to": "council",
-      "label": "Review the halted journey"
+      "to": "route",
+      "label": "Choose the road again"
     }
   ],
   "annotations": [
@@ -267,11 +229,6 @@
       "id": "shared-note",
       "target": "rivendell",
       "text": "One Council, whichever route you chose."
-    },
-    {
-      "id": "council-moria-decision",
-      "target": "council",
-      "text": "Keep Moria. Hope for Gandalf; his fate is unknown."
     }
   ]
 }

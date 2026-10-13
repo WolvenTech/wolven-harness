@@ -51,11 +51,9 @@ The map is one JSON file, `<slug>-map.json`, with `version: 1`.
 
 - Node ids are unique across the whole map. Every node has `id`, `kind`
   and `label`.
-- A tree has exactly one `start` node, unless every node in it is a
-  `ticket`.
-- A tree has no cycles. A flow tree follows `next` edges. A ticket tree
-  follows `blocked_by` edges.
-- `next`, `gates` and `blocked_by` point only at nodes in their own tree.
+- A tree has exactly one `start` node.
+- A tree has no cycles. A tree follows `next` edges.
+- `next` and `gates` point only at nodes in their own tree.
   Only `links` cross between trees.
 - A tree's optional `label` names it on the canvas. The heading is left
   out when it would repeat the start node's label.
@@ -77,7 +75,6 @@ The map is one JSON file, `<slug>-map.json`, with `version: 1`.
 | `text` | `sub?`, `placeholder?`, `next?` | A card with one input and a "Continue" button |
 | `waypoint` | `tag`, `next?` | A dashed, muted card |
 | `card` | `sub?`, `sections` | A closing card with no outgoing edge |
-| `ticket` | `ticket`, `status`, `claimed_by?`, `blocked_by?` | A card with a status stripe |
 
 Field details:
 
@@ -92,24 +89,20 @@ Field details:
   is a list of strings. `numbered: true` numbers the items 1, 2, 3
   instead of bullets.
 - Optional fields are the ones marked `?` in the table above, plus `hint`
-  on options and items, `sub`, `placeholder` and `next` on `text`, and
-  `claimed_by` and `blocked_by` on tickets. A `waypoint`'s `tag` is
+  on options and items, `sub`, `placeholder` and `next` on `text`. A `waypoint`'s `tag` is
   required: a short label shown above the step, such as "research" or
   "later".
 - To let a checklist item skip a question, put a `waypoint` before the
   question and gate the waypoint. Unticking the item fades the waypoint
   and marks it "later". The question itself still appears, because
   `gates` can't hide it.
-- `ticket.ticket` is one of `research`, `prototype`, `grilling`, `task`.
-  `status` is one of `open`, `claimed`, `closed`. `blocked_by` is a list of
-  ticket ids. A "blocked" pill shows while any blocker isn't `closed`.
 
 ## What the page shows
 
-- In a flow tree, the page reveals steps from the start. It passes through
+- The page reveals steps from the start. It passes through
   `start` and `waypoint` nodes. At a `choice` it continues only through
   the chosen option. At a `checklist` or `text` it continues only after
-  Continue. Every node in a ticket tree is always shown.
+  Continue.
 - "Show whole map" draws the unrevealed steps too, faint.
 - Answers live only in the page. A reload clears them.
 

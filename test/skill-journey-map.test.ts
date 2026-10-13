@@ -59,7 +59,7 @@ test('skill-journey-map: tree-format.md covers the rules, and no file names wayf
   const skill = await readSkill('journey-map');
   const format = await skill.read('references/tree-format.md');
 
-  for (const kind of ['start', 'choice', 'checklist', 'text', 'waypoint', 'card', 'ticket']) {
+  for (const kind of ['start', 'choice', 'checklist', 'text', 'waypoint', 'card']) {
     assert.match(format, new RegExp(`\`${kind}\``));
   }
   assert.match(format, /no cycles/i);
