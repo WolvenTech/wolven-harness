@@ -1,7 +1,7 @@
 ---
 type: prd
 title: Wayfinder Skill
-description: Requires a discovery-set wayfinder skill that charts a decision's open unknowns as ticket files under docs/maps/ and works them one session at a time, so their state survives across sessions until the decision is ready for a PRD or spec.
+description: Requires a discovery-set wayfinder skill that charts a decision's open unknowns as ticket files under docs/maps/ and works them one session at a time, drawn on a canvas it shares with journey-map, so their state survives across sessions until the decision is ready for a PRD or spec.
 status: draft
 ---
 
@@ -11,18 +11,19 @@ status: draft
 
 - **Who:** A Human in a consumer repo working a decision that is not yet ready for a PRD, because several unknowns each need a research note, a prototype, a grilling or a task outside the chat first.
 - **Pain:** The Human loses track, across sessions, of which unknowns are open, what blocks what, and what has been resolved, so research, prototype and grilling work gets redone, skipped or quietly assumed. `grilling` settles only what one conversation can settle.
-- **Why now:** The `journey-map` PRD is approved with ticket rendering (its US-5), which has nothing to draw until a skill writes tickets. The Human has decided to build the skill. This PRD meets trigger 2 of the [wayfinder deferral](../../deferrals/wayfinder-maps/wayfinder-maps-deferral.md).
+- **Why now:** The `journey-map` PRD on PR #58 dropped its ticket kind and names planning tickets and the wayfinder map as this PRD's work, so ticket trees have no home until this skill ships. The removed ticket rendering is intact at commit `2238220` on the #58 branch. The Human has decided to build the skill. This PRD meets trigger 2 of the [wayfinder deferral](../../deferrals/wayfinder-maps/wayfinder-maps-deferral.md).
 - **Evidence:** One expected case: the UX design engagement with discovery phases named in the `journey-map` PRD, which is still being sold. No map has been charted for it yet, so demand beyond that case is an assumption.
 
-A **map** here is a `docs/maps/<slug>/` folder: one `<slug>-map.md` holding the destination and what is settled, plus one file per ticket. A **ticket** is one unknown with a kind, a status and the tickets that block it, as `journey-map` US-5 already draws. The **frontier** keeps the meaning `grilling` gives it: every `open` ticket whose blockers are all `closed`.
+A **map** here is a `docs/maps/<slug>/` folder: one `<slug>-map.md` holding the destination and what is settled, plus one file per ticket. A **ticket** is one unknown with a kind, a status and the tickets that block it. The **canvas** is the pan-and-zoom whiteboard renderer `journey-map` ships, with its notes and "Copy for agent"; this PRD makes it a shared install both skills load. The **frontier** keeps the meaning `grilling` gives it: every `open` ticket whose blockers are all `closed`.
 
 ## Goals
 
 - Ticket state survives sessions. — success signal: a fresh session asked to continue a map names the same frontier and claimed tickets the files record, without the Human restating anything.
 - Every unknown is resolved through the matching skill and recorded. — success signal: every `closed` ticket has a `## Resolution` that links its note, records its prototype verdict, or states its grilling answer or task outcome.
-- The Human sees the plan on a canvas. — success signal: after any ticket change, the journey map shows each ticket's status and blocked-by edges exactly as the ticket files hold them.
+- The Human sees the plan on a canvas. — success signal: after any ticket change, the map's canvas shows each ticket's status and blocked-by edges exactly as the ticket files hold them.
+- One canvas serves both skills. — success signal: `wayfinder` and `journey-map` load the same installed canvas files, installing either skill alone installs the canvas, and every `journey-map` map draws as it did before the move.
 - A map ends in a PRD or spec. — success signal: when the destination is reached, wayfinder hands off to `create-prd` or `code-spec` with the map's decisions as input, and the map moves to `docs/maps/archived/<slug>/`.
-- The skill and its folder ship with a recorded contract change. — success signal: `setup --skills discovery` installs `wayfinder` and `docs/maps/`, `validate` checks `<slug>-map.md`, ADR-004 is amended, and an install without discovery has no `docs/maps/`.
+- The skill and its folder ship with a recorded contract change. — success signal: `setup --skills discovery` installs `wayfinder` and `docs/maps/`, `validate` checks `<slug>-map.md`, ADR-004 is amended for the doc folder and the shared canvas, and an install without discovery has no `docs/maps/`.
 
 **Non-goals**
 
@@ -30,7 +31,8 @@ A **map** here is a `docs/maps/<slug>/` folder: one `<slug>-map.md` holding the 
 - `validate` checks on ticket files: their frontmatter, kinds, statuses or `blocked_by` names.
 - Changes to `grilling`, `research`, `prototype`, `create-prd`, `code-spec` or any other shipped skill, and any reference to `wayfinder` from them.
 - `setup` editing an existing `.qmd/index.yml` or `AGENTS.md`.
-- Changes to the `journey-map` PRD or its renderer.
+- Changes to how a `journey-map` map looks or behaves. Only where its canvas code is installed from changes.
+- A `ticket` kind in `journey-map`'s JSON trees: a ticket node still fails `journey-map` validation.
 - The `harness-init` redesign.
 
 ## User stories
@@ -116,22 +118,28 @@ Traces to goal: Ticket state survives sessions.
 ### US-4: See the plan on the canvas
 
 **As a** Human reviewing a map,
-**I want** the tickets drawn as a journey map,
+**I want** the tickets drawn on the canvas,
 **so that** I see open, claimed, closed and blocked work at once.
 
 Traces to goal: The Human sees the plan on a canvas.
 
 #### AC-4.1: Canvas regenerated from tickets
 
-**Given** `journey-map` is installed
+**Given** a map with ticket files
 **When** any ticket is written or changes status
-**Then** the agent rewrites `<slug>-map.json` and `<slug>-map.html` beside `<slug>-map.md` from the ticket files alone, and a hand edit to the JSON is overwritten by that rewrite
+**Then** the agent rewrites `<slug>-map.json` and `<slug>-map.html` beside `<slug>-map.md` from the ticket files alone, the page shows every ticket at once with a status stripe and dot, a `claimed_by` avatar, `blocked_by` edges and a "blocked" pill while any blocker is not `closed`, and a hand edit to the JSON is overwritten by that rewrite
 
-#### AC-4.2: No journey-map
+#### AC-4.2: Canvas missing
 
-**Given** `journey-map` is not installed
+**Given** the shared canvas is not installed beside `wayfinder`, as in an older install whose differing folders were preserved
 **When** the agent charts or works a map
-**Then** the tickets, frontier and handoff work unchanged, the agent says once that the canvas needs `journey-map`, and no JSON is written
+**Then** the tickets, frontier and handoff work unchanged, the agent says once which install command restores the canvas, and no JSON or HTML is written
+
+#### AC-4.3: Feedback names tickets
+
+**Given** the Human left a note on a ticket card
+**When** they press "Copy for agent" and paste the text into chat
+**Then** each line names the ticket's file name and title, and the agent edits that ticket file, not the JSON
 
 ### US-5: Hand off when the destination is reached
 
@@ -185,6 +193,38 @@ Traces to goal: The skill and its folder ship with a recorded contract change.
 **When** the agent first charts a map there
 **Then** it names each missing piece with the exact lines to add, creates only the map's own folder and files, and edits neither `.qmd/index.yml` nor `AGENTS.md`
 
+### US-7: Share one canvas with journey-map
+
+**As a** consumer who installs `wayfinder`, `journey-map` or both,
+**I want** one canvas both skills load,
+**so that** a fix to the canvas lands once and neither skill depends on the other being installed.
+
+Traces to goal: One canvas serves both skills; The skill and its folder ship with a recorded contract change.
+
+#### AC-7.1: Either skill brings the canvas
+
+**Given** a directory with no skills installed
+**When** the Human runs `wolven-harness skills --skills wayfinder`, or `--skills journey-map`
+**Then** the chosen skill and the shared canvas land in each chosen runtime's load path, and its maps draw with no other skill installed
+
+#### AC-7.2: Installed once
+
+**Given** both `wayfinder` and `journey-map` are chosen
+**When** `setup --skills discovery` or `skills` runs
+**Then** the shared canvas is written once per load path, and both skills load it from there
+
+#### AC-7.3: journey-map unchanged
+
+**Given** the `journey-map` fixtures and tests on `main` when this work starts
+**When** `journey-map` loads the shared canvas instead of its own copy
+**Then** every fixture draws as before, those tests pass unchanged, and a `ticket` node still fails `journey-map` validation
+
+#### AC-7.4: Canvas differs on disk
+
+**Given** an installed shared canvas whose files differ from the package copy
+**When** `skills` runs without a terminal
+**Then** the canvas is preserved and the run succeeds, as ADR-004 already treats a differing skill folder
+
 ## Scope
 
 **In**
@@ -192,22 +232,26 @@ Traces to goal: The skill and its folder ship with a recorded contract change.
 - A `wayfinder` skill under `templates/.agents/skills/`, added to `SET_SKILLS.discovery`, covering chart, claim, resolve, graduate and hand off.
 - `docs/maps/<slug>/<slug>-map.md` as a governed doc folder with `type: map`, checked by `validate` for the main doc only, with `archived/` skipped.
 - `setup` creating `docs/maps/.gitkeep`, the `maps` QMD collection and the router row only when discovery is installed, and `WRITING-PROFILE.md` documenting the folder and type.
-- An ADR-004 amendment for the new doc folder and type, and a minor release.
-- Writing the journey map's JSON from the ticket files when `journey-map` is installed.
+- A shared canvas install, moved out of `journey-map` and loaded by both skills, with the ticket card seeded from commit `2238220`: status stripe and dot, `claimed_by` avatar, `blocked_by` edges with a "blocked" pill, and a ticket tree that is always fully shown.
+- `journey-map` loading the shared canvas instead of its own copy.
+- An ADR-004 amendment for the new doc folder and type and for the shared canvas, which relaxes "Only chosen skill folders are copied", and a minor release.
+- Writing the map's JSON and HTML from the ticket files.
 - Closing the wayfinder deferral: tick trigger 2, set `status: deprecated`, and move it to `docs/deferrals/archived/wayfinder-maps/`.
 
 **Out**
 
 - Everything listed under Non-goals.
-- Shipping before `journey-map` merges.
+- Shipping before `journey-map` (PR #58) merges, since the shared canvas moves its renderer.
+- Architecture diagrams and service blueprints, deferred to their own skills (`docs/deferrals/architectural-map/`, `docs/deferrals/service-blueprint/` on PR #58).
 
 ## Open questions
 
 - The value written to `claimed_by`, and the `<nn>` numbering rule for ticket files. — owner: `code-spec`
-- How a ticket's frontmatter maps onto the journey-map JSON tree's ticket fields. — owner: `code-spec`, after `journey-map`'s spec fixes those fields
+- Where the shared canvas installs, its folder name, and how `setup` and `skills` copy it and offer it at the prompt. — owner: `adr`, then `code-spec`
+- Whether ticket trees reuse `journey-map`'s JSON format with a `ticket` kind only `wayfinder` may write, or get their own format the canvas reads. — owner: `code-spec`
 - Whether `WRITING-PROFILE.md` lists the maps row in every install or only with discovery. — owner: `code-spec`
 - Whether the UX engagement goes ahead and supplies the first real map. — owner: Rafael
 
 ## Handoff
 
-After approval → `code-spec`. This PRD does not authorize implementation.
+After approval → `adr` for the shared canvas install, then `code-spec`. This PRD does not authorize implementation.
