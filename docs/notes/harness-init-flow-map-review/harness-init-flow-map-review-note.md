@@ -7,7 +7,7 @@ status: stable
 
 # Harness-init flow map review
 
-On 2026-10-09 the Human and the agent drew `wolven-harness setup` and `harness-init` as one clickable, hand-drawn map and reviewed it through comment threads. The map is the [Harness Setup Map artifact](https://claude.ai/artifact/34b68WuinuZE25ZtjKS5dt), version 6. The Human approved the redesigned `harness-init` flow it shows. The requirements are in [the basics-path PRD](../../prds/harness-init-basics-path/harness-init-basics-path-prd.md); this note records what the review found and how the map got there.
+On 2026-10-09 the Human and the agent drew `wolven-harness setup` and `harness-init` as one clickable, hand-drawn map and reviewed it through comment threads. The map is the [Harness Setup Map artifact](https://claude.ai/artifact/34b68WuinuZE25ZtjKS5dt), version 6. The Human approved the redesigned `harness-init` flow it shows. The requirements are in [the basics-path PRD](../../prds/archived/harness-init-basics-path/harness-init-basics-path-prd.md); this note records what the review found and how the map got there.
 
 ## The map
 

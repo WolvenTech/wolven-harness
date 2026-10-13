@@ -2,7 +2,7 @@
 type: prd
 title: Harness-init basics path and a trimmable full tour
 description: harness-init lets anyone reach first real work quickly through a three-step basics path, lets the full tour be trimmed with one checklist, and ends by offering the next piece of work.
-status: stable
+status: deprecated
 ---
 
 # Harness-init basics path and a trimmable full tour
@@ -25,7 +25,7 @@ People adopting the harness on any repo have to sit through a long `harness-init
   - The deferral list asks people to approve what may *wait*, and that confused the Human in review.
 - **Why now:** Plain-language questions shipped in #49, but dogfood runs since then still take too long to reach first work. The map review made a shorter flow concrete enough to approve.
 - **Evidence:**
-  - The [harness-init flow map review](../../notes/harness-init-flow-map-review/harness-init-flow-map-review-note.md): eight comment threads on the [Harness Setup Map artifact](https://claude.ai/artifact/34b68WuinuZE25ZtjKS5dt).
+  - The [harness-init flow map review](../../../notes/harness-init-flow-map-review/harness-init-flow-map-review-note.md): eight comment threads on the [Harness Setup Map artifact](https://claude.ai/artifact/34b68WuinuZE25ZtjKS5dt).
   - The Human's dogfood runs in October 2026, mostly explaining the harness and starting the Human's own new projects, such as `sales-charter`.
 
 The **lean path** keeps its name in the skill and is shown to people as "Just the basics". The **full path** is shown as "The full tour". Both names already exist in `lean-path.md` and `SKILL.md`. This PRD reverses two requirements of the archived `lean-init` PRD:

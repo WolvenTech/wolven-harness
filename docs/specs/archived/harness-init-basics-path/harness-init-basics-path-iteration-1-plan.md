@@ -2,7 +2,7 @@
 type: spec
 title: Harness-init basics path, review fix iteration 1
 description: Moves the leaked-credential check before step 0 on every path, so a leak stops the run before anything is written, as R3.1 already requires.
-status: stable
+status: deprecated
 ---
 
 # Harness-init basics path, review fix iteration 1: plan
@@ -49,7 +49,7 @@ The Human approved the commit and push for this iteration in chat on 2026-10-13.
 | Field | Value |
 |-------|-------|
 | Unit identifier | 01 — The leaked-credential check runs before step 0 on every path (first on the frontier) |
-| Spec/plan paths | `docs/specs/harness-init-basics-path/harness-init-basics-path-spec.md` / `docs/specs/harness-init-basics-path/harness-init-basics-path-iteration-1-plan.md` |
+| Spec/plan paths | `docs/specs/archived/harness-init-basics-path/harness-init-basics-path-spec.md` / `docs/specs/archived/harness-init-basics-path/harness-init-basics-path-iteration-1-plan.md` |
 | Obligation / proof status | R3.1 (F1) — done |
 | `HEAD` commit | `f589b37` |
 | `git status` summary | dirty: this unit's Owns plus this iteration plan (untracked); nothing unrelated |

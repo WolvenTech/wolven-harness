@@ -2,7 +2,7 @@
 type: spec
 title: Harness-init basics path and a trimmable full tour
 description: Work units for the harness-init basics path spec, in two waves, with the skill and its tests first and the README, guide page and retired walkthrough second.
-status: stable
+status: deprecated
 ---
 
 # Harness-init basics path and a trimmable full tour: plan
@@ -70,7 +70,7 @@ Resolved opt: `autocommit: false` (default; `.agents/code-commit.config.yml` abs
 | Field | Value |
 |-------|-------|
 | Unit identifier | 01 — Basics path replaces the thin-evidence lean path (wave 1, first on the frontier) |
-| Spec/plan paths | `docs/specs/harness-init-basics-path/harness-init-basics-path-spec.md` / `docs/specs/harness-init-basics-path/harness-init-basics-path-plan.md` |
+| Spec/plan paths | `docs/specs/archived/harness-init-basics-path/harness-init-basics-path-spec.md` / `docs/specs/archived/harness-init-basics-path/harness-init-basics-path-plan.md` |
 | Obligation / proof status | R1.1, R1.2, R2.1–R2.4, R9.4 — done (proofs pass; lint, comments, validate PASS; uncommitted per opt) |
 | `HEAD` commit | `69697f0` |
 | `git status` summary | dirty: only this plan file (status `stable` plus this section), the plan's own record |
@@ -82,7 +82,7 @@ Resolved opt: `autocommit: false` (default; `.agents/code-commit.config.yml` abs
 | Field | Value |
 |-------|-------|
 | Unit identifier | 04 — Skill proposals only for a new or unexplored repo (wave 1, parallel with 01) |
-| Spec/plan paths | `docs/specs/harness-init-basics-path/harness-init-basics-path-spec.md` / `docs/specs/harness-init-basics-path/harness-init-basics-path-plan.md` |
+| Spec/plan paths | `docs/specs/archived/harness-init-basics-path/harness-init-basics-path-spec.md` / `docs/specs/archived/harness-init-basics-path/harness-init-basics-path-plan.md` |
 | Obligation / proof status | R5.1, R5.2 — done per subagent return; re-verified at the wave 1 gate |
 | `HEAD` commit | `69697f0` |
 | `git status` summary | dirty: only this plan file; Owns disjoint from unit 01 |
@@ -94,7 +94,7 @@ Resolved opt: `autocommit: false` (default; `.agents/code-commit.config.yml` abs
 | Field | Value |
 |-------|-------|
 | Unit identifier | 02 — Leaked-credential checks run on every path (wave 1, after 01) |
-| Spec/plan paths | `docs/specs/harness-init-basics-path/harness-init-basics-path-spec.md` / `docs/specs/harness-init-basics-path/harness-init-basics-path-plan.md` |
+| Spec/plan paths | `docs/specs/archived/harness-init-basics-path/harness-init-basics-path-spec.md` / `docs/specs/archived/harness-init-basics-path/harness-init-basics-path-plan.md` |
 | Obligation / proof status | R3.1 — done (`proof-leak-checks-every-path` passes; comments, validate PASS) |
 | `HEAD` commit | `69697f0` |
 | `git status` summary | dirty: units 01 and 04 work (uncommitted per opt) and this plan; no unrelated paths |
@@ -106,7 +106,7 @@ Resolved opt: `autocommit: false` (default; `.agents/code-commit.config.yml` abs
 | Field | Value |
 |-------|-------|
 | Unit identifier | 05 — Session note records path, goal, later and the hand-back (wave 1, spawned in parallel with 02) |
-| Spec/plan paths | `docs/specs/harness-init-basics-path/harness-init-basics-path-spec.md` / `docs/specs/harness-init-basics-path/harness-init-basics-path-plan.md` |
+| Spec/plan paths | `docs/specs/archived/harness-init-basics-path/harness-init-basics-path-spec.md` / `docs/specs/archived/harness-init-basics-path/harness-init-basics-path-plan.md` |
 | Obligation / proof status | R6.3, R8.1, R8.2 — done per subagent return; re-verified at the wave 1 gate |
 | `HEAD` commit | `69697f0` |
 | `git status` summary | dirty: units 01 and 04 work and this plan; Owns disjoint from unit 02 |
@@ -118,7 +118,7 @@ Resolved opt: `autocommit: false` (default; `.agents/code-commit.config.yml` abs
 | Field | Value |
 |-------|-------|
 | Unit identifier | 03 coverage checklist, 06 plain labels, 07 hand-back, 08 wave 1 gate; 09 docs, 10 walkthrough retired, 11 wave 2 and ship gate |
-| Spec/plan paths | `docs/specs/harness-init-basics-path/harness-init-basics-path-spec.md` / `docs/specs/harness-init-basics-path/harness-init-basics-path-plan.md` |
+| Spec/plan paths | `docs/specs/archived/harness-init-basics-path/harness-init-basics-path-spec.md` / `docs/specs/archived/harness-init-basics-path/harness-init-basics-path-plan.md` |
 | Obligation / proof status | R4.1–R4.3, R6.1, R6.2, R7.1, R7.2, R9.2, R9.3 — done. Wave 1 gate: 604 tests pass, with all 21 wave 1 proofs. Ship gate: 605 tests pass; `pnpm lint`, `pnpm build && pnpm validate` and `pnpm comments` PASS |
 | `HEAD` commit | `69697f0` |
 | `git status` summary | dirty: only this plan's Owns across units 01–11, plus this plan file; no unrelated paths |

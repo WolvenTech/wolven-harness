@@ -2,12 +2,12 @@
 type: spec
 title: Harness-init basics path and a trimmable full tour
 description: Freezes the harness-init skill changes for a three-step basics path, a full tour trimmed by one coverage checklist, gated skill proposals, plain-language questions, and a hand-back that offers the next spec.
-status: stable
+status: deprecated
 ---
 
 # Harness-init basics path and a trimmable full tour
 
-**Source:** `docs/prds/harness-init-basics-path/harness-init-basics-path-prd.md` (status `stable`). Evidence: `docs/notes/harness-init-flow-map-review/harness-init-flow-map-review-note.md`.
+**Source:** `docs/prds/archived/harness-init-basics-path/harness-init-basics-path-prd.md` (status `stable`). Evidence: `docs/notes/harness-init-flow-map-review/harness-init-flow-map-review-note.md`.
 **Next:** After the Human approves → `code-plan` → `code-execute`, wave **1 → 2**.
 **Named proof (this spec's own structural gate):** `proof-harness-init-basics-path-spec-obligations`
 
