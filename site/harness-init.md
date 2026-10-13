@@ -16,13 +16,15 @@ Run `wolven-harness setup` to install the files, then ask your agent to run the 
 
 The skill offers three commits, covering entry, migration, setup; each is offered only after validation passes and you say yes. Declining a commit leaves that phase uncommitted.
 
-## Lean path
+## Basics path
 
-On a fresh or thin-evidence repo, `harness-init` judges from the tree that the lean path fits. If you did not state a goal in your prompt, it asks one question for your immediate goal (one sentence) and records it as you give it.
+`harness-init` starts by asking how much setup you want right now, on any repo, new or with code.
 
-It then proposes deferring a few named items, listed in [`lean-path.md`](https://github.com/WolvenTech/wolven-harness/blob/main/templates/.agents/skills/harness-init/references/lean-path.md). Before continuing, each deferred step is named with why and what remaining work it leaves, and you can decline any of them. Those choices, with your goal, are recorded under **Deferred / skipped steps** in the session note. Skill proposals always run and are never deferred — they cite your recorded goal and available references, or an explicit thin-evidence basis when the tree is thin.
+**Just the basics** asks for your first goal in one sentence and how much to change your `AGENTS.md`, then hands back. Everything else waits: old decision records, discovery, research, skill suggestions, the score and automatic checks are listed under **Left for later** in the session note. [`lean-path.md`](https://github.com/WolvenTech/wolven-harness/blob/main/templates/.agents/skills/harness-init/references/lean-path.md) has the full list. The leaked-credential checks still run, and a leaked credential stops the run.
 
-For a worked example, see the [lean walkthrough note](https://github.com/WolvenTech/wolven-harness/blob/main/docs/notes/lean-init-walkthrough/lean-init-walkthrough-note.md).
+**The full tour** opens with one checklist, "What should this run cover?", with every item ticked. Untick whatever should wait: it is never asked about and is listed for later. Skill suggestions run only when the repo looks new or still unexplored, and you can overrule that call.
+
+Both paths end by telling you what was installed, what was left for later and what to do next, and by offering to start a spec for your goal.
 
 ## Check the setup
 
