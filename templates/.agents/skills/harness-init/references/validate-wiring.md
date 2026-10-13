@@ -16,17 +16,17 @@ Read what already exists before asking, and use it to frame the options:
 
 ## The question
 
-Ask in plain language how `harness:validate` should run, naming the evidence
+The question is "How should we check the harness?". Ask in plain language how `harness:validate` should run, naming the evidence
 found and what each choice means in practice:
 
-1. **(a) A CI job on pull requests** — run validation automatically on every
+1. **On every pull request** (a CI job) — run validation automatically on every
    pull request so doc formatting issues or broken ADR references are caught
    before merge. Recommended when a CI config exists or the repo is hosted on
    a platform that provides one.
-2. **(b) Chained into the existing script** — run validation whenever the
+2. **With your existing checks** (chained into the existing script) — run validation whenever the
    existing `validate` or `test` script runs; name the script and current
    command. Offered when a `validate` or `test` script exists.
-3. **(c) Local only** — run validation by hand only when invoked; nothing is
+3. **Only when I run it** (local only) — run validation by hand only when invoked; nothing is
    added to CI or package scripts.
 
 List (b) only when there is a script to chain, and put whichever option the

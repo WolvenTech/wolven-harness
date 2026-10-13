@@ -126,6 +126,18 @@ Present the recommended mode first with the reason, and the other two modes as
 the remaining options. Mode names are supporting references, never unexplained
 jargon. Never pick a mode silently, even when one recommendation looks obvious.
 
+Ask it as "How much should we change your current AGENTS.md?", with three
+answers named for what they do:
+
+- **Just one line** (mention-only): adds a single line pointing to
+  `WOLVEN.md`, which stays as its own file.
+- **A short section** (light): adds a brief summary of where skills and
+  rules live; the Human's own text stays untouched.
+- **The whole guide** (full): copies the full harness guide and skills list
+  in; best when `AGENTS.md` is empty or short.
+
+List the recommended answer first, as above.
+
 ## Before writing
 
 Alongside picking a mode, step 0 runs five checks. Each one is a question

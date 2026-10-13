@@ -2,7 +2,7 @@
 type: note
 title: Lean harness-init walkthrough on an empty repo
 description: Transcript-style example of a lean harness-init run on an empty repo, showing the goal captured, the deferral list shown first, the proposals made, and the session note recording the same choices.
-status: stable
+status: deprecated
 ---
 
 # Lean harness-init walkthrough on an empty repo
