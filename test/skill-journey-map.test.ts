@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import { test } from 'node:test';
 import { assertSkillBasics, readSkill } from './helpers/skill-contract.js';
 
@@ -69,5 +70,34 @@ test('skill-journey-map: tree-format.md covers the rules, and no file names wayf
 
   for (const rel of ['SKILL.md', 'references/tree-format.md']) {
     assert.doesNotMatch(await skill.read(rel), /wayfinder|docs\/maps/i, rel);
+  }
+});
+
+test('skill-journey-map: describes journeys, publishes by default, and maps moods', async () => {
+  const skill = await readSkill('journey-map');
+  const format = await skill.read('references/tree-format.md');
+
+  assert.match(String(skill.frontmatter.description), /a flow, a set of options, or a user journey/);
+  assert.match(skill.body, /without asking/);
+  assert.match(skill.body, /not to publish/);
+  assert.match(skill.body, /retry or stay local/);
+
+  for (const text of [skill.body, format]) {
+    assert.match(text, /(−2|-2) to \+2/);
+    assert.match(text, /mapping/);
+  }
+  for (const field of ['persona', 'scenario', 'mood', 'thought', 'touchpoints', 'pains', 'opportunities']) {
+    assert.match(format, new RegExp(`\`${field}\``));
+  }
+  assert.doesNotMatch(format, /`ticket`/);
+});
+
+test('skill-journey-map: no listing still says ticket graph', async () => {
+  const skill = await readSkill('journey-map');
+
+  assert.doesNotMatch(skill.body, /ticket graph/);
+  assert.doesNotMatch(String(skill.frontmatter.description), /ticket graph/);
+  for (const rel of ['AGENTS.md', 'site/skills.md']) {
+    assert.doesNotMatch(await readFile(new URL(`../${rel}`, import.meta.url), 'utf8'), /ticket graph/, rel);
   }
 });

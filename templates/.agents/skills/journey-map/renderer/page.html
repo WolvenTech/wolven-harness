@@ -24,6 +24,10 @@
   --rec-bg: #e3f6f2;
   --sticky-ink: #6b4e00;
   --sticky-bg: #fff4c2;
+  --pain: #dc2626;
+  --pain-bg: #fde8e8;
+  --opp: #12a150;
+  --opp-bg: #e0f5ea;
   --k-choice: #5b5bd6;
   --k-check: #2563eb;
   --k-text: #0f766e;
@@ -43,12 +47,30 @@ body { background: var(--paper); color: var(--ink); font: 14px var(--ui); overfl
   background-image: radial-gradient(circle, var(--grid) 1px, transparent 1.2px);
 }
 #stage.panning { cursor: grabbing; }
+#stage:focus { outline: none; }
+.morewrap { position: relative; display: block; }
+#menu { position: absolute; top: 40px; right: 0; z-index: 8; min-width: 230px; background: var(--card); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); padding: 4px; display: flex; flex-direction: column; }
+#menu button { appearance: none; border: 0; background: transparent; display: flex; justify-content: space-between; align-items: center; gap: 24px; padding: 8px 10px; border-radius: 8px; font: 500 13px var(--ui); color: var(--ink); cursor: pointer; text-align: left; }
+#menu button:hover:not(:disabled) { background: var(--tag-bg); }
+#menu button:disabled { opacity: .4; cursor: default; }
+#menu button[aria-checked="true"] span::after { content: " ✓"; color: var(--select); }
+#menu kbd { font: 600 11px ui-monospace, Menlo, monospace; border: 1px solid var(--line); border-radius: 5px; padding: 1px 6px; color: var(--muted); background: var(--paper); }
+#timeline { bottom: calc(env(safe-area-inset-bottom, 0px) + 66px); left: 50%; transform: translateX(-50%); max-width: calc(100vw - 32px); height: 120px; overflow-x: auto; overflow-y: hidden; padding: 0; }
+#timeline svg { display: block; flex: none; }
+.tl-zero { stroke: var(--line); stroke-dasharray: 3 4; }
+.tl-seg { stroke-width: 3; stroke-linecap: round; fill: none; }
+.tl-cap { font: 600 9px var(--ui); letter-spacing: .1em; fill: var(--muted); }
+.tl-pt { cursor: pointer; }
+.tl-dot { stroke-width: 2; }
+.tl-newest { fill: none; stroke: var(--select); stroke-width: 2; opacity: .5; }
+.tl-face { font-size: 14px; pointer-events: none; font-family: "Apple Color Emoji", "Segoe UI Emoji", sans-serif; }
 #canvas { width: 100%; height: 100%; display: block; }
 #canvas text { user-select: none; -webkit-user-select: none; }
 
 .card { fill: var(--card); stroke: var(--line); stroke-width: 1; filter: url(#lift); }
 .card.start { fill: var(--select-soft); stroke: var(--select); stroke-width: 1.5; }
 .card.k-waypoint { fill: #fafafc; stroke: #c9cbd6; stroke-dasharray: 6 5; filter: none; }
+.card.k-step { fill: #fff; stroke: #c9cbd6; }
 .card.k-card { stroke: #cfd0dc; }
 .opt { fill: var(--card); stroke: var(--line); stroke-width: 1; transition: fill .12s, stroke .12s; }
 .hit:hover .opt, .hit:focus-visible .opt { fill: #f7f7ff; stroke: var(--select); }
@@ -68,6 +90,19 @@ body { background: var(--paper); color: var(--ink); font: 14px var(--ui); overfl
 .note-btn.has { fill: var(--sticky-bg); }
 .hit:hover .note-btn, .hit:focus-visible .note-btn { fill: var(--tag-bg); }
 .pencil { fill: none; stroke: var(--muted); stroke-width: 1.4; stroke-linejoin: round; }
+.row.bar { fill: transparent; }
+.bband { fill: transparent; transition: fill .12s; }
+.hit:hover .bband, .hit:focus-visible .bband { fill: rgba(255, 255, 255, .3); }
+.bband.neu { fill: transparent; }
+.hit:hover .bband.neu, .hit:focus-visible .bband.neu { fill: rgba(0, 0, 0, .08); }
+.bband.has { fill: var(--sticky-bg); }
+.hit:focus-visible .bband { stroke: var(--ink); stroke-width: 2; }
+.band-ico { fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.cloud-shadow { filter: drop-shadow(0 4px 7px rgba(20, 20, 40, .16)); }
+.cloud-edge { fill: #fff; stroke: #c3c8dc; stroke-width: 3; }
+.cloud-fill { fill: #fff; stroke: none; }
+.cloud-dot { fill: #fff; stroke: #c3c8dc; stroke-width: 1.6; filter: drop-shadow(0 2px 3px rgba(20, 20, 40, .14)); }
+.stickybox { stroke-width: 1; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .12)); }
 .sticky { fill: var(--sticky-bg); stroke: #f1df8a; }
 .hit { cursor: pointer; outline: none; }
 .hit:focus-visible .opt, .hit:focus-visible .row, .hit:focus-visible .note-btn { stroke: var(--select); stroke-width: 2; }
@@ -138,8 +173,10 @@ body { background: var(--paper); color: var(--ink); font: 14px var(--ui); overfl
 </head><body>
 <header class="island" id="top">
   <div class="heading"><h1 id="title"></h1><p id="subtitle"></p></div>
-  <button class="btn secondary" id="show-all" type="button" aria-pressed="false">Show whole map</button>
+  <button class="btn secondary" id="prev" type="button" hidden>Prev</button>
+  <button class="btn secondary" id="next" type="button" hidden>Next</button>
   <button class="btn" id="reset" type="button">Start over</button>
+  <span class="morewrap"><button class="btn" id="more" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="More controls">⋯</button><div id="menu" role="menu" hidden></div></span>
   <button class="btn primary-btn" id="copy" type="button">Copy for agent</button>
 </header>
 
@@ -150,6 +187,7 @@ body { background: var(--paper); color: var(--ink); font: 14px var(--ui); overfl
   </svg>
 </div>
 
+<div class="island" id="timeline" hidden></div>
 <div class="island" id="zoom" role="group" aria-label="Zoom">
   <button class="btn" id="zout" type="button" aria-label="Zoom out"><svg viewBox="0 0 20 20"><path d="M5 10h10"/></svg></button>
   <button class="btn" id="pct" type="button" aria-label="Reset zoom to 100%">100%</button>

@@ -33,6 +33,7 @@
   const SVG_NS = 'http://www.w3.org/2000/svg';
   const HTML_NS = 'http://www.w3.org/1999/xhtml';
   const stage = document.getElementById('stage');
+  const timelineEl = document.getElementById('timeline');
   const svg = document.getElementById('canvas');
   const world = document.getElementById('world');
   const rc = rough.svg(svg);
@@ -47,6 +48,9 @@
     small: '500 12px Inter, system-ui, sans-serif',
     hand: '500 21px Caveat, cursive',
     tree: '600 12px Inter, system-ui, sans-serif',
+    band: '600 13px Inter, system-ui, sans-serif',
+    face: '18px "Apple Color Emoji", "Segoe UI Emoji", system-ui, sans-serif',
+    icon: '12px "Apple Color Emoji", "Segoe UI Emoji", sans-serif',
   };
   const KIND = {
     choice: ['Question', '--k-choice'],
@@ -57,12 +61,18 @@
   };
   let state = Object.create(null);
   let noteOpen = new Set();
+  const open = new Set();
   let showAll = false;
   let rects = {};
   let anchors = {};
   let shownBefore = new Set();
-  const plan = L.layout(map);
   const byId = new Map(L.all(map).map((n) => [n.id, n]));
+  // why: step by step holds the reveal at each waypoint, which only suits a map that is a journey.
+  const canStep = L.all(map).some((n) => L.isStep(n, map));
+  let stepwise = canStep;
+  const revealOpts = () => ({ stepwise });
+  const layoutOpts = () => ({ open });
+  let plan = L.layout(map, layoutOpts());
 
   function el(tag, attrs, parent) {
     const node = document.createElementNS(SVG_NS, tag);
@@ -212,11 +222,14 @@
     anim = requestAnimationFrame(step);
   }
 
+  // invariant: dockH is the bottom strip the timeline island covers, so camera fits keep nodes clear of it.
+  let dockH = 0;
+
   function fitTarget(b, maxK = 1) {
     const vw = svg.clientWidth;
     const vh = svg.clientHeight;
     const top = 84;
-    const bottom = 70;
+    const bottom = Math.max(70, dockH);
     const side = 32;
     const k = Math.max(0.05, Math.min(maxK, (vw - 2 * side) / b.w, (vh - top - bottom) / b.h));
     return {
@@ -265,6 +278,14 @@
     field.dataset.node = id;
     field.dataset.field = isNote ? 'note' : 'text';
     fo.appendChild(field);
+    if (!isNote) {
+      field.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !state[id]?.done) {
+          e.preventDefault();
+          act(JSON.stringify(['done', id]));
+        }
+      });
+    }
     field.addEventListener('input', () => {
       state[id] ||= {};
       state[id][isNote ? 'note' : 'text'] = field.value;
@@ -273,10 +294,19 @@
     return field;
   }
 
+  const hasDetails = (n) => Boolean(n.touchpoints?.length || n.pains?.length || n.opportunities?.length);
+  const moodLabel = (m) => `${m.name} (${m.value > 0 ? '+' : ''}${m.value})`;
+
   function frame(g, n, b) {
     const { x, y, w, h } = b;
     if (n.kind === 'start') {
-      el('rect', { x, y, width: w, height: h, rx: h / 2, class: 'card start' }, g);
+      const persona = map.persona && n.id === L.ctx(map).personaFor;
+      el('rect', { x, y, width: w, height: h, rx: persona ? 18 : h / 2, class: 'card start' }, g);
+      return;
+    }
+    if (L.isStep(n, map)) {
+      el('rect', { x, y, width: w, height: h, rx: 14, class: 'card k-step' }, g);
+      drawBand(g, n, b, L.moodOf(n));
       return;
     }
     el('rect', { x, y, width: w, height: h, rx: 14, class: `card k-${n.kind}` }, g);
@@ -289,10 +319,167 @@
     }
   }
 
+  /** The 32px header band of a step: the mood colour with face and first name, or neutral grey; the face alone with no persona. */
+  function drawBand(g, n, b, m) {
+    const { x, y, w, h } = b;
+    const clip = el('clipPath', { id: `clip-${n.id}` }, g);
+    el('rect', { x, y, width: w, height: h, rx: 14 }, clip);
+    el(
+      'rect',
+      { x, y, width: w, height: 32, 'clip-path': `url(#clip-${n.id})`, style: `fill:${m ? m.color : '#e9eaf0'}` },
+      g,
+    );
+    const first = (map.persona?.name || '').split(' ')[0];
+    if (m) {
+      const face = text(g, x + 12, y + 23, m.face, FONT.face, '#fff');
+      el('title', {}, face).textContent = moodLabel(m);
+      if (first) text(g, x + 40, y + 21, first, FONT.band, '#fff').setAttribute('aria-label', `${first} feels ${m.name}`);
+    } else if (first) {
+      text(g, x + 14, y + 21, first, FONT.band, 'var(--muted)');
+    }
+  }
+
+  /** The chevron and the pencil at the band's right end; the chevron is dimmed and inert on a step with nothing to expand. */
+  function drawBandActions(g, n, b, a) {
+    const { x, y, w } = b;
+    const m = L.moodOf(n);
+    const ink = m ? '#fff' : 'var(--muted)';
+    const neu = m ? '' : ' neu';
+    const isOpen = open.has(n.id);
+    const cx = x + w - 62;
+    const cy = y + 4;
+    const chevD = isOpen ? `M${cx + 7} ${cy + 9} l5 6 l5 -6` : `M${cx + 9} ${cy + 6} l6 6 l-6 6`;
+    if (hasDetails(n)) {
+      const hg = hit(g, JSON.stringify(['open', n.id]), `${isOpen ? 'Collapse' : 'Expand'} details: ${n.label}`);
+      hg.dataset.focus = `open-${n.id}`;
+      el('rect', { x: cx, y: cy, width: 26, height: 24, rx: 7, class: `bband${neu}` }, hg);
+      el('path', { d: chevD, class: 'band-ico', style: `stroke:${ink}` }, hg);
+    } else {
+      const dg = el('g', { opacity: 0.35 }, g);
+      el('path', { d: chevD, class: 'band-ico', style: `stroke:${ink}` }, dg);
+      el('title', {}, dg).textContent = 'Nothing to expand';
+    }
+    const nh = hit(g, JSON.stringify(['note', n.id]), a.note ? `Edit note: ${n.label}` : `Add note: ${n.label}`);
+    nh.dataset.focus = `note-${n.id}`;
+    const nx = x + w - 34;
+    el('rect', { x: nx, y: cy, width: 24, height: 24, rx: 7, class: a.note ? 'bband has' : `bband${neu}` }, nh);
+    el(
+      'path',
+      { d: `M${nx + 7} ${cy + 17} l1 -4 l7 -7 l3 3 l-7 7 z`, class: 'band-ico', style: `stroke:${a.note ? '#6b4e00' : ink}` },
+      nh,
+    );
+  }
+
+  /** The thought cloud above a card: a rounded rectangle with three shrinking circles trailing down to it. */
+  function drawCloud(g, b, r, top, n) {
+    const x0 = b.x + 12;
+    const ry = top + 14;
+    const bodyH = r.h - 14 - 38;
+    const cg = el('g', { class: 'cloud' }, g);
+    const shadow = el('g', { class: 'cloud-shadow' }, cg);
+    el('rect', { x: x0, y: ry, width: b.w - 24, height: bodyH, rx: 24, class: 'cloud-edge' }, shadow);
+    el('rect', { x: x0, y: ry, width: b.w - 24, height: bodyH, rx: 24, class: 'cloud-fill' }, cg);
+    for (const [dx, dy, rr] of [
+      [46, 16, 7],
+      [34, 27, 5],
+      [26, 35, 3.5],
+    ]) {
+      el('circle', { cx: x0 + dx, cy: ry + bodyH + dy, r: rr, class: 'cloud-dot' }, cg);
+    }
+    para(cg, x0 + 22, ry + 28, n.thought, FONT.hand, 'var(--ink)', M.cloudChars, 22);
+  }
+
+  /** The eyebrow: a step's tag in its mood colour, otherwise the kind's name. */
   function drawEyebrow(g, n, x, top) {
     const [name, color] = KIND[n.kind];
-    const t = text(g, x, top + 17, name.toUpperCase(), FONT.eyebrow, `var(${color})`);
+    const step = L.isStep(n, map);
+    const m = step ? L.moodOf(n) : null;
+    const label = step ? n.tag : name;
+    const t = text(g, x, top + 17, label.toUpperCase(), FONT.eyebrow, m ? m.color : `var(${color})`);
     t.style.letterSpacing = '0.08em';
+  }
+
+  /** The persona header, goal and scenario that sit in the first start card. */
+  function drawPersona(g, b, r, top) {
+    const p = map.persona;
+    const x = b.x;
+    if (r.kind === 'pheader') {
+      const cy = top + 28;
+      el('circle', { cx: x + 42, cy, r: 20, style: 'fill:var(--select)' }, g);
+      const initials = p.name
+        .split(' ')
+        .map((part) => part[0])
+        .join('')
+        .slice(0, 2);
+      text(g, x + 42, cy + 5, initials, FONT.label, '#fff', 'middle');
+      text(g, x + 74, cy - 3, p.name, FONT.title, 'var(--ink)');
+      if (p.role) text(g, x + 74, cy + 15, p.role, FONT.body, 'var(--muted)');
+    }
+    if (r.kind === 'pgoal') {
+      text(g, x + M.pad, top + 14, 'GOAL', FONT.eyebrow, 'var(--select)').style.letterSpacing = '0.08em';
+      para(g, x + M.pad, top + 32, p.goal, FONT.body, 'var(--ink)', 34, M.body);
+    }
+    if (r.kind === 'pscen') para(g, x + M.pad, top + 16, map.scenario, FONT.body, 'var(--muted)', 36, M.body);
+  }
+
+  /** The collapsed row of icon counts, shown only for the lists present; it expands the card. */
+  function drawDbar(g, n, b, r, top) {
+    const hg = hit(g, JSON.stringify(['open', n.id]), `Expand details: ${n.label}`);
+    hg.dataset.focus = `open-${n.id}`;
+    el('rect', { x: b.x + 12, y: top + 2, width: b.w - 24, height: r.h - 6, rx: 8, class: 'row bar' }, hg);
+    const counts = [
+      ['\u{1F4CD}', n.touchpoints, 'tag'],
+      ['⚠', n.pains, 'pain'],
+      ['\u{1F4A1}', n.opportunities, 'idea'],
+    ].filter(([, list]) => list?.length);
+    let cx = b.x + 22;
+    for (const [icon, list, tone] of counts) {
+      const bg = tone === 'pain' ? 'var(--pain-bg)' : tone === 'idea' ? 'var(--opp-bg)' : 'var(--tag-bg)';
+      const fg = tone === 'pain' ? 'var(--pain)' : tone === 'idea' ? 'var(--opp)' : 'var(--tag-ink)';
+      el('rect', { x: cx, y: top + 5, width: 38, height: 20, rx: 10, style: `fill:${bg}` }, hg);
+      text(hg, cx + 8, top + 19, icon, FONT.icon, fg);
+      text(hg, cx + 24, top + 19, String(list.length), FONT.small, fg);
+      cx += 44;
+    }
+  }
+
+  /** The expanded touchpoint chips, under a heading. */
+  function drawChips(g, b, r, top) {
+    const x = b.x + M.pad;
+    text(g, x, top + 14, '\u{1F4CD}', FONT.icon, 'var(--muted)');
+    text(g, x + 20, top + 14, 'TOUCHPOINTS', FONT.eyebrow, 'var(--muted)').style.letterSpacing = '0.08em';
+    L.chipRows(r.items).forEach((line, i) => {
+      let cx = x;
+      for (const c of line) {
+        el('rect', { x: cx, y: top + 24 + i * M.chipLine, width: c.w, height: 22, rx: 11, style: 'fill:var(--tag-bg)' }, g);
+        text(g, cx + 10, top + 39 + i * M.chipLine, c.t, FONT.small, 'var(--tag-ink)');
+        cx += c.w + 6;
+      }
+    });
+  }
+
+  const STICKY = {
+    pain: ['var(--pain-bg)', '#f3b9b9', 'PAINS', '✕'],
+    idea: ['var(--opp-bg)', '#aedfc4', 'OPPORTUNITIES', '✦'],
+  };
+
+  /** A slightly rotated red (pain) or green (idea) sticky below the card. */
+  function drawSticky(g, n, b, r, top, index) {
+    const [fill, stroke, head, mark] = STICKY[r.tone];
+    const rot = ((seed(n.id + r.tone) % 5) - 2) * 0.9;
+    const sx = b.x + 14 + (index % 2) * 6;
+    const sw = b.w - 32;
+    // why: 8px of clearance under the card keeps a rotated corner off it.
+    const sy = top + 12;
+    const sh = r.h - 16;
+    const sg = el('g', { transform: `rotate(${rot} ${sx + sw / 2} ${sy + sh / 2})` }, g);
+    el('rect', { x: sx, y: sy, width: sw, height: sh, rx: 4, style: `fill:${fill};stroke:${stroke}`, class: 'stickybox' }, sg);
+    text(sg, sx + 12, sy + 18, head, FONT.eyebrow, 'var(--muted)').style.letterSpacing = '0.08em';
+    let ty = sy + 38;
+    for (const item of r.items) {
+      text(sg, sx + 12, ty, mark, FONT.small, 'var(--muted)');
+      ty += para(sg, sx + 28, ty, item, FONT.body, 'var(--ink)', 30, M.body) + 2;
+    }
   }
 
   function drawTitle(g, n, b, r, top) {
@@ -402,9 +589,42 @@
     }
   }
 
+  /** One annotation under the node: its text in the margin hand, with an arrow up at what is above it. */
+  function drawAnnotation(g, b, r, top) {
+    const ty = top + 24;
+    para(g, b.x + 34, ty, r.text.join('\n'), FONT.hand, 'var(--muted)', M.annoChars, M.annoLine);
+    arrow(
+      g,
+      r.id,
+      [
+        [b.x + 28, ty - 6],
+        [b.x + 16, ty - 12],
+        [b.x + 18, top + 2],
+      ],
+      { stroke: 'var(--muted)', sw: 1.1 },
+    );
+  }
+
+  /** The note a person typed: an input while editing, a sticky once set. */
+  function drawNoteBox(g, n, b, y, a) {
+    if (noteOpen.has(n.id)) {
+      input(g, n.id, b.x + 14, y, b.w - 28, a.note, 'Note for your agent…', true);
+    } else if (a.note) {
+      el('rect', { x: b.x + 14, y, width: b.w - 28, height: 34, rx: 6, class: 'sticky' }, g);
+      text(g, b.x + 24, y + 23, L.lines(a.note, 30)[0], FONT.hand, 'var(--sticky-ink)');
+    }
+  }
+
   function drawRow(g, n, b, r, top, a) {
     const { x } = b;
+    if (r.kind === 'cloud') drawCloud(g, b, r, top, n);
     if (r.kind === 'eyebrow') drawEyebrow(g, n, x + M.pad, top);
+    if (['pheader', 'pgoal', 'pscen'].includes(r.kind)) drawPersona(g, b, r, top);
+    if (r.kind === 'dbar') drawDbar(g, n, b, r, top);
+    if (r.kind === 'chips') drawChips(g, b, r, top);
+    if (r.kind === 'sticky') drawSticky(g, n, b, r, top, r.index);
+    if (r.kind === 'noteslot') drawNoteBox(g, n, b, top + 4, a);
+    if (r.kind === 'annotation') drawAnnotation(g, b, r, top);
     if (r.kind === 'title') drawTitle(g, n, b, r, top);
     if (r.kind === 'sub') drawSub(g, n, b, r, top);
     if (r.kind === 'note') {
@@ -418,43 +638,41 @@
     if (r.kind === 'section') drawSection(g, n, b, r, top);
   }
 
-  function drawNote(g, n, b, a) {
-    const { x, y, w } = b;
-    const nh = hit(
-      g,
-      JSON.stringify(['note', n.id]),
-      a.note ? `Edit note: ${n.label}` : `Add note: ${n.label}`,
-    );
-    nh.dataset.focus = `note-${n.id}`;
-    const nx = x + w - 34;
-    const ny = y + (n.kind === 'start' ? b.h / 2 - 12 : 10);
-    el(
-      'rect',
-      { x: nx, y: ny, width: 24, height: 24, rx: 7, class: a.note ? 'note-btn has' : 'note-btn' },
-      nh,
-    );
-    el('path', { d: `M${nx + 7} ${ny + 17} l1 -4 l7 -7 l3 3 l-7 7 z`, class: 'pencil' }, nh);
-    if (noteOpen.has(n.id)) {
-      input(g, n.id, x + 14, y + b.h + 10, w - 28, a.note, 'Note for your agent…', true);
-    } else if (a.note) {
-      el('rect', { x: x + 14, y: y + b.h + 10, width: w - 28, height: 34, rx: 6, class: 'sticky' }, g);
-      text(g, x + 24, y + b.h + 33, L.lines(a.note, 30)[0], FONT.hand, 'var(--sticky-ink)');
+  /** The pencil: in the band of a step, on the card's right end otherwise. */
+  function drawPencil(g, n, b, a) {
+    if (L.isStep(n, map)) {
+      drawBandActions(g, n, b, a);
+      return;
     }
+    const nh = hit(g, JSON.stringify(['note', n.id]), a.note ? `Edit note: ${n.label}` : `Add note: ${n.label}`);
+    nh.dataset.focus = `note-${n.id}`;
+    const nx = b.x + b.w - 34;
+    const ny = b.y + (n.kind === 'start' ? b.h / 2 - 12 : 10);
+    el('rect', { x: nx, y: ny, width: 24, height: 24, rx: 7, class: a.note ? 'note-btn has' : 'note-btn' }, nh);
+    el('path', { d: `M${nx + 7} ${ny + 17} l1 -4 l7 -7 l3 3 l-7 7 z`, class: 'pencil' }, nh);
   }
 
   function node(layer, n, b, fade, ghost) {
     const a = state[n.id] || {};
     const cls = ghost ? 'ghost' : fade.faded.has(n.id) ? 'faded' : '';
     const g = el('g', { 'data-node': n.id, class: cls }, layer);
-    frame(g, n, b);
+    const P = L.parts(n, L.ctx(map, layoutOpts()));
+    // invariant: the framed card is the middle of the box, between the inset (above) and tail (below) rows.
+    const cb = { ...b, y: b.y + P.inset, h: P.card };
+    frame(g, n, cb);
     anchors[n.id] = {};
-    let cy = b.y + (n.kind === 'start' ? M.pad : 14);
-    for (const r of L.rows(n)) {
-      drawRow(g, n, b, r, cy, a);
-      cy += r.h;
+    const next = { top: b.y, card: cb.y + (n.kind === 'start' ? M.pad : 14), bottom: cb.y + cb.h };
+    let stickyIndex = 0;
+    for (const r of P.rows) {
+      const zone = r.zone || 'card';
+      if (r.kind === 'sticky') r.index = stickyIndex++;
+      drawRow(g, n, cb, r, next[zone], a);
+      next[zone] += r.h;
     }
     if (fade.later.has(n.id)) pill(g, b.x + b.w - 62, b.y - 10, 'later', 'var(--rec-ink)', 'var(--rec-bg)');
-    drawNote(g, n, b, a);
+    drawPencil(g, n, cb, a);
+    // hazard: a note on an unannotated node has no reserved slot, so it hangs in the gap below the box.
+    if (!P.rows.some((r) => r.kind === 'noteslot')) drawNoteBox(g, n, cb, b.y + b.h + 10, a);
   }
 
   function drawTreeLabels(notes, visible) {
@@ -506,43 +724,27 @@
             from.x + from.w - 12,
             anchors[n.id][o.key],
             to.x - 6,
-            to.y + to.h / 2,
+            to.ay,
             { faded: !chosen && dim, stroke: chosen ? 'var(--select)' : undefined },
           );
         }
         continue;
       }
-      curve(edgeLayer, `${e.from}-${e.to}`, from.x + from.w + 2, from.y + from.h / 2, to.x - 6, to.y + to.h / 2, {
+      const into = L.isStep(byId.get(e.to), map) ? L.moodOf(byId.get(e.to)) : null;
+      curve(edgeLayer, `${e.from}-${e.to}`, from.x + from.w + 2, from.ay, to.x - 6, to.ay, {
         faded: dim,
+        ...(into ? { stroke: into.color, sw: 3.2 } : {}),
       });
-    }
-  }
-
-  function drawAnnotations(notes, visible) {
-    for (const a of map.annotations || []) {
-      const b = rects[a.target];
-      if (!visible(a.target)) continue;
-      const ty = b.y + b.h + 44;
-      para(notes, b.x + 34, ty, a.text, FONT.hand, 'var(--muted)', 32, 22);
-      arrow(
-        notes,
-        a.id,
-        [
-          [b.x + 26, ty - 8],
-          [b.x + 14, ty - 18],
-          [b.x + 18, b.y + b.h + 6],
-        ],
-        { stroke: 'var(--muted)', sw: 1.1 },
-      );
     }
   }
 
   /** Redraws the whole map and returns the ids that appeared since the previous render. */
   function render(refocus) {
     world.replaceChildren();
+    plan = L.layout(map, layoutOpts());
     rects = Object.fromEntries(plan.boxes.map((b) => [b.id, b]));
     anchors = {};
-    const shown = L.revealed(map, state);
+    const shown = L.revealed(map, state, revealOpts());
     const fade = L.faded(map, state);
     const visible = (id) => showAll || shown.has(id);
     const edgeLayer = el('g', {}, world);
@@ -553,7 +755,6 @@
       if (visible(b.id)) node(nodeLayer, byId.get(b.id), b, fade, !shown.has(b.id));
     }
     drawEdges(edgeLayer, notes, fade, shown, visible);
-    drawAnnotations(notes, visible);
     if (refocus) {
       const target = [...world.querySelectorAll('[data-focus]')].find((e) => e.dataset.focus === refocus);
       target?.focus({ preventScroll: true });
@@ -565,14 +766,25 @@
   }
 
   function updateStatus() {
-    const shown = L.revealed(map, state);
+    const shown = L.revealed(map, state, revealOpts());
     const noteCount = Object.values(state).filter((a) => a.note).length;
+    drawChrome();
+    drawTimeline();
     statusEl.textContent = `${shown.size} of ${plan.boxes.length} nodes revealed · ${noteCount} note${noteCount === 1 ? '' : 's'}`;
   }
+
+  const focus0 = () => document.activeElement?.dataset?.focus;
 
   function act(serialized) {
     const [kind, id, key] = JSON.parse(serialized);
     const n = byId.get(id);
+    if (kind === 'open') {
+      if (open.has(id)) open.delete(id);
+      else open.add(id);
+      render(focus0());
+      focusOn([id]);
+      return;
+    }
     state[id] ||= {};
     const a = state[id];
     if (kind === 'choice') a.choice = key;
@@ -704,25 +916,175 @@
     plan.boxes.filter((b) => b.column <= 1 && b.tree === map.trees[0].id).map((b) => b.id);
   const centerZoom = (factor) => zoomAt(factor, svg.clientWidth / 2, svg.clientHeight / 2);
 
-  const toggle = document.getElementById('show-all');
-  toggle.onclick = () => {
+  const nextBtn = document.getElementById('next');
+  const prevBtn = document.getElementById('prev');
+  const moreBtn = document.getElementById('more');
+  const menuEl = document.getElementById('menu');
+  const pathNow = () => L.walked(map, state, showAll, { stepwise });
+  const shownNow = () => (showAll ? [...byId.keys()] : [...L.revealed(map, state, revealOpts())]);
+  const detailIds = () => [...byId.values()].filter((n) => L.isStep(n, map) && hasDetails(n)).map((n) => n.id);
+  const allOpen = () => detailIds().every((id) => open.has(id));
+
+  function nextStep() {
+    const id = showAll ? null : L.pending(map, state);
+    if (id && stepwise) act(JSON.stringify(['done', id]));
+  }
+
+  /** Clears the answer that revealed the last node shown, so the walk steps back one node. */
+  function prevStep() {
+    const id = L.prevTarget(map, state, { stepwise, showAll });
+    if (!id) return;
+    if (byId.get(id).kind === 'choice') delete state[id].choice;
+    else state[id].done = false;
+    render();
+    focusOn(pathNow().slice(-3));
+  }
+
+  function toggleStepwise() {
+    if (!canStep) return;
+    stepwise = !stepwise;
+    render();
+    focusOn(pathNow().slice(-3));
+  }
+
+  function toggleShowAll() {
     showAll = !showAll;
-    toggle.setAttribute('aria-pressed', String(showAll));
-    toggle.textContent = showAll ? 'Hide upcoming' : 'Show whole map';
     render();
     if (showAll) fitAll();
-    else focusOn([...L.revealed(map, state)]);
-  };
-  document.getElementById('zin').onclick = () => centerZoom(1.2);
-  document.getElementById('zout').onclick = () => centerZoom(1 / 1.2);
-  pct.onclick = () => centerZoom(1 / cam.k);
-  document.getElementById('fit').onclick = fitAll;
-  document.getElementById('reset').onclick = () => {
+    else focusOn(shownNow());
+  }
+
+  function toggleExpandAll() {
+    if (allOpen()) open.clear();
+    else for (const id of detailIds()) open.add(id);
+    render();
+    if (showAll) fitAll();
+    else focusOn(shownNow());
+  }
+
+  function resetWalk() {
     state = Object.create(null);
     noteOpen.clear();
     render();
     focusOn(startIds());
+  }
+
+  const MENU = [
+    ['Step by step', 'P', () => toggleStepwise(), () => !canStep, () => stepwise],
+    ['Show whole map', 'W', () => toggleShowAll(), () => false, () => showAll],
+    ['Expand all', 'E', () => toggleExpandAll(), () => !detailIds().length, () => null],
+  ];
+
+  function closeMenu() {
+    menuEl.hidden = true;
+    moreBtn.setAttribute('aria-expanded', 'false');
+  }
+
+  function renderMenu() {
+    menuEl.replaceChildren();
+    for (const [label, key, run, off, on] of MENU) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.disabled = off();
+      const checked = on();
+      b.setAttribute('role', checked === null ? 'menuitem' : 'menuitemcheckbox');
+      if (checked !== null) b.setAttribute('aria-checked', String(checked));
+      const name = document.createElement('span');
+      name.textContent = label === 'Expand all' && allOpen() ? 'Collapse all' : label;
+      const kbd = document.createElement('kbd');
+      kbd.textContent = key;
+      b.append(name, kbd);
+      b.onclick = () => {
+        closeMenu();
+        run();
+      };
+      menuEl.appendChild(b);
+    }
+  }
+
+  moreBtn.onclick = (e) => {
+    e.stopPropagation();
+    const willOpen = menuEl.hidden;
+    if (willOpen) renderMenu();
+    menuEl.hidden = !willOpen;
+    moreBtn.setAttribute('aria-expanded', String(willOpen));
   };
+  document.addEventListener('pointerdown', (e) => {
+    if (!menuEl.hidden && !e.target.closest?.('#menu, #more')) closeMenu();
+  });
+
+  /** Syncs the toolbar with the walk: Prev and Next show only while step by step is on. */
+  function drawChrome() {
+    if (!menuEl.hidden) renderMenu();
+    nextBtn.hidden = !stepwise;
+    prevBtn.hidden = !stepwise;
+    nextBtn.disabled = showAll || !L.pending(map, state);
+    prevBtn.disabled = !L.prevTarget(map, state, { stepwise, showAll });
+  }
+
+  /** Draws the mood timeline island from the walked path, with DOM calls only. */
+  function drawTimeline() {
+    const pts = pathNow()
+      .map((id) => byId.get(id))
+      .filter((n) => L.moodOf(n))
+      .map((n) => ({ n, m: L.moodOf(n) }));
+    timelineEl.hidden = !pts.length;
+    dockH = pts.length ? 66 + 120 + 12 : 0;
+    if (!pts.length) return;
+    const sp = 58;
+    const w = Math.max(220, pts.length * sp + 56);
+    const xOf = (i) => 40 + i * sp;
+    const yOf = (v) => 22 + (2 - v) * 15;
+    const g = document.createElementNS(SVG_NS, 'svg');
+    for (const [k, v] of Object.entries({ width: w, height: 120, viewBox: `0 0 ${w} 120`, role: 'img', 'aria-label': 'Mood along the walk' })) {
+      g.setAttribute(k, v);
+    }
+    el('line', { x1: 14, x2: w - 14, y1: yOf(0), y2: yOf(0), class: 'tl-zero' }, g);
+    const cap = el('text', { x: 14, y: 114, class: 'tl-cap' }, g);
+    cap.textContent = 'MOOD ALONG THE WALK';
+    pts.forEach((p, i) => {
+      if (i) el('line', { x1: xOf(i - 1), y1: yOf(pts[i - 1].m.value), x2: xOf(i), y2: yOf(p.m.value), class: 'tl-seg', style: `stroke:${p.m.color}` }, g);
+    });
+    pts.forEach((p, i) => {
+      const pg = el('g', { class: 'tl-pt', 'data-id': p.n.id }, g);
+      const tip = el('title', {}, pg);
+      tip.textContent = `${p.n.label} - ${p.m.name}`;
+      if (i === pts.length - 1) el('circle', { cx: xOf(i), cy: yOf(p.m.value), r: 17, class: 'tl-newest' }, pg);
+      el('circle', { cx: xOf(i), cy: yOf(p.m.value), r: 12, class: 'tl-dot', style: `fill:${p.m.soft};stroke:${p.m.color}` }, pg);
+      const face = el('text', { x: xOf(i), y: yOf(p.m.value) + 5, 'text-anchor': 'middle', class: 'tl-face' }, pg);
+      face.textContent = p.m.face;
+    });
+    timelineEl.replaceChildren(g);
+    timelineEl.scrollLeft = timelineEl.scrollWidth;
+  }
+
+  timelineEl.addEventListener('click', (e) => {
+    const t = e.target.closest('[data-id]');
+    if (t) focusOn([t.dataset.id]);
+  });
+  nextBtn.onclick = nextStep;
+  prevBtn.onclick = prevStep;
+  // why: listening on window and focusing the stage on load lets shortcuts work before the first click.
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !menuEl.hidden) {
+      closeMenu();
+      moreBtn.focus();
+      return;
+    }
+    if (e.target.closest?.('input, textarea') || e.metaKey || e.ctrlKey || e.altKey) return;
+    const k = e.key.toLowerCase();
+    if (k === 'n') nextStep();
+    else if (k === 'b') prevStep();
+    else if (k === 'r') resetWalk();
+    else if (k === 'p') toggleStepwise();
+    else if (k === 'w') toggleShowAll();
+    else if (k === 'e') toggleExpandAll();
+  });
+  document.getElementById('zin').onclick = () => centerZoom(1.2);
+  document.getElementById('zout').onclick = () => centerZoom(1 / 1.2);
+  pct.onclick = () => centerZoom(1 / cam.k);
+  document.getElementById('fit').onclick = fitAll;
+  document.getElementById('reset').onclick = resetWalk;
 
   copyButton.onclick = async () => {
     const value = L.feedback(map, state, path);
@@ -753,4 +1115,7 @@
     applyCam();
   }
   place();
+  stage.tabIndex = -1;
+  window.focus();
+  stage.focus({ preventScroll: true });
 })();

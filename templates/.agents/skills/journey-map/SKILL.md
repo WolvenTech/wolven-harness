@@ -1,14 +1,14 @@
 ---
 name: journey-map
-description: Draws a flow, a set of options, or a ticket graph as one interactive HTML page built from a JSON map tree, so the Human can walk it, answer it and send feedback back. Use when the Human asks for a journey map, a flow diagram to click through, or a decision map, or accepts a one-line offer of one.
+description: Draws a flow, a set of options, or a user journey as one interactive HTML page built from a JSON map tree, so the Human can walk it, answer it and send feedback back. Use when the Human asks for a journey map, a flow diagram to click through, or a decision map, or accepts a one-line offer of one.
 ---
 
 # Journey map
 
-A journey map is one HTML page the Human can walk. It shows a flow as
-cards joined by edges. The Human picks options, ticks boxes and types
-answers, and the page reveals the next step. When they are done, they copy
-a short text record and paste it back to you.
+A journey map is one HTML page the Human can walk. It shows a flow, or a
+persona's journey, as cards joined by edges. The Human picks options, ticks
+boxes and types answers, and the page reveals the next step. When they are
+done, they copy a short text record and paste it back to you.
 
 You write only the JSON map tree. A script builds the page from it.
 
@@ -54,11 +54,25 @@ that folder.
    runtime has one. Check that it draws and that a click reveals the next
    step. If you have no browser tool, give the Human the file path.
 
+## Journeys
+
+For a user journey, set a `persona` and optionally a `scenario` on the map.
+Draw each stage as a `waypoint` with a `mood`, a `thought`, and lists of
+touchpoints, pains and opportunities. The fields are in
+[references/tree-format.md](references/tree-format.md).
+
+`mood` is a whole number from −2 to +2. When a source uses another scale,
+such as a 1 to 5 score or words like "frustrated", map it onto −2 to +2.
+Write that mapping in the doc beside the map, so a reader can check it.
+
 ## What the Human sees
 
 - Upcoming steps stay hidden until the Human decides. "Show whole map" in
   the top bar shows all of them, faint.
 - A pencil on each card adds a one-line note.
+- A map with journey steps opens in step by step mode. "Next" and "Prev"
+  move through the steps, the ⋯ menu holds the other views, and a mood
+  timeline plots the steps walked so far.
 - Answers are not saved across reloads. The "Copy for agent" text is the
   record.
 
@@ -69,9 +83,16 @@ that folder.
 2. Read the lines. They name each touched node by id and label.
 3. Revise the JSON to match, then rebuild and reopen the page.
 
-In Claude, when artifact publishing is available, also publish the page as
-an artifact. When the Human comments on it, revise the JSON, rebuild, and
-republish to the same URL so the link stays the same.
+## Publishing
+
+In Claude, publish the page as an artifact without asking first. When the
+Human comments on it, revise the JSON, rebuild, and republish to the
+same URL so the link stays the same.
+
+Hand over the local file instead when the Human said not to publish, the
+runtime isn't Claude, or publishing fails or can't carry the page. When
+publishing fails, say what blocked it and ask whether to
+retry or stay local.
 
 ## Lifecycle
 
@@ -86,4 +107,5 @@ their doc folder when it is archived.
 - Handing over a page that the build failed on.
 - Treating "recommended" on an option as the Human's answer.
 - Putting every step of a long flow in one tree instead of linking trees.
+- Guessing a mood scale instead of writing the mapping beside the map.
 - Expecting the page to remember answers after a reload.

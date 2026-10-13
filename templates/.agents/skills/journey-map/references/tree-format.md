@@ -43,9 +43,39 @@ The map is one JSON file, `<slug>-map.json`, with `version: 1`.
 |-------|---------|
 | `version` | Always `1` |
 | `title`, `subtitle` | Shown in the top bar |
+| `persona` | Optional. `{ name, role?, goal? }`, where `name` is required. Draws as the header of the first tree's start card |
+| `scenario` | Optional string. Draws beside the persona |
 | `trees` | One or more trees, drawn top to bottom |
 | `links` | `{ from, to, label? }`. The only edges that cross between trees. Drawn dashed with a label pill |
 | `annotations` | `{ id, target, text }`. A sticky attached to the node `target` |
+
+## Journeys
+
+```json
+{
+  "version": 1,
+  "title": "Alex Rivera: spreadsheets to invoicing software",
+  "persona": { "name": "Alex Rivera", "role": "Small Business Owner", "goal": "Find a reliable and affordable invoicing software" },
+  "scenario": "Alex needs to switch from manual spreadsheets to an automated invoicing tool to save time.",
+  "trees": [{ "id": "journey", "nodes": [
+    { "id": "start", "kind": "start", "label": "Alex Rivera", "next": "aw-2" },
+    { "id": "aw-2", "kind": "waypoint", "tag": "Awareness", "label": "Searches Google for invoicing tools",
+      "mood": -1, "thought": "Which one is actually simple to use?",
+      "touchpoints": ["Google Search"], "pains": ["Unclear pricing tiers"], "opportunities": ["A clear pricing guide"] }
+  ]}]
+}
+```
+
+- `persona.name` must be a string. `role` and `goal` are optional.
+- A `waypoint` takes these optional journey fields: `mood` (a whole
+  number from −2 to +2), `thought` (a string), and `touchpoints`, `pains`
+  and `opportunities` (lists of strings). Any other kind that carries one
+  is an error naming the node.
+- The persona rule: a `waypoint` is a journey step when the map has a
+  `persona`, or when it carries a journey field. A journey step draws as a
+  journey card. Other waypoints stay dashed cards.
+- Map a source's mood scale onto −2 to +2, and write that mapping in the
+  doc beside the map. The page shows five faces for the five values.
 
 ## Tree rules
 

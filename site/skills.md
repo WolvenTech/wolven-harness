@@ -37,7 +37,7 @@ Nineteen skills are available under `.agents/skills/`. `setup` always installs t
 | `grilling` | Interview one question at a time until every open branch of a plan, decision, or idea is settled. |
 | `handoff` (ask-only) | Save a handoff document to the OS temp directory for a fresh session. Ask-only; never automatic. |
 | `harness-init` | Fold WOLVEN.md into AGENTS.md, migrate legacy ADRs, discover, stub skills, and write a session note. |
-| `journey-map` | Draw a flow, options, or ticket graph as one interactive HTML page the Human can walk, answer, and send feedback from. |
+| `journey-map` | Draw a flow, a set of options, or a user journey as one interactive HTML page the Human can walk, answer, and send feedback from. |
 | `pragmatic-guard` | Challenge unnecessary scope and record deferred work with a trigger for revisiting it under `docs/deferrals/`. |
 | `prototype` | Build a throwaway prototype that answers one question, then discard or promote it deliberately. |
 | `qmd` | Search local markdown notes, docs, and wikis with QMD, the local search tool the agent uses; retrieve documents or set up access. |

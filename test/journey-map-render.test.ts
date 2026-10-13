@@ -628,3 +628,49 @@ test('journey-map linkRoute: no link route passes through a card, downward or up
     }
   }
 });
+
+test('journey-map build: the cj-001 page builds and draws journey text without innerHTML', () => {
+  inTempDir((dir) => {
+    const result = buildMap(dir, 'cj-001-map.json', fixture('cj-001-map.json'));
+    assert.equal(result.status, 0, result.stderr);
+    assert.ok(result.html?.includes('drawBand'));
+    assert.ok(!rendererFile('draw.js').includes('innerHTML'));
+  });
+});
+
+test('journey-map build: the built page holds the toolbar buttons and the menu entries with their keys', () => {
+  inTempDir((dir) => {
+    const result = buildMap(dir, 'cj-001-map.json', fixture('cj-001-map.json'));
+    assert.equal(result.status, 0, result.stderr);
+    const html = result.html as string;
+    for (const id of ['prev', 'next', 'reset', 'more', 'copy', 'menu', 'timeline']) {
+      assert.ok(html.includes(`id="${id}"`), `missing #${id}`);
+    }
+    assert.ok(!html.includes('id="show-all"'), 'step by step and show whole map live in the menu');
+    for (const [label, key] of [
+      ['Step by step', 'P'],
+      ['Show whole map', 'W'],
+      ['Expand all', 'E'],
+    ]) {
+      assert.ok(new RegExp(`'${label}',\\s*'${key}'`).test(html), `menu entry ${label} (${key})`);
+    }
+    for (const label of ['Copy for agent', 'Start over', 'Prev', 'Next']) assert.ok(html.includes(`>${label}<`), label);
+    assert.match(html, /key === 'Escape'/);
+    assert.match(html, /closest\?\.\('#menu, #more'\)/);
+  });
+});
+
+test('journey-map build: journey text with markup is escaped in the page data and never reaches innerHTML', () => {
+  inTempDir((dir) => {
+    const map = JSON.parse(JSON.stringify(fixture('cj-001-map.json')));
+    const step = map.trees[0].nodes.find((n: { thought?: string }) => n.thought);
+    step.thought = '</script><img src=x onerror=alert(1)>';
+    step.pains = ['</script><img src=x onerror=alert(2)>'];
+    const result = buildMap(dir, 'cj-001-map.json', map);
+    assert.equal(result.status, 0, result.stderr);
+    const html = result.html as string;
+    assert.ok(!html.includes('<img src=x onerror'), 'markup must not appear unescaped');
+    assert.equal(html.split('</script>').length - 1, html.split('<script').length - 1);
+    assert.ok(!rendererFile('draw.js').includes('innerHTML'));
+  });
+});
