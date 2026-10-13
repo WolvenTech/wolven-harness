@@ -16,7 +16,7 @@ status: stable
 
 Sources: [C4 notation](https://c4model.com/diagrams/notation), [C4 abstractions](https://c4model.com/abstractions).
 
-**Why:** the Human scoped `journey-map` to a quick tool for journeys, paths and tree-shaped diagrams ([PRD](../../prds/journey-map/journey-map-prd.md)). Architecture graphs have nested boundaries, many-to-many arrows and cycles, which need a layered layout engine. The research found that ELK Layered handles compound graphs, ports and orthogonal routing ([ELK Layered](https://eclipse.dev/elk/reference/algorithms/org-eclipse-elk-layered.html)). The elkjs 0.9.3 bundle is 1,606,238 bytes, or 469,513 bytes gzipped ([research note](../../notes/visual-map-kinds/visual-map-kinds-note.md)). That is a dependency with no present user in this PR.
+**Why:** the Human scoped `journey-map` to a quick tool for journeys, paths and tree-shaped diagrams ([PRD](../../prds/archived/journey-map/journey-map-prd.md)). Architecture graphs have nested boundaries, many-to-many arrows and cycles, which need a layered layout engine. The research found that ELK Layered handles compound graphs, ports and orthogonal routing ([ELK Layered](https://eclipse.dev/elk/reference/algorithms/org-eclipse-elk-layered.html)). The elkjs 0.9.3 bundle is 1,606,238 bytes, or 469,513 bytes gzipped ([research note](../../notes/visual-map-kinds/visual-map-kinds-note.md)). That is a dependency with no present user in this PR.
 
 **Today:** `journey-map` draws tree-shaped flows only, with depth columns and no nested groups. A hand-written system drawing exists in [One-Man-Team PR #39](https://github.com/rafiti052/One-Man-Team/pull/39). It is a tooling landscape, which is a C4 type this deferral would still leave out.
 

@@ -2,13 +2,13 @@
 type: spec
 title: Journey Map Skill, Iteration 1
 description: Freezes the delta from the amended journey-map PRD onto the shipped skill — ticket trees removed, three fixes from the cj_001 test, step by step with Prev and Next, a lean toolbar, and journey details on steps as the approved prototype draws them.
-status: stable
+status: deprecated
 ---
 
 # Journey Map Skill, Iteration 1
 
-**Source:** `docs/prds/journey-map/journey-map-prd.md` (status `stable`, amended after the cj_001 test and the journey-details prototype).
-**Base:** `docs/specs/journey-map/journey-map-spec.md`. Waves 1 to 3 shipped on PR #58 and stay as frozen. This file holds only the delta. Where the two disagree, this file wins, and the rows it removes are listed under Removed.
+**Source:** `docs/prds/archived/journey-map/journey-map-prd.md` (status `stable`, amended after the cj_001 test and the journey-details prototype).
+**Base:** `docs/specs/archived/journey-map/journey-map-spec.md`. Waves 1 to 3 shipped on PR #58 and stay as frozen. This file holds only the delta. Where the two disagree, this file wins, and the rows it removes are listed under Removed.
 **Prototype:** `docs/notes/visual-map-kinds/journey-details-prototype/`. Verdict: promote layout H, with the thought cloud's scalloped bumps removed. Its data, rows and drawing are the starting point; layouts A to F and G are not ported.
 **Next:** After the Human approves → `code-plan` → `code-execute`, waves **4 → 5 → 6**.
 **Named proof (this spec's own structural gate):** `proof-journey-map-iter1-spec-obligations`

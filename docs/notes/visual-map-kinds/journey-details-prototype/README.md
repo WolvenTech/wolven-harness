@@ -1,7 +1,7 @@
 <!-- PROTOTYPE — throwaway -->
 # Journey details on flow cards (prototype)
 
-Throwaway. Answers one question for `docs/prds/journey-map/journey-map-prd.md` (US-5).
+Throwaway. Answers one question for `docs/prds/archived/journey-map/journey-map-prd.md` (US-5).
 
 **Verdict (2026-10-13):** Rafael approved layout H, with the thought cloud's scalloped bumps removed. G (tinted cards) was dropped. US-5 and US-2 of the journey-map PRD record the result. Copied here from the throwaway branch `worktree-agent-a02c67d04e97b9a8a`, so the `prototypes/journey-details/` paths below are that branch's. `build.mjs` resolves its own folder, so `node docs/notes/visual-map-kinds/journey-details-prototype/build.mjs` works here too.
 

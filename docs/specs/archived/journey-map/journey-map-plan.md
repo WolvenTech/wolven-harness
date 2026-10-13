@@ -2,12 +2,12 @@
 type: spec
 title: Journey Map Skill
 description: Ordered units that port the accepted journey-map prototype into a discovery-set skill, in three gated waves — renderer and build script, skill text and install, then the reference map and browser smoke.
-status: stable
+status: deprecated
 ---
 
 # Journey Map Skill — plan
 
-**Source:** `docs/specs/journey-map/journey-map-spec.md` (status `stable`).
+**Source:** `docs/specs/archived/journey-map/journey-map-spec.md` (status `stable`).
 **Prototype:** ported in wave 1; the record is `docs/notes/journey-map-prototype/journey-map-prototype-note.md`.
 **Next:** After the Human approves → `code-execute`, wave 1 first.
 
@@ -107,7 +107,7 @@ Never pack a later wave into an earlier wave's batch to skip its gate unit.
 | Field | Value |
 |-------|-------|
 | Unit identifier | 01 — Tree validation names the bad node (agent A, frontier head); 05 — The page draws, reveals and toggles (agent B, parallel) |
-| Spec/plan paths | `docs/specs/journey-map/journey-map-spec.md` / `docs/specs/journey-map/journey-map-plan.md` |
+| Spec/plan paths | `docs/specs/archived/journey-map/journey-map-spec.md` / `docs/specs/archived/journey-map/journey-map-plan.md` |
 | Obligation / proof status | R1.3 `proof-journey-map-malformed` (validate part) — pending; R2.6 `proof-journey-map-no-html-injection` (grep part), R7.3 `proof-journey-map-cdn-failure` (tag part) — pending |
 | `HEAD` commit | `898d2c2` |
 | `git status` summary | dirty, all outside both units' Owns: the PRD amendment, the stable spec, this plan and `docs/notes/journey-map-prototype/`, from the planning session |
@@ -119,7 +119,7 @@ Never pack a later wave into an earlier wave's batch to skip its gate unit.
 | Field | Value |
 |-------|-------|
 | Unit identifier | 07 — Wave 1 gate, after units 01–06, 08 and 16 |
-| Spec/plan paths | `docs/specs/journey-map/journey-map-spec.md` / `docs/specs/journey-map/journey-map-plan.md` |
+| Spec/plan paths | `docs/specs/archived/journey-map/journey-map-spec.md` / `docs/specs/archived/journey-map/journey-map-plan.md` |
 | Obligation / proof status | Done: R1.1, R1.2, R1.3 (validate and build parts), R1.4, R2.1–R2.4, R2.6, R3.1, R4.1 (partition, moved into wave 1), R5.1 and R5.2 (test parts), R6.1–R6.4 and R3.3 (skill text, moved into wave 1), R7.1, R7.2, R7.3 (tag and hash). The rough.js sha384 was verified against the CDN file. Pending: wave 2 (09, 10, 11) and wave 3 |
 | `HEAD` commit | `898d2c2` |
 | `git status` summary | dirty: wave 1 work (`templates/.agents/skills/journey-map/`, `src/setup/skill-sets.ts`, four test files, `test/fixtures/`) plus the uncommitted planning docs |
@@ -131,7 +131,7 @@ Never pack a later wave into an earlier wave's batch to skip its gate unit.
 | Field | Value |
 |-------|-------|
 | Unit identifier | 09 → 11 (agent C, in order), 10 (agent A, parallel) |
-| Spec/plan paths | `docs/specs/journey-map/journey-map-spec.md` / `docs/specs/journey-map/journey-map-plan.md` |
+| Spec/plan paths | `docs/specs/archived/journey-map/journey-map-spec.md` / `docs/specs/archived/journey-map/journey-map-plan.md` |
 | Obligation / proof status | R4.2 `proof-journey-map-install`, R4.3 `proof-journey-map-comments-clean`, R4.4 `proof-journey-map-listings` — pending |
 | `HEAD` commit | `c68564c` |
 | `git status` summary | clean apart from this resume entry |
@@ -143,7 +143,7 @@ Never pack a later wave into an earlier wave's batch to skip its gate unit.
 | Field | Value |
 |-------|-------|
 | Unit identifier | 12 — Wave 2 gate, after units 09, 10 and 11 |
-| Spec/plan paths | `docs/specs/journey-map/journey-map-spec.md` / `docs/specs/journey-map/journey-map-plan.md` |
+| Spec/plan paths | `docs/specs/archived/journey-map/journey-map-spec.md` / `docs/specs/archived/journey-map/journey-map-plan.md` |
 | Obligation / proof status | Done: R4.2 `proof-journey-map-install`, R4.3 `proof-journey-map-comments-clean`, R4.4 `proof-journey-map-listings`. Pending: wave 3 (13, 14, 15) |
 | `HEAD` commit | `c68564c` |
 | `git status` summary | dirty with wave 2 work only |
@@ -155,7 +155,7 @@ Never pack a later wave into an earlier wave's batch to skip its gate unit.
 | Field | Value |
 |-------|-------|
 | Unit identifier | 15 — Ship gate, after units 13 and 14 |
-| Spec/plan paths | `docs/specs/journey-map/journey-map-spec.md` / `docs/specs/journey-map/journey-map-plan.md` |
+| Spec/plan paths | `docs/specs/archived/journey-map/journey-map-spec.md` / `docs/specs/archived/journey-map/journey-map-plan.md` |
 | Obligation / proof status | Done: every R-row. R6.5 `proof-journey-map-reference-map`, R2.5 `proof-journey-map-browser-smoke`, R3.2, R7.4, and the smoke parts of R5.1 and R7.3, recorded in `docs/notes/journey-map-smoke/journey-map-smoke-note.md`. All 30 spec acceptance boxes ticked. Pinch on a touch device is recorded as untested, as the Human decided |
 | `HEAD` commit | `20ec137` |
 | `git status` summary | dirty with wave 3 work only |

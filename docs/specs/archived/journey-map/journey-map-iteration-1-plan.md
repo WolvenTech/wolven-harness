@@ -2,13 +2,13 @@
 type: spec
 title: Journey Map Skill, Iteration 1 plan
 description: Ordered units that apply the journey-map iteration 1 spec in three gated waves — logic and tests, then drawing and skill text, then a fresh-agent cj_001 map and a browser smoke.
-status: stable
+status: deprecated
 ---
 
 # Journey Map Skill, Iteration 1 — plan
 
-**Source:** `docs/specs/journey-map/journey-map-iteration-1-spec.md` (status `stable`).
-**Base plan:** `docs/specs/journey-map/journey-map-plan.md`, units 01–16, all done. Numbering continues from 17.
+**Source:** `docs/specs/archived/journey-map/journey-map-iteration-1-spec.md` (status `stable`).
+**Base plan:** `docs/specs/archived/journey-map/journey-map-plan.md`, units 01–16, all done. Numbering continues from 17.
 **Prototype:** `docs/notes/visual-map-kinds/journey-details-prototype/`, layout H.
 **Next:** After the Human approves → `code-execute`, wave 4 first.
 
@@ -111,7 +111,7 @@ Never pack a later wave into an earlier wave's batch to skip its gate unit.
 | Field | Value |
 |-------|-------|
 | Unit identifier | 17 — Tickets leave the skill (agent A; then 18 → 21 on the same agent) |
-| Spec/plan paths | `docs/specs/journey-map/journey-map-iteration-1-spec.md` / `docs/specs/journey-map/journey-map-iteration-1-plan.md` |
+| Spec/plan paths | `docs/specs/archived/journey-map/journey-map-iteration-1-spec.md` / `docs/specs/archived/journey-map/journey-map-iteration-1-plan.md` |
 | Obligation / proof status | J1.1 `proof-journey-map-iter1-no-tickets` (test part) — pending |
 | `HEAD` commit | `2238220` |
 | `git status` summary | dirty, all outside unit 17's Owns: the amended PRD, the base spec's pointer line, the iteration spec and plan, `docs/deferrals/{architectural-map,service-blueprint}/`, `docs/notes/visual-map-kinds/`, and the untracked `.claude/launch.json` |
@@ -123,7 +123,7 @@ Never pack a later wave into an earlier wave's batch to skip its gate unit.
 | Field | Value |
 |-------|-------|
 | Unit identifier | 17 — Tickets leave the skill, stopped mid-unit (agent A) |
-| Spec/plan paths | `docs/specs/journey-map/journey-map-iteration-1-spec.md` / `docs/specs/journey-map/journey-map-iteration-1-plan.md` |
+| Spec/plan paths | `docs/specs/archived/journey-map/journey-map-iteration-1-spec.md` / `docs/specs/archived/journey-map/journey-map-iteration-1-plan.md` |
 | Obligation / proof status | J1.1 `proof-journey-map-iter1-no-tickets` (test part) — pending; not verified |
 | `HEAD` commit | `2238220` |
 | `git status` summary | dirty: partial unit 17 edits inside its Owns (`logic.js`, `draw.js`, `page.html`, `tree-format.md`, `lotr-map.json`, `malformed-map.json`; the render test not yet edited), plus the planning docs outside Owns |
@@ -135,7 +135,7 @@ Never pack a later wave into an earlier wave's batch to skip its gate unit.
 | Field | Value |
 |-------|-------|
 | Unit identifier | 22 — Wave 4 gate, after units 17–21 |
-| Spec/plan paths | `docs/specs/journey-map/journey-map-iteration-1-spec.md` / `docs/specs/journey-map/journey-map-iteration-1-plan.md` |
+| Spec/plan paths | `docs/specs/archived/journey-map/journey-map-iteration-1-spec.md` / `docs/specs/archived/journey-map/journey-map-iteration-1-plan.md` |
 | Obligation / proof status | Done: J1.1 (test part), J2.3, J3.1, J3.2 (test part), J4.1, J4.2, J4.3, J4.4. Pending: wave 5 (23–27) and wave 6 |
 | `HEAD` commit | `2238220` |
 | `git status` summary | dirty: wave 4 work in `templates/.agents/skills/journey-map/renderer/logic.js`, `draw.js` and `page.html` (ticket removal), `references/tree-format.md`, `test/journey-map-render.test.ts`, `test/fixtures/journey-map/`, plus the gate's two fixes below and the uncommitted planning docs |
@@ -147,7 +147,7 @@ Never pack a later wave into an earlier wave's batch to skip its gate unit.
 | Field | Value |
 |-------|-------|
 | Unit identifier | 23 → 24 (agent B, in order), 25 (agent C, parallel) |
-| Spec/plan paths | `docs/specs/journey-map/journey-map-iteration-1-spec.md` / `docs/specs/journey-map/journey-map-iteration-1-plan.md` |
+| Spec/plan paths | `docs/specs/archived/journey-map/journey-map-iteration-1-spec.md` / `docs/specs/archived/journey-map/journey-map-iteration-1-plan.md` |
 | Obligation / proof status | J2.5 (test part), J3.3, J4.6, J4.7, J5.1 — pending |
 | `HEAD` commit | `a6cd1a9` |
 | `git status` summary | clean apart from the untracked `.claude/launch.json` and this entry |
@@ -159,7 +159,7 @@ Never pack a later wave into an earlier wave's batch to skip its gate unit.
 | Field | Value |
 |-------|-------|
 | Unit identifier | 27 — Wave 5 gate, after units 23, 24, 25 and 26 |
-| Spec/plan paths | `docs/specs/journey-map/journey-map-iteration-1-spec.md` / `docs/specs/journey-map/journey-map-iteration-1-plan.md` |
+| Spec/plan paths | `docs/specs/archived/journey-map/journey-map-iteration-1-spec.md` / `docs/specs/archived/journey-map/journey-map-iteration-1-plan.md` |
 | Obligation / proof status | Done: J1.1 (`rg` part), J2.5 (test part), J3.3, J4.6, J4.7, J5.1. Pending: wave 6 (28, 29, 30) |
 | `HEAD` commit | `a6cd1a9` |
 | `git status` summary | dirty with wave 5 work only, plus the untracked `.claude/launch.json` |
@@ -171,7 +171,7 @@ Never pack a later wave into an earlier wave's batch to skip its gate unit.
 | Field | Value |
 |-------|-------|
 | Unit identifier | 30 — Ship gate, after units 28 and 29 |
-| Spec/plan paths | `docs/specs/journey-map/journey-map-iteration-1-spec.md` / `docs/specs/journey-map/journey-map-iteration-1-plan.md` |
+| Spec/plan paths | `docs/specs/archived/journey-map/journey-map-iteration-1-spec.md` / `docs/specs/archived/journey-map/journey-map-iteration-1-plan.md` |
 | Obligation / proof status | Done: every J-row. J4.8 `proof-journey-map-iter1-cj001-reference`, and the smoke proofs J2.1, J2.2, J2.4, J2.5, J3.2 and J4.5 recorded in `docs/notes/journey-map-smoke/journey-map-smoke-note.md` at 1440px and 800px. All 20 iteration 1 acceptance boxes ticked |
 | `HEAD` commit | `656e57c` |
 | `git status` summary | dirty with wave 6 work only, plus the untracked `.claude/launch.json` |

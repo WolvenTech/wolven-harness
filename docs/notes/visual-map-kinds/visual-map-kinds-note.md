@@ -35,7 +35,7 @@ references for that kind.
   no rows, lanes, nested groups or edges that loop back.
 - **Scope in the PRD.** The PRD says a journey map here is not the UX
   research artifact of the same name, which charts a persona's stages and
-  emotions (`docs/prds/journey-map/journey-map-prd.md:17`).
+  emotions (`docs/prds/archived/journey-map/journey-map-prd.md:17`).
 - **The cj_001 test.** The journey in `cj-001-source.json` was translated
   by hand into today's format, as `cj-001-test-map.json` in this folder.
   - Mood, touchpoints and thoughts became subtitle text and stickies,
@@ -264,7 +264,7 @@ and plan are revised on the held branch (D12).
 | `templates/.agents/skills/journey-map/renderer/logic.js` | source code | Node kinds and today's layout |
 | `templates/.agents/skills/journey-map/references/tree-format.md` | source code | Feedback text format |
 | `templates/.agents/skills/journey-map/SKILL.md` | source code | The anti-pattern the first test map broke |
-| `docs/prds/journey-map/journey-map-prd.md` | repo doc | The "not the UX artifact" scope line |
+| `docs/prds/archived/journey-map/journey-map-prd.md` | repo doc | The "not the UX artifact" scope line |
 | `docs/adrs/adr-004-standalone-skills-contract.md` | ADR | Skills install on their own |
 | `docs/notes/visual-map-kinds/cj-001-source.json`, `cj-001-test-map.json` | test data | The cj_001 test and its findings |
 | https://www.nngroup.com/articles/journey-mapping-101/ | method reference | Journey map parts, emotion line |

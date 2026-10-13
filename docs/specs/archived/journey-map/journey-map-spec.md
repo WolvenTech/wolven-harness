@@ -2,16 +2,16 @@
 type: spec
 title: Journey Map Skill
 description: Freezes the journey-map skill — a JSON tree format, a renderer ported from the accepted prototype, and a no-dependency build script that writes one self-contained map page the Human walks one decision at a time, plus its feedback loop and discovery-set install.
-status: stable
+status: deprecated
 ---
 
 # Journey Map Skill
 
-**Source:** `docs/prds/journey-map/journey-map-prd.md` (status `stable`, amended after the prototype).
+**Source:** `docs/prds/archived/journey-map/journey-map-prd.md` (status `stable`, amended after the prototype).
 **Prototype:** `docs/notes/journey-map-prototype/journey-map-prototype-note.md`. Verdict: promote. Wave 1 ported its renderer and build script; the throwaway source isn't kept.
 **Next:** After the Human approves → `code-plan` → `code-execute`, waves
 **1 → 2 → 3**.
-**Iteration 1:** `docs/specs/journey-map/journey-map-iteration-1-spec.md` freezes the delta from the amended PRD. It removes R5 and every ticket clause here, and replaces R3.3's artifact rule.
+**Iteration 1:** `docs/specs/archived/journey-map/journey-map-iteration-1-spec.md` freezes the delta from the amended PRD. It removes R5 and every ticket clause here, and replaces R3.3's artifact rule.
 **Named proof (this spec's own structural gate):** `proof-journey-map-spec-obligations`
 
 ## Term challenge

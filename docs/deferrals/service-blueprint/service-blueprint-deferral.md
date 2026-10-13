@@ -14,7 +14,7 @@ status: stable
 - **Blueprint lines:** interaction, visibility and internal interaction.
 - **Mood:** curves per persona, including a full-page "mood spine" layout.
 
-**Why:** the Human wants a quick tool for exploring journeys and paths. So user journeys are drawn by `journey-map` as action paths, with optional mood, thoughts, touchpoints, pains and opportunities on each step ([PRD](../../prds/journey-map/journey-map-prd.md)). A lanes grid is a heavier research deliverable, with its own layout and its own references:
+**Why:** the Human wants a quick tool for exploring journeys and paths. So user journeys are drawn by `journey-map` as action paths, with optional mood, thoughts, touchpoints, pains and opportunities on each step ([PRD](../../prds/archived/journey-map/journey-map-prd.md)). A lanes grid is a heavier research deliverable, with its own layout and its own references:
 
 - [NN/g, UX Mapping Methods Compared](https://www.nngroup.com/articles/ux-mapping-cheat-sheet/)
 - [NN/g, Service Blueprints: Definition](https://www.nngroup.com/articles/service-blueprints-definition/)
