@@ -59,7 +59,7 @@ test('session-note: every section heading appears in order inside the template',
     'Stubs',
     'Harness score',
     'Validate wiring',
-    'Deferred / skipped steps',
+    'Left for later',
     'Next steps for the human',
   ];
 
@@ -76,22 +76,38 @@ test('session-note: every section heading appears in order inside the template',
   }
 });
 
-test('session-note: the lean section carries the mode, the immediate goal, and the deferral table', async () => {
+test('proof-note-left-for-later: the later section carries path, goal, covered and the remaining-work table', async () => {
   const template = extractTemplate(await readReference());
-  const section = template.split(/^## Deferred \/ skipped steps/im)[1]?.split(/^## /m)[0] ?? '';
+  const section = template.split(/^## Left for later/m)[1]?.split(/^## /m)[0] ?? '';
 
-  assert.match(section, /\*\*Mode:\*\* <lean or full>/);
-  assert.doesNotMatch(section, /\*\*Path:\*\*/);
-  assert.match(section, /\*\*Immediate goal:\*\*.*"none stated"/);
-  assert.match(section, /\| Step \| Name \| Reason \| Remaining work \|/);
+  assert.doesNotMatch(template, /Deferred \/ skipped steps/);
+  assert.match(section, /\*\*Path:\*\* <Just the basics \(lean\) or The full tour \(full\)>/);
+  assert.match(section, /\*\*Goal:\*\*.*"none given".*"n\/a — full tour"/);
+  assert.match(section, /\*\*Covered:\*\*.*"n\/a — basics"/);
+  assert.match(section, /\| Step \| Name \| Remaining work \|/);
+  assert.doesNotMatch(section, /Reason/);
+  assert.doesNotMatch(section, /\*\*Mode:\*\*|\*\*Immediate goal:\*\*/);
 });
 
-test('session-note: a deferred wiring question points at the lean section', async () => {
+test('proof-note-label-and-mode: choices are recorded label first with the mode in brackets', async () => {
   const template = extractTemplate(await readReference());
-  const section = template.split(/^## Validate wiring/m)[1]?.split(/^## /m)[0] ?? '';
+  const entry = template.split(/^## Entry integration/m)[1]?.split(/^## /m)[0] ?? '';
+  const wiring = template.split(/^## Validate wiring/m)[1]?.split(/^## /m)[0] ?? '';
 
-  assert.match(section, /"nothing written"/);
-  assert.match(section, /"deferred — see Deferred \/ skipped steps" when the lean path deferred the wiring question/);
+  assert.match(entry, /label first with the mode in brackets, as in "A short section \(light\)"/);
+  assert.match(wiring, /label first with the option in brackets, as in "On every pull request \(CI job\)"/);
+  assert.match(wiring, /"later — see Left for later"/);
+  assert.match(wiring, /"nothing written"/);
+});
+
+test('proof-note-handback: next steps record the spec offer and the answer', async () => {
+  const template = extractTemplate(await readReference());
+  const section = template.split(/^## Next steps for the Human/m)[1]?.split(/^## /m)[0] ?? '';
+
+  assert.match(section, /hand-back's next steps/);
+  assert.match(section, /"Should we start with a spec for …\?"/);
+  assert.match(section, /"What should we build first\?" with no goal/);
+  assert.match(section, /the Human's answer/);
 });
 
 test('session-note: sections that cover a skipped step say so instead of disappearing', async () => {

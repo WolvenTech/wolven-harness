@@ -173,3 +173,23 @@ test('suggest: a worked example names an invented tool and an invented repo', as
   assert.match(flat, /queueing library called\s*\n?\s*`Quinly`/i);
   assert.match(flat, /suggests a `quinly-patterns` skill/i);
 });
+
+test('proof-skills-gate-call: step 4 judges the repo new or well understood from named signals and states its call', async () => {
+  const { suggestions } = sections(await readDiscovery());
+  const flat = flatten(suggestions);
+
+  assert.match(flat, /before suggesting anything, judge the repo and tell the human your call and the reason/i);
+  assert.match(flat, /\*\*new or unexplored\*\* when it has few source files and no recorded decisions/i);
+  assert.match(flat, /no ADRs, no specs, and no project skills beyond those `setup` installed/i);
+  assert.match(flat, /\*\*well understood\*\* when it has any of those/i);
+});
+
+test('proof-skills-gate-skip-and-overrule: a well-understood repo skips proposals unless the Human overrules', async () => {
+  const { suggestions } = sections(await readDiscovery());
+  const flat = flatten(suggestions);
+
+  assert.match(flat, /on a well-understood repo, skip this step and the next/i);
+  assert.match(flat, /session note that you skipped them and why/i);
+  assert.match(flat, /the human can overrule that call, and an overrule runs the rules below unchanged/i);
+  assert.match(flat, /on a new repo, the rules below run/i);
+});

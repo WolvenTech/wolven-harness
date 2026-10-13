@@ -31,7 +31,7 @@ status: <status>
 
 ## Entry integration
 
-<the mode question as asked, the mode recommended and why, and the Human's answer — plus any checks step 0 raised>
+<the mode question as asked, the mode recommended and why, and the Human's answer — recorded label first with the mode in brackets, as in "A short section (light)" — plus any checks step 0 raised>
 
 ## ADR migration
 
@@ -69,33 +69,34 @@ status: <status>
 
 ## Validate wiring
 
-<the wiring question as asked, the option recommended and why, the Human's answer (CI job, chained script, or local only), and what was written — or "nothing written"; or "deferred — see Deferred / skipped steps" when the lean path deferred the wiring question>
+<the wiring question as asked, the option recommended and why, the Human's answer recorded label first with the option in brackets, as in "On every pull request (CI job)", and what was written — or "nothing written"; or "later — see Left for later" when the basics path left the wiring question for later>
 
-## Deferred / skipped steps
+## Left for later
 
-**Mode:** <lean or full>
+**Path:** <Just the basics (lean) or The full tour (full)>
 
-**Immediate goal:** <the goal the Human stated or answered, in their words, or "none stated" — on the lean path only; "n/a — full path" otherwise>
+**Goal:** <the Human's words, "none given", or "n/a — full tour">
 
-<one row per lean-path deferral (the four deferrable items only), or "none" when the full path ran>
+**Covered:** <the ticked items, or "n/a — basics">
 
-| Step | Name | Reason | Remaining work |
-| --- | --- | --- | --- |
-| <number> | <step name> | <why this step was deferred or skipped> | <what still needs doing later> |
+<one row per step that did not run, or "none" when nothing was left>
+
+| Step | Name | Remaining work |
+| --- | --- | --- |
+| <number> | <step name> | <what still needs doing later> |
 
 ## Next steps for the Human
 
-<what the Human still has to define in each stub, and anything else left open>
+<what the Human still has to define in each stub, and anything else left open — plus the hand-back's next steps, the spec offer ("Should we start with a spec for …?", or "What should we build first?" with no goal) and the Human's answer>
 ```
 
 Every section heading above stays in the note even when its step was
 skipped — a skipped step fills its section with why, rather than leaving
 the heading empty or dropping it, so the note always shows the full shape
-of the run. **Deferred / skipped steps** holds the lean section: the mode, the
-immediate goal, and the deferral list (step number, name, reason, remaining
-work); fill the deferral list with `none` when nothing was deferred. It is
-filled as step 0 creates the note, since the lean goal and deferrals are
-agreed before step 0.
+of the run. **Left for later** holds the path, the goal, what was covered, and the
+steps that did not run (step number, name, remaining work); fill the list
+with `none` when nothing was left. It is filled as step 0 creates the note,
+since the path and goal are agreed before step 0.
 
 ## Naming ADRs in the note
 
@@ -131,5 +132,5 @@ deprecation would fail the check it documents.
 - Starting a new note over a `draft` note left by an interrupted run.
 - Naming an ADR in the note by its claim token or filename instead of its
   bare number and title.
-- Omitting a lean-path deferral from **Deferred / skipped steps** after the
-  Human agreed to skip it.
+- Omitting a step that did not run from **Left for later** after the
+  Human agreed to leave it.

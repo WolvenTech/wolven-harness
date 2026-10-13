@@ -67,6 +67,19 @@ its own branch, not a commit on the harness-init branch.
 dropped. A failure there is not a question: stop and show the Human the
 finding before going on.
 
+## Leaked-credential checks on every path
+
+Every run reads the leaked-credential checks, whichever path the Human
+picked and whether or not the score is covered this run. Run
+`harness:score` and read `HYG-03`, `HYG-04` and `HYG-06`. A failure stops
+the run: show the Human the finding before anything else is written.
+
+When the score is not covered this run, nothing else from the report is
+recorded or asked about. When `harness-score` is not installed, show the
+pinned install command as "Run it" above describes. If the Human declines
+the install, the run continues, and the hand-back and the note list
+"leaked-credential checks not run" under **Left for later**.
+
 ## Write and re-score
 
 Nothing is written without a yes: show the `.harness-score.json` diff, wait

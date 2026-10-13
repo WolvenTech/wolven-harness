@@ -84,15 +84,37 @@ A re-run does not redo what an earlier run already finished:
   [references/entry-modes.md](references/entry-modes.md)).
 - Step 1 is skipped when there are no legacy-ADR warnings left.
 - A `draft` session note from an interrupted run is resumed, not replaced,
-  with the mode, immediate goal and deferrals it already records.
+  with the path, goal and coverage it already records.
 
 ## Lean path
 
-The lean decision comes after the re-run checks above. When a `stable`
-harness-init note already exists, lean does not apply and the re-run skips
-run as on the full path. Otherwise, when a `draft` note records the lean
-mode or the tree shows thin evidence, load
-[references/lean-path.md](references/lean-path.md) and follow it before step 0.
+The path question comes after the re-run checks above. Load
+[references/lean-path.md](references/lean-path.md) before step 0: it holds
+the resume check, the path question ("How much setup do you want right
+now?") and the whole lean path. When the Human picks "Just the basics",
+follow it and skip the steps it leaves for later. When they pick "The full
+tour", run the workflow below, trimmed by the coverage checklist.
+
+## Full tour coverage
+
+On the full path, before step 0, show one checklist: "What should this run
+cover?" Every item starts ticked, and the Human unticks whatever should
+wait. Record the ticked items in the note as **Covered:**.
+
+| Item | Covers |
+|------|--------|
+| Move old decision records | Step 1 |
+| Ask about the project's stage and plans | Step 2, its two questions |
+| Look up your tools on the web | Step 3, the web pass |
+| Suggest skills for this repo | Steps 4 and 5 |
+| Check the harness score now | Step 6, the score and its questions |
+| Set up automatic checks | Step 6, the question about how to check the harness |
+
+An unticked item is never asked about or run: record it under **Left for
+later** in the note and list it in the hand-back. File-based discovery and
+the repo and `qmd` search still run on the full path, whatever is ticked.
+With every item unticked, the run makes only step 0's change, reads the
+leaked-credential checks, and hands back.
 
 ## Workflow
 
@@ -110,7 +132,8 @@ writing profile governs. See
 
 ### 1. Legacy ADR migration (optional)
 
-Offered only when `harness:validate` reports `legacy-adr`. Turns each
+Runs when "Move old decision records" is covered and `harness:validate`
+reports `legacy-adr`. Turns each
 legacy ADR into a profile ADR under `docs/adrs/` — keeping its number,
 moving it, prepending frontmatter, mapping its status (asking when part
 of a superseded ADR still applies, and searching for the tokens tests pin
@@ -122,15 +145,15 @@ the right decision, until `harness:validate` exits 0 with `0 legacy-warn`. See
 ### 2. Discovery
 
 Read what the repo already shows — manifests, lockfiles, README, `AGENTS.md`, CI
-config, `docs/adrs/`, installed skills, top-level layout — and ask the
-Human only for what files can't show: lifecycle stage and decisions not yet
-visible in code. Produces a context list, a lifecycle note, and a
+config, `docs/adrs/`, installed skills, top-level layout. When "Ask about the
+project's stage and plans" is covered, also ask the Human for what files
+can't show: lifecycle stage and decisions not yet visible in code. Produces a context list, a lifecycle note, and a
 decided-tools list. See [references/discovery.md](references/discovery.md).
 
 ### 3. Research
 
-Search the repo and `qmd` first. Web research is optional, runs only on
-the Human's yes, is capped at five primary-source fetches, and covers
+Search the repo and `qmd` first. Web research runs only when "Look up your
+tools on the web" is covered and the Human says yes, is capped at five primary-source fetches, and covers
 decided tools only, with every finding cited in the session note; offer
 `research` for depth on one tool. Continue repo-only, and say so in the
 note, when the web is unavailable. See
@@ -138,7 +161,10 @@ note, when the web is unavailable. See
 
 ### 4. Suggest 2–4 skills
 
-Suggest two to four architectural skills, each named for a decided tool or
+When "Suggest skills for this repo" is covered, first judge whether the repo
+is new or still unexplored, and skip steps 4 and 5 on a well-understood repo
+unless the Human overrules. Otherwise suggest two to four architectural
+skills, each named for a decided tool or
 field and citing the discovery evidence, never duplicating an installed
 skill. Say so, rather than padding, if the evidence supports fewer than
 two. The Human picks any subset. See
@@ -156,16 +182,18 @@ warns `skill-stub-open` once for that `SKILL.md`.
 
 ### 6. Score, session note and hand-back
 
-First run `harness:score` and record the level and score. For each dimension
-with a failing check, ask one question in plain language: state what the repo
-lacks and what building it means, with check IDs as supporting references,
+First run `harness:score` and read the leaked-credential checks, which run
+on every path. When "Check the harness score now" is covered, record the
+level and score. For each dimension with a failing check, ask one question
+in plain language: state what the repo lacks and what building it means, with check IDs as supporting references,
 and spell out any maturity cap dropping them would cause. Keep its checks as
 gaps to build later, or drop them in `.harness-score.json`. Never build a check
 in this run, and never drop one without the Human's yes. Score again and record
 the level, the score and every drop. See
 [references/harness-score.md](references/harness-score.md).
 
-Then put one question to the Human: how should `harness:validate` be wired —
+Then, when "Set up automatic checks" is covered, put one question to the
+Human: how should `harness:validate` be wired —
 (a) as a CI job on pull requests, (b) chained into the repo's existing
 `validate` or `test` script, or (c) local only? Detect the CI config and the
 existing scripts first, frame the options with that evidence, and list the
@@ -173,7 +201,18 @@ recommended option first. Nothing is written without the Human's yes. See
 [references/validate-wiring.md](references/validate-wiring.md).
 
 Then add the note's final sections, set it `stable`, and hand the run back to
-the Human with what was done and what is left for them to define. See
+the Human in one closing message with three parts:
+
+1. **What's installed:** the skills and the runtimes they are ready in, the
+   `AGENTS.md` change, anything else this run did, the commits made, and the
+   session note.
+2. **Left for later:** every step this run did not run.
+3. **Next steps:** a numbered list fitted to the installed skill sets.
+
+End the message by offering the next piece of work: "Should we start with a
+spec for “<goal>”?" when the Human gave a goal, or "What should we build
+first?" when none was given. On a yes, the run ends and `code-spec` starts
+as separate work on its own branch. Nothing starts without a yes. See
 [references/session-note-template.md](references/session-note-template.md).
 
 The run ends at hand-back. Defining stubs or building score gaps is a
@@ -193,6 +232,6 @@ If the Human asks for it in the same session, say so and stop.
   run.
 - Treating a validate failure after migration as this skill's defect
   instead of expected input to work through with the Human.
-- Silently skipping a lean-path step without naming it, why, and remaining
-  work before proceeding.
-- Deferring skill proposals (step 4) on the lean path.
+- Picking the path for the Human from what the tree shows, instead of
+  asking the path question.
+- Running a step the lean path leaves for later.
