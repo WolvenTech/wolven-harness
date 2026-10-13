@@ -59,6 +59,11 @@ The map is one JSON file, `<slug>-map.json`, with `version: 1`.
   Only `links` cross between trees.
 - A tree's optional `label` names it on the canvas. The heading is left
   out when it would repeat the start node's label.
+- Joins are allowed. Several nodes, or several options, may point `next`
+  at the same node.
+- A step that continues differently on each path is written once per
+  path, each copy with its own id. For example, a question both paths
+  reach, after which each path goes somewhere else.
 - Keep labels and hints short. Text wraps by counting characters, so a
   very long word breaks mid-word.
 
@@ -84,7 +89,17 @@ Field details:
   point only at waypoints. A waypoint gated by an unticked item fades and
   shows a "later" pill.
 - `card.sections` is a list of `{ head, items, numbered? }`, where `items`
-  is a list of strings.
+  is a list of strings. `numbered: true` numbers the items 1, 2, 3
+  instead of bullets.
+- Optional fields are the ones marked `?` in the table above, plus `hint`
+  on options and items, `sub`, `placeholder` and `next` on `text`, and
+  `claimed_by` and `blocked_by` on tickets. A `waypoint`'s `tag` is
+  required: a short label shown above the step, such as "research" or
+  "later".
+- To let a checklist item skip a question, put a `waypoint` before the
+  question and gate the waypoint. Unticking the item fades the waypoint
+  and marks it "later". The question itself still appears, because
+  `gates` can't hide it.
 - `ticket.ticket` is one of `research`, `prototype`, `grilling`, `task`.
   `status` is one of `open`, `claimed`, `closed`. `blocked_by` is a list of
   ticket ids. A "blocked" pill shows while any blocker isn't `closed`.

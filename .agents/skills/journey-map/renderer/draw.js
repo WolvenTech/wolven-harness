@@ -514,22 +514,15 @@
     }
   }
 
-  function drawLink(edgeLayer, notes, e, from, to) {
-    const shelf = Math.min(...plan.boxes.filter((b) => b.tree === to.tree).map((b) => b.y)) - 60;
-    const midX = from.x + from.w / 2;
-    arrow(
-      edgeLayer,
-      `${e.from}-${e.to}`,
-      [
-        [midX, from.y + from.h + 4],
-        [midX, shelf],
-        [to.x - 30, shelf],
-        [to.x - 30, to.y + 30],
-        [to.x - 6, to.y + 30],
-      ],
-      { stroke: 'var(--link)', dash: [6, 7], linear: true, sw: 1.3 },
-    );
-    if (e.label) pill(notes, to.x - 22, shelf - 26, e.label, 'var(--link)', 'var(--paper)');
+  function drawLink(edgeLayer, notes, e) {
+    const route = L.linkRoute(plan, e);
+    arrow(edgeLayer, `${e.from}-${e.to}`, route.points, {
+      stroke: 'var(--link)',
+      dash: [6, 7],
+      linear: true,
+      sw: 1.3,
+    });
+    if (e.label) pill(notes, route.label.x, route.label.y, e.label, 'var(--link)', 'var(--paper)');
   }
 
   function drawEdges(edgeLayer, notes, fade, shown, visible) {
@@ -539,7 +532,7 @@
       const to = rects[e.to];
       const dim = fade.faded.has(e.to) || !shown.has(e.to);
       if (e.link) {
-        drawLink(edgeLayer, notes, e, from, to);
+        drawLink(edgeLayer, notes, e);
         continue;
       }
       const n = byId.get(e.from);

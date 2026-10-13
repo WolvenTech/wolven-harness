@@ -464,5 +464,37 @@
     return result.join('\n');
   }
 
-  globalThis.JourneyMapLogic = { validate, revealed, faded, feedback, layout, edges, blocked, ticketStyle, lines, all, outgoing, rows, height, M };
+  /**
+   * Route of a cross-tree link as polyline points plus a label anchor. It leaves
+   * the source's left edge into the column gutter, crosses to the target's
+   * gutter along the gap between the two trees, and enters the target from the
+   * left, so it never passes through a card. `plan` is the result of `layout`.
+   */
+  function linkRoute(plan, link) {
+    const from = plan.boxes.find((b) => b.id === link.from);
+    const to = plan.boxes.find((b) => b.id === link.to);
+    const extent = (treeId) => {
+      const own = plan.boxes.filter((b) => b.tree === treeId);
+      return { top: Math.min(...own.map((b) => b.y)), bottom: Math.max(...own.map((b) => b.y + b.h)) };
+    };
+    const source = extent(from.tree);
+    const target = extent(to.tree);
+    let gapY;
+    if (from.tree === to.tree) gapY = source.bottom + M.treeGap / 2;
+    else if (to.y > from.y) gapY = (source.bottom + target.top) / 2;
+    else gapY = (target.bottom + source.top) / 2;
+
+    const startY = from.y + 30;
+    const points = [
+      [from.x, startY],
+      [from.x - 30, startY],
+      [from.x - 30, gapY],
+      [to.x - 30, gapY],
+      [to.x - 30, to.y + 30],
+      [to.x - 6, to.y + 30],
+    ];
+    return { points, label: { x: to.x - 22, y: gapY - 26 } };
+  }
+
+  globalThis.JourneyMapLogic = { validate, linkRoute, revealed, faded, feedback, layout, edges, blocked, ticketStyle, lines, all, outgoing, rows, height, M };
 })();

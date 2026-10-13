@@ -333,3 +333,112 @@ test('journey-map comments: the shipped scripts pass a consumer comment check', 
 
   assert.deepEqual(await findCommentFindings({ root: dir, base }), []);
 });
+
+test('journey-map reference map: the harness-init redesign validates, builds and reaches the handback', () => {
+  const logic = loadLogic();
+  const map = fixture('harness-init-redesign-map.json');
+  assert.deepEqual([...logic.validate(map)], []);
+  inTempDir((dir) => {
+    const result = buildMap(dir, 'harness-init-redesign-map.json', map);
+    assert.equal(result.status, 0, result.stderr);
+  });
+
+  const byId = new Map<string, Map>(logic.all(map).map((n: Map) => [n.id, n]));
+  const expectedKinds: Array<[string, string]> = [
+    ['setup-start', 'start'],
+    ['init-start', 'start'],
+    ['init-depth', 'choice'],
+    ['basics-goal', 'text'],
+    ['basics-agents', 'choice'],
+    ['full-agents', 'choice'],
+    ['full-scope', 'checklist'],
+    ['full-skills-q', 'choice'],
+    ['full-checks-q', 'choice'],
+    ['full-commits', 'checklist'],
+    ['handback', 'card'],
+    ['setup-command', 'card'],
+  ];
+  for (const [id, kind] of expectedKinds) assert.equal(byId.get(id)?.kind, kind, id);
+
+  const depth = byId.get('init-depth');
+  assert.deepEqual(
+    depth?.options.map((o: Map) => o.next),
+    ['basics-goal', 'full-scope'],
+  );
+  assert.equal(byId.get('basics-agents')?.options.length, 3);
+  assert.equal(byId.get('full-agents')?.options.length, 3);
+  assert.ok(map.links.some((l: Map) => l.from === 'setup-command' && l.to === 'init-start'));
+
+  const basicsKey = depth?.options[0].key;
+  const agentKey = byId.get('basics-agents')?.options[0].key;
+  const shown = logic.revealed(map, {
+    'init-depth': { choice: basicsKey },
+    'basics-goal': { done: true },
+    'basics-agents': { choice: agentKey },
+  });
+  assert.ok(shown.has('handback'));
+});
+
+function stackedUpwardLinkMap() {
+  const card = (id: string, next?: string) => ({
+    id,
+    kind: 'card',
+    label: id,
+    sections: [{ head: 'h', items: ['a', 'b'] }],
+    next,
+  });
+  const choice = (id: string) => ({
+    id,
+    kind: 'choice',
+    label: id,
+    options: [
+      { key: 'a', label: 'a', next: `${id}-a` },
+      { key: 'b', label: 'b', next: `${id}-b` },
+    ],
+  });
+  const tree = (id: string, prefix: string) => ({
+    id,
+    label: id,
+    nodes: [
+      { id: `${prefix}-start`, kind: 'start', label: prefix, next: `${prefix}-q` },
+      choice(`${prefix}-q`),
+      card(`${prefix}-q-a`),
+      card(`${prefix}-q-b`),
+    ],
+  });
+  return {
+    version: 1,
+    title: 'Upward link',
+    trees: [tree('upper', 'up'), tree('lower', 'low')],
+    links: [{ from: 'low-q-b', to: 'up-q-a', label: 'back up' }],
+    annotations: [],
+  };
+}
+
+test('journey-map linkRoute: no link route passes through a card, downward or upward', () => {
+  const logic = loadLogic();
+  for (const map of [fixture('lotr-map.json'), stackedUpwardLinkMap()]) {
+    assert.deepEqual([...logic.validate(map)], []);
+    const plan = logic.layout(map);
+    assert.ok(map.links.length > 0);
+    for (const link of map.links) {
+      const { points } = logic.linkRoute(plan, link);
+      const target = plan.boxes.find((b: Map) => b.id === link.to);
+      for (let i = 1; i < points.length; i++) {
+        const [x1, y1] = points[i - 1];
+        const [x2, y2] = points[i];
+        const steps = Math.max(1, Math.ceil(Math.hypot(x2 - x1, y2 - y1) / 4));
+        for (let s = 0; s <= steps; s++) {
+          const x = x1 + ((x2 - x1) * s) / steps;
+          const y = y1 + ((y2 - y1) * s) / steps;
+          const inLastApproach = i === points.length - 1 && Math.abs(x - target.x) <= 6;
+          for (const b of plan.boxes) {
+            if (b.id === link.from && s === 0 && i === 1) continue;
+            const inside = x > b.x && x < b.x + b.w && y > b.y && y < b.y + b.h;
+            assert.ok(!inside || inLastApproach, `${link.from}->${link.to} passes through ${b.id} at ${x},${y}`);
+          }
+        }
+      }
+    }
+  }
+});

@@ -275,42 +275,42 @@ A failed gate aborts before the next wave.
 
 ### Wave 1
 
-- [ ] `proof-journey-map-build-writes-page` PASS: the build writes the sibling page and loads only the three allowed hosts
-- [ ] `proof-journey-map-renderer-identical` PASS: the renderer region is byte-identical across two maps
-- [ ] `proof-journey-map-malformed` PASS: each malformed case names its node, and the build exits 1
-- [ ] `proof-journey-map-layout` PASS: no overlaps, columns follow the longest path, heights match rows
-- [ ] `proof-journey-map-reveal-choice` PASS: only the chosen path is revealed
-- [ ] `proof-journey-map-reveal-continue` PASS: checklist and text wait for Continue
-- [ ] `proof-journey-map-fade-choice` PASS: choice fading spares shared nodes
-- [ ] `proof-journey-map-fade-checklist` PASS: an unticked item fades its waypoint as "later"
-- [ ] `proof-journey-map-no-html-injection` PASS: no unescaped label, and no `innerHTML`
-- [ ] `proof-journey-map-feedback-text` PASS: the exact feedback string
-- [ ] `proof-journey-map-ticket-status` PASS (test part): three distinct styles, and tickets are always revealed
-- [ ] `proof-journey-map-ticket-blocked` PASS: blocked edges and state
-- [ ] `proof-journey-map-deterministic` PASS: same bytes twice
-- [ ] `proof-journey-map-build-input-errors` PASS: three input errors, no output
-- [ ] `proof-journey-map-cdn-failure` PASS (test part): pinned URL with `integrity`
+- [x] `proof-journey-map-build-writes-page` PASS: the build writes the sibling page and loads only the three allowed hosts
+- [x] `proof-journey-map-renderer-identical` PASS: the renderer region is byte-identical across two maps
+- [x] `proof-journey-map-malformed` PASS: each malformed case names its node, and the build exits 1
+- [x] `proof-journey-map-layout` PASS: no overlaps, columns follow the longest path, heights match rows
+- [x] `proof-journey-map-reveal-choice` PASS: only the chosen path is revealed
+- [x] `proof-journey-map-reveal-continue` PASS: checklist and text wait for Continue
+- [x] `proof-journey-map-fade-choice` PASS: choice fading spares shared nodes
+- [x] `proof-journey-map-fade-checklist` PASS: an unticked item fades its waypoint as "later"
+- [x] `proof-journey-map-no-html-injection` PASS: no unescaped label, and no `innerHTML`
+- [x] `proof-journey-map-feedback-text` PASS: the exact feedback string
+- [x] `proof-journey-map-ticket-status` PASS (test part): three distinct styles, and tickets are always revealed
+- [x] `proof-journey-map-ticket-blocked` PASS: blocked edges and state
+- [x] `proof-journey-map-deterministic` PASS: same bytes twice
+- [x] `proof-journey-map-build-input-errors` PASS: three input errors, no output
+- [x] `proof-journey-map-cdn-failure` PASS (test part): pinned URL with `integrity`
 
 ### Wave 2
 
-- [ ] `proof-journey-map-partition` PASS: 19 folders, partition holds
-- [ ] `proof-journey-map-install` PASS: present with `discovery` and `--skills journey-map`, absent with `ship` and `none`
-- [ ] `proof-journey-map-comments-clean` PASS: shipped scripts give zero comment findings
-- [ ] `proof-journey-map-listings` PASS: README and site list it, and the repo copy is identical
-- [ ] `proof-journey-map-skill-feedback-loop` PASS
-- [ ] `proof-journey-map-skill-basics` PASS
-- [ ] `proof-journey-map-skill-placement` PASS
-- [ ] `proof-journey-map-skill-build-step` PASS
-- [ ] `proof-journey-map-skill-lifecycle` PASS
+- [x] `proof-journey-map-partition` PASS: 19 folders, partition holds
+- [x] `proof-journey-map-install` PASS: present with `discovery` and `--skills journey-map`, absent with `ship` and `none`
+- [x] `proof-journey-map-comments-clean` PASS: shipped scripts give zero comment findings
+- [x] `proof-journey-map-listings` PASS: README and site list it, and the repo copy is identical
+- [x] `proof-journey-map-skill-feedback-loop` PASS
+- [x] `proof-journey-map-skill-basics` PASS
+- [x] `proof-journey-map-skill-placement` PASS
+- [x] `proof-journey-map-skill-build-step` PASS
+- [x] `proof-journey-map-skill-lifecycle` PASS
 
 ### Wave 3
 
-- [ ] `proof-journey-map-reference-map` PASS: a subagent's tree from the skill alone builds and holds every listed node
-- [ ] `proof-journey-map-browser-smoke` PASS: reveal, toggle, keyboard, drag-is-not-click and the upward link recorded
-- [ ] `proof-journey-map-clipboard-fallback` PASS: the fallback box is recorded
-- [ ] `proof-journey-map-camera-wait` PASS: a sizing pane opens at a readable zoom
-- [ ] `proof-journey-map-ticket-status` PASS (smoke part): the ticket look is checked by eye
-- [ ] `proof-journey-map-cdn-failure` PASS (smoke part): the blocked-CDN message is recorded
+- [x] `proof-journey-map-reference-map` PASS: a subagent's tree from the skill alone builds and holds every listed node
+- [x] `proof-journey-map-browser-smoke` PASS: reveal, toggle, keyboard, drag-is-not-click and the upward link recorded
+- [x] `proof-journey-map-clipboard-fallback` PASS: the fallback box is recorded
+- [x] `proof-journey-map-camera-wait` PASS: a sizing pane opens at a readable zoom
+- [x] `proof-journey-map-ticket-status` PASS (smoke part): the ticket look is checked by eye
+- [x] `proof-journey-map-cdn-failure` PASS (smoke part): the blocked-CDN message is recorded
 
 ## Eval / gates
 
