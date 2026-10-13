@@ -46,3 +46,46 @@ Drives used: `find` and `read` of the page, real clicks and key presses, and `ja
 
 - The upward link crosses cards. `drawLink` in `renderer/draw.js` starts the link at the bottom of its source card and runs straight up at the source card's middle x. Any card above it in the same column is crossed, and so is the source card's own body. In the test map the link crossed `b2` and `a2`. This row is the original result. The fix is covered by the re-run row above.
 - The drag distance came out as 5 CSS px, not 4, because the tool's 800x600 frame scales to a 1024x768 viewport. The pan threshold itself is not measured by this run.
+
+## Iteration 1
+
+### Setup
+
+- Date: 2026-10-13
+- Commit: 656e57c (working tree with the uncommitted skill, template, test and fixture edits)
+- Pages were built with `templates/.agents/skills/journey-map/scripts/build-map.mjs` and served from a scratch directory by a Python server on `127.0.0.1:8790`. No HTML went into the repository.
+- Fixtures: `cj-001-reference-map.json` for the J4.5 items, the toolbar and the shortcuts. `cj-001-map.json` for the branch, the no-mood step and the annotation. `lotr-map.json` for the text box. Copies of both cj-001 maps with `persona` removed give the face-only case.
+- Widths: 1440x900 and 800x900, set with the pane's viewport emulation. The camera animates for 1 to 3 s, so each measure waited 2 to 3 s.
+- Drives: real clicks and key presses, `find`, screenshots, and `javascript_tool` to read geometry and state.
+- Proof ids: `proof-journey-map-iter1-journey-smoke` covers the J4.5 rows. `-prev-next-smoke` covers the Prev and Next row and the fresh-load shortcut row. `-toolbar` (smoke part) covers the toolbar and menu rows. `-enter-continues` covers the Enter row. `-whole-map-refit` covers the refit row. `-note-annotation` (smoke part) covers the note row.
+
+### Results
+
+Each row lists the 1440 result, then the 800 result.
+
+| Check | Steps | Expected | Observed | Result |
+| --- | --- | --- | --- | --- |
+| J4.5 mood band fill | Open `cj-001-reference-map`. Read the band fill of each step card. | Orange for -1, grey for 0, green for +1 and +2. | 1440 and 800: -1 is `rgb(234,122,26)`, 0 is `rgb(139,143,163)`, +1 is `rgb(101,163,13)`, +2 is `rgb(18,161,80)`. | PASS at 1440, PASS at 800 |
+| J4.5 band text | Read the text in a band. | A face and the persona first name, in white. | The band reads the face and "Alex". No mood word is in the visible text. "Uneasy (-1)" appears only in the `<title>` tooltip and the aria-label. | PASS at 1440, PASS at 800 |
+| J4.5 face only | Open the copy with `persona` removed. | The band shows the face and no name. | Bands show the face alone at 1440. At 800 (recheck, rebuilt copy) the band shows the face and no name; "Uneasy (-1)" is only the tooltip text. | PASS at 1440, PASS at 800 |
+| J4.5 no-mood step | Open `cj-001-map`. Read `co-1b`. | A grey band with muted text. | Fill `rgb(233,234,240)`, text `rgb(110,113,128)`. | PASS at 1440, PASS at 800 |
+| J4.5 mood-coloured edges | Read the stroke of edges into steps and of other edges. | Mood-coloured and thick into steps, grey and thin elsewhere. | Edges into steps are mood-coloured at 3.2 px. Other edges are grey at 1.5 px. | PASS at 1440, PASS at 800 |
+| J4.5 chevron and pencil in the band | Count chevrons and pencils outside the 32 px band. | None outside. | 0 outside the band. The persona start card keeps its own pencil in its body, which is the persona card and not a step card. | PASS at 1440, PASS at 800 |
+| J4.5 thought cloud | Read the 4 clouds. | Above the card, 3 trailing circles. | All 4 sit above their cards with 3 circles each and 0 paths. | PASS at 1440, PASS at 800 |
+| J4.5 count row | Read collapsed steps. | A count row where a step has lists, none where it has none. | `aw-1`, `co-1`, `de-1` and `re-1` have no lists and draw no count row. The others do. | PASS at 1440, PASS at 800 |
+| J4.5 expanded stickies | Press `e` (Expand all) after revealing every step. | Chips inside the card, red and green stickies below, no overlap, all nodes in view. | 4 steps expanded, 8 sticky boxes, 0 overlaps among 22 boxes. The camera refit puts every node in view at scale 0.355 at 1440 and 0.189 at 800. | PASS at 1440, PASS at 800 |
+| J4.5 persona header | Read the start card. | The persona name, role and goal. | "Alex Rivera", "Small Business Owner" and "GOAL" show. At 800 (recheck) the card reads "Alex Rivera", "Small Business Owner" and "GOAL". | PASS at 1440, PASS at 800 |
+| J4.5 mood timeline | Measure `#timeline`. | 120 px tall and inside the viewport. | 120 px tall, 522 px wide. At 1440 its bottom is 834. At 800 it is centred (left 139, right 661). | PASS at 1440, PASS at 800 |
+| J4.5 timeline follows a branch | Choose "Leaves for a competitor", then "Starts the trial". | Four points per branch, the low point inside the box, no clipping. | The competitor branch gives four points (low mood last), the lowest bottom 813 inside 714 to 834 at 1440 and 754 to 813 at 800. The trial branch removes the low point. Height stays 120. | PASS at 1440, PASS at 800 |
+| Next and `n`, Prev and `b` | Click Next and Prev. Press `n` and `b`. | `n` and Next reveal the next step. `b` and Prev hide it, and Prev disables at the first step. | Next and `n` took 2 nodes to 3 and moved the camera. Prev and `b` hid it, disabled Prev, and moved the camera back. Next disables while the walk waits on `co-choice`. | PASS at 1440, PASS at 800 |
+| Shortcut on a fresh load | Load the page. Press `n`, then `b`, with no click. | The shortcut acts at once. | `n` revealed `aw-2` with `#stage` focused and no click. `b` hid it. | PASS at 1440, PASS at 800 |
+| Toolbar | Read the toolbar buttons. Open lotr. | Prev, Next, Start over, the menu button and Copy for agent. In lotr (no journey steps) step by step is off and Prev and Next are hidden. | The reference map shows exactly those five. In lotr, Prev and Next are hidden. At 800 the toolbar wraps: "Copy for agent" sits on a second row and the top bar is 94 px tall (14 to 108). Every button stays usable. | PASS at 1440, PASS at 800 |
+| Menu items | Open the menu button. Press Escape. Click outside. | The items "Step by step P", "Show whole map W" and "Expand all E". Escape closes it. | The three items read correctly. Escape closes it at both widths. An outside click closed it at both widths. At 800 the menu box runs from x -158 to 72, so most of it is off the left edge of the viewport and only the P, W and E hints show. The 1440 box position was not measured in the first run. Recheck after the `draw.js` fix with rebuilt copies: at 1440 the menu is fully visible, left 1056.6 and right 1286.6. At 800 it is fully visible, left 547 and right 777, top 61 and bottom 168.5. All three items read. | PASS at 1440, PASS at 800 after fix (first run FAIL at 800) |
+| Enter in a text box | In `lotr-map`: The Road, Continue on the pack checklist, type "Bill" in the pony box, press Enter. | Enter continues. The typed text stays. | At 1440 revealed nodes went 6 to 10 (meal, descent, armor, mountains), the camera moved to scale 0.709, and the input kept "Bill". At 800, 6 to 10 and the camera moved to `translate(-2150 48.5) scale(1)`, and the input kept "Bill". | PASS at 1440, PASS at 800 |
+| Show whole map refits | Load fresh. Press `w`. Do not press Fit. Press `w` again. | All 10 nodes fit after the animation, then the view refits to the revealed nodes. | At 1440 all 10 nodes were in view at scale 0.356 with 8 ghosts. At 800, scale 0.19 and nothing sat under the top bar. The second `w` refit to the 2 revealed nodes (scale 1 at 1440, 0.956 at 800). | PASS at 1440, PASS at 800 |
+| Note beside an annotation | On `cj-001-map`, type a note on `co-1b`. Read the boxes. Screenshot. | The note box and the annotation text both readable, no overlap. | Card bottom 374, note input 378 to 414, annotation text 426 to 475. Status reads "1 note". Both are readable in the screenshot at both widths. | PASS at 1440, PASS at 800 |
+
+### Findings
+
+- Found and fixed: in the first run at 800 px the menu opened by the "More controls" button was clipped at the left edge. The menu is 230 px wide and aligns its right edge to the button. The wrapped toolbar puts the button at x 33 to 72, so the menu ran from x -158 to 72 and only the P, W and E hints showed. The renderer (`draw.js`) now shifts the menu to stay 8 px inside the viewport. The recheck on rebuilt pages measures it fully visible at both widths (1440: 1056.6 to 1286.6; 800: 547 to 777).
+- Not covered: none.

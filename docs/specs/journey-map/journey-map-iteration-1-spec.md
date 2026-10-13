@@ -225,32 +225,32 @@ A failed gate aborts before the next wave.
 
 ### Wave 4
 
-- [ ] `proof-journey-map-iter1-no-tickets` PASS: tickets are an unknown kind, and nothing names them
-- [ ] `proof-journey-map-iter1-step-by-step` PASS: the stepwise reveal holds and releases; without it, unchanged
-- [ ] `proof-journey-map-iter1-feedback-lines` PASS: the no-change line, and no line for a done waypoint
-- [ ] `proof-journey-map-iter1-note-annotation` PASS (test part): the note and annotation slots are reserved
-- [ ] `proof-journey-map-iter1-journey-validate` PASS: each journey error names its node
-- [ ] `proof-journey-map-iter1-journey-layout` PASS: the zones, no overlap with every step open, and the height sum
-- [ ] `proof-journey-map-iter1-journey-step` PASS: the persona rule
-- [ ] `proof-journey-map-iter1-walked-path` PASS: walk order, the branch change and show-all
+- [x] `proof-journey-map-iter1-no-tickets` PASS: tickets are an unknown kind, and nothing names them
+- [x] `proof-journey-map-iter1-step-by-step` PASS: the stepwise reveal holds and releases; without it, unchanged
+- [x] `proof-journey-map-iter1-feedback-lines` PASS: the no-change line, and no line for a done waypoint
+- [x] `proof-journey-map-iter1-note-annotation` PASS (test part): the note and annotation slots are reserved
+- [x] `proof-journey-map-iter1-journey-validate` PASS: each journey error names its node
+- [x] `proof-journey-map-iter1-journey-layout` PASS: the zones, no overlap with every step open, and the height sum
+- [x] `proof-journey-map-iter1-journey-step` PASS: the persona rule
+- [x] `proof-journey-map-iter1-walked-path` PASS: walk order, the branch change and show-all
 
 ### Wave 5
 
-- [ ] `proof-journey-map-iter1-toolbar` PASS (test part): the toolbar buttons and menu entries
-- [ ] `proof-journey-map-iter1-no-html-injection` PASS: journey text stays escaped, and there's no `innerHTML`
-- [ ] `proof-journey-map-iter1-artifact-default` PASS
-- [ ] `proof-journey-map-iter1-mood-mapping` PASS
-- [ ] `proof-journey-map-iter1-listings` PASS: no "ticket graph" anywhere, and the repo copy is identical
+- [x] `proof-journey-map-iter1-toolbar` PASS (test part): the toolbar buttons and menu entries
+- [x] `proof-journey-map-iter1-no-html-injection` PASS: journey text stays escaped, and there's no `innerHTML`
+- [x] `proof-journey-map-iter1-artifact-default` PASS
+- [x] `proof-journey-map-iter1-mood-mapping` PASS
+- [x] `proof-journey-map-iter1-listings` PASS: no "ticket graph" anywhere, and the repo copy is identical
 
 ### Wave 6
 
-- [ ] `proof-journey-map-iter1-cj001-reference` PASS: a subagent's cj_001 map builds and covers the source
-- [ ] `proof-journey-map-iter1-journey-smoke` PASS: every item recorded at both widths
-- [ ] `proof-journey-map-iter1-prev-next-smoke` PASS
-- [ ] `proof-journey-map-iter1-toolbar` PASS (smoke part): shortcuts on a fresh load at both widths
-- [ ] `proof-journey-map-iter1-enter-continues` PASS
-- [ ] `proof-journey-map-iter1-whole-map-refit` PASS
-- [ ] `proof-journey-map-iter1-note-annotation` PASS (smoke part): both stickies readable
+- [x] `proof-journey-map-iter1-cj001-reference` PASS: a subagent's cj_001 map builds and covers the source
+- [x] `proof-journey-map-iter1-journey-smoke` PASS: every item recorded at both widths
+- [x] `proof-journey-map-iter1-prev-next-smoke` PASS
+- [x] `proof-journey-map-iter1-toolbar` PASS (smoke part): shortcuts on a fresh load at both widths
+- [x] `proof-journey-map-iter1-enter-continues` PASS
+- [x] `proof-journey-map-iter1-whole-map-refit` PASS
+- [x] `proof-journey-map-iter1-note-annotation` PASS (smoke part): both stickies readable
 
 ## Eval / gates
 

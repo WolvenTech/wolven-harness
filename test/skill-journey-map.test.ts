@@ -101,3 +101,15 @@ test('skill-journey-map: no listing still says ticket graph', async () => {
     assert.doesNotMatch(await readFile(new URL(`../${rel}`, import.meta.url), 'utf8'), /ticket graph/, rel);
   }
 });
+
+test('skill-journey-map: draws one waypoint per action, with stage fallbacks and an assumed scale', async () => {
+  const skill = await readSkill('journey-map');
+
+  assert.match(skill.body, /one waypoint per user action/);
+  assert.match(skill.body, /stage name in `tag`/);
+  assert.match(skill.body, /the stage's last step/);
+  assert.match(skill.body, /Give every step of the\s+stage the stage's mood/);
+  assert.match(skill.body, /bands are an\s+assumption/);
+  assert.match(skill.body, /word for\s+word/);
+  assert.match(skill.body, /Only a step's `label` may shorten/);
+});

@@ -674,3 +674,32 @@ test('journey-map build: journey text with markup is escaped in the page data an
     assert.ok(!rendererFile('draw.js').includes('innerHTML'));
   });
 });
+
+test('journey-map reference map: a fresh agent mapped cj_001 with every source item and a mood per step', () => {
+  const logic = loadLogic();
+  const source = JSON.parse(readFileSync(path.join(root, 'docs/notes/visual-map-kinds/cj-001-source.json'), 'utf8'));
+  const map = fixture('cj-001-reference-map.json');
+  assert.deepEqual([...logic.validate(map)], []);
+  inTempDir((dir) => {
+    const result = buildMap(dir, 'cj-001-reference-map.json', map);
+    assert.equal(result.status, 0, result.stderr);
+  });
+
+  assert.equal(map.persona.name, source.persona.name);
+  const waypoints = logic.all(map).filter((n: Map) => n.kind === 'waypoint');
+  const actions = source.stages.reduce((sum: number, s: Map) => sum + s.user_actions.length, 0);
+  assert.equal(waypoints.length, actions);
+  for (const w of waypoints) assert.ok(Number.isInteger(w.mood), `${w.id} has an integer mood`);
+
+  const thoughts = new Set(waypoints.map((w: Map) => w.thought));
+  const listed = (field: string) => new Set(waypoints.flatMap((w: Map) => w[field] || []));
+  const touchpoints = listed('touchpoints');
+  const pains = listed('pains');
+  const opportunities = listed('opportunities');
+  for (const stage of source.stages) {
+    assert.ok(thoughts.has(stage.thoughts), stage.thoughts);
+    for (const t of stage.touchpoints) assert.ok(touchpoints.has(t), t);
+    for (const p of stage.pain_points) assert.ok(pains.has(p), p);
+    for (const o of stage.opportunities) assert.ok(opportunities.has(o), o);
+  }
+});

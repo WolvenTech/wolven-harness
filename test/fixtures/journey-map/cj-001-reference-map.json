@@ -1,0 +1,100 @@
+{
+  "version": 1,
+  "title": "Alex Rivera: spreadsheets to invoicing software",
+  "subtitle": "Walk Alex's journey step by step",
+  "persona": {
+    "name": "Alex Rivera",
+    "role": "Small Business Owner",
+    "goal": "Find a reliable and affordable invoicing software"
+  },
+  "scenario": "Alex needs to switch from manual spreadsheets to an automated invoicing tool to save time.",
+  "trees": [
+    {
+      "id": "journey",
+      "nodes": [
+        { "id": "start", "kind": "start", "label": "Alex Rivera", "next": "aw-1" },
+        {
+          "id": "aw-1",
+          "kind": "waypoint",
+          "tag": "Awareness",
+          "label": "Realizes manual invoicing takes too much time",
+          "mood": -1,
+          "next": "aw-2"
+        },
+        {
+          "id": "aw-2",
+          "kind": "waypoint",
+          "tag": "Awareness",
+          "label": "Searches Google for best small business invoicing tools",
+          "mood": -1,
+          "thought": "There are too many options. Which one is actually simple to use?",
+          "touchpoints": ["Google Search", "Industry Blog Post"],
+          "pains": ["Overwhelmed by generic comparison lists", "Unclear pricing tiers"],
+          "opportunities": ["Publish a clear, interactive feature and pricing comparison guide"],
+          "next": "co-1"
+        },
+        {
+          "id": "co-1",
+          "kind": "waypoint",
+          "tag": "Consideration",
+          "label": "Reads reviews on Capterra",
+          "mood": 0,
+          "next": "co-2"
+        },
+        {
+          "id": "co-2",
+          "kind": "waypoint",
+          "tag": "Consideration",
+          "label": "Signs up for a free 14-day trial",
+          "mood": 0,
+          "thought": "I hope setting up my first invoice doesn't take longer than 10 minutes.",
+          "touchpoints": ["Review Site", "Landing Page", "Onboarding Email"],
+          "pains": ["Blank dashboard upon first login without a quick-start template"],
+          "opportunities": ["Add a 1-minute interactive setup wizard upon sign-up"],
+          "next": "de-1"
+        },
+        {
+          "id": "de-1",
+          "kind": "waypoint",
+          "tag": "Decision / Purchase",
+          "label": "Enters credit card details for the monthly plan",
+          "mood": 1,
+          "next": "de-2"
+        },
+        {
+          "id": "de-2",
+          "kind": "waypoint",
+          "tag": "Decision / Purchase",
+          "label": "Generates and sends the first client invoice",
+          "mood": 1,
+          "thought": "That was fast and painless. Let's see how clients react to the link.",
+          "touchpoints": ["Checkout Page", "Payment Confirmation Screen"],
+          "pains": ["Worry about hidden renewal fees"],
+          "opportunities": ["Send a transparent receipt and a one-click calendar reminder before trial ends"],
+          "next": "re-1"
+        },
+        {
+          "id": "re-1",
+          "kind": "waypoint",
+          "tag": "Retention / Support",
+          "label": "Receives first online payment from a client",
+          "mood": 2,
+          "next": "re-2"
+        },
+        {
+          "id": "re-2",
+          "kind": "waypoint",
+          "tag": "Retention / Support",
+          "label": "Contacts live chat with a tax-formatting question",
+          "mood": 2,
+          "thought": "Support answered in 2 minutes. This is worth the monthly subscription.",
+          "touchpoints": ["In-App Chat Support", "Customer Portal"],
+          "pains": ["Difficulty finding local tax settings documentation"],
+          "opportunities": ["Proactively surface regional tax setup tooltips in the settings panel"]
+        }
+      ]
+    }
+  ],
+  "links": [],
+  "annotations": []
+}

@@ -58,7 +58,9 @@ The map is one JSON file, `<slug>-map.json`, with `version: 1`.
   "persona": { "name": "Alex Rivera", "role": "Small Business Owner", "goal": "Find a reliable and affordable invoicing software" },
   "scenario": "Alex needs to switch from manual spreadsheets to an automated invoicing tool to save time.",
   "trees": [{ "id": "journey", "nodes": [
-    { "id": "start", "kind": "start", "label": "Alex Rivera", "next": "aw-2" },
+    { "id": "start", "kind": "start", "label": "Alex Rivera", "next": "aw-1" },
+    { "id": "aw-1", "kind": "waypoint", "tag": "Awareness", "label": "Notices spreadsheet errors",
+      "mood": -1, "next": "aw-2" },
     { "id": "aw-2", "kind": "waypoint", "tag": "Awareness", "label": "Searches Google for invoicing tools",
       "mood": -1, "thought": "Which one is actually simple to use?",
       "touchpoints": ["Google Search"], "pains": ["Unclear pricing tiers"], "opportunities": ["A clear pricing guide"] }

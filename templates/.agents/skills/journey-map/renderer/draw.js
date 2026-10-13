@@ -1002,12 +1002,26 @@
     }
   }
 
+  // why: the toolbar wraps on narrow viewports, so the button can sit near the left edge and a right-aligned menu would clip.
+  function placeMenu() {
+    menuEl.style.right = '0px';
+    menuEl.style.left = 'auto';
+    const r = menuEl.getBoundingClientRect();
+    const vw = document.documentElement.clientWidth;
+    const room = 8;
+    let dx = 0;
+    if (r.left < room) dx = room - r.left;
+    else if (r.right > vw - room) dx = vw - room - r.right;
+    menuEl.style.right = `${-dx}px`;
+  }
+
   moreBtn.onclick = (e) => {
     e.stopPropagation();
     const willOpen = menuEl.hidden;
     if (willOpen) renderMenu();
     menuEl.hidden = !willOpen;
     moreBtn.setAttribute('aria-expanded', String(willOpen));
+    if (willOpen) placeMenu();
   };
   document.addEventListener('pointerdown', (e) => {
     if (!menuEl.hidden && !e.target.closest?.('#menu, #more')) closeMenu();
@@ -1015,7 +1029,10 @@
 
   /** Syncs the toolbar with the walk: Prev and Next show only while step by step is on. */
   function drawChrome() {
-    if (!menuEl.hidden) renderMenu();
+    if (!menuEl.hidden) {
+      renderMenu();
+      placeMenu();
+    }
     nextBtn.hidden = !stepwise;
     prevBtn.hidden = !stepwise;
     nextBtn.disabled = showAll || !L.pending(map, state);

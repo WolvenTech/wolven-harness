@@ -65,6 +65,21 @@ touchpoints, pains and opportunities. The fields are in
 such as a 1 to 5 score or words like "frustrated", map it onto −2 to +2.
 Write that mapping in the doc beside the map, so a reader can check it.
 
+Drawing a journey:
+
+- A journey is an action path. Draw one waypoint per user action, not one
+  per stage. Put the stage name in `tag` and the action in `label`, and
+  chain the steps with `next` from the `start`.
+- When a source gives thought, touchpoints, pains, opportunities or mood
+  per stage, put each detail on the step it belongs to. If the source
+  doesn't say which, use the stage's last step. Give every step of the
+  stage the stage's mood.
+- Copy a source's thoughts, touchpoints, pains and opportunities word for
+  word. Only a step's `label` may shorten the source action.
+- When the source's mood scale is undocumented, infer bands from the values
+  present and map them onto −2 to +2. Say in the note that the bands are an
+  assumption.
+
 ## What the Human sees
 
 - Upcoming steps stay hidden until the Human decides. "Show whole map" in
