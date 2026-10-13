@@ -81,7 +81,9 @@ test('setup-skill-sets: a TTY prompt is asked only when neither flag nor config 
   });
 
   assert.equal(result.code, 0, result.stderr);
-  assert.deepEqual(seen, [['Ship — commit, PR, review, CI', 'Discovery — PRD, prototype, handoff, fool, jury']]);
+  assert.deepEqual(seen, [
+    ['Ship — commit, PR, review, CI', 'Discovery — PRD, prototype, handoff, fool, jury, journey map'],
+  ]);
   assert.deepEqual(await installed(dir), [...CORE_SKILLS, ...SET_SKILLS.discovery].sort());
 });
 
@@ -151,4 +153,43 @@ test('setup-skill-sets: invalid values fail with a hint and write nothing', asyn
 test('setup-skill-sets: --help lists --skills', async () => {
   const result = await run(['--help'], { cwd: await makeRepo({}) });
   assert.ok(result.stdout.includes('--skills'));
+});
+
+const JOURNEY_MAP_FILES = [
+  'SKILL.md',
+  'references/tree-format.md',
+  'renderer/draw.js',
+  'renderer/logic.js',
+  'renderer/page.html',
+  'scripts/build-map.mjs',
+];
+
+async function filesUnder(dir: string, prefix = ''): Promise<string[]> {
+  const out: string[] = [];
+  for (const entry of await readdir(path.join(dir, prefix), { withFileTypes: true })) {
+    const rel = prefix === '' ? entry.name : `${prefix}/${entry.name}`;
+    if (entry.isDirectory()) out.push(...(await filesUnder(dir, rel)));
+    else out.push(rel);
+  }
+  return out.sort();
+}
+
+test('proof-journey-map-install: --skills discovery installs journey-map with its renderer and script', async () => {
+  const dir = await makeRepo({}, { git: true });
+
+  const result = await run([...BASE, '--skills', 'discovery'], { cwd: dir });
+
+  assert.equal(result.code, 0, result.stderr);
+  assert.deepEqual(await filesUnder(path.join(dir, '.agents/skills/journey-map')), JOURNEY_MAP_FILES);
+});
+
+test('proof-journey-map-install: --skills ship and --skills none leave journey-map out', async () => {
+  for (const skills of ['ship', 'none']) {
+    const dir = await makeRepo({}, { git: true });
+
+    const result = await run([...BASE, '--skills', skills], { cwd: dir });
+
+    assert.equal(result.code, 0, result.stderr);
+    assert.ok(!(await installed(dir)).includes('journey-map'), `--skills ${skills}`);
+  }
 });

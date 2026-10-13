@@ -1,11 +1,13 @@
 import assert from 'node:assert/strict';
-import { spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { execFileSync, spawnSync } from 'node:child_process';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import vm from 'node:vm';
+import { findCommentFindings } from '../src/comments/index.js';
+import { makeRepo } from './helpers/fixture.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const logicPath = path.join(root, 'templates', '.agents', 'skills', 'journey-map', 'renderer', 'logic.js');
@@ -310,4 +312,24 @@ test('journey-map build: an injected label stays escaped in the page', () => {
     assert.ok(!(result.html ?? '').includes(label));
     assert.ok((result.html ?? '').includes('\\u003c/script>'));
   });
+});
+
+test('journey-map comments: the shipped scripts pass a consumer comment check', async () => {
+  const dir = await makeRepo({ 'README.md': 'base\n' }, { git: true });
+  const git = (...args: string[]) => execFileSync('git', args, { cwd: dir, encoding: 'utf8' }).trim();
+  const base = git('rev-parse', 'HEAD');
+  const shipped: Array<[string, string]> = [
+    ['logic.js', 'renderer/logic.js'],
+    ['draw.js', 'renderer/draw.js'],
+    ['build-map.mjs', 'scripts/build-map.mjs'],
+  ];
+  for (const [, rel] of shipped) {
+    const target = path.join(dir, '.agents', 'skills', 'journey-map', rel);
+    mkdirSync(path.dirname(target), { recursive: true });
+    writeFileSync(target, readFileSync(path.join(skillDir, rel), 'utf8'));
+  }
+  git('add', '-A');
+  git('-c', 'user.name=t', '-c', 'user.email=t@example.com', 'commit', '-m', 'add journey-map');
+
+  assert.deepEqual(await findCommentFindings({ root: dir, base }), []);
 });

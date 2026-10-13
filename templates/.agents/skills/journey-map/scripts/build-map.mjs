@@ -1,4 +1,4 @@
-// Builds a self-contained journey-map page: node build-map.mjs <dir>/<slug>-map.json
+// why: usage is `node build-map.mjs <dir>/<slug>-map.json`; the page is written next to the input.
 import { readFile, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import vm from 'node:vm';
