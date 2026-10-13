@@ -37,7 +37,7 @@ Interactive runs preselect `ship`. Non-interactive runs without `--skills` insta
 
 ## What to do next
 
-Ask your agent to run `harness-init`. On a fresh or thin-evidence repo, the lean path asks for your immediate goal in one sentence (unless you stated one), then may defer a few items after naming each to you; [`lean-path.md`](https://github.com/WolvenTech/wolven-harness/blob/main/templates/.agents/skills/harness-init/references/lean-path.md) lists them. Your choices land under **Deferred / skipped steps** in the session note, and skill proposals still run. See [harness-init](https://wolventech.github.io/wolven-harness/harness-init). Then:
+Ask your agent to run `harness-init`. It first asks how much setup you want right now. The basics path notes your first goal and updates `AGENTS.md`, then hands back; [`lean-path.md`](https://github.com/WolvenTech/wolven-harness/blob/main/templates/.agents/skills/harness-init/references/lean-path.md) lists what it leaves for later. The full tour opens with one checklist of what this run should cover. Either way, the run ends by offering to start a spec for your goal. See [harness-init](https://wolventech.github.io/wolven-harness/harness-init). Then:
 
 1. `code-spec`: agree on the change and how to verify it.
 2. `code-plan`: approve the implementation steps.

@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
+import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
@@ -32,13 +32,6 @@ const REFERENCES = [
 
 const LEAN_PATH = 'references/lean-path.md';
 
-const LEAN_ROWS = [
-  'Deep discovery Q&A beyond files',
-  'Optional web research',
-  'Per-dimension score-gap keep/drop questions',
-  'Validate-wiring question',
-];
-
 const CONSUMER_NAME_RE = /agentic-mkt|compozy/i;
 
 test('skill-shape: passes the shared skill contract checks, including the harness:validate mention', async () => {
@@ -69,11 +62,14 @@ test('skill-shape: lists steps 0 through 6 in order', async () => {
   }
 });
 
-test('skill-shape: step 1 is offered only when validate reports legacy-adr', async () => {
+test('proof-full-step1-covered: step 1 runs only when covered and validate reports legacy-adr', async () => {
   const skill = await readSkill('harness-init');
 
   const migrationSection = flatten(skill.body.split(/^### 1\. Legacy ADR migration/m)[1]?.split(/^### /m)[0] ?? '');
-  assert.match(migrationSection, /offered only when.*`?legacy-adr`?/i);
+  assert.match(
+    migrationSection,
+    /Runs when "Move old decision records" is covered and `harness:validate` reports `legacy-adr`/,
+  );
 });
 
 test('skill-shape: re-run skips step 0, step 1, and resumes a draft session note', async () => {
@@ -257,176 +253,233 @@ test('skill-harness-init: step 6 scores the harness, asks per dimension, and nev
   );
 });
 
-test('skill-harness-init: lean path defers exactly four named items, including validate-wiring', async () => {
+test('proof-basics-path-question: the Human picks the path from one plain question, basics first', async () => {
   const skill = await readSkill('harness-init');
   const raw = await skill.read(LEAN_PATH);
-  const lean = flatten(raw);
+  const question = flatten(section(raw, '## The path question'));
 
-  assert.match(lean, /thin-evidence/i);
-  assert.match(lean, /defers exactly these four items, and nothing else/i);
-
-  const boundary = parseMarkdownTables(section(raw, '## Deferral boundary')).filter(
-    (table) => table.headers[0] === 'Deferrable',
-  );
-  assert.equal(boundary.length, 1, 'one deferral boundary table');
-  assert.deepEqual(boundary[0].headers, ['Deferrable', 'Step', 'What may wait']);
-  assert.deepEqual(
-    boundary[0].rows.map((row) => row[0]),
-    LEAN_ROWS,
-  );
-  assert.equal(boundary[0].rows.find((row) => row[0] === 'Validate-wiring question')?.[1], 'part of 6');
-
-  const wiring = flatten(section(raw, '### Validate wiring'));
-  assert.match(wiring, /one of the four deferrable items/i);
-  assert.match(wiring, /Deferred \/ skipped steps/i);
-  assert.match(wiring, /ask nothing, write nothing/i);
-  assert.match(wiring, /choose a wiring later/i);
-});
-
-test('skill-harness-init: a resumed lean run reads its choices from the note', async () => {
-  const skill = await readSkill('harness-init');
-  const raw = await skill.read(LEAN_PATH);
-  const resume = flatten(section(raw, '## Resume first'));
-
+  assert.match(question, /"How much setup do you want right now\?"/);
   assert.ok(
-    raw.indexOf('## Resume first') < raw.indexOf('## When lean applies'),
-    'resume is checked before lean is chosen',
+    question.indexOf('Just the basics') < question.indexOf('The full tour'),
+    'Just the basics is offered before The full tour',
   );
-  assert.match(
-    resume,
-    /`draft` note .* records `\*\*Mode:\*\* lean` resumes with that mode, its immediate goal and its agreed deferrals/i,
-  );
-  assert.match(resume, /Ask none of them again/i);
-  assert.match(resume, /`stable` note means init already finished: lean does not apply/i);
-  assert.match(flatten(section(raw, '## When lean applies')), /after the resume check above and before step 0/i);
+  assert.match(question, /\*\*Just the basics\*\* \(recommended\)/);
+  assert.match(question, /Never pick it for them from what the tree shows/);
+  assert.ok(raw.indexOf('## Resume first') < raw.indexOf('## The path question'), 'resume is checked first');
 
   const fork = flatten(section(skill.body, '## Lean path'));
   assert.ok(skill.body.indexOf('## Re-run skips') < skill.body.indexOf('## Lean path'), 're-run skips come first');
-  assert.match(fork, /comes after the re-run checks above/i);
-  assert.match(fork, /`stable` harness-init note already exists, lean does not apply/i);
-  assert.match(
-    flatten(section(skill.body, '## Re-run skips')),
-    /resumed, not replaced, with the mode, immediate goal and deferrals it already records/i,
-  );
-});
+  assert.match(fork, /"How much setup do you want right now\?"/);
 
-test('skill-harness-init: a leaked credential is never deferred on the lean path', async () => {
-  const raw = await (await readSkill('harness-init')).read(LEAN_PATH);
-  const [boundary] = parseMarkdownTables(section(raw, '## Deferral boundary'));
-  const scoreRow = flatten(
-    boundary.rows.find((row) => row[0] === 'Per-dimension score-gap keep/drop questions')?.[2] ?? '',
-  );
-
-  assert.match(
-    scoreRow,
-    /`HYG-03`, `HYG-04` or `HYG-06` failure is never deferred: stop and show the Human the finding/i,
-  );
-  assert.match(
-    flatten(section(raw, '### Harness score (step 6)')),
-    /`HYG-06` failure is a leaked credential, never a deferrable gap: stop/i,
-  );
-});
-
-test('skill-harness-init: the discovery deferral holds on an empty repo', async () => {
-  const raw = await (await readSkill('harness-init')).read(LEAN_PATH);
-  const [boundary] = parseMarkdownTables(section(raw, '## Deferral boundary'));
-  const discoveryRow = flatten(boundary.rows.find((row) => row[0] === 'Deep discovery Q&A beyond files')?.[2] ?? '');
-
-  assert.match(discoveryRow, /when the tree is thin or empty/i);
-  assert.match(discoveryRow, /an empty context list is recorded as empty and does not block the deferral/i);
-  assert.doesNotMatch(discoveryRow, /usable context list/i);
-  assert.match(flatten(section(raw, '### Discovery (step 2)')), /even when the tree is thin or empty/i);
-});
-
-test('skill-harness-init: lean path captures the immediate goal instead of assuming one', async () => {
-  const skill = await readSkill('harness-init');
-  const raw = await skill.read(LEAN_PATH);
-  const lean = flatten(raw);
-
-  assert.match(lean, /a goal is not a precondition for lean/i);
-  const before = flatten(section(raw, '## Before step 0'));
-  assert.match(before, /Capture the immediate goal/i);
-  assert.match(before, /ask one question/i);
-  assert.match(before, /One sentence/i);
-  assert.match(before, /never compose one for the Human/i);
-  assert.match(before, /"none stated"/i);
-  assert.ok(
-    before.indexOf('Capture the immediate goal') < before.indexOf('Present the deferral list'),
-    'goal is captured before the deferral list is presented',
-  );
-  assert.match(flatten(section(raw, '## Skill proposals')), /Proposals cite the recorded immediate goal/i);
-  assert.match(
-    flatten(section(raw, '### Discovery (step 2)')),
-    /goal question .* is separate from these two and is never deferred/i,
-  );
-});
-
-test('skill-harness-init: lean deferrals are named before proceeding and recorded in the session note', async () => {
-  const skill = await readSkill('harness-init');
-  const lean = flatten(await skill.read(LEAN_PATH));
-
-  assert.match(lean, /Before proceeding/i);
-  assert.match(lean, /present each deferred or skipped step by number and name/i);
-  assert.match(lean, /with why and what remaining work/i);
-  assert.match(lean, /Deferred \/ skipped steps/i);
-  assert.match(lean, /Never silently skip a step/i);
-
-  const note = flatten(await skill.read('references/session-note-template.md'));
-  assert.match(note, /## Deferred \/ skipped steps/);
-  assert.match(note, /\| Step \| Name \| Reason \| Remaining work \|/);
-  assert.match(note, /why this step was deferred or skipped/i);
-  assert.match(note, /what still needs doing later/i);
-  assert.match(note, /\*\*Immediate goal:\*\*/);
-  assert.match(note, /\*\*Mode:\*\* <lean or full>/);
-});
-
-test('skill-harness-init: skill proposals are never deferred on the lean path', async () => {
-  const skill = await readSkill('harness-init');
-  const raw = await skill.read(LEAN_PATH);
-  const proposals = flatten(section(raw, '## Skill proposals'));
-
-  assert.match(proposals, /Skill proposals \(step 4\) are never deferred/i);
-  assert.match(proposals, /never listed as skippable/i);
-  assert.match(proposals, /recorded immediate goal and the available references/i);
-  assert.match(proposals, /explicit thin-evidence basis/i);
-  assert.match(proposals, /Unsupported tool or architecture decisions stay open/i);
-  assert.match(flatten(skill.body), /Deferring skill proposals \(step 4\) on the lean path/i);
-
-  const boundary = parseMarkdownTables(raw).find((table) => table.headers[0] === 'Deferrable');
-  assert.ok(boundary, 'boundary table present');
-  for (const row of boundary.rows) {
-    assert.doesNotMatch(row.join(' '), /proposal|step 4|^4$/i, `boundary row "${row[0]}" must not defer proposals`);
+  for (const rel of skill.files) {
+    assert.doesNotMatch(await skill.read(rel), /thin-evidence/i, `${rel} still judges the path from the tree`);
   }
 });
 
-test('skill-harness-init: lean path still lists the must-run steps', async () => {
+test('proof-basics-resume: a draft note resumes its path, and a stable note asks the path question again', async () => {
   const skill = await readSkill('harness-init');
-  const raw = await skill.read(LEAN_PATH);
-  const mustRun = flatten(section(raw, '## Must still run'));
-  const list = mustRun.split(/Validate-wiring is not in that list/i)[0] ?? '';
+  const resume = flatten(section(await skill.read(LEAN_PATH), '## Resume first'));
 
-  assert.match(list, /Entry integration \(step 0\)/i);
-  assert.match(list, /Legacy ADR migration when needed \(step 1\)/i);
-  assert.match(list, /File-based discovery \(step 2/i);
-  assert.match(list, /Skill proposals \(step 4 — never deferred\)/i);
-  assert.match(list, /Stubs for skills the Human picks \(step 5\)/i);
-  assert.match(list, /score run that records the level without forcing every gap question/i);
-  assert.match(list, /Session note close/i);
-  assert.match(list, /`stable` at hand-back/);
-  assert.doesNotMatch(list, /validate-wiring/i);
-  assert.match(mustRun, /Validate-wiring is not in that list/i);
-  assert.match(mustRun, /asked as one essential choice unless the Human agreed to defer it/i);
-
-  const score = flatten(section(raw, '### Harness score (step 6)'));
-  assert.match(score, /lean path never defers the score run/i);
-  assert.match(score, /failing checks left open/i);
+  assert.match(
+    resume,
+    /`draft` note that records a \*\*Path:\*\* resumes on that path, with the goal and coverage it records/,
+  );
+  assert.match(resume, /Ask none of them again/);
+  assert.match(resume, /`stable` note means an earlier run finished\. It does not block a new run/);
+  assert.match(resume, /the path question is asked again/);
+  assert.match(
+    flatten(section(skill.body, '## Re-run skips')),
+    /resumed, not replaced, with the path, goal and coverage it already records/,
+  );
 });
 
-test('skill-harness-init: a declined lean deferral runs on the full path', async () => {
-  const skill = await readSkill('harness-init');
-  const lean = flatten(await skill.read(LEAN_PATH));
+test('proof-basics-three-questions: the lean path asks the path, the goal and the AGENTS.md question, in that order', async () => {
+  const asks = flatten(section(await (await readSkill('harness-init')).read(LEAN_PATH), '## What the lean path asks'));
 
-  assert.match(lean, /A declined item runs as on the full path/);
+  assert.match(asks, /In this order, and nothing else/);
+  const order = [
+    'The path question above',
+    'What do you want to get done first in this repo?',
+    'how much to change `AGENTS.md`',
+  ];
+  const positions = order.map((phrase) => {
+    const index = asks.indexOf(phrase);
+    assert.ok(index >= 0, `missing "${phrase}"`);
+    return index;
+  });
+  assert.ok(positions[0] < positions[1] && positions[1] < positions[2], 'path, then goal, then AGENTS.md');
+  assert.match(asks, /never compose one for the Human/);
+  assert.match(asks, /become questions only when they find something/);
+});
+
+test('proof-basics-skips: the lean path leaves steps 1 to 5 and both step 6 questions for later', async () => {
+  const skips = flatten(
+    section(await (await readSkill('harness-init')).read(LEAN_PATH), '## What the lean path does not run'),
+  );
+
+  assert.match(skips, /\*\*Left for later\*\* in the note and listed in the hand-back/);
+  assert.match(skips, /Step 1, legacy ADR migration/);
+  assert.match(skips, /Step 2, discovery: neither reading the repo nor its questions/);
+  assert.match(skips, /Step 3, research/);
+  assert.match(skips, /Steps 4 and 5, skill proposals and stubs/);
+  assert.match(skips, /Step 6's score-gap questions/);
+  assert.match(skips, /Step 6's question about how to check the harness/);
+});
+
+test('proof-basics-empty-goal: an empty goal is recorded as none given and never asked again', async () => {
+  const asks = flatten(section(await (await readSkill('harness-init')).read(LEAN_PATH), '## What the lean path asks'));
+
+  assert.match(asks, /An empty answer is recorded as "none given", and the run moves on without asking again/);
+});
+
+test('proof-basics-writes: the lean path writes only the step 0 change and the note, with one entry commit offer', async () => {
+  const writes = flatten(
+    section(await (await readSkill('harness-init')).read(LEAN_PATH), '## What the lean path writes'),
+  );
+
+  assert.match(writes, /Only step 0's change and the session note/);
+  assert.match(writes, /the `AGENTS\.md` change, the `WOLVEN\.md` change that goes with it/);
+  assert.match(writes, /one commit, for the entry phase/);
+});
+
+test('proof-leak-checks-every-path: every path reads the leaked-credential checks before step 0 writes anything', async () => {
+  const skill = await readSkill('harness-init');
+
+  const gate = skill.body.indexOf('## Leaked credentials before step 0');
+  assert.ok(gate >= 0, 'SKILL.md has a leaked-credential gate section');
+  assert.ok(gate < skill.body.indexOf('### 0. Entry integration'), 'the gate comes before step 0 writes anything');
+  const gateText = flatten(section(skill.body, '## Leaked credentials before step 0'));
+  assert.match(gateText, /before step 0 writes anything \(the session note included\)/);
+  assert.match(
+    gateText,
+    /read the leaked-credential checks: `HYG-03`, `HYG-04` and `HYG-06`\. A failure stops the run/,
+  );
+  const step6 = flatten(skill.body.split(/^### 6\. /m)[1]?.split(/^## /m)[0] ?? '');
+  assert.match(step6, /The leaked-credential checks already ran before step 0/);
+
+  const score = flatten(
+    section(await skill.read('references/harness-score.md'), '## Leaked-credential checks on every path'),
+  );
+  assert.match(score, /Every run reads the leaked-credential checks, whichever path the Human picked/);
+  assert.match(
+    score,
+    /They run before step 0, so a leak stops the run before the session note or any other file is written/,
+  );
+  assert.match(
+    score,
+    /When the score is not covered this run, nothing else from the report is recorded or asked about/,
+  );
+  assert.match(score, /If the Human declines the install, the run continues/);
+  assert.match(score, /"leaked-credential checks not run" under \*\*Left for later\*\*/);
+
+  const runs = flatten(section(await skill.read(LEAN_PATH), '## What the lean path runs'));
+  const leak = runs.indexOf('The leaked-credential checks');
+  assert.ok(
+    leak >= 0 && leak < runs.indexOf('Step 0, entry integration'),
+    'the lean path checks for leaks before step 0',
+  );
+  assert.match(
+    runs,
+    /after the goal question and before step 0\. A leaked credential stops the run before anything else is written/,
+  );
+});
+
+test('proof-full-coverage-checklist: the full tour opens with six ticked items, each mapped to its step', async () => {
+  const skill = await readSkill('harness-init');
+  const raw = section(skill.body, '## Full tour coverage');
+  const coverage = flatten(raw);
+
+  assert.match(coverage, /before step 0, show one checklist: "What should this run cover\?" Every item starts ticked/);
+  const [table] = parseMarkdownTables(raw);
+  assert.deepEqual(table.headers, ['Item', 'Covers']);
+  assert.deepEqual(
+    table.rows.map((row) => row[0]),
+    [
+      'Move old decision records',
+      "Ask about the project's stage and plans",
+      'Look up your tools on the web',
+      'Suggest skills for this repo',
+      'Check the harness score now',
+      'Set up automatic checks',
+    ],
+  );
+  assert.deepEqual(
+    table.rows.map((row) => row[1].split(',')[0]),
+    ['Step 1', 'Step 2', 'Step 3', 'Steps 4 and 5', 'Step 6', 'Step 6'],
+  );
+  assert.ok(
+    skill.body.indexOf('## Full tour coverage') < skill.body.indexOf('## Workflow'),
+    'coverage comes before step 0',
+  );
+});
+
+test('proof-full-unticked-is-later: an unticked item never runs and is listed for later', async () => {
+  const skill = await readSkill('harness-init');
+  const coverage = flatten(section(skill.body, '## Full tour coverage'));
+
+  assert.match(coverage, /An unticked item is never asked about or run: record it under \*\*Left for later\*\*/);
+  assert.match(
+    coverage,
+    /File-based discovery and the repo and `qmd` search still run on the full path, whatever is ticked/,
+  );
+  assert.match(
+    coverage,
+    /With every item unticked, the run reads the leaked-credential checks, makes only step 0's change, and hands back/,
+  );
+
+  const step6 = flatten(skill.body.split(/^### 6\. /m)[1]?.split(/^## /m)[0] ?? '');
+  assert.match(step6, /when "Set up automatic checks" is covered/);
+  assert.match(step6, /When "Check the harness score now" is covered/);
+});
+
+test('proof-wiring-plain-labels: the wiring question asks how to check the harness, with three labels', async () => {
+  const ref = flatten(await (await readSkill('harness-init')).read('references/validate-wiring.md'));
+
+  assert.match(ref, /The question is "How should we check the harness\?"/);
+  assert.match(ref, /\*\*On every pull request\*\* \(a CI job\)/);
+  assert.match(ref, /\*\*With your existing checks\*\* \(chained into the existing script\)/);
+  assert.match(ref, /\*\*Only when I run it\*\* \(local only\)/);
+});
+
+test('proof-handback-three-parts: the hand-back says what is installed, what waits, and what to do next', async () => {
+  const step6 = flatten((await readSkill('harness-init')).body.split(/^### 6\. /m)[1]?.split(/^## /m)[0] ?? '');
+
+  assert.match(step6, /hand the run back to the Human in one closing message with three parts/);
+  assert.match(
+    step6,
+    /\*\*What's installed:\*\* the skills and the runtimes they are ready in, the `AGENTS\.md` change/,
+  );
+  assert.match(step6, /\*\*Left for later:\*\* every step this run did not run/);
+  assert.match(step6, /\*\*Next steps:\*\* a numbered list fitted to the installed skill sets/);
+});
+
+test('proof-handback-spec-offer: the hand-back offers a spec for the goal and starts nothing without a yes', async () => {
+  const step6 = flatten((await readSkill('harness-init')).body.split(/^### 6\. /m)[1]?.split(/^## /m)[0] ?? '');
+
+  assert.match(step6, /"Should we start with a spec for “<goal>”\?" when the Human gave a goal/);
+  assert.match(step6, /"What should we build first\?" when none was given/);
+  assert.match(step6, /On a yes, the run ends and `code-spec` starts as separate work on its own branch/);
+  assert.match(step6, /Nothing starts without a yes/);
+});
+
+test('proof-no-stale-lean-tests: no test still pins the replaced lean path', async () => {
+  const testDir = path.join(ROOT, 'test');
+  const self = path.basename(fileURLToPath(import.meta.url));
+  // why: the phrases are split so this file does not match the list it guards.
+  const retired = [
+    ['defers exactly these', 'four items'],
+    ['A declined item runs as', 'on the full path'],
+    ['Skill proposals (step 4) are', 'never deferred'],
+    ['shows the four', 'beats in order'],
+  ].map((parts) => parts.join(' '));
+
+  for (const name of await readdir(testDir)) {
+    if (!name.endsWith('.test.ts') || name === self) continue;
+    const content = await readFile(path.join(testDir, name), 'utf8');
+    for (const phrase of retired) {
+      assert.ok(!content.includes(phrase), `${name} still pins "${phrase}"`);
+    }
+  }
 });
 
 test('skill-harness-init: lean rules live only in lean-path.md, which SKILL.md loads', async () => {
@@ -441,39 +494,4 @@ test('skill-harness-init: lean rules live only in lean-path.md, which SKILL.md l
   }
 
   assert.match(skill.body, /\[references\/lean-path\.md\]\(references\/lean-path\.md\)/);
-
-  const holders: string[] = [];
-  for (const rel of skill.files) {
-    if (!rel.endsWith('.md')) continue;
-    const tables = parseMarkdownTables(await skill.read(rel));
-    if (tables.some((table) => table.headers[0] === 'Deferrable')) holders.push(rel);
-  }
-  assert.deepEqual(holders, [LEAN_PATH], 'the deferral boundary table lives only in lean-path.md');
-});
-
-test('skill-harness-init: the lean walkthrough note shows the four beats in order and the note template backs them', async () => {
-  const walkthrough = await readFile(
-    path.join(ROOT, 'docs/notes/lean-init-walkthrough/lean-init-walkthrough-note.md'),
-    'utf8',
-  );
-  const beats = [
-    '## Beat 1: Goal captured',
-    '## Beat 2: Deferral list presented before proceeding',
-    '## Beat 3: Proposals made',
-    '## Beat 4: Session note records the same choices',
-  ];
-  const positions = beats.map((beat) => {
-    const index = walkthrough.indexOf(beat);
-    assert.ok(index >= 0, `walkthrough is missing "${beat}"`);
-    return index;
-  });
-  for (let i = 1; i < positions.length; i++) {
-    assert.ok(positions[i] > positions[i - 1], `"${beats[i]}" must come after "${beats[i - 1]}"`);
-  }
-  assert.match(walkthrough, /\*\*Immediate goal:\*\*/);
-
-  const skill = await readSkill('harness-init');
-  const note = await skill.read('references/session-note-template.md');
-  assert.match(note, /\*\*Immediate goal:\*\*/);
-  assert.match(note, /## Deferred \/ skipped steps/);
 });

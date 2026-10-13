@@ -246,3 +246,13 @@ test('step0-fixture: an existing AGENTS.md plus the mention-only line, with WOLV
   assert.equal(result.code, 0, result.stdout + result.stderr);
   assert.doesNotMatch(result.stdout, /step0-pending/);
 });
+
+test('proof-entry-plain-labels: step 0 asks how much to change AGENTS.md, with three labels tied to the modes', async () => {
+  const flat = flatten(await readEntryModes());
+
+  assert.match(flat, /"How much should we change your current AGENTS\.md\?"/);
+  assert.match(flat, /\*\*Just one line\*\* \(mention-only\): adds a single line pointing to `WOLVEN\.md`/);
+  assert.match(flat, /\*\*A short section\*\* \(light\): adds a brief summary of where skills and rules live/);
+  assert.match(flat, /\*\*The whole guide\*\* \(full\): copies the full harness guide and skills list in/);
+  assert.match(flat, /List the recommended answer first/);
+});
