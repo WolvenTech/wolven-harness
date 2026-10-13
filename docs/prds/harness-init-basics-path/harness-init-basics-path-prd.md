@@ -2,7 +2,7 @@
 type: prd
 title: Harness-init basics path and a trimmable full tour
 description: harness-init lets anyone reach first real work quickly through a three-step basics path, lets the full tour be trimmed with one checklist, and ends by offering the next piece of work.
-status: draft
+status: stable
 ---
 
 # Harness-init basics path and a trimmable full tour
@@ -63,7 +63,7 @@ Traces to goal: G1, G5
 
 **Given** a repo with application code and the files `setup` added
 **When** the person runs `harness-init` and picks "Just the basics" from "How much setup do you want right now?"
-**Then** the agent asks "What do you want to get done first in this repo?" and records the answer as given. It then asks "How much should we change your current AGENTS.md?", offering "Just one line", "A short section" and "The whole guide" with the recommended one first. It shows the diff and writes only on a yes. It runs no legacy ADR migration, discovery questions, research, skill proposals, score questions or wiring question, and it moves to the hand-back.
+**Then** the agent asks "What do you want to get done first in this repo?" and records the answer as given. It then asks "How much should we change your current AGENTS.md?", offering "Just one line", "A short section" and "The whole guide" with the recommended one first. It shows the diff and writes only on a yes. The session note records the choice under both names, the label first and the skill's mode name in brackets, as in "A short section (light)". It runs no legacy ADR migration, discovery questions, research, skill proposals, score questions or wiring question, and it moves to the hand-back.
 
 #### AC-1.2: A leaked credential stops a basics run
 
@@ -113,13 +113,13 @@ Traces to goal: G4, G5
 
 #### AC-3.1: A new repo gets proposals
 
-**Given** a full tour on a repo the agent judges new or unexplored from its files
+**Given** a full tour on a repo the agent judges new or unexplored from its files, meaning few source files and no recorded decisions: no ADRs, specs or project skills
 **When** the run reaches the skills step
 **Then** the agent says the repo looks new and proposes two to four skills for the tools it found. Each skill the person picks becomes a stub.
 
 #### AC-3.2: A well-understood repo skips proposals, and the person can overrule
 
-**Given** a full tour on a repo the agent judges well understood
+**Given** a full tour on a repo the agent judges well understood, because it already has ADRs, specs or project skills
 **When** the run reaches the skills step
 **Then** the agent says it is skipping skill proposals and why. If the person overrules, it proposes skills as in AC-3.1. If not, nothing is added and the hand-back does not count skills as done.
 
@@ -185,8 +185,7 @@ Traces to goal: G1, G2
 
 ## Open questions
 
-- How does the agent judge a repo "new or still unexplored", and which signals from the files count? — owner: `code-spec`
-- Should the session note record the labels people see ("A short section") or the existing mode names ("light")? — owner: `code-spec`
+None.
 
 ## Handoff
 
