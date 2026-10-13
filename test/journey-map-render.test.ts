@@ -1,0 +1,313 @@
+import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
+import { test } from 'node:test';
+import { fileURLToPath } from 'node:url';
+import vm from 'node:vm';
+
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const logicPath = path.join(root, 'templates', '.agents', 'skills', 'journey-map', 'renderer', 'logic.js');
+const fixture = (name: string) =>
+  JSON.parse(readFileSync(path.join(root, 'test', 'fixtures', 'journey-map', name), 'utf8'));
+
+// why: the logic API is a classic script global, so tests see it through a loose shape.
+type Logic = Record<string, any>;
+
+function loadLogic(): Logic {
+  const context = vm.createContext({});
+  vm.runInContext(readFileSync(logicPath, 'utf8'), context);
+  return (context as { JourneyMapLogic: Logic }).JourneyMapLogic;
+}
+
+// why: each case mutates a different path of the fixture, so a precise type would only add noise.
+type Map = any;
+
+const cases: Array<[string, string, (m: Map) => void]> = [
+  ['an unknown kind', 'route', (m) => (m.trees[0].nodes[1].kind = 'dragon')],
+  ['a duplicate id', 'shire', (m) => m.trees[0].nodes.push({ ...m.trees[0].nodes[0] })],
+  ['a missing next', 'shire', (m) => (m.trees[0].nodes[0].next = 'missing')],
+  [
+    'a missing gates target',
+    'pack',
+    (m) => {
+      m.trees[0].nodes.find((n: Map) => n.id === 'pack').items[0].gates = ['missing'];
+    },
+  ],
+  ['a missing link target', 'doom', (m) => (m.links[0].to = 'missing')],
+  ['a missing annotation target', 'shared-note', (m) => (m.annotations[0].target = 'missing')],
+  ['a next that crosses trees', 'shire', (m) => (m.trees[0].nodes[0].next = 'scout')],
+  [
+    'a gates target in another tree',
+    'pack',
+    (m) => {
+      m.trees[0].nodes.find((n: Map) => n.id === 'pack').items[0].gates = ['scout'];
+    },
+  ],
+  [
+    'a gates target that is not a waypoint',
+    'pack',
+    (m) => {
+      m.trees[0].nodes.find((n: Map) => n.id === 'pack').items[0].gates = ['shire'];
+    },
+  ],
+  ['a blocked_by naming a missing node', 'bridge', (m) => (m.trees[1].nodes[1].blocked_by = ['missing'])],
+  ['a blocked_by naming a non-ticket node', 'bridge', (m) => (m.trees[1].nodes[1].blocked_by = ['shire'])],
+  ['a bad status', 'scout', (m) => (m.trees[1].nodes[0].status = 'bad')],
+  ['a bad ticket', 'scout', (m) => (m.trees[1].nodes[0].ticket = 'bad')],
+  [
+    'a default that is not an option key',
+    'route',
+    (m) => {
+      m.trees[0].nodes.find((n: Map) => n.id === 'route').default = 'nope';
+    },
+  ],
+  [
+    'a cycle',
+    'route',
+    (m) => {
+      m.trees[0].nodes.find((n: Map) => n.id === 'forest').next = 'route';
+    },
+  ],
+  ['a missing label', 'shire', (m) => delete m.trees[0].nodes[0].label],
+  ['a tree with no start', 'shire-journey', (m) => (m.trees[0].nodes[0].kind = 'waypoint')],
+  ['a tree with two starts', 'shire-journey', (m) => (m.trees[0].nodes[2].kind = 'start')],
+];
+
+test('journey-map validate: returns no errors for the LotR fixture', () => {
+  assert.deepEqual([...loadLogic().validate(fixture('lotr-map.json'))], []);
+});
+
+test('journey-map validate: reports at least one error for the malformed fixture', () => {
+  assert.ok(loadLogic().validate(fixture('malformed-map.json')).length >= 1);
+});
+
+for (const [name, id, mutate] of cases) {
+  test(`journey-map validate: names ${id} for ${name}`, () => {
+    const map = fixture('lotr-map.json');
+    mutate(map);
+    const errors = loadLogic().validate(map);
+    assert.ok(
+      errors.some((e) => e.startsWith(`${id}:`)),
+      `expected an error starting "${id}:", got ${JSON.stringify(errors)}`,
+    );
+  });
+}
+
+const overlaps = (a: Map, b: Map) => a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+
+function ticketOnlyMap() {
+  const map = fixture('lotr-map.json');
+  return { ...map, title: 'A second map', trees: [map.trees[1]], links: [], annotations: [] };
+}
+
+test('journey-map layout: no two boxes overlap on either fixture', () => {
+  const logic = loadLogic();
+  for (const map of [fixture('lotr-map.json'), ticketOnlyMap()]) {
+    const { boxes } = logic.layout(map);
+    assert.equal(boxes.length, logic.all(map).length);
+    for (let i = 0; i < boxes.length; i++) {
+      for (let j = i + 1; j < boxes.length; j++) {
+        assert.ok(!overlaps(boxes[i], boxes[j]), `${boxes[i].id} overlaps ${boxes[j].id}`);
+      }
+    }
+  }
+});
+
+test('journey-map layout: a shared node sits at its longest-path column', () => {
+  const logic = loadLogic();
+  const map = fixture('lotr-map.json');
+  const column = (m: Map) => logic.layout(m).boxes.find((b: Map) => b.id === 'rivendell').column;
+  assert.equal(column(map), 3);
+  map.trees[0].nodes.find((n: Map) => n.id === 'forest').next = 'bree';
+  assert.equal(column(map), 4);
+});
+
+test('journey-map layout: height(n) is the sum of rows(n) plus the padding for its kind', () => {
+  const logic = loadLogic();
+  const { M } = logic;
+  for (const map of [fixture('lotr-map.json'), ticketOnlyMap()]) {
+    for (const node of logic.all(map)) {
+      const sum = logic.rows(node).reduce((h: number, r: Map) => h + r.h, 0);
+      const expected = node.kind === 'start' ? Math.max(76, sum + 2 * M.pad) : sum + M.pad + 14;
+      assert.equal(logic.height(node), expected, node.id);
+    }
+  }
+});
+
+test('journey-map tickets: the three statuses have distinct styles', () => {
+  const logic = loadLogic();
+  const styles = ['open', 'claimed', 'closed'].map((s) => JSON.stringify(logic.ticketStyle(s)));
+  assert.equal(new Set(styles).size, 3);
+});
+
+test('journey-map tickets: dependency edges exist and blocked flips when a blocker closes', () => {
+  const logic = loadLogic();
+  const map = fixture('lotr-map.json');
+  const [scout, bridge, council] = map.trees[1].nodes;
+  assert.ok(logic.layout(map).edges.some((e: Map) => e.from === bridge.id && e.to === council.id && e.dependency));
+  assert.equal(logic.blocked(map, bridge), false);
+  assert.equal(logic.blocked(map, council), true);
+  map.trees[1].nodes[1].status = 'closed';
+  assert.equal(logic.blocked(map, map.trees[1].nodes[2]), false);
+  assert.equal(scout.kind, 'ticket');
+});
+
+const reveal = (answers: Map) => [...loadLogic().revealed(fixture('lotr-map.json'), answers)].sort();
+const tickets = ['scout', 'bridge', 'council', 'depart'];
+
+test('journey-map reveal: empty answers show only the start, the first question and the tickets', () => {
+  assert.deepEqual(reveal({}), ['route', 'shire', ...tickets].sort());
+});
+
+test('journey-map reveal: a choice reveals its branch and not the other', () => {
+  const shown = reveal({ route: { choice: 'road' } });
+  for (const id of ['bree', 'rivendell', 'pack']) assert.ok(shown.includes(id), id);
+  for (const id of ['forest', 'pony']) assert.ok(!shown.includes(id), id);
+});
+
+test('journey-map reveal: a checklist waits for done before showing what follows', () => {
+  const road = { route: { choice: 'road' } };
+  assert.ok(!reveal({ ...road, pack: {} }).includes('pony'));
+  const shown = reveal({ ...road, pack: { done: true } });
+  assert.ok(shown.includes('pony'));
+  assert.ok(!shown.includes('meal'));
+});
+
+test('journey-map fade: the merge node is spared when its other branch is chosen', () => {
+  const { faded, later } = loadLogic().faded(fixture('lotr-map.json'), { route: { choice: 'road' } });
+  assert.ok(faded.has('forest'));
+  assert.ok(!faded.has('rivendell'));
+  assert.ok(!faded.has('doom'));
+  assert.equal(later.size, 0);
+});
+
+test('journey-map fade: unticking an item fades what it gates as later, and ticking restores it', () => {
+  const logic = loadLogic();
+  const map = fixture('lotr-map.json');
+  const off = logic.faded(map, { pack: { checks: { rope: false, mithril: true } } });
+  assert.ok(off.faded.has('descent') && off.later.has('descent'));
+  assert.ok(!off.faded.has('doom'));
+  const on = logic.faded(map, { pack: { checks: { rope: true, mithril: true } } });
+  assert.ok(!on.faded.has('descent') && !on.later.has('descent'));
+});
+
+test('journey-map feedback: names each touched node in layout order with exact lines', () => {
+  const state = {
+    route: { choice: 'road', note: 'Prefer Bree' },
+    pack: { checks: { rope: false } },
+    pony: { text: 'Bill' },
+    shire: { done: true },
+  };
+  assert.equal(
+    loadLogic().feedback(fixture('lotr-map.json'), state, 'lotr-map.json'),
+    [
+      'journey-map feedback for lotr-map.json',
+      'route "Which way out of the Shire?": chose road "The Road"',
+      'route "Which way out of the Shire?": note "Prefer Bree"',
+      'pack "What goes in the pack?": ticked lembas, mithril; unticked rope',
+      'pony "Name the pony": typed "Bill"',
+    ].join('\n'),
+  );
+});
+
+const skillDir = path.join(root, 'templates', '.agents', 'skills', 'journey-map');
+const buildScript = path.join(skillDir, 'scripts', 'build-map.mjs');
+const rendererFile = (name: string) => readFileSync(path.join(skillDir, 'renderer', name), 'utf8');
+const ROUGH_INTEGRITY =
+  'integrity="sha384-1NLkwxMO2sOqcq7rQkFBhIAUJtbt8ziLxhVKVgKfFGMEU8pF+GEq5LVogviveup6" crossorigin="anonymous"';
+
+/** Runs `body` with a fresh temp dir, because the build writes its page next to its input. */
+function inTempDir(body: (dir: string) => void) {
+  const dir = mkdtempSync(path.join(tmpdir(), 'journey-map-'));
+  try {
+    body(dir);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+}
+
+function buildMap(dir: string, name: string, map: unknown) {
+  const input = path.join(dir, name);
+  writeFileSync(input, typeof map === 'string' ? map : JSON.stringify(map));
+  const result = spawnSync(process.execPath, [buildScript, input], { encoding: 'utf8' });
+  const page = input.replace(/\.json$/, '.html');
+  return { ...result, input, page, html: existsSync(page) ? readFileSync(page, 'utf8') : null };
+}
+
+test('journey-map build: writes the page and prints the wrote line', () => {
+  inTempDir((dir) => {
+    const first = buildMap(dir, 'lotr-map.json', fixture('lotr-map.json'));
+    assert.equal(first.status, 0, first.stderr);
+    assert.equal(first.stdout.trim(), `journey-map: wrote ${first.page} (20 nodes)`);
+    const second = buildMap(dir, 'second-map.json', ticketOnlyMap());
+    assert.equal(second.status, 0, second.stderr);
+    assert.match(second.stdout, /^journey-map: wrote .* \(\d+ nodes\)\n$/);
+  });
+});
+
+test('journey-map build: both pages carry a byte-identical renderer and load only the allowed hosts', () => {
+  inTempDir((dir) => {
+    const region = `<script>${rendererFile('logic.js')}${rendererFile('draw.js')}</script>`;
+    for (const [name, map] of [
+      ['lotr-map.json', fixture('lotr-map.json')],
+      ['second-map.json', ticketOnlyMap()],
+    ] as const) {
+      const html = buildMap(dir, name, map).html ?? '';
+      assert.equal(html.split('<!-- journey-map:renderer -->')[1], region);
+      assert.ok(html.includes(ROUGH_INTEGRITY));
+      for (const match of html.matchAll(/(?:src|href)="(https:[^"]+)"/g)) {
+        const url = new URL(match[1]);
+        assert.ok(['cdn.jsdelivr.net', 'fonts.googleapis.com', 'fonts.gstatic.com'].includes(url.hostname), match[1]);
+        if (url.hostname === 'cdn.jsdelivr.net') assert.ok(url.pathname.startsWith('/npm/roughjs@4.6.6/'), match[1]);
+      }
+    }
+  });
+});
+
+test('journey-map build: two builds of one input give the same bytes', () => {
+  inTempDir((dir) => {
+    const first = buildMap(dir, 'lotr-map.json', fixture('lotr-map.json')).html;
+    const second = buildMap(dir, 'lotr-map.json', fixture('lotr-map.json')).html;
+    assert.ok(first);
+    assert.equal(first, second);
+  });
+});
+
+test('journey-map build: a malformed map writes the error page, names the nodes and exits 1', () => {
+  inTempDir((dir) => {
+    const result = buildMap(dir, 'malformed-map.json', fixture('malformed-map.json'));
+    assert.equal(result.status, 1);
+    const errors = [...loadLogic().validate(fixture('malformed-map.json'))];
+    assert.ok(errors.length > 0);
+    assert.deepEqual(result.stderr.trim().split('\n'), errors);
+    assert.match(result.html ?? '', /id="errors"/);
+  });
+});
+
+test('journey-map build: a bad name, missing file or invalid JSON exits 1 and writes nothing', () => {
+  inTempDir((dir) => {
+    const invalid = buildMap(dir, 'invalid-map.json', '{');
+    const wrongName = buildMap(dir, 'wrong.json', fixture('lotr-map.json'));
+    const missing = spawnSync(process.execPath, [buildScript, path.join(dir, 'missing-map.json')], {
+      encoding: 'utf8',
+    });
+    for (const result of [invalid, wrongName, missing]) assert.equal(result.status, 1);
+    assert.equal(invalid.html, null);
+    assert.equal(wrongName.html, null);
+    assert.ok(!existsSync(path.join(dir, 'missing-map.html')));
+  });
+});
+
+test('journey-map build: an injected label stays escaped in the page', () => {
+  inTempDir((dir) => {
+    const map = fixture('lotr-map.json');
+    const label = '</script><img onerror=alert(1)>';
+    map.trees[0].nodes[0].label = label;
+    const result = buildMap(dir, 'inject-map.json', map);
+    assert.equal(result.status, 0, result.stderr);
+    assert.ok(!(result.html ?? '').includes(label));
+    assert.ok((result.html ?? '').includes('\\u003c/script>'));
+  });
+});

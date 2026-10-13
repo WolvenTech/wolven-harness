@@ -1,0 +1,230 @@
+{
+  "version": 1,
+  "title": "The road to Mount Doom",
+  "subtitle": "PROTOTYPE \u00b7 choose \u00b7 drag to pan \u00b7 pinch to zoom",
+  "trees": [
+    {
+      "id": "shire-journey",
+      "label": "Leave the Shire",
+      "nodes": [
+        {
+          "id": "shire",
+          "kind": "start",
+          "label": "Leave the Shire",
+          "sub": "Frodo and Sam prepare a long walk.",
+          "next": "route"
+        },
+        {
+          "id": "route",
+          "kind": "choice",
+          "label": "Which way out of the Shire?",
+          "tag": "first fork",
+          "note": "Both paths meet at Rivendell.",
+          "default": "road",
+          "options": [
+            {
+              "key": "road",
+              "label": "The Road",
+              "hint": "Meet Aragorn at Bree.",
+              "badge": "familiar ground",
+              "next": "bree"
+            },
+            {
+              "key": "forest",
+              "label": "The Old Forest",
+              "hint": "Find a quieter way through.",
+              "next": "forest"
+            }
+          ]
+        },
+        {
+          "id": "bree",
+          "kind": "dragon",
+          "label": "Meet Aragorn at Bree",
+          "tag": "guide found",
+          "next": "rivendell"
+        },
+        {
+          "id": "forest",
+          "kind": "waypoint",
+          "label": "Cross the Old Forest",
+          "tag": "woodland detour",
+          "next": "lost-rivendell"
+        },
+        {
+          "id": "rivendell",
+          "kind": "waypoint",
+          "label": "Council at Rivendell",
+          "tag": "shared destination",
+          "next": "pack"
+        },
+        {
+          "id": "pack",
+          "kind": "checklist",
+          "label": "What goes in the pack?",
+          "sub": "Untick an item to leave its stop for later.",
+          "items": [
+            {
+              "key": "lembas",
+              "label": "Lembas",
+              "hint": "A meal for the long climb.",
+              "on": true,
+              "gates": ["meal"]
+            },
+            {
+              "key": "rope",
+              "label": "Rope",
+              "hint": "A safer descent.",
+              "on": true,
+              "gates": ["descent"]
+            },
+            {
+              "key": "mithril",
+              "label": "A mithril shirt",
+              "hint": "A little protection.",
+              "on": false,
+              "gates": ["armor"]
+            }
+          ],
+          "next": "pony"
+        },
+        {
+          "id": "pony",
+          "kind": "text",
+          "label": "Name the pony",
+          "sub": "Sam insists the pony deserves a name.",
+          "placeholder": "A name for the journey\u2026",
+          "next": "meal"
+        },
+        {
+          "id": "meal",
+          "kind": "waypoint",
+          "label": "Share lembas on the trail",
+          "tag": "packing stop",
+          "next": "descent"
+        },
+        {
+          "id": "descent",
+          "kind": "waypoint",
+          "label": "Test the rope at the cliff",
+          "tag": "packing stop",
+          "next": "armor"
+        },
+        {
+          "id": "armor",
+          "kind": "waypoint",
+          "label": "Fit the mithril shirt",
+          "tag": "packing stop",
+          "next": "mountains"
+        },
+        {
+          "id": "mountains",
+          "kind": "choice",
+          "label": "How will the Fellowship cross?",
+          "default": "moria",
+          "options": [
+            {
+              "key": "pass",
+              "label": "Caradhras",
+              "hint": "Snow above, a clear sky ahead.",
+              "next": "caradhras"
+            },
+            {
+              "key": "moria",
+              "label": "Moria",
+              "hint": "Shelter below, uncertain doors.",
+              "next": "moria"
+            }
+          ]
+        },
+        {
+          "id": "caradhras",
+          "kind": "waypoint",
+          "label": "Cross Caradhras",
+          "tag": "mountain route",
+          "next": "doom"
+        },
+        {
+          "id": "moria",
+          "kind": "waypoint",
+          "label": "Find a way through Moria",
+          "tag": "underground route",
+          "next": "doom"
+        },
+        {
+          "id": "doom",
+          "kind": "card",
+          "label": "At Mount Doom",
+          "sub": "The journey closes; the Council still has work.",
+          "sections": [
+            {
+              "head": "What was done",
+              "items": ["The Fellowship chose a route.", "The pack and the pony are ready."]
+            },
+            {
+              "head": "What waits",
+              "items": ["Any packing stop marked later."]
+            },
+            {
+              "head": "What next",
+              "items": ["Review the Council tickets.", "Return to the Shire."],
+              "numbered": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "council-tickets",
+      "label": "Council tickets",
+      "nodes": [
+        {
+          "id": "scout",
+          "kind": "ticket",
+          "label": "Scout the paths from Rivendell",
+          "ticket": "research",
+          "status": "closed"
+        },
+        {
+          "id": "bridge",
+          "kind": "ticket",
+          "label": "Try a bridge over the ravine",
+          "ticket": "prototype",
+          "status": "claimed",
+          "claimed_by": "Gimli",
+          "blocked_by": ["missing-ticket"]
+        },
+        {
+          "id": "council",
+          "kind": "ticket",
+          "label": "Question the mountain route",
+          "ticket": "grilling",
+          "status": "open",
+          "blocked_by": ["bridge"]
+        },
+        {
+          "id": "depart",
+          "kind": "ticket",
+          "label": "Lead the Fellowship onward",
+          "ticket": "task",
+          "status": "open",
+          "blocked_by": ["council"]
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "from": "doom",
+      "to": "scout",
+      "label": "Back to the Council"
+    }
+  ],
+  "annotations": [
+    {
+      "id": "shared-note",
+      "target": "rivendell",
+      "text": "One Council, whichever route you chose."
+    }
+  ]
+}

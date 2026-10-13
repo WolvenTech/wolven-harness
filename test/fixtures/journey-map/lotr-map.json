@@ -1,0 +1,277 @@
+{
+  "version": 1,
+  "title": "The road to Mount Doom",
+  "subtitle": "choose a path \u00b7 drag to pan \u00b7 pinch to zoom",
+  "trees": [
+    {
+      "id": "shire-journey",
+      "label": "Leave the Shire",
+      "nodes": [
+        {
+          "id": "shire",
+          "kind": "start",
+          "label": "Leave the Shire",
+          "sub": "Frodo and Sam prepare a long walk.",
+          "next": "route"
+        },
+        {
+          "id": "route",
+          "kind": "choice",
+          "label": "Which way out of the Shire?",
+          "tag": "first fork",
+          "note": "Both paths meet at Rivendell.",
+          "default": "road",
+          "options": [
+            {
+              "key": "road",
+              "label": "The Road",
+              "hint": "Meet Aragorn at Bree.",
+              "badge": "familiar ground",
+              "next": "bree"
+            },
+            {
+              "key": "forest",
+              "label": "The Old Forest",
+              "hint": "Find a quieter way through.",
+              "next": "forest"
+            }
+          ]
+        },
+        {
+          "id": "bree",
+          "kind": "waypoint",
+          "label": "Assess Aragorn's readiness at Bree",
+          "tag": "defence uncertain \u2014 find backup",
+          "next": "rivendell"
+        },
+        {
+          "id": "forest",
+          "kind": "waypoint",
+          "label": "Cross the Old Forest",
+          "tag": "woodland detour",
+          "next": "rivendell"
+        },
+        {
+          "id": "rivendell",
+          "kind": "waypoint",
+          "label": "Council at Rivendell",
+          "tag": "shared destination",
+          "next": "pack"
+        },
+        {
+          "id": "pack",
+          "kind": "checklist",
+          "label": "What goes in the pack?",
+          "sub": "Untick an item to leave its stop for later.",
+          "items": [
+            {
+              "key": "lembas",
+              "label": "Lembas",
+              "hint": "A meal for the long climb.",
+              "on": true,
+              "gates": ["meal"]
+            },
+            {
+              "key": "rope",
+              "label": "Rope",
+              "hint": "Replace the broken rope before using it.",
+              "on": true,
+              "gates": ["descent"]
+            },
+            {
+              "key": "mithril",
+              "label": "A mithril shirt",
+              "hint": "A little protection.",
+              "on": true,
+              "gates": ["armor"]
+            }
+          ],
+          "next": "pony"
+        },
+        {
+          "id": "pony",
+          "kind": "text",
+          "label": "Name the pony",
+          "sub": "Accepted name: Loomy. Sam keeps the pony close.",
+          "placeholder": "Loomy \u2014 enter a different name?",
+          "next": "meal"
+        },
+        {
+          "id": "meal",
+          "kind": "waypoint",
+          "label": "Share lembas on the trail",
+          "tag": "packing stop",
+          "next": "descent"
+        },
+        {
+          "id": "descent",
+          "kind": "waypoint",
+          "label": "Replace the broken rope and retest",
+          "tag": "failed test \u2014 replacement needed",
+          "next": "armor"
+        },
+        {
+          "id": "armor",
+          "kind": "waypoint",
+          "label": "Fit the mithril shirt",
+          "tag": "packing stop",
+          "next": "mountains"
+        },
+        {
+          "id": "mountains",
+          "kind": "choice",
+          "label": "How will the Fellowship cross?",
+          "default": "moria",
+          "options": [
+            {
+              "key": "pass",
+              "label": "Caradhras",
+              "hint": "Snow above, a clear sky ahead.",
+              "next": "caradhras"
+            },
+            {
+              "key": "moria",
+              "label": "Moria",
+              "hint": "Keep Moria; regroup and seek news of Gandalf.",
+              "next": "moria"
+            }
+          ]
+        },
+        {
+          "id": "caradhras",
+          "kind": "waypoint",
+          "label": "Cross Caradhras",
+          "tag": "mountain route",
+          "next": "doom"
+        },
+        {
+          "id": "moria",
+          "kind": "waypoint",
+          "label": "Escape the Balrog in Moria",
+          "tag": "Gandalf missing \u2014 fate unknown",
+          "next": "regroup"
+        },
+        {
+          "id": "doom",
+          "kind": "card",
+          "label": "At Mount Doom",
+          "sub": "End of the Caradhras route. The Moria route stops earlier to regroup.",
+          "sections": [
+            {
+              "head": "What was done",
+              "items": ["The party crossed Caradhras.", "Loomy accompanied Sam."]
+            },
+            {
+              "head": "What waits",
+              "items": ["Resolve the defence and rope concerns before the final approach."]
+            },
+            {
+              "head": "What next",
+              "items": ["Review the Council tickets.", "Return to the Shire."],
+              "numbered": true
+            }
+          ]
+        },
+        {
+          "id": "regroup",
+          "kind": "waypoint",
+          "label": "Regroup the Fellowship after Moria",
+          "tag": "keep Moria \u2014 regroup and seek news",
+          "next": "halt"
+        },
+        {
+          "id": "halt",
+          "kind": "card",
+          "label": "Journey halted after Moria",
+          "sub": "Mount Doom has not been reached on this route.",
+          "sections": [
+            {
+              "head": "What happened",
+              "items": [
+                "The Balrog scattered the party.",
+                "Gandalf is missing; his fate is unknown.",
+                "Loomy stays with Sam."
+              ]
+            },
+            {
+              "head": "What blocks us",
+              "items": ["Aragorn's defensive readiness is uncertain.", "The rope broke and needs replacement."]
+            },
+            {
+              "head": "Before continuing",
+              "items": [
+                "Account for the Fellowship.",
+                "Find backup and retest the rope.",
+                "Continue through Moria when ready.",
+                "Seek news of Gandalf; hope remains."
+              ],
+              "numbered": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "council-tickets",
+      "label": "Council tickets",
+      "nodes": [
+        {
+          "id": "scout",
+          "kind": "ticket",
+          "label": "Scout the paths from Rivendell",
+          "ticket": "research",
+          "status": "closed"
+        },
+        {
+          "id": "bridge",
+          "kind": "ticket",
+          "label": "Try a bridge over the ravine",
+          "ticket": "prototype",
+          "status": "claimed",
+          "claimed_by": "Gimli",
+          "blocked_by": ["scout"]
+        },
+        {
+          "id": "council",
+          "kind": "ticket",
+          "label": "Reassess how to continue through Moria",
+          "ticket": "grilling",
+          "status": "open",
+          "blocked_by": ["bridge"]
+        },
+        {
+          "id": "depart",
+          "kind": "ticket",
+          "label": "Lead the Fellowship onward",
+          "ticket": "task",
+          "status": "open",
+          "blocked_by": ["council"]
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "from": "doom",
+      "to": "scout",
+      "label": "Back to the Council"
+    },
+    {
+      "from": "halt",
+      "to": "council",
+      "label": "Review the halted journey"
+    }
+  ],
+  "annotations": [
+    {
+      "id": "shared-note",
+      "target": "rivendell",
+      "text": "One Council, whichever route you chose."
+    },
+    {
+      "id": "council-moria-decision",
+      "target": "council",
+      "text": "Keep Moria. Hope for Gandalf; his fate is unknown."
+    }
+  ]
+}
