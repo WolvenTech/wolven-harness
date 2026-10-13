@@ -45,11 +45,12 @@ In this order, and nothing else:
 
 ## What the lean path runs
 
+- The leaked-credential checks from [harness-score.md](harness-score.md),
+  after the goal question and before step 0. A leaked credential stops the
+  run before anything else is written; no other part of the score is
+  recorded or asked about.
 - Step 0, entry integration, with the diff shown and the Human's yes
   before anything is written.
-- The leaked-credential checks from [harness-score.md](harness-score.md).
-  A leaked credential stops the run before anything else is written; no
-  other part of the score is recorded or asked about.
 - The session note: `draft` at step 0, `stable` at hand-back.
 - The hand-back at the end of step 6.
 

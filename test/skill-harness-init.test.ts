@@ -342,14 +342,29 @@ test('proof-basics-writes: the lean path writes only the step 0 change and the n
   assert.match(writes, /one commit, for the entry phase/);
 });
 
-test('proof-leak-checks-every-path: every path reads the leaked-credential checks and stops on a leak', async () => {
+test('proof-leak-checks-every-path: every path reads the leaked-credential checks before step 0 writes anything', async () => {
   const skill = await readSkill('harness-init');
+
+  const gate = skill.body.indexOf('## Leaked credentials before step 0');
+  assert.ok(gate >= 0, 'SKILL.md has a leaked-credential gate section');
+  assert.ok(gate < skill.body.indexOf('### 0. Entry integration'), 'the gate comes before step 0 writes anything');
+  const gateText = flatten(section(skill.body, '## Leaked credentials before step 0'));
+  assert.match(gateText, /before step 0 writes anything \(the session note included\)/);
+  assert.match(
+    gateText,
+    /read the leaked-credential checks: `HYG-03`, `HYG-04` and `HYG-06`\. A failure stops the run/,
+  );
+  const step6 = flatten(skill.body.split(/^### 6\. /m)[1]?.split(/^## /m)[0] ?? '');
+  assert.match(step6, /The leaked-credential checks already ran before step 0/);
+
   const score = flatten(
     section(await skill.read('references/harness-score.md'), '## Leaked-credential checks on every path'),
   );
-
   assert.match(score, /Every run reads the leaked-credential checks, whichever path the Human picked/);
-  assert.match(score, /read `HYG-03`, `HYG-04` and `HYG-06`\. A failure stops the run/);
+  assert.match(
+    score,
+    /They run before step 0, so a leak stops the run before the session note or any other file is written/,
+  );
   assert.match(
     score,
     /When the score is not covered this run, nothing else from the report is recorded or asked about/,
@@ -358,7 +373,15 @@ test('proof-leak-checks-every-path: every path reads the leaked-credential check
   assert.match(score, /"leaked-credential checks not run" under \*\*Left for later\*\*/);
 
   const runs = flatten(section(await skill.read(LEAN_PATH), '## What the lean path runs'));
-  assert.match(runs, /A leaked credential stops the run before anything else is written/);
+  const leak = runs.indexOf('The leaked-credential checks');
+  assert.ok(
+    leak >= 0 && leak < runs.indexOf('Step 0, entry integration'),
+    'the lean path checks for leaks before step 0',
+  );
+  assert.match(
+    runs,
+    /after the goal question and before step 0\. A leaked credential stops the run before anything else is written/,
+  );
 });
 
 test('proof-full-coverage-checklist: the full tour opens with six ticked items, each mapped to its step', async () => {
@@ -401,7 +424,7 @@ test('proof-full-unticked-is-later: an unticked item never runs and is listed fo
   );
   assert.match(
     coverage,
-    /With every item unticked, the run makes only step 0's change, reads the leaked-credential checks, and hands back/,
+    /With every item unticked, the run reads the leaked-credential checks, makes only step 0's change, and hands back/,
   );
 
   const step6 = flatten(skill.body.split(/^### 6\. /m)[1]?.split(/^## /m)[0] ?? '');

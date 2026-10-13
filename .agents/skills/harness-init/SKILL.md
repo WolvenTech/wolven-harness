@@ -113,8 +113,17 @@ wait. Record the ticked items in the note as **Covered:**.
 An unticked item is never asked about or run: record it under **Left for
 later** in the note and list it in the hand-back. File-based discovery and
 the repo and `qmd` search still run on the full path, whatever is ticked.
-With every item unticked, the run makes only step 0's change, reads the
-leaked-credential checks, and hands back.
+With every item unticked, the run reads the leaked-credential checks, makes
+only step 0's change, and hands back.
+
+## Leaked credentials before step 0
+
+On both paths, once the path question and the goal or the coverage are
+settled, and before step 0 writes anything (the session note included), run
+`harness:score` and read the leaked-credential checks: `HYG-03`, `HYG-04`
+and `HYG-06`. A failure stops the run and shows the Human the finding
+before any file is written. See
+[references/harness-score.md](references/harness-score.md).
 
 ## Workflow
 
@@ -182,8 +191,8 @@ warns `skill-stub-open` once for that `SKILL.md`.
 
 ### 6. Score, session note and hand-back
 
-First run `harness:score` and read the leaked-credential checks, which run
-on every path. When "Check the harness score now" is covered, record the
+The leaked-credential checks already ran before step 0. When "Check the
+harness score now" is covered, run `harness:score` again and record the
 level and score. For each dimension with a failing check, ask one question
 in plain language: state what the repo lacks and what building it means, with check IDs as supporting references,
 and spell out any maturity cap dropping them would cause. Keep its checks as

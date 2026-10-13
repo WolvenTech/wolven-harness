@@ -70,9 +70,11 @@ finding before going on.
 ## Leaked-credential checks on every path
 
 Every run reads the leaked-credential checks, whichever path the Human
-picked and whether or not the score is covered this run. Run
-`harness:score` and read `HYG-03`, `HYG-04` and `HYG-06`. A failure stops
-the run: show the Human the finding before anything else is written.
+picked and whether or not the score is covered this run. They run before
+step 0, so a leak stops the run before the session note or any other file
+is written. Run `harness:score` and read `HYG-03`, `HYG-04` and `HYG-06`. A
+failure stops the run: show the Human the finding before anything else is
+written.
 
 When the score is not covered this run, nothing else from the report is
 recorded or asked about. When `harness-score` is not installed, show the
