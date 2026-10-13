@@ -1,0 +1,56 @@
+{
+  "journey_id": "cj_001",
+  "persona": {
+    "name": "Alex Rivera",
+    "role": "Small Business Owner",
+    "goal": "Find a reliable and affordable invoicing software"
+  },
+  "scenario": "Alex needs to switch from manual spreadsheets to an automated invoicing tool to save time.",
+  "stages": [
+    {
+      "stage_name": "Awareness",
+      "user_actions": [
+        "Realizes manual invoicing takes too much time",
+        "Searches Google for 'best small business invoicing tools'"
+      ],
+      "touchpoints": ["Google Search", "Industry Blog Post"],
+      "thoughts": "There are too many options. Which one is actually simple to use?",
+      "emotion_score": -1,
+      "pain_points": ["Overwhelmed by generic comparison lists", "Unclear pricing tiers"],
+      "opportunities": ["Publish a clear, interactive feature and pricing comparison guide"]
+    },
+    {
+      "stage_name": "Consideration",
+      "user_actions": ["Reads reviews on Capterra", "Signs up for a free 14-day trial"],
+      "touchpoints": ["Review Site", "Landing Page", "Onboarding Email"],
+      "thoughts": "I hope setting up my first invoice doesn't take longer than 10 minutes.",
+      "emotion_score": 1,
+      "pain_points": ["Blank dashboard upon first login without a quick-start template"],
+      "opportunities": ["Add a 1-minute interactive setup wizard upon sign-up"]
+    },
+    {
+      "stage_name": "Decision / Purchase",
+      "user_actions": [
+        "Enters credit card details for the monthly plan",
+        "Generates and sends the first client invoice"
+      ],
+      "touchpoints": ["Checkout Page", "Payment Confirmation Screen"],
+      "thoughts": "That was fast and painless. Let's see how clients react to the link.",
+      "emotion_score": 3,
+      "pain_points": ["Worry about hidden renewal fees"],
+      "opportunities": ["Send a transparent receipt and a one-click calendar reminder before trial ends"]
+    },
+    {
+      "stage_name": "Retention / Support",
+      "user_actions": [
+        "Receives first online payment from a client",
+        "Contacts live chat with a tax-formatting question"
+      ],
+      "touchpoints": ["In-App Chat Support", "Customer Portal"],
+      "thoughts": "Support answered in 2 minutes. This is worth the monthly subscription.",
+      "emotion_score": 4,
+      "pain_points": ["Difficulty finding local tax settings documentation"],
+      "opportunities": ["Proactively surface regional tax setup tooltips in the settings panel"]
+    }
+  ]
+}

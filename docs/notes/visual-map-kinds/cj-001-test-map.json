@@ -1,0 +1,272 @@
+{
+  "version": 1,
+  "title": "Alex Rivera: spreadsheets to invoicing software",
+  "subtitle": "Journey cj_001 · small business owner · tick what holds, fund opportunities, pick what ships first",
+  "trees": [
+    {
+      "id": "aw",
+      "label": "Stage 1 of 4",
+      "nodes": [
+        {
+          "id": "aw-start",
+          "kind": "start",
+          "label": "Awareness",
+          "sub": "Manual invoicing takes too long, so Alex googles the best tools",
+          "next": "aw-review"
+        },
+        {
+          "id": "aw-review",
+          "kind": "checklist",
+          "label": "What holds, what to fund?",
+          "sub": "Mood -1 · Google Search, industry blog post",
+          "items": [
+            {
+              "key": "lists",
+              "label": "Pain: overwhelmed by generic comparison lists"
+            },
+            {
+              "key": "pricing",
+              "label": "Pain: unclear pricing tiers"
+            },
+            {
+              "key": "fund",
+              "label": "Fund the comparison guide",
+              "hint": "Unticking marks the opportunity as later",
+              "gates": [
+                "aw-opp"
+              ]
+            }
+          ],
+          "next": "aw-opp"
+        },
+        {
+          "id": "aw-opp",
+          "kind": "waypoint",
+          "tag": "opportunity",
+          "label": "Publish an interactive feature and pricing comparison guide"
+        }
+      ]
+    },
+    {
+      "id": "co",
+      "label": "Stage 2 of 4",
+      "nodes": [
+        {
+          "id": "co-start",
+          "kind": "start",
+          "label": "Consideration",
+          "sub": "Reads Capterra reviews, starts a free 14-day trial",
+          "next": "co-review"
+        },
+        {
+          "id": "co-review",
+          "kind": "checklist",
+          "label": "What holds, what to fund?",
+          "sub": "Mood +1 · Review site, landing page, onboarding email",
+          "items": [
+            {
+              "key": "blank",
+              "label": "Pain: blank dashboard, no quick-start template"
+            },
+            {
+              "key": "fund",
+              "label": "Fund the setup wizard",
+              "hint": "Unticking marks the opportunity as later",
+              "gates": [
+                "co-opp"
+              ]
+            }
+          ],
+          "next": "co-opp"
+        },
+        {
+          "id": "co-opp",
+          "kind": "waypoint",
+          "tag": "opportunity",
+          "label": "Add a 1-minute interactive setup wizard on sign-up"
+        }
+      ]
+    },
+    {
+      "id": "de",
+      "label": "Stage 3 of 4",
+      "nodes": [
+        {
+          "id": "de-start",
+          "kind": "start",
+          "label": "Decision / Purchase",
+          "sub": "Pays for the monthly plan, sends the first client invoice",
+          "next": "de-review"
+        },
+        {
+          "id": "de-review",
+          "kind": "checklist",
+          "label": "What holds, what to fund?",
+          "sub": "Mood +3 · Checkout page, payment confirmation",
+          "items": [
+            {
+              "key": "fees",
+              "label": "Pain: worry about hidden renewal fees"
+            },
+            {
+              "key": "fund",
+              "label": "Fund the transparent receipt",
+              "hint": "Unticking marks the opportunity as later",
+              "gates": [
+                "de-opp"
+              ]
+            }
+          ],
+          "next": "de-opp"
+        },
+        {
+          "id": "de-opp",
+          "kind": "waypoint",
+          "tag": "opportunity",
+          "label": "Transparent receipt plus a one-click reminder before the trial ends"
+        }
+      ]
+    },
+    {
+      "id": "re",
+      "label": "Stage 4 of 4",
+      "nodes": [
+        {
+          "id": "re-start",
+          "kind": "start",
+          "label": "Retention / Support",
+          "sub": "Gets paid online, asks live chat a tax-formatting question",
+          "next": "re-review"
+        },
+        {
+          "id": "re-review",
+          "kind": "checklist",
+          "label": "What holds, what to fund?",
+          "sub": "Mood +4 · In-app chat support, customer portal",
+          "items": [
+            {
+              "key": "tax",
+              "label": "Pain: hard to find local tax settings docs"
+            },
+            {
+              "key": "fund",
+              "label": "Fund the regional tax tooltips",
+              "hint": "Unticking marks the opportunity as later",
+              "gates": [
+                "re-opp"
+              ]
+            }
+          ],
+          "next": "re-opp"
+        },
+        {
+          "id": "re-opp",
+          "kind": "waypoint",
+          "tag": "opportunity",
+          "label": "Surface regional tax setup tooltips in settings"
+        }
+      ]
+    },
+    {
+      "id": "decide",
+      "label": "Decide",
+      "nodes": [
+        {
+          "id": "decide-start",
+          "kind": "start",
+          "label": "Prioritise",
+          "sub": "After walking the four stages",
+          "next": "missing"
+        },
+        {
+          "id": "missing",
+          "kind": "text",
+          "label": "Anything missing from Alex's journey?",
+          "sub": "A stage, a touchpoint or a pain point",
+          "placeholder": "e.g. churn risk after the trial",
+          "next": "first"
+        },
+        {
+          "id": "first",
+          "kind": "choice",
+          "label": "Which opportunity ships first?",
+          "note": "Recommended: the lowest mood is at Awareness",
+          "default": "guide",
+          "options": [
+            {
+              "key": "guide",
+              "label": "Comparison guide",
+              "badge": "mood -1",
+              "next": "summary"
+            },
+            {
+              "key": "wizard",
+              "label": "Setup wizard",
+              "badge": "mood +1",
+              "next": "summary"
+            },
+            {
+              "key": "receipt",
+              "label": "Transparent receipt",
+              "badge": "mood +3",
+              "next": "summary"
+            },
+            {
+              "key": "tooltips",
+              "label": "Tax tooltips",
+              "badge": "mood +4",
+              "next": "summary"
+            }
+          ]
+        },
+        {
+          "id": "summary",
+          "kind": "card",
+          "label": "Journey at a glance",
+          "sections": [
+            {
+              "head": "Mood by stage",
+              "items": [
+                "Awareness: -1",
+                "Consideration: +1",
+                "Decision: +3",
+                "Retention: +4"
+              ]
+            },
+            {
+              "head": "Next",
+              "items": [
+                "Copy for agent",
+                "Paste the text back into the chat"
+              ],
+              "numbered": true
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "links": [],
+  "annotations": [
+    {
+      "id": "n1",
+      "target": "aw-start",
+      "text": "\"Which one is actually simple to use?\""
+    },
+    {
+      "id": "n2",
+      "target": "co-start",
+      "text": "\"Hope my first invoice takes under 10 minutes\""
+    },
+    {
+      "id": "n3",
+      "target": "de-start",
+      "text": "\"That was fast and painless\""
+    },
+    {
+      "id": "n4",
+      "target": "re-start",
+      "text": "\"Support answered in 2 minutes\""
+    }
+  ]
+}

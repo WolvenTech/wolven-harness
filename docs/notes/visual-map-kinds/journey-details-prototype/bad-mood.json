@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "title": "Bad mood fixture",
+  "trees": [
+    {
+      "id": "t",
+      "nodes": [
+        { "id": "begin", "kind": "start", "label": "Begin", "next": "oops" },
+        { "id": "oops", "kind": "waypoint", "tag": "Stage", "label": "A step with a mood out of range", "mood": 3 }
+      ]
+    }
+  ]
+}

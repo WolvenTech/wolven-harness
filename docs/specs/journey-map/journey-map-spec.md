@@ -11,6 +11,7 @@ status: stable
 **Prototype:** `docs/notes/journey-map-prototype/journey-map-prototype-note.md`. Verdict: promote. Wave 1 ported its renderer and build script; the throwaway source isn't kept.
 **Next:** After the Human approves → `code-plan` → `code-execute`, waves
 **1 → 2 → 3**.
+**Iteration 1:** `docs/specs/journey-map/journey-map-iteration-1-spec.md` freezes the delta from the amended PRD. It removes R5 and every ticket clause here, and replaces R3.3's artifact rule.
 **Named proof (this spec's own structural gate):** `proof-journey-map-spec-obligations`
 
 ## Term challenge

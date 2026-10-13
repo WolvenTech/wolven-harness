@@ -1,0 +1,930 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<!-- PROTOTYPE — throwaway -->
+<title>Visual map: journey</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Inter:wght@400;500;600&display=swap">
+<style>
+:root {
+  --paper: #f6f6f9; --grid: #dcdce6; --card: #ffffff; --line: #e3e3ec; --ink: #1d1d27; --muted: #6e7180;
+  --select: #5b5bd6; --select-soft: #eeeefd; --tag-ink: #4b5060; --tag-bg: #f0f1f5;
+  --warn: #c2410c; --sticky-ink: #6b4e00; --sticky-bg: #fff4c2;
+  --agent-bg: #ece9fe; --agent-line: #cfc8fb; --agent-ink: #3b2f8f;
+  --bp-bg: #eef5fb; --bp-line: #cfe0ee; --pos: #e8f6ef; --neg: #fdeeee;
+  --shadow: 0 1px 2px rgba(20,20,40,.06), 0 4px 16px rgba(20,20,40,.06);
+  --ui: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body { background: var(--paper); color: var(--ink); font: 14px var(--ui); overflow: hidden; overscroll-behavior: none; }
+[hidden] { display: none !important; }
+#stage { position: fixed; inset: 0; touch-action: none; cursor: grab; overflow: hidden;
+  background-color: var(--paper); background-image: radial-gradient(circle, var(--grid) 1px, transparent 1.2px); background-size: 22px 22px; }
+#stage.panning { cursor: grabbing; }
+#world { position: absolute; left: 0; top: 0; width: 0; height: 0; transform-origin: 0 0; }
+#fx { position: absolute; left: 0; top: 0; width: 1px; height: 1px; overflow: visible; pointer-events: none; }
+#notes { position: absolute; left: 0; top: 0; }
+
+.unreached { visibility: hidden; }
+body.whole .unreached { visibility: visible; opacity: .28; }
+
+.box { position: absolute; font-size: 12.5px; line-height: 1.4; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow); padding: 8px 10px; overflow: hidden; }
+.card.illus, .illus .card { border-style: dashed; border-color: #8aa7c4; background: repeating-linear-gradient(135deg, #fff 0 8px, #f3f8fc 8px 16px); }
+.cap { font: 600 10px var(--ui); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-bottom: 3px; }
+.tag-ill { display: inline-block; font: 600 9.5px var(--ui); letter-spacing: .05em; text-transform: uppercase; color: #1f5f99; background: #dcecf9; border-radius: 999px; padding: 1px 6px; margin-left: 4px; vertical-align: 1px; }
+.card ul { margin: 0; padding-left: 15px; } .card li { margin: 0 0 2px; }
+.chips { display: flex; flex-wrap: wrap; gap: 4px; } .chip { background: var(--tag-bg); color: var(--tag-ink); border-radius: 999px; padding: 2px 8px; font-size: 12px; }
+.quote { font-style: italic; }
+.stage-h { background: var(--ink); color: #fff; border-radius: 10px; padding: 0 12px; display: flex; align-items: center; gap: 8px; font: 600 14px var(--ui); }
+.stage-h .n { background: #fff; color: var(--ink); border-radius: 999px; width: 20px; height: 20px; display: grid; place-items: center; font-size: 11px; }
+.step-h { background: var(--card); border: 1px solid var(--line); border-radius: 8px; display: flex; align-items: center; padding: 0 10px; font: 500 12.5px var(--ui); box-shadow: var(--shadow); }
+.lane-label { font: 600 12.5px var(--ui); padding: 8px 6px; }
+.lane-label small { display: block; font: 400 11px var(--ui); color: var(--muted); }
+.lane-bg { border-radius: 10px; background: rgba(255,255,255,.45); }
+.lane-bg.bp { background: var(--bp-bg); }
+.empty { background: rgba(255,255,255,.35); border: 1px dashed var(--line); border-radius: 10px; }
+.rule { height: 0; border-top: 2px dashed; opacity: .9; pointer-events: none; }
+.rule-label { font: 600 10.5px var(--ui); letter-spacing: .04em; text-transform: uppercase; background: var(--paper); border: 1px solid; border-radius: 999px; padding: 2px 8px; white-space: nowrap; pointer-events: none; }
+.val { display: inline-flex; align-items: center; gap: 3px; font: 600 11px var(--ui); margin-right: 6px; }
+.val i { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.who { display: flex; gap: 10px; align-items: flex-start; }
+.av { flex: none; width: 30px; height: 30px; border-radius: 50%; color: #fff; display: grid; place-items: center; font: 600 12px var(--ui); }
+.who b { font-weight: 600; } .who span { color: var(--muted); display: block; font-size: 12px; }
+.persona-card { padding: 12px 14px; }
+.persona-card h3 { margin: 0 0 8px; font: 600 11px var(--ui); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.persona-card .who { position: relative; margin-bottom: 8px; padding-right: 22px; }
+.persona-card p { margin: 6px 0 0; }
+.legend { margin-top: 8px; font-size: 11.5px; color: var(--muted); }
+.zone { border-radius: 14px; } .zone.pos { background: linear-gradient(var(--pos), rgba(232,246,239,0)); } .zone.neg { background: linear-gradient(rgba(253,238,238,0), var(--neg)); }
+.dot { border-radius: 50%; color: #fff; display: grid; place-items: center; font: 600 11px var(--ui); border: 2px solid #fff; box-shadow: var(--shadow); padding: 0; }
+.gauge { position: relative; height: 10px; border-radius: 999px; background: linear-gradient(90deg, #fbd5d5, #f3f3f6 50%, #cdeedd); margin: 14px 4px 8px; }
+.gauge .z { position: absolute; top: -3px; bottom: -3px; width: 2px; background: var(--ink); opacity: .5; }
+.gauge .m { position: absolute; top: -4px; width: 18px; height: 18px; margin-left: -9px; border-radius: 50%; border: 2px solid #fff; box-shadow: var(--shadow); }
+.sect { position: relative; margin-top: 8px; padding: 6px 8px; border-radius: 8px; background: #fafafc; border: 1px solid var(--line); }
+.sect.bp { background: var(--bp-bg); border-color: var(--bp-line); }
+.sect.illus { border-style: dashed; border-color: #8aa7c4; }
+.cardc { padding: 14px; }
+
+.pen { position: absolute; top: 3px; right: 3px; width: 22px; height: 22px; padding: 0; border: 0; border-radius: 6px; background: transparent; cursor: pointer; opacity: 0; display: grid; place-items: center; z-index: 3; }
+.pen svg { width: 13px; height: 13px; fill: none; stroke: var(--muted); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+*:hover > .pen, *:focus-within > .pen, .pen:focus-visible, .pen.has { opacity: 1; }
+.pen:hover, .pen:focus-visible { background: var(--tag-bg); outline: 2px solid transparent; }
+.pen:focus-visible { outline-color: var(--select); }
+.pen.has { background: var(--sticky-bg); }
+@media (hover: none) { .pen { opacity: .55; } }
+.selfpen { cursor: pointer; } .selfpen:focus-visible { outline: 2px solid var(--select); outline-offset: 2px; }
+
+.sticky { position: absolute; width: 190px; padding: 8px 10px 10px; border-radius: 4px; box-shadow: 0 2px 8px rgba(20,20,40,.18); z-index: 6; }
+.sticky.human { background: var(--sticky-bg); color: var(--sticky-ink); font: 500 19px/1.15 Caveat, cursive; transform: rotate(-1deg); cursor: pointer; border: 0; text-align: left; }
+.sticky.human:focus-visible { outline: 2px solid var(--select); }
+.sticky.agent { background: var(--agent-bg); border: 1px solid var(--agent-line); color: var(--agent-ink); font: 400 12px/1.35 var(--ui); transform: rotate(.8deg); }
+.sticky.agent b { display: block; font: 600 9.5px var(--ui); letter-spacing: .06em; text-transform: uppercase; margin-bottom: 2px; }
+.sticky textarea { width: 100%; height: 76px; border: 0; background: transparent; resize: none; font: inherit; color: inherit; outline: none; padding: 0; }
+
+.island { position: fixed; z-index: 20; background: rgba(255,255,255,.92); backdrop-filter: blur(8px); border-radius: 12px; box-shadow: var(--shadow); border: 1px solid var(--line); display: flex; align-items: center; gap: 4px; padding: 4px; }
+#top { top: calc(env(safe-area-inset-top, 0px) + 14px); left: 16px; right: 16px; padding: 6px 6px 6px 16px; gap: 8px; flex-wrap: wrap; }
+#top .heading { display: flex; flex-direction: column; margin-right: auto; min-width: 0; flex: 1 1 200px; }
+#top h1 { margin: 0; font: 600 15px/1.25 var(--ui); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#top p { margin: 0; font: 400 12.5px/1.3 var(--ui); color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.stepper { display: flex; align-items: center; gap: 4px; }
+#stagelabel { font: 500 12.5px var(--ui); color: var(--muted); min-width: 120px; text-align: center; font-variant-numeric: tabular-nums; }
+#zoom { bottom: calc(env(safe-area-inset-bottom, 0px) + 14px); left: 16px; }
+.btn { appearance: none; border: 1px solid transparent; background: transparent; color: var(--ink); height: 34px; min-width: 34px; padding: 0 12px; border-radius: 9px; font: 500 13px var(--ui); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; }
+.btn:hover:not(:disabled) { background: var(--tag-bg); }
+.btn:disabled { opacity: .4; cursor: default; }
+.btn:focus-visible { outline: 2px solid var(--select); outline-offset: 1px; }
+.btn.secondary { border-color: var(--line); background: var(--card); }
+.btn.secondary[aria-pressed="true"] { background: var(--select-soft); border-color: var(--select); color: var(--select); }
+.btn.primary-btn { background: var(--select); color: #fff; } .btn.primary-btn:hover { background: #4747c2 !important; }
+.btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.sep { width: 1px; align-self: stretch; background: var(--line); margin: 4px 2px; }
+#pct { min-width: 56px; font-variant-numeric: tabular-nums; }
+#status { position: fixed; right: 16px; bottom: calc(env(safe-area-inset-bottom, 0px) + 14px); z-index: 20; padding: 8px 12px; font: 500 12.5px var(--ui); color: var(--muted); background: rgba(255,255,255,.92); border: 1px solid var(--line); border-radius: 999px; box-shadow: var(--shadow); }
+#variants { position: fixed; z-index: 40; bottom: calc(env(safe-area-inset-bottom, 0px) + 14px); left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 6px; background: #0b0b10; color: #fff; border-radius: 999px; padding: 5px; box-shadow: 0 6px 24px rgba(0,0,0,.4); font: 600 12.5px var(--ui); white-space: nowrap; }
+#variants button { width: 32px; height: 32px; border-radius: 50%; border: 0; background: #2b2b36; color: #fff; font: 600 15px var(--ui); cursor: pointer; }
+#variants button:hover { background: #46465a; } #variants button:focus-visible { outline: 2px solid #ffd54a; outline-offset: 2px; }
+#variants span { padding: 0 6px; } #variants small { color: #ffd54a; font-weight: 600; margin-right: 4px; }
+#feedback-panel { position: fixed; right: 16px; bottom: 70px; z-index: 30; background: var(--card); padding: 16px; border: 1px solid var(--line); border-radius: 12px; width: min(520px, calc(100vw - 32px)); box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 10px; }
+#feedback-panel label { font: 600 13px var(--ui); }
+#feedback { width: 100%; height: 170px; font: 12px ui-monospace, Menlo, monospace; border: 1px solid var(--line); border-radius: 8px; padding: 8px; resize: vertical; }
+#feedback-panel .btn { align-self: flex-end; }
+#errors { position: fixed; inset: 100px 24px 80px; overflow: auto; z-index: 50; background: var(--card); border: 1px solid var(--warn); border-radius: 12px; padding: 24px; box-shadow: var(--shadow); }
+#errors h2 { margin: 0 0 12px; font: 600 18px var(--ui); color: var(--warn); }
+#errors pre { margin: 0; white-space: pre-wrap; font: 13px/1.6 ui-monospace, Menlo, monospace; }
+@media (max-width: 720px) {
+  #top p { display: none; } #top { gap: 6px; padding-left: 12px; }
+  #status { display: none; }
+  #zoom { bottom: calc(env(safe-area-inset-bottom, 0px) + 62px); }
+  #stagelabel { min-width: 0; flex: 1; }
+  .stepper { flex: 1 1 100%; }
+}
+@media (prefers-reduced-motion: reduce) { #world { transition: none !important; } }
+</style>
+</head><body>
+<!-- PROTOTYPE — throwaway -->
+<header class="island" id="top">
+  <div class="heading"><h1 id="title"></h1><p id="subtitle"></p></div>
+  <div class="stepper" role="group" aria-label="Walk the stages">
+    <button class="btn secondary" id="back" type="button">Back</button>
+    <span id="stagelabel" aria-live="polite"></span>
+    <button class="btn secondary" id="next" type="button">Next</button>
+  </div>
+  <button class="btn secondary" id="show-all" type="button" aria-pressed="false">Show whole map</button>
+  <button class="btn primary-btn" id="copy" type="button">Copy for agent</button>
+</header>
+
+<div id="stage">
+  <div id="world">
+    <svg id="fx" xmlns="http://www.w3.org/2000/svg"></svg>
+    <div id="notes"></div>
+  </div>
+</div>
+
+<div class="island" id="zoom" role="group" aria-label="Zoom">
+  <button class="btn" id="zout" type="button" aria-label="Zoom out"><svg viewBox="0 0 20 20"><path d="M5 10h10"/></svg></button>
+  <button class="btn" id="pct" type="button" aria-label="Reset zoom to 100%">100%</button>
+  <button class="btn" id="zin" type="button" aria-label="Zoom in"><svg viewBox="0 0 20 20"><path d="M5 10h10M10 5v10"/></svg></button>
+  <span class="sep"></span>
+  <button class="btn" id="fit" type="button" aria-label="Fit what is shown"><svg viewBox="0 0 20 20"><path d="M3 7V3h4M13 3h4v4M17 13v4h-4M7 17H3v-4"/></svg></button>
+</div>
+
+<div id="variants" role="group" aria-label="Prototype layout variant (not part of the design)">
+  <button id="vprev" type="button" aria-label="Previous variant">&larr;</button>
+  <span><small>PROTOTYPE</small><b id="vlabel"></b></span>
+  <button id="vnext" type="button" aria-label="Next variant">&rarr;</button>
+</div>
+
+<section id="errors" hidden role="alert"><h2>This map needs a fix</h2><pre id="error-text"></pre></section>
+<section id="feedback-panel" hidden><label for="feedback">Copy this and paste it into your agent chat</label><textarea id="feedback" readonly></textarea><button class="btn secondary" id="close-feedback" type="button">Close</button></section>
+<div id="status" role="status" aria-live="polite"></div>
+<script id="map-data" type="application/json">{"map":{"//":"PROTOTYPE — throwaway. The agent wrote this file from cj-001-source.json.","version":1,"kind":"journey","title":"Switching to automated invoicing (cj_001)","subtitle":"Alex Rivera, small business owner. Research data except what is marked illustrative.","scenario":"Alex needs to switch from manual spreadsheets to an automated invoicing tool to save time.","scale":{"min":-5,"max":5},"personas":[{"id":"alex","name":"Alex Rivera","role":"Small Business Owner","goal":"Find a reliable and affordable invoicing software","color":"#5b5bd6"},{"id":"jordan","name":"Jordan Lee","role":"Part-time bookkeeper","goal":"Invoice five clients without leaving the spreadsheet habit","color":"#e11d74","illustrative":true}],"stages":[{"id":"awareness","label":"Awareness","steps":[{"id":"aw-notice","label":"Notice the cost"},{"id":"aw-search","label":"Search"}]},{"id":"consideration","label":"Consideration","steps":[{"id":"co-reviews","label":"Read reviews"},{"id":"co-trial","label":"Start trial"}]},{"id":"decision","label":"Decision / Purchase","steps":[{"id":"de-pay","label":"Pay"},{"id":"de-send","label":"Send invoice"}]},{"id":"retention","label":"Retention / Support","steps":[{"id":"re-paid","label":"First payment"},{"id":"re-chat","label":"Ask support"}]}],"lanes":[{"id":"actions","label":"Actions","type":"text"},{"id":"touchpoints","label":"Touchpoints","type":"text"},{"id":"thoughts","label":"Thoughts","type":"text"},{"id":"mood","label":"Mood","type":"mood"},{"id":"pain","label":"Pain points","type":"text"},{"id":"opps","label":"Opportunities","type":"text"},{"id":"front","label":"Frontstage","type":"frontstage","illustrative":true},{"id":"back","label":"Backstage","type":"backstage","illustrative":true},{"id":"process","label":"Support processes","type":"process","illustrative":true}],"mood":{"alex":{"awareness":-1,"consideration":1,"decision":3,"retention":4},"jordan":{"aw-notice":-2,"aw-search":0,"co-reviews":1,"co-trial":-1,"de-pay":2,"de-send":1,"re-paid":3,"re-chat":2}},"cells":[{"lane":"actions","at":"aw-notice","text":"Realizes manual invoicing takes too much time"},{"lane":"actions","at":"aw-search","text":"Searches Google for 'best small business invoicing tools'"},{"lane":"actions","at":"co-reviews","text":"Reads reviews on Capterra"},{"lane":"actions","at":"co-trial","text":"Signs up for a free 14-day trial"},{"lane":"actions","at":"de-pay","text":"Enters credit card details for the monthly plan"},{"lane":"actions","at":"de-send","text":"Generates and sends the first client invoice"},{"lane":"actions","at":"re-paid","text":"Receives first online payment from a client"},{"lane":"actions","at":"re-chat","text":"Contacts live chat with a tax-formatting question"},{"lane":"touchpoints","at":"awareness","items":["Google Search","Industry Blog Post"]},{"lane":"touchpoints","at":"consideration","items":["Review Site","Landing Page","Onboarding Email"]},{"lane":"touchpoints","at":"decision","items":["Checkout Page","Payment Confirmation Screen"]},{"lane":"touchpoints","at":"retention","items":["In-App Chat Support","Customer Portal"]},{"lane":"thoughts","at":"awareness","text":"There are too many options. Which one is actually simple to use?"},{"lane":"thoughts","at":"consideration","text":"I hope setting up my first invoice doesn't take longer than 10 minutes."},{"lane":"thoughts","at":"decision","text":"That was fast and painless. Let's see how clients react to the link."},{"lane":"thoughts","at":"retention","text":"Support answered in 2 minutes. This is worth the monthly subscription."},{"lane":"pain","at":"awareness","items":["Overwhelmed by generic comparison lists","Unclear pricing tiers"]},{"lane":"pain","at":"consideration","items":["Blank dashboard upon first login without a quick-start template"]},{"lane":"pain","at":"decision","items":["Worry about hidden renewal fees"]},{"lane":"pain","at":"retention","items":["Difficulty finding local tax settings documentation"]},{"lane":"opps","at":"awareness","items":["Publish a clear, interactive feature and pricing comparison guide"]},{"lane":"opps","at":"consideration","items":["Add a 1-minute interactive setup wizard upon sign-up"]},{"lane":"opps","at":"decision","items":["Send a transparent receipt and a one-click calendar reminder before trial ends"]},{"lane":"opps","at":"retention","items":["Proactively surface regional tax setup tooltips in the settings panel"]},{"lane":"front","at":"aw-search","text":"Search snippet and blog call to action","illustrative":true},{"lane":"front","at":"co-reviews","text":"Review-site listing page","illustrative":true},{"lane":"front","at":"co-trial","text":"Sign-up form and welcome email","illustrative":true},{"lane":"front","at":"de-pay","text":"Checkout page with plan summary","illustrative":true},{"lane":"front","at":"de-send","text":"Invoice composer and send dialog","illustrative":true},{"lane":"front","at":"re-paid","text":"Payment received notification","illustrative":true},{"lane":"front","at":"re-chat","text":"Live chat agent replies","illustrative":true},{"lane":"back","at":"co-trial","text":"Create trial workspace and seed sample data","illustrative":true},{"lane":"back","at":"de-pay","text":"Authorise the card with the payment provider","illustrative":true},{"lane":"back","at":"de-send","text":"Render the PDF and email the invoice link","illustrative":true},{"lane":"back","at":"re-paid","text":"Reconcile the payout to the invoice","illustrative":true},{"lane":"back","at":"re-chat","text":"Agent looks up the account's tax region","illustrative":true},{"lane":"process","at":"co-trial","text":"Trial-expiry reminder scheduler","illustrative":true},{"lane":"process","at":"de-pay","text":"Billing and renewal ledger","illustrative":true},{"lane":"process","at":"re-chat","text":"Tax-rule knowledge base","illustrative":true}],"lines":[{"id":"loi","type":"interaction","between":["opps","front"],"illustrative":true},{"id":"lov","type":"visibility","between":["front","back"],"illustrative":true},{"id":"lii","type":"internal","between":["back","process"],"illustrative":true}],"annotations":[{"on":"mood:aw-notice","text":"The source scores mood once per stage (-1, 1, 3, 4). Both steps of a stage carry that score unchanged."},{"on":"pain:decision","text":"Mood peaks at 3 here, yet a worry is listed. Worth asking Alex about."},{"on":"jordan","text":"Not from cj_001. Added to try the persona comparison."},{"on":"thoughts:retention","text":"The only thought that names a price."}]},"path":"prototypes/visual-map-journey/cj-001-journey.json","errors":[]}</script>
+<script src="https://cdn.jsdelivr.net/npm/roughjs@4.6.6/bundled/rough.js" integrity="sha384-1NLkwxMO2sOqcq7rQkFBhIAUJtbt8ziLxhVKVgKfFGMEU8pF+GEq5LVogviveup6" crossorigin="anonymous"></script>
+<script>// PROTOTYPE — throwaway.
+// Three structurally different layouts. Each takes the model and returns { focus(stageIndex) -> rect, whole -> rect }.
+const legendHtml = (M) => M.personas.map((p) => `<span class="val"><i style="background:${p.color}"></i>${esc(p.name)}${p.illustrative ? '<em class="tag-ill">illustrative</em>' : ''}</span>`).join('');
+const ruleStyle = (ln) => {
+  const c = LINE_META[ln.type][1];
+  return `border-color:${c};color:${c}`;
+};
+
+// ---------- A: Classic grid ----------
+// why: lanes are rows and steps are columns, so every cell has one fixed address and the eye reads across a lane.
+function layoutA(M) {
+  const LW = 150;
+  const CW = 200;
+  const G = 10;
+  const colX = (si) => LW + G + si * (CW + G);
+  const TW = colX(M.steps.length) - G;
+  const stageX = (s) => colX(s.steps[0].si);
+  const stageW = (s) => s.steps.length * CW + (s.steps.length - 1) * G;
+  const isStage = (id) => M.stages.some((s) => s.id === id);
+  const pc = personaCard(0, 0, stageX(M.stages[0]) + stageW(M.stages[0]));
+  let y = pc.offsetHeight + 18;
+  const headY = y;
+  for (const s of M.stages) {
+    const h = box('stage-h', stageX(s), y, stageW(s), 36, `<span class="n">${s.index + 1}</span>${esc(s.label)}`, s.index);
+    h.style.paddingRight = '30px';
+    target(h, s.id, s.label, s.index, false);
+    for (const st of s.steps) {
+      const sh = box('step-h', colX(st.si), y + 44, CW, 32, esc(st.label), s.index);
+      sh.style.paddingRight = '28px';
+      target(sh, st.id, st.label, s.index, false);
+    }
+  }
+  y += 88;
+  const laneH = (l) => {
+    if (l.type === 'mood') return 190;
+    let h = 44;
+    for (const c of M.j.cells) if (c.lane === l.id) h = Math.max(h, estimate(c, isStage(c.at) ? CW * 2 + G : CW) + 4);
+    return h;
+  };
+  for (const l of M.lanes) {
+    const h = laneH(l);
+    for (const ln of M.lines.filter((x) => x.between[1] === l.id)) {
+      for (const s of M.stages) {
+        const r = box('rule', stageX(s) - 5, y - 5, stageW(s) + 10, 0, '', s.index);
+        r.style.cssText += `;${ruleStyle(ln)};background:none`;
+        const p = box('rule-label', stageX(s) + 8, y - 17, null, null, esc(lineLabel(ln)), s.index);
+        p.style.cssText += `;${ruleStyle(ln)}`;
+      }
+    }
+    box(`lane-bg${l.bp ? ' bp' : ''}`, 0, y, TW, h);
+    const small = l.type === 'mood' ? `${fmt(M.scale.max)} to ${fmt(M.scale.min)}<br>${legendHtml(M).replaceAll('class="val"', 'class="val" style="margin:2px 0;display:flex"')}` : l.illustrative ? '<em class="tag-ill" style="margin:3px 0 0">illustrative</em>' : '';
+    box('lane-label', 0, y, LW, h, `${esc(l.label)}<small>${small}</small>`);
+    for (const s of M.stages) {
+      if (l.type === 'mood') {
+        const top = y + 30;
+        const bottom = y + h - 14;
+        s.steps.forEach((st, k) => {
+          const m = box('', colX(st.si), y, CW, h, k === 0 ? `<div class="cap" style="padding:4px 8px">Mood</div>` : '', s.index);
+          target(m, `mood:${st.id}`, M.labels.get(`mood:${st.id}`), s.index, false);
+        });
+        const zy = M.yOf(0, top, bottom);
+        svgEl('line', { x1: stageX(s) - 4, x2: stageX(s) + stageW(s) + 4, y1: zy, y2: zy, stroke: '#b9bbc8', 'stroke-dasharray': '4 4' }, sg(s.index));
+        continue;
+      }
+      const sc = M.cells[`${l.id}:${s.id}`];
+      if (sc) {
+        const { ill, html } = cellHtml(l, sc);
+        const el = box(`card${ill ? ' illus' : ''}`, stageX(s), y, stageW(s), h, html, s.index);
+        target(el, `${l.id}:${s.id}`, M.labels.get(`${l.id}:${s.id}`), s.index, false);
+        continue;
+      }
+      for (const st of s.steps) {
+        const c = M.cells[`${l.id}:${st.id}`];
+        if (!c) {
+          box('empty', colX(st.si), y, CW, h, '', s.index);
+          continue;
+        }
+        const { ill, html } = cellHtml(l, c);
+        const el = box(`card${ill ? ' illus' : ''}`, colX(st.si), y, CW, h, html, s.index);
+        target(el, `${l.id}:${st.id}`, M.labels.get(`${l.id}:${st.id}`), s.index, false);
+      }
+    }
+    if (l.type === 'mood') {
+      const top = y + 30;
+      const bottom = y + h - 14;
+      for (const p of M.personas) {
+        curve(M.steps.map((st) => ({ x: colX(st.si) + CW / 2, y: M.moodOf(p, st) == null ? 0 : M.yOf(M.moodOf(p, st), top, bottom), v: M.moodOf(p, st), stage: st.stage.index })), p.color, p.illustrative);
+      }
+    }
+    y += h + G;
+  }
+  const H = y - G;
+  return {
+    focus: (i) => {
+      const s = M.stages[i];
+      if (i === 0) return { x: -12, y: -12, w: stageX(s) + stageW(s) + 24, h: H + 130 };
+      return { x: stageX(s) - 12, y: headY - 12, w: stageW(s) + 24, h: H - headY + 130 };
+    },
+    whole: { x: -12, y: -12, w: TW + 24, h: H + 130 },
+  };
+}
+
+// ---------- B: Mood spine ----------
+// why: the mood curve is the page's spine; context hangs above it and consequences below it, so the story reads as one emotional line instead of a table.
+function layoutB(M) {
+  const SW = 236;
+  const GAP = 48;
+  const PW = 330;
+  const ZH = 290;
+  const CARD = SW - 12;
+  const sx = [];
+  let x = PW + 56;
+  for (const s of M.stages) {
+    sx.push(x);
+    x += s.steps.length * SW + GAP;
+  }
+  const totalW = x - GAP;
+  const sW = (s) => s.steps.length * SW;
+  const colL = (st) => sx[st.stage.index] + st.stage.steps.indexOf(st) * SW;
+  const above = M.lanes.filter((l, i) => i < M.moodIdx && !l.bp);
+  const below = M.lanes.filter((l, i) => i > M.moodIdx && !l.bp);
+  const bps = M.lanes.filter((l) => l.bp);
+  const items = (l, s) => {
+    const sc = M.cells[`${l.id}:${s.id}`];
+    if (sc) return [{ c: sc, id: `${l.id}:${s.id}`, x: sx[s.index] + 6, w: sW(s) - 12, cap: '' }];
+    return s.steps.filter((st) => M.cells[`${l.id}:${st.id}`]).map((st) => ({ c: M.cells[`${l.id}:${st.id}`], id: `${l.id}:${st.id}`, x: colL(st) + 6, w: CARD, cap: st.label }));
+  };
+  const rowH = (l, s) => {
+    const it = items(l, s);
+    return it.length ? Math.max(...it.map((o) => estimate(o.c, o.w))) + 4 : 0;
+  };
+  const stackH = (lanes, s) => lanes.reduce((n, l) => n + (rowH(l, s) ? rowH(l, s) + 10 : 0), 0);
+  const AH = Math.max(0, ...M.stages.map((s) => stackH(above, s)));
+  const spineY = AH + 96;
+  const put = (l, s, it, y, h) => {
+    const { ill, html } = cellHtml(l, it.c, it.cap);
+    const el = box(`card${ill ? ' illus' : ''}`, it.x, y, it.w, h, html, s.index);
+    target(el, it.id, M.labels.get(it.id), s.index, false);
+  };
+  pcAt(M, 0, spineY - 70, PW);
+  const tops = [];
+  const zy = M.yOf(0, spineY + 36, spineY + ZH - 16);
+  for (const s of M.stages) {
+    const h = box('stage-h', sx[s.index], spineY - 84, sW(s), 34, `<span class="n">${s.index + 1}</span>${esc(s.label)}`, s.index);
+    h.style.paddingRight = '30px';
+    target(h, s.id, s.label, s.index, false);
+    box('zone pos', sx[s.index] - 4, spineY, sW(s) + 8, zy - spineY, '', s.index);
+    box('zone neg', sx[s.index] - 4, zy, sW(s) + 8, spineY + ZH - zy, '', s.index);
+    svgEl('line', { x1: sx[s.index] - 4, x2: sx[s.index] + sW(s) + 4, y1: zy, y2: zy, stroke: '#9a9cac', 'stroke-dasharray': '4 4' }, sg(s.index));
+    s.steps.forEach((st, k) => {
+      const sh = box('step-h', colL(st) + 6, spineY - 42, CARD, 32, esc(st.label), s.index);
+      sh.style.paddingRight = '28px';
+      target(sh, st.id, st.label, s.index, false);
+      const m = box('', colL(st), spineY, SW, ZH, k === 0 ? `<div style="padding:6px 10px">${legendHtml(M)}</div>` : '', s.index);
+      target(m, `mood:${st.id}`, M.labels.get(`mood:${st.id}`), s.index, false);
+    });
+    let yb = spineY - 96;
+    for (const l of [...above].reverse()) {
+      const h2 = rowH(l, s);
+      if (!h2) continue;
+      for (const it of items(l, s)) put(l, s, it, yb - h2, h2);
+      yb -= h2 + 10;
+    }
+    tops[s.index] = yb;
+  }
+  for (const p of M.personas) {
+    curve(M.steps.map((st) => ({ x: colL(st) + SW / 2, y: M.moodOf(p, st) == null ? 0 : M.yOf(M.moodOf(p, st), spineY + 36, spineY + ZH - 16), v: M.moodOf(p, st), stage: st.stage.index })), p.color, p.illustrative);
+  }
+  let belowEnd = spineY + ZH + 16;
+  const bottoms = [];
+  for (const s of M.stages) {
+    let yy = spineY + ZH + 16;
+    for (const l of below) {
+      const h2 = rowH(l, s);
+      if (!h2) continue;
+      for (const it of items(l, s)) put(l, s, it, yy, h2);
+      yy += h2 + 10;
+    }
+    bottoms[s.index] = yy;
+    belowEnd = Math.max(belowEnd, yy);
+  }
+  let by = belowEnd + 22;
+  for (const l of bps) {
+    const h2 = Math.max(44, ...M.stages.map((s) => rowH(l, s)));
+    for (const ln of M.lines.filter((q) => q.between[1] === l.id)) {
+      for (const s of M.stages) {
+        const r = box('rule', sx[s.index] - 5, by - 6, sW(s) + 10, 0, '', s.index);
+        r.style.cssText += `;${ruleStyle(ln)};background:none`;
+        const p = box('rule-label', sx[s.index] + 8, by - 18, null, null, esc(lineLabel(ln)), s.index);
+        p.style.cssText += `;${ruleStyle(ln)}`;
+      }
+    }
+    for (const s of M.stages) {
+      box('lane-bg bp', sx[s.index] - 4, by - 2, sW(s) + 8, h2 + 4, '', s.index);
+      for (const it of items(l, s)) put(l, s, it, by, h2);
+    }
+    by += h2 + 22;
+  }
+  const bottom = by + 120;
+  const top = Math.min(0, ...tops) - 14;
+  return {
+    focus: (i) => {
+      const s = M.stages[i];
+      const t = Math.min(tops[i], spineY - 100) - 14;
+      if (i === 0) return { x: -12, y: t, w: sx[0] + sW(s) + 28, h: bottom - t };
+      return { x: sx[i] - 16, y: t, w: sW(s) + 32, h: bottom - t };
+    },
+    whole: { x: -12, y: top, w: totalW + 28, h: bottom - top },
+  };
+}
+function pcAt(M, x, y, w) {
+  return personaCard(x, y, w);
+}
+
+// ---------- C: Stage cards ----------
+// why: one self-contained card per stage and a gauge instead of a curve, so a stage can be read, reordered or quoted on its own.
+function layoutC(M) {
+  const CWD = 420;
+  const GAP = 80;
+  const PW = 340;
+  const X0 = PW + 80;
+  personaCard(0, 0, PW);
+  const cards = [];
+  const mk = (tag, cls, html) => {
+    const d = document.createElement(tag);
+    d.className = cls;
+    if (html) d.innerHTML = html;
+    return d;
+  };
+  M.stages.forEach((s, i) => {
+    const x = X0 + i * (CWD + GAP);
+    const card = box('card cardc', x, 0, CWD, null, '', s.index);
+    card.style.overflow = 'visible';
+    const head = mk('div', 'stage-h', `<span class="n">${i + 1}</span>${esc(s.label)}`);
+    head.style.cssText = 'position:relative;height:40px;padding-right:30px;margin-bottom:6px';
+    card.appendChild(head);
+    target(head, s.id, s.label, s.index, false);
+    for (const l of M.lanes) {
+      for (const ln of M.lines.filter((q) => q.between[1] === l.id)) {
+        const r = mk('div', 'rule', `<span class="rule-label" style="position:absolute;left:8px;top:-11px;${ruleStyle(ln)}">${esc(lineLabel(ln))}</span>`);
+        r.style.cssText += `;position:relative;margin:18px 0 8px;${ruleStyle(ln)}`;
+        card.appendChild(r);
+      }
+      if (l.type === 'mood') {
+        const sec = mk('div', 'sect', `<div class="cap">${esc(l.label)} · ${fmt(M.scale.min)} to ${fmt(M.scale.max)}</div><div style="margin-bottom:2px">${legendHtml(M)}</div>`);
+        for (const st of s.steps) {
+          const sh = mk('div', '', `<b style="font-size:12.5px">${esc(st.label)}</b>`);
+          sh.style.cssText = 'position:relative;margin-top:8px;padding-right:26px';
+          target(sh, st.id, st.label, s.index, false);
+          sec.appendChild(sh);
+          const gw = mk('div', '');
+          gw.style.cssText = 'position:relative;padding-right:26px';
+          for (const p of M.personas) {
+            const v = M.moodOf(p, st);
+            if (v == null) continue;
+            const pos = ((v - M.scale.min) / (M.scale.max - M.scale.min)) * 100;
+            const zero = ((0 - M.scale.min) / (M.scale.max - M.scale.min)) * 100;
+            const row = mk('div', '', `<span class="val" style="min-width:34px"><i style="background:${p.color}"></i>${fmt(v)}</span><div class="gauge" style="flex:1;margin:12px 6px"><span class="z" style="left:${zero}%"></span><span class="m" style="left:${pos}%;background:${p.color}${p.illustrative ? ';border-style:dashed;border-color:' + p.color : ''}"></span></div>`);
+            row.style.cssText = 'display:flex;align-items:center';
+            gw.appendChild(row);
+          }
+          sec.appendChild(gw);
+          target(gw, `mood:${st.id}`, M.labels.get(`mood:${st.id}`), s.index, false);
+        }
+        card.appendChild(sec);
+        continue;
+      }
+      const sc = M.cells[`${l.id}:${s.id}`];
+      const list = sc ? [{ c: sc, id: `${l.id}:${s.id}`, cap: '' }] : s.steps.filter((st) => M.cells[`${l.id}:${st.id}`]).map((st) => ({ c: M.cells[`${l.id}:${st.id}`], id: `${l.id}:${st.id}`, cap: st.label }));
+      for (const it of list) {
+        const { ill, html } = cellHtml(l, it.c, it.cap);
+        const sec = mk('div', `sect${l.bp ? ' bp' : ''}${ill ? ' illus' : ''}`, html);
+        sec.style.paddingRight = '28px';
+        card.appendChild(sec);
+        target(sec, it.id, M.labels.get(it.id), s.index, false);
+      }
+    }
+    cards.push(card);
+    if (i === 0) arrow(PW + 10, 24, x - 10, 24, '#1d1d27', 0);
+    else arrow(x - GAP + 10, 24, x - 10, 24, '#1d1d27', i);
+  });
+  const hMax = () => Math.max(...cards.map((c) => c.offsetHeight));
+  return {
+    focus: (i) => {
+      const c = cards[i];
+      if (i === 0) return { x: -12, y: -14, w: c.offsetLeft + CWD + 28, h: hMax() + 130 };
+      return { x: c.offsetLeft - 16, y: -14, w: CWD + 32, h: hMax() + 130 };
+    },
+    whole: { x: -12, y: -14, w: X0 + M.stages.length * (CWD + GAP) - GAP + 28, h: hMax() + 130 },
+  };
+}
+
+// PROTOTYPE — throwaway.
+// Shared by every variant: model, camera, reveal, notes, Copy for agent, variant switcher.
+const DATA = JSON.parse(document.getElementById('map-data').textContent);
+const $ = (id) => document.getElementById(id);
+const SVGNS = 'http://www.w3.org/2000/svg';
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+const world = $('world');
+const fx = $('fx');
+const notesLayer = $('notes');
+const stageEl = $('stage');
+const PEN = '<svg viewBox="0 0 20 20"><path d="M3 17l1-4L14 3l3 3L7 16z"/><path d="M12 5l3 3"/></svg>';
+const fmt = (v) => (v > 0 ? `+${v}` : String(v).replace('-', '−'));
+
+function buildModel(j) {
+  const scale = j.scale || { min: -2, max: 2 };
+  const palette = ['#5b5bd6', '#e11d74', '#0f766e', '#c2410c'];
+  const personas = j.personas.map((p, i) => ({ ...p, color: p.color || palette[i % palette.length] }));
+  const stages = [];
+  const steps = [];
+  j.stages.forEach((s, i) => {
+    const st = { id: s.id, label: s.label, index: i, steps: [] };
+    for (const x of s.steps) {
+      const step = { id: x.id, label: x.label, stage: st, si: steps.length };
+      st.steps.push(step);
+      steps.push(step);
+    }
+    stages.push(st);
+  });
+  const cells = {};
+  for (const c of j.cells || []) cells[`${c.lane}:${c.at}`] = c;
+  const lanes = j.lanes.map((l) => ({ ...l, bp: ['frontstage', 'backstage', 'process'].includes(l.type) }));
+  const moodIdx = lanes.findIndex((l) => l.type === 'mood');
+  const order = [...personas.map((p) => p.id)];
+  const labels = new Map(personas.map((p) => [p.id, p.name]));
+  for (const s of stages) {
+    order.push(s.id);
+    labels.set(s.id, s.label);
+    for (const st of s.steps) {
+      order.push(st.id);
+      labels.set(st.id, st.label);
+    }
+  }
+  for (const l of lanes) {
+    if (l.type === 'mood') {
+      for (const st of steps) {
+        order.push(`mood:${st.id}`);
+        labels.set(`mood:${st.id}`, `${l.label} · ${st.label}`);
+      }
+      continue;
+    }
+    for (const s of stages) {
+      const names = [s, ...s.steps];
+      for (const n of names) {
+        if (cells[`${l.id}:${n.id}`]) {
+          order.push(`${l.id}:${n.id}`);
+          labels.set(`${l.id}:${n.id}`, `${l.label} · ${n.label}`);
+        }
+      }
+    }
+  }
+  const moodOf = (p, step) => {
+    const m = (j.mood || {})[p.id] || {};
+    return m[step.id] ?? m[step.stage.id];
+  };
+  const hasIllus = personas.some((p) => p.illustrative) || lanes.some((l) => l.illustrative) || (j.lines || []).some((l) => l.illustrative) || (j.cells || []).some((c) => c.illustrative);
+  return {
+    j, scale, personas, stages, steps, lanes, cells, moodIdx, order, labels, moodOf, hasIllus,
+    lines: j.lines || [],
+    cellFor: (laneId, step) => cells[`${laneId}:${step.id}`] || cells[`${laneId}:${step.stage.id}`] || null,
+    yOf: (v, top, bottom) => top + ((scale.max - v) / (scale.max - scale.min)) * (bottom - top),
+  };
+}
+
+let M;
+const targets = new Map();
+const notes = {};
+let editing = null;
+let cur = 0;
+let whole = false;
+let variant = 'A';
+let layout = null;
+let cam = { x: 0, y: 0, k: 1 };
+const moved = { v: false };
+
+// ---------- building blocks used by the layouts ----------
+function box(cls, x, y, w, h, html, stage) {
+  const d = document.createElement('div');
+  d.className = `box ${cls || ''}`;
+  d.style.left = `${x}px`;
+  d.style.top = `${y}px`;
+  if (w != null) d.style.width = `${w}px`;
+  if (h != null) d.style.height = `${h}px`;
+  if (stage != null) d.dataset.stage = stage;
+  if (html) d.innerHTML = html;
+  world.insertBefore(d, notesLayer);
+  return d;
+}
+function svgEl(tag, attrs, parent) {
+  const e = document.createElementNS(SVGNS, tag);
+  for (const [k, v] of Object.entries(attrs || {})) e.setAttribute(k, v);
+  (parent || fx).appendChild(e);
+  return e;
+}
+const stageGroups = new Map();
+function sg(stage) {
+  if (!stageGroups.has(stage)) {
+    const g = svgEl('g', {});
+    if (stage != null) g.dataset.stage = stage;
+    stageGroups.set(stage, g);
+  }
+  return stageGroups.get(stage);
+}
+function target(el, id, label, stage, self) {
+  const t = { id, label, el, stage };
+  targets.set(id, t);
+  if (self) {
+    el.classList.add('selfpen');
+    el.tabIndex = 0;
+    el.setAttribute('role', 'button');
+    el.setAttribute('aria-label', `Note on ${label}`);
+    el.addEventListener('click', () => addNote(id));
+    el.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        addNote(id);
+      }
+    });
+  } else {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'pen';
+    b.innerHTML = PEN;
+    b.setAttribute('aria-label', `Add note: ${label}`);
+    b.addEventListener('click', (e) => {
+      e.stopPropagation();
+      addNote(id);
+    });
+    el.appendChild(b);
+    t.pen = b;
+  }
+  return t;
+}
+function curve(pts, color, dashed) {
+  for (let j = 0; j < pts.length; j++) {
+    const p = pts[j];
+    if (p.v == null) continue;
+    const g = sg(p.stage);
+    const a = pts[j - 1];
+    if (a && a.v != null) {
+      const dx = (p.x - a.x) / 2;
+      svgEl('path', {
+        d: `M${a.x} ${a.y} C${a.x + dx} ${a.y} ${p.x - dx} ${p.y} ${p.x} ${p.y}`,
+        fill: 'none', stroke: color, 'stroke-width': 3.5, 'stroke-linecap': 'round', ...(dashed ? { 'stroke-dasharray': '7 6' } : {}),
+      }, g);
+    }
+    svgEl('circle', { cx: p.x, cy: p.y, r: 5, fill: color, stroke: '#fff', 'stroke-width': 2 }, g);
+    svgEl('text', { x: p.x, y: p.y - 11, 'text-anchor': 'middle', 'font-size': 11, 'font-weight': 600, fill: color }, g).textContent = fmt(p.v);
+  }
+}
+function arrow(x1, y1, x2, y2, color, stage) {
+  const g = svgEl('g', {});
+  if (stage != null) g.dataset.stage = stage;
+  const ang = Math.atan2(y2 - y1, x2 - x1);
+  const L = 9;
+  const segs = [[x1, y1, x2, y2], [x2, y2, x2 - L * Math.cos(ang - 0.5), y2 - L * Math.sin(ang - 0.5)], [x2, y2, x2 - L * Math.cos(ang + 0.5), y2 - L * Math.sin(ang + 0.5)]];
+  // why: rough.js is a CDN script; offline the arrows fall back to plain lines.
+  const rc = window.rough ? window.rough.svg(fx) : null;
+  for (const s of segs) {
+    if (rc) g.appendChild(rc.line(s[0], s[1], s[2], s[3], { stroke: color, strokeWidth: 1.6, roughness: 1.2, bowing: 1, seed: 7 }));
+    else svgEl('line', { x1: s[0], y1: s[1], x2: s[2], y2: s[3], stroke: color, 'stroke-width': 1.6, 'stroke-linecap': 'round' }, g);
+  }
+}
+function personaEntry(p) {
+  const d = document.createElement('div');
+  d.className = 'who';
+  const ini = p.name.split(/\s+/).map((w) => w[0]).slice(0, 2).join('');
+  d.innerHTML = `<div class="av" style="background:${p.color}">${esc(ini)}</div><div><b>${esc(p.name)}</b>${p.illustrative ? '<em class="tag-ill">illustrative</em>' : ''}<span>${esc(p.role || '')}</span><span>Goal: ${esc(p.goal || '')}</span></div>`;
+  d.style.flex = '1 1 280px';
+  target(d, p.id, p.name, undefined, false);
+  return d;
+}
+function personaCard(x, y, w, cls) {
+  const card = box(`card persona-card ${cls || ''}`, x, y, w, null, '<h3>Persona and scenario</h3>');
+  const row = document.createElement('div');
+  row.style.cssText = 'display:flex;flex-wrap:wrap;gap:6px 16px';
+  for (const p of M.personas) row.appendChild(personaEntry(p));
+  card.appendChild(row);
+  const sc = document.createElement('p');
+  sc.innerHTML = `<b>Scenario.</b> ${esc(M.j.scenario)}`;
+  card.appendChild(sc);
+  const lg = document.createElement('div');
+  lg.className = 'legend';
+  lg.innerHTML = `Mood scale ${fmt(M.scale.min)} to ${fmt(M.scale.max)}.${M.hasIllus ? ' <span class="tag-ill" style="margin:0 4px 0 0">illustrative</span>dashed and hatched = invented to exercise the layout, not research data.' : ''}`;
+  card.appendChild(lg);
+  return card;
+}
+const LINE_META = { interaction: ['Line of interaction', '#2563eb'], visibility: ['Line of visibility', '#c2410c'], internal: ['Line of internal interaction', '#0f766e'] };
+const lineLabel = (l) => `${l.label || LINE_META[l.type][0]}${l.illustrative ? ' · illustrative' : ''}`;
+function cellHtml(lane, cell, extraCap) {
+  const ill = lane.illustrative || cell.illustrative;
+  const body = cell.items ? `<ul>${cell.items.map((i) => `<li>${esc(i)}</li>`).join('')}</ul>` : `<div class="${lane.id === 'thoughts' ? 'quote' : ''}">${esc(cell.text)}</div>`;
+  return { ill, html: `<div class="cap">${esc(lane.label)}${extraCap ? ` · ${esc(extraCap)}` : ''}${ill ? '<em class="tag-ill">illustrative</em>' : ''}</div>${body}` };
+}
+function estimate(cell, width) {
+  const cpl = Math.max(8, (width - 28) / 6.4);
+  const lines = cell.items ? cell.items.reduce((n, t) => n + Math.ceil((t.length + 2) / cpl), 0) : Math.ceil(cell.text.length / cpl);
+  return 38 + lines * 17.5;
+}
+
+// ---------- notes ----------
+function worldRect(el) {
+  let x = 0;
+  let y = 0;
+  for (let e = el; e && e !== world; e = e.offsetParent) {
+    x += e.offsetLeft;
+    y += e.offsetTop;
+  }
+  return { x, y, w: el.offsetWidth, h: el.offsetHeight };
+}
+function placeNotes() {
+  notesLayer.innerHTML = '';
+  const placed = [];
+  const rank = (id) => M.order.indexOf(id);
+  const ordered = [...targets.values()].sort((a, b) => rank(a.id) - rank(b.id));
+  for (const t of ordered) {
+    const r = worldRect(t.el);
+    const list = [];
+    for (const a of M.j.annotations || []) if (a.on === t.id) list.push({ kind: 'agent', text: a.text });
+    if (t.id in notes) list.push({ kind: 'human', text: notes[t.id] });
+    if (t.pen) t.pen.classList.toggle('has', Boolean(notes[t.id]) || editing === t.id);
+    // invariant: agent stickies are placed before the Human one, and every sticky avoids all earlier ones, so a Human note never covers an annotation.
+    for (const s of list) {
+      const el = document.createElement('div');
+      el.className = `sticky ${s.kind}`;
+      if (t.stage != null) el.dataset.stage = t.stage;
+      if (s.kind === 'agent') {
+        el.innerHTML = `<b>Agent annotation</b>${esc(s.text)}`;
+      } else if (editing === t.id) {
+        const ta = document.createElement('textarea');
+        ta.value = s.text;
+        ta.setAttribute('aria-label', `Note on ${t.label}`);
+        ta.placeholder = 'Note for your agent…';
+        let done = false;
+        const finish = () => {
+          if (done) return;
+          done = true;
+          commit(t.id, ta.value);
+        };
+        ta.addEventListener('blur', finish);
+        ta.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape' || (e.key === 'Enter' && (e.metaKey || e.ctrlKey))) ta.blur();
+        });
+        el.appendChild(ta);
+        el.dataset.editing = '1';
+      } else {
+        el.tabIndex = 0;
+        el.setAttribute('role', 'button');
+        el.setAttribute('aria-label', `Edit note: ${t.label}`);
+        el.textContent = s.text;
+        el.addEventListener('click', () => addNote(t.id));
+        el.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            addNote(t.id);
+          }
+        });
+      }
+      el.dataset.on = t.id;
+      notesLayer.appendChild(el);
+      const w = el.offsetWidth;
+      const h = el.offsetHeight;
+      let x = r.x + 10;
+      let y = r.y + r.h - 4;
+      for (let guard = 0; guard < 60; guard++) {
+        const hit = placed.find((p) => x < p.x + p.w + 8 && x + w + 8 > p.x && y < p.y + p.h + 8 && y + h + 8 > p.y);
+        if (!hit) break;
+        y = hit.y + hit.h + 10;
+      }
+      el.style.left = `${x}px`;
+      el.style.top = `${y}px`;
+      placed.push({ x, y, w, h });
+    }
+  }
+  applyReveal();
+  const ta = notesLayer.querySelector('textarea');
+  if (ta && document.activeElement !== ta) ta.focus();
+}
+function addNote(id) {
+  if (moved.v) return;
+  if (!(id in notes)) notes[id] = '';
+  editing = id;
+  placeNotes();
+}
+function commit(id, value) {
+  const v = value.trim();
+  if (v) notes[id] = v;
+  else delete notes[id];
+  if (editing === id) editing = null;
+  placeNotes();
+  updateStatus();
+}
+
+// ---------- reveal, stepper, camera ----------
+function applyReveal() {
+  document.body.classList.toggle('whole', whole);
+  for (const e of document.querySelectorAll('#world [data-stage]')) e.classList.toggle('unreached', !(Number(e.dataset.stage) <= cur));
+  const n = M.stages.length;
+  $('stagelabel').textContent = `Stage ${cur + 1} of ${n} · ${M.stages[cur].label}`;
+  $('back').disabled = cur === 0;
+  $('next').disabled = cur === n - 1;
+  $('show-all').setAttribute('aria-pressed', String(whole));
+  updateStatus();
+}
+let statusTimer = 0;
+function setStatus(msg) {
+  $('status').textContent = msg;
+  clearTimeout(statusTimer);
+  statusTimer = setTimeout(updateStatus, 3500);
+}
+function updateStatus() {
+  const n = Object.values(notes).filter(Boolean).length;
+  $('status').textContent = `${whole ? 'Whole map' : `${cur + 1} of ${M.stages.length} stages`} · ${n} note${n === 1 ? '' : 's'}`;
+}
+function setCam(c, animate) {
+  cam = c;
+  world.style.transition = animate ? 'transform .35s ease' : 'none';
+  world.style.transform = `translate(${c.x}px,${c.y}px) scale(${c.k})`;
+  $('pct').textContent = `${Math.round(c.k * 100)}%`;
+}
+function fitRect(r, animate) {
+  const W = window.innerWidth;
+  const H = window.innerHeight;
+  const top = $('top').getBoundingClientRect().bottom + 12;
+  const bottom = 64;
+  const aw = W - 32;
+  const ah = H - top - bottom;
+  const k = Math.max(0.12, Math.min(aw / r.w, ah / r.h, 1.15));
+  setCam({ k, x: (W - r.w * k) / 2 - r.x * k, y: top + (ah - r.h * k) / 2 - r.y * k }, animate);
+}
+function focusCam(animate) {
+  if (!layout) return;
+  fitRect(whole ? layout.whole : layout.focus(cur), animate);
+}
+function zoomAt(px, py, factor) {
+  const k = Math.min(3, Math.max(0.1, cam.k * factor));
+  const f = k / cam.k;
+  setCam({ k, x: px - (px - cam.x) * f, y: py - (py - cam.y) * f }, false);
+}
+function go(delta) {
+  cur = Math.min(M.stages.length - 1, Math.max(0, cur + delta));
+  applyReveal();
+  focusCam(true);
+}
+
+// ---------- pan, zoom, keys ----------
+let drag = null;
+stageEl.addEventListener('pointerdown', (e) => {
+  if (e.button !== 0 || e.target.closest('button,textarea,.selfpen,.sticky')) return;
+  drag = { x: e.clientX, y: e.clientY, cx: cam.x, cy: cam.y };
+  moved.v = false;
+});
+window.addEventListener('pointermove', (e) => {
+  if (!drag) return;
+  const dx = e.clientX - drag.x;
+  const dy = e.clientY - drag.y;
+  if (!moved.v && Math.hypot(dx, dy) > 4) {
+    moved.v = true;
+    stageEl.classList.add('panning');
+  }
+  if (moved.v) setCam({ ...cam, x: drag.cx + dx, y: drag.cy + dy }, false);
+});
+window.addEventListener('pointerup', () => {
+  drag = null;
+  stageEl.classList.remove('panning');
+  setTimeout(() => { moved.v = false; }, 0);
+});
+stageEl.addEventListener('wheel', (e) => {
+  e.preventDefault();
+  if (e.ctrlKey || e.metaKey) zoomAt(e.clientX, e.clientY, Math.exp(-e.deltaY * 0.01));
+  else setCam({ ...cam, x: cam.x - e.deltaX, y: cam.y - e.deltaY }, false);
+}, { passive: false });
+
+// ---------- Copy for agent ----------
+function feedbackText() {
+  const lines = [`visual-map feedback for ${DATA.path}`];
+  const ordered = [...targets.values()].filter((t) => notes[t.id]).sort((a, b) => M.order.indexOf(a.id) - M.order.indexOf(b.id));
+  for (const t of ordered) lines.push(`${t.id} ${JSON.stringify(t.label)}: note ${JSON.stringify(notes[t.id])}`);
+  return { text: lines.join('\n'), count: ordered.length };
+}
+async function copyFeedback() {
+  if (editing) document.activeElement?.blur?.();
+  const { text, count } = feedbackText();
+  if (!count) return setStatus('Add a note first, then copy.');
+  try {
+    await navigator.clipboard.writeText(text);
+    $('feedback-panel').hidden = true;
+    setStatus(`Copied ${count} note${count === 1 ? '' : 's'} for your agent.`);
+  } catch {
+    $('feedback').value = text;
+    $('feedback-panel').hidden = false;
+    $('feedback').focus();
+    $('feedback').select();
+    setStatus('Clipboard blocked. Copy from the box.');
+  }
+}
+
+// ---------- variants ----------
+const VARIANTS = { A: ['Classic grid', () => layoutA(M)], B: ['Mood spine', () => layoutB(M)], C: ['Stage cards', () => layoutC(M)] };
+function render() {
+  for (const e of [...world.children]) if (e !== fx && e !== notesLayer) e.remove();
+  fx.innerHTML = '';
+  stageGroups.clear();
+  targets.clear();
+  layout = VARIANTS[variant][1]();
+  $('vlabel').textContent = `${variant} · ${VARIANTS[variant][0]}`;
+  placeNotes();
+}
+function setVariant(v, replace) {
+  variant = v;
+  const u = new URL(location.href);
+  u.searchParams.set('variant', v);
+  if (replace !== false) history.replaceState(null, '', u);
+  render();
+  focusCam(true);
+}
+const keys = Object.keys(VARIANTS);
+const stepVariant = (d) => setVariant(keys[(keys.indexOf(variant) + d + keys.length) % keys.length]);
+window.addEventListener('keydown', (e) => {
+  if (e.metaKey || e.ctrlKey || e.altKey || e.target.closest?.('input,textarea,select,[contenteditable]')) return;
+  if (e.key === 'ArrowLeft') stepVariant(-1);
+  else if (e.key === 'ArrowRight') stepVariant(1);
+});
+
+function main() {
+  if (DATA.errors.length) {
+    $('title').textContent = 'This map needs a fix';
+    $('error-text').textContent = DATA.errors.join('\n');
+    $('errors').hidden = false;
+    for (const id of ['back', 'next', 'show-all', 'copy', 'zoom', 'variants', 'status']) $(id).hidden = true;
+    stageEl.hidden = true;
+    return;
+  }
+  M = buildModel(DATA.map);
+  document.title = M.j.title;
+  $('title').textContent = M.j.title;
+  $('subtitle').textContent = M.j.subtitle || '';
+  whole = M.j.walk === 'whole';
+  const q = new URLSearchParams(location.search).get('variant');
+  variant = VARIANTS[q] ? q : 'A';
+  $('back').addEventListener('click', () => go(-1));
+  $('next').addEventListener('click', () => go(1));
+  $('show-all').addEventListener('click', () => {
+    whole = !whole;
+    applyReveal();
+    focusCam(true);
+  });
+  $('copy').addEventListener('click', copyFeedback);
+  $('close-feedback').addEventListener('click', () => { $('feedback-panel').hidden = true; });
+  $('zin').addEventListener('click', () => zoomAt(innerWidth / 2, innerHeight / 2, 1.2));
+  $('zout').addEventListener('click', () => zoomAt(innerWidth / 2, innerHeight / 2, 1 / 1.2));
+  $('pct').addEventListener('click', () => zoomAt(innerWidth / 2, innerHeight / 2, 1 / cam.k));
+  $('fit').addEventListener('click', () => focusCam(true));
+  $('vprev').addEventListener('click', () => stepVariant(-1));
+  $('vnext').addEventListener('click', () => stepVariant(1));
+  window.addEventListener('resize', () => focusCam(false));
+  render();
+  focusCam(false);
+  document.fonts?.ready.then(() => {
+    render();
+    focusCam(false);
+  });
+}
+main();
+</script>
+</body></html>
