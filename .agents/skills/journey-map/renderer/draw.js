@@ -448,13 +448,18 @@
     const x = b.x + M.pad;
     text(g, x, top + 14, '\u{1F4CD}', FONT.icon, 'var(--muted)');
     text(g, x + 20, top + 14, 'TOUCHPOINTS', FONT.eyebrow, 'var(--muted)').style.letterSpacing = '0.08em';
-    L.chipRows(r.items).forEach((line, i) => {
+    let rowY = top + 24;
+    const rowsOfChips = L.chipRows(r.items);
+    L.chipRowHeights(rowsOfChips).forEach((rowH, i) => {
       let cx = x;
-      for (const c of line) {
-        el('rect', { x: cx, y: top + 24 + i * M.chipLine, width: c.w, height: 22, rx: 11, style: 'fill:var(--tag-bg)' }, g);
-        text(g, cx + 10, top + 39 + i * M.chipLine, c.t, FONT.small, 'var(--tag-ink)');
+      for (const c of rowsOfChips[i]) {
+        el('rect', { x: cx, y: rowY, width: c.w, height: c.h, rx: 11, style: 'fill:var(--tag-bg)' }, g);
+        c.lines.forEach((line, k) => {
+          text(g, cx + 10, rowY + 15 + k * M.chipTextLine, line, FONT.small, 'var(--tag-ink)');
+        });
         cx += c.w + 6;
       }
+      rowY += rowH;
     });
   }
 

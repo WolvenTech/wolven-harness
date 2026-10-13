@@ -106,6 +106,21 @@
       }
     };
 
+    const checkSections = (node) => {
+      if (!Array.isArray(node.sections)) return fail(node.id, 'missing sections');
+      node.sections.forEach((section, i) => {
+        const where = `section ${i + 1}`;
+        if (section === null || typeof section !== 'object') return fail(node.id, `${where} must be an object`);
+        if (typeof section.head !== 'string') fail(node.id, `${where} head must be a string`);
+        if (!Array.isArray(section.items) || section.items.some((item) => typeof item !== 'string')) {
+          fail(node.id, `${where} items must be an array of strings`);
+        }
+        if (section.numbered !== undefined && typeof section.numbered !== 'boolean') {
+          fail(node.id, `${where} numbered must be a boolean`);
+        }
+      });
+    };
+
     const checkNode = (node, local) => {
       checkJourney(node);
       if (['start', 'checklist'].includes(node.kind) && !node.next) fail(node.id, 'missing next');
@@ -113,7 +128,7 @@
       if (node.kind === 'choice') checkChoice(node);
       if (node.kind === 'checklist') checkChecklist(node, local);
       if (node.kind === 'waypoint' && typeof node.tag !== 'string') fail(node.id, 'missing tag');
-      if (node.kind === 'card' && !Array.isArray(node.sections)) fail(node.id, 'missing sections');
+      if (node.kind === 'card') checkSections(node);
     };
 
     /** Depth-first walk over next/option edges inside one tree; reaching a node already on the path is a cycle. */
@@ -211,7 +226,9 @@
     sectionChars: 36,
     band: 22,
     dbar: 32,
-    chipLine: 28,
+    chipH: 22,
+    chipTextChars: 36,
+    chipTextLine: 15,
     chipChars: 260,
     cloudChars: 26,
     noteSlot: 48,
@@ -219,23 +236,29 @@
     annoLine: 22,
   };
 
-  const chipW = (text) => Math.round(text.length * 6.6 + 20);
-
-  /** Greedy wrap of touchpoint chips into lines no wider than `width`, each chip `{ t, w }`. */
+  /**
+   * Greedy wrap of touchpoint chips into rows no wider than `width`, each chip `{ t, w, h, lines }`.
+   * A chip whose text is longer than the row wraps its words across lines, so no chip is wider than the card.
+   */
   function chipRows(items, width = M.chipChars) {
     const result = [[]];
     let used = 0;
     for (const t of items) {
-      const w = chipW(t);
+      const wrapped = lines(t, M.chipTextChars);
+      const w = Math.round(Math.max(...wrapped.map((line) => line.length)) * 6.6 + 20);
+      const chip = { t, w, h: M.chipH + (wrapped.length - 1) * M.chipTextLine, lines: wrapped };
       if (used && used + w + 6 > width) {
         result.push([]);
         used = 0;
       }
-      result[result.length - 1].push({ t, w });
+      result[result.length - 1].push(chip);
       used += w + 6;
     }
     return result;
   }
+
+  /** The height of each chip row: its tallest chip plus the row gap. */
+  const chipRowHeights = (rowsOfChips) => rowsOfChips.map((row) => Math.max(...row.map((c) => c.h)) + 6);
 
   const stickyH = (items) => 22 + items.reduce((h, item) => h + lines(item, 30).length * M.body + 2, 0) + 20;
 
@@ -309,7 +332,9 @@
     add('card', 'title', lines(node.label, M.titleChars).length * M.title + 6);
     if (hasLists && !isOpen) add('card', 'dbar', M.dbar);
     if (isOpen && touchpoints.length) {
-      add('card', 'chips', 24 + chipRows(touchpoints).length * M.chipLine + 2, { items: touchpoints });
+      add('card', 'chips', 24 + chipRowHeights(chipRows(touchpoints)).reduce((a, b) => a + b, 0) + 2, {
+        items: touchpoints,
+      });
     }
     if (isOpen && pains.length) add('bottom', 'sticky', stickyH(pains) + 8, { tone: 'pain', items: pains });
     if (isOpen && opportunities.length) {
@@ -490,11 +515,10 @@
   }
 
   /**
-   * Ordered node ids along the walk in the first tree. At a choice it follows the answer, or
+   * Ordered node ids along the walk of one tree. At a choice it follows the answer, or
    * under `showAll` the default option; it stops at an unanswered choice, and with `opts.stepwise` at the first undone waypoint.
    */
-  function walked(map, answers = {}, showAll = false, opts = {}) {
-    const tree = map.trees[0];
+  function walkTree(tree, answers, showAll, opts) {
     const byId = new Map(tree.nodes.map((node) => [node.id, node]));
     const path = [];
     const seen = new Set();
@@ -516,26 +540,38 @@
     return path;
   }
 
-  /** The waypoint the stepwise walk is holding at (the one a forward step would release), or null. */
+  // why: the mood timeline plots one line, so the walk is each tree's path joined in tree order, the same order `pending` and `prevTarget` use.
+  /** Ordered node ids along the walk: each tree's path, in tree order. */
+  const walked = (map, answers = {}, showAll = false, opts = {}) =>
+    map.trees.flatMap((tree) => walkTree(tree, answers, showAll, opts));
+
+  /** The first waypoint, in tree order, that the stepwise walk is holding at (the one a forward step would release), or null. */
   function pending(map, answers = {}) {
-    const path = walked(map, answers, false, { stepwise: true });
-    const id = path[path.length - 1];
-    const node = all(map).find((n) => n.id === id);
-    return node?.kind === 'waypoint' && node.next && !answers[id]?.done ? id : null;
+    for (const tree of map.trees) {
+      const id = walkTree(tree, answers, false, { stepwise: true }).pop();
+      const node = tree.nodes.find((n) => n.id === id);
+      if (node?.kind === 'waypoint' && node.next && !answers[id]?.done) return id;
+    }
+    return null;
   }
 
   /**
    * The id of the node whose answer "Prev" clears so the last node shown is hidden, or null
-   * when nothing can be undone. Only a stepwise, not show-all, walk has a Prev.
+   * when nothing can be undone. Only a stepwise, not show-all, walk has a Prev. It undoes the
+   * latest answer of the last tree that has one, so the trees unwind in reverse tree order.
    */
   function prevTarget(map, answers = {}, opts = {}) {
     if (!opts.stepwise || opts.showAll) return null;
-    const byId = new Map(all(map).map((node) => [node.id, node]));
-    const path = walked(map, answers, false, { stepwise: true });
-    for (let i = path.length - 2; i >= 0; i--) {
-      const node = byId.get(path[i]);
-      const answer = answers[node.id];
-      if (node.kind === 'choice' ? answer?.choice !== undefined : node.kind !== 'start' && answer?.done) return node.id;
+    for (const tree of [...map.trees].reverse()) {
+      const byId = new Map(tree.nodes.map((node) => [node.id, node]));
+      const path = walkTree(tree, answers, false, { stepwise: true });
+      for (let i = path.length - 2; i >= 0; i--) {
+        const node = byId.get(path[i]);
+        const answer = answers[node.id];
+        if (node.kind === 'choice' ? answer?.choice !== undefined : node.kind !== 'start' && answer?.done) {
+          return node.id;
+        }
+      }
     }
     return null;
   }
@@ -613,7 +649,7 @@
   /**
    * Route of a cross-tree link as polyline points plus a label anchor. It leaves
    * the source's left edge into the column gutter, crosses to the target's
-   * gutter along the gap between the two trees, and enters the target from the
+   * gutter along the gap just beside the source tree, and enters the target from the
    * left, so it never passes through a card. `plan` is the result of `layout`.
    */
   function linkRoute(plan, link) {
@@ -625,10 +661,10 @@
     };
     const source = extent(from.tree);
     const target = extent(to.tree);
+    // why: the gap just beside the source tree holds no box of any tree, and the vertical runs sit in column gutters, so trees in between stay clear.
     let gapY;
-    if (from.tree === to.tree) gapY = source.bottom + M.treeGap / 2;
-    else if (to.y > from.y) gapY = (source.bottom + target.top) / 2;
-    else gapY = (target.bottom + source.top) / 2;
+    if (from.tree === to.tree || target.top > source.top) gapY = source.bottom + M.treeGap / 2;
+    else gapY = source.top - M.treeGap / 2;
 
     const startY = from.y + 30;
     const points = [
@@ -642,5 +678,5 @@
     return { points, label: { x: to.x - 22, y: gapY - 26 } };
   }
 
-  globalThis.JourneyMapLogic = { validate, linkRoute, revealed, walked, pending, prevTarget, faded, feedback, layout, edges, isStep, MOOD, moodOf, chipRows, ctx, parts, lines, all, outgoing, rows, height, M };
+  globalThis.JourneyMapLogic = { validate, linkRoute, revealed, walked, pending, prevTarget, faded, feedback, layout, edges, isStep, MOOD, moodOf, chipRows, chipRowHeights, ctx, parts, lines, all, outgoing, rows, height, M };
 })();

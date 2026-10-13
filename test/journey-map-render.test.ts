@@ -703,3 +703,151 @@ test('journey-map reference map: a fresh agent mapped cj_001 with every source i
     for (const o of stage.opportunities) assert.ok(opportunities.has(o), o);
   }
 });
+
+test('journey-map validate: a card section needs a string head and an items array of strings', () => {
+  const logic = loadLogic();
+  const withSections = (sections: unknown) => {
+    const map = fixture('lotr-map.json');
+    map.trees[0].nodes.find((n: Map) => n.kind === 'card').sections = sections;
+    return map;
+  };
+  const cardId = fixture('lotr-map.json').trees[0].nodes.find((n: Map) => n.kind === 'card').id;
+  for (const sections of [
+    [{ head: 'Next' }],
+    [{ items: ['a'] }],
+    [{ head: 'Next', items: 'a' }],
+    [{ head: 'Next', items: [1] }],
+    [{ head: 'Next', items: ['a'], numbered: 'yes' }],
+    ['Next'],
+  ]) {
+    const errors: string[] = [...logic.validate(withSections(sections))];
+    assert.ok(
+      errors.some((e) => e.startsWith(`${cardId}: `) && e.includes('section')),
+      JSON.stringify([sections, errors]),
+    );
+  }
+  assert.deepEqual([...logic.validate(withSections([{ head: 'Next', items: ['a'], numbered: true }]))], []);
+  inTempDir((dir) => {
+    const result = buildMap(dir, 'bad-card-map.json', withSections([{ head: 'Next' }]));
+    assert.equal(result.status, 1);
+    assert.match(result.stderr + result.stdout, new RegExp(cardId));
+  });
+});
+
+const flowTree = (id: string, nodes: Map[]) => ({ id, label: id, nodes });
+const twoTreeStepMap = (): Map => ({
+  version: 1,
+  title: 'Two trees',
+  persona: { name: 'Sam' },
+  trees: [
+    flowTree('first', [
+      { id: 's1', kind: 'start', label: 'Start', next: 'c1' },
+      { id: 'c1', kind: 'card', label: 'End', sections: [{ head: 'h', items: ['a'] }] },
+    ]),
+    flowTree('second', [
+      { id: 's2', kind: 'start', label: 'Start', next: 'one' },
+      { id: 'one', kind: 'waypoint', tag: 'T', label: 'One', mood: 0, next: 'two' },
+      { id: 'two', kind: 'waypoint', tag: 'T', label: 'Two', mood: 1 },
+    ]),
+  ],
+});
+
+test('journey-map step by step: the stepper advances through a later tree and Prev walks back', () => {
+  const logic = loadLogic();
+  const map = twoTreeStepMap();
+  assert.deepEqual([...logic.validate(map)], []);
+  const answers: Map = {};
+  const shown = () => [...logic.revealed(map, answers, { stepwise: true })].sort();
+  assert.equal(logic.pending(map, answers), 'one');
+  assert.ok(!shown().includes('two'));
+  answers.one = { done: true };
+  assert.ok(shown().includes('two'));
+  assert.equal(logic.pending(map, answers), null);
+  assert.deepEqual([...logic.walked(map, answers, false, { stepwise: true })], ['s1', 'c1', 's2', 'one', 'two']);
+  assert.equal(logic.prevTarget(map, answers, { stepwise: true }), 'one');
+  answers.one.done = false;
+  assert.equal(logic.pending(map, answers), 'one');
+  assert.ok(!shown().includes('two'));
+  assert.equal(logic.prevTarget(map, answers, { stepwise: true }), null);
+});
+
+test('journey-map layout: a touchpoint wider than the chip row wraps inside the card and keeps the layout exact', () => {
+  const logic = loadLogic();
+  const long = 'Email notification confirming the invoice was successfully delivered to the client';
+  const map = fixture('cj-001-map.json');
+  map.trees[0].nodes.find((n: Map) => n.id === 'aw-1').touchpoints = ['Search', long];
+  const inner = logic.M.w - 2 * logic.M.pad;
+  const rowsOfChips = logic.chipRows(['Search', long]);
+  const chips = rowsOfChips.flat();
+  assert.ok(
+    chips.every((c: Map) => c.w <= inner),
+    JSON.stringify(chips.map((c: Map) => c.w)),
+  );
+  assert.equal([...chips.find((c: Map) => c.t === long).lines].join(' '), long);
+  const opts = logic.ctx(map, { open: openAll(map) });
+  for (const node of logic.all(map)) {
+    const p = logic.parts(node, opts);
+    assert.equal(logic.height(node, opts), p.inset + p.card + p.tail, node.id);
+  }
+  const chipsRow = logic
+    .rows(
+      map.trees[0].nodes.find((n: Map) => n.id === 'aw-1'),
+      opts,
+    )
+    .find((r: Map) => r.kind === 'chips');
+  assert.equal(chipsRow.h, 24 + logic.chipRowHeights(rowsOfChips).reduce((a: number, b: number) => a + b, 0) + 2);
+  assert.ok(chipsRow.h > 24 + 2 * 28 + 2);
+  const { boxes } = logic.layout(map, { open: openAll(map) });
+  for (let i = 0; i < boxes.length; i++) {
+    for (let j = i + 1; j < boxes.length; j++) {
+      assert.ok(!overlaps(boxes[i], boxes[j]), `${boxes[i].id} overlaps ${boxes[j].id}`);
+    }
+  }
+});
+
+function stackedCardTrees(count: number) {
+  const trees = Array.from({ length: count }, (_, i) =>
+    flowTree(`t${i}`, [
+      { id: `s${i}`, kind: 'start', label: `Start ${i}`, next: `c${i}` },
+      { id: `c${i}`, kind: 'card', label: `Card ${i}`, sections: [{ head: 'h', items: ['a', 'b'] }] },
+    ]),
+  );
+  return trees;
+}
+
+test('journey-map linkRoute: links between non-adjacent stacked trees clear every box in between', () => {
+  const logic = loadLogic();
+  for (const count of [3, 4]) {
+    const trees = stackedCardTrees(count);
+    const links: Map[] = [];
+    for (let a = 0; a < count; a++) {
+      for (let b = 0; b < count; b++) {
+        if (Math.abs(a - b) >= 2) links.push({ from: `c${a}`, to: `s${b}`, label: `${a}-${b}` });
+      }
+    }
+    const map = { version: 1, title: 'Stack', trees, links };
+    assert.deepEqual([...logic.validate(map)], []);
+    const plan = logic.layout(map);
+    for (const link of links) {
+      const { points } = logic.linkRoute(plan, link);
+      const target = plan.boxes.find((b: Map) => b.id === link.to);
+      for (let i = 1; i < points.length; i++) {
+        const [x1, y1] = points[i - 1];
+        const [x2, y2] = points[i];
+        const steps = Math.max(1, Math.ceil(Math.hypot(x2 - x1, y2 - y1) / 4));
+        for (let s = 0; s <= steps; s++) {
+          const x = x1 + ((x2 - x1) * s) / steps;
+          const y = y1 + ((y2 - y1) * s) / steps;
+          const inLastApproach = i === points.length - 1 && Math.abs(x - target.x) <= 6;
+          for (const b of plan.boxes) {
+            const inside = x > b.x && x < b.x + b.w && y > b.y && y < b.y + b.h;
+            assert.ok(
+              !inside || inLastApproach,
+              `${count} trees: ${link.from}->${link.to} crosses ${b.id} at ${x},${y}`,
+            );
+          }
+        }
+      }
+    }
+  }
+});
