@@ -130,15 +130,12 @@ test('pr-gate: lint, test and package skip on edit-only runs; title always runs'
   assert.equal(workflow.jobs.title.if, undefined);
 });
 
-test('pr-gate: metadata edits use a separate check and code runs gate every job', async () => {
+test('pr-gate: the CI job fans in every other job, always runs, and checks the required runs by display name', async () => {
   const workflow = await readWorkflow();
   const job = workflow.jobs.ci;
 
   assert.ok(job, 'ci gate job present');
-  assert.equal(
-    job.name,
-    "${{ github.event.action == 'edited' && !github.event.changes.base && 'PR metadata' || 'CI' }}",
-  );
+  assert.equal(job.name, 'CI');
   const others = Object.keys(workflow.jobs).filter((id) => id !== 'ci');
   assert.deepEqual([...job.needs].sort(), others.sort(), 'the gate needs every other job');
   assert.equal(job.if, '${{ always() }}');
@@ -146,11 +143,21 @@ test('pr-gate: metadata edits use a separate check and code runs gate every job'
   const step = job.steps[0];
   assert.equal(step.env?.RESULTS, "${{ join(needs.*.result, ' ') }}");
   assert.equal(step.env?.EDIT_ONLY, "${{ github.event.action == 'edited' && !github.event.changes.base }}");
-  assert.equal(step.env?.TITLE_RESULT, '${{ needs.title.result }}');
-  assert.match(String(step.run), /if \[\[ "\$EDIT_ONLY" == true \]\]; then[\s\S]*Title: \$TITLE_RESULT[\s\S]*exit 0/);
-  assert.match(String(step.run), /for result in \$RESULTS; do \[\[ "\$result" == success \]\] \|\| exit 1; done/);
-  assert.doesNotMatch(String(step.run), /gh api/, 'metadata edits do not query code-job status');
+  assert.equal(step.env?.GH_TOKEN, '${{ github.token }}');
+  assert.match(String(step.run), /\[\[ "\$result" == success \]\] \|\| exit 1/);
   assert.doesNotMatch(String(step.run), /\$\{\{/, 'the script interpolates no expressions');
+
+  const expected = [
+    workflow.jobs.lint.name,
+    ...workflow.jobs.test.strategy.matrix.node.map((n: number) =>
+      workflow.jobs.test.name.replace('${{ matrix.node }}', String(n)),
+    ),
+    workflow.jobs.package.name,
+  ];
+  const required = String(step.env?.REQUIRED)
+    .split('\n')
+    .filter((line) => line.length > 0);
+  assert.deepEqual([...required].sort(), [...expected].sort(), 'required names match the job display names');
 });
 
 test('pr-gate: the workflow names no secret beyond the built-in GITHUB_TOKEN', async () => {
