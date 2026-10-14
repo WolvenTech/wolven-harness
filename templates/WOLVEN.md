@@ -35,6 +35,7 @@ qmd query "<question>"
 - `.agents/rules/qmd-first.md` — QMD before web, ADRs first
 - `.agents/rules/yagni-strict.md` — strict YAGNI; deferrals under `docs/deferrals/` only
 - `.agents/rules/comments.md` — comment style for added lines; run `harness:comments` before handing work back
+- `.agents/rules/project-skill-precedence.md` — if a skill loaded from outside this project, read `.agents/skills/<name>/SKILL.md` and follow that copy instead
 
 ## Harness score
 
