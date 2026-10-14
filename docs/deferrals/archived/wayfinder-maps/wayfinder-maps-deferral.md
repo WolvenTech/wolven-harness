@@ -2,7 +2,7 @@
 type: deferral
 title: Wayfinder skill and maps layout
 description: A portable wayfinder skill and a docs/maps doc-folder for fog-of-war planning wait until a consumer meets a decision too foggy for grilling alone.
-status: stable
+status: deprecated
 ---
 
 # Wayfinder skill and maps layout
@@ -11,7 +11,7 @@ status: stable
 
 **Why:** `grilling` covers the interviewing every shipped skill needs. A map only pays off when a decision has several open unknowns that each need research or a prototype before a PRD, and no consumer has had one. A `docs/maps/` folder with nothing writing to it would be dead layout in every install.
 
-**Today:** `grilling` is the only interviewing skill. `prototype` records its verdict on the PRD, and no shipped skill names `wayfinder` or maps. The frozen design is in the "Map layout (`wayfinder`)" section of [the spec D record](../../specs/archived/wolven-harness-d-code-lane/wolven-harness-d-code-lane-spec.md).
+**Today:** `grilling` is the only interviewing skill. `prototype` records its verdict on the PRD, and no shipped skill names `wayfinder` or maps. The frozen design is in the "Map layout (`wayfinder`)" section of [the spec D record](../../../specs/archived/wolven-harness-d-code-lane/wolven-harness-d-code-lane-spec.md).
 
 ## Deferred
 
@@ -20,12 +20,12 @@ status: stable
 
 ## Contract impact
 
-A new skill is outside [ADR-004](../../adrs/adr-004-standalone-skills-contract.md). A sixth governed doc-folder and a new `type` change what `validate` checks in a consumer's `docs/`, so they need an ADR-004 amendment and a minor release.
+A new skill is outside [ADR-004](../../../adrs/adr-004-standalone-skills-contract.md). A sixth governed doc-folder and a new `type` change what `validate` checks in a consumer's `docs/`, so they need an ADR-004 amendment and a minor release.
 
 ## Triggers
 
 - [ ] A consumer faces a decision with several open unknowns that need research or prototype tickets before a PRD. Then write a spec for `wayfinder` from that case.
-- [ ] The Human opens a spec for it.
+- [x] The Human opens a spec for it. Met 2026-10-14: `docs/specs/wayfinder/wayfinder-spec.md`.
 
 ## Non-goals while deferred
 
