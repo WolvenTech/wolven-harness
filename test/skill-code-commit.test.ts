@@ -90,3 +90,19 @@ test('skill-code-commit: examples file has the Good, Bad, split, atomic-plan, an
   assert.match(examples, /### Failed commit leaves false green \(cleanup required\)/);
   assert.match(examples, /docs\/specs\/avatar-upload\/avatar-upload-plan\.md/);
 });
+
+test('proof-guard-consult-no-negative-commit: consults stay without mandatory negative boilerplate', async () => {
+  const skill = await readSkill('code-commit');
+  const flat = skill.body.replace(/\s+/g, ' ');
+  const consultAt = flat.indexOf('**Consult:**');
+  const inOutAt = flat.indexOf('**In / out / handoff:**');
+
+  assert.ok(consultAt >= 0 && inOutAt > consultAt, 'expected the consult before in/out');
+  const consult = flat.slice(consultAt, inOutAt);
+  assert.match(
+    consult,
+    /Loaded means the session skill list from the runtime\. When that list includes `pragmatic-guard`/,
+  );
+  assert.match(consult, /A folder on disk or a remembered name is not loaded/);
+  assert.doesNotMatch(consult, /pragmatic-guard was not consulted/);
+});

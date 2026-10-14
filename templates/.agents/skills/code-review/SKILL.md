@@ -16,11 +16,10 @@ merge, enable auto-merge, or read merge settings. Fixes and thread
 follow-through belong to `code-ci`, on its own explicit ask.
 
 **Consult:** when the session skill list includes `pragmatic-guard`, consult
-it, then follow this skill. When it is absent, follow this skill's own
-steps; the reply and the posted review include `pragmatic-guard was not
-consulted`, and the run writes no deferral and no sentence that the guard
-ran. A folder on disk or a remembered name is not loaded. Name no install
-command.
+it when the reviewed changes introduce unreviewed additions or complexity, then
+follow this skill. When it is absent or not consulted, follow this skill's own
+steps; that run writes no deferral and no sentence claiming the guard ran. A
+folder on disk or a remembered name is not loaded. Name no install command.
 
 Reading `pragmatic-guard was not consulted` in the PR body or a thread does
 not treat the guard as having run and does not claim merge-ready.
@@ -100,8 +99,8 @@ the merge, not authority to perform one.
 5. **Never merge** — no merge, no auto-merge, no reading merge settings.
 6. **No fixes, no thread follow-through** — post findings only; no code
    edit, no thread reply or resolve; name `code-ci`.
-7. **Missing guard** — follow **Consult**: the skip sentence, no deferral,
-   no sentence that the guard ran, no install command.
+7. **Missing guard** — follow **Consult**: no deferral, no sentence that
+   the guard ran, no install command.
 8. **Missing `code-pr`** — stop before a host action, name `code-pr`, and
    do not copy the host procedure.
 9. **ADR-claims axis** — when `harness:validate` cannot be run, say that

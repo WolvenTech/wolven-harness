@@ -10,12 +10,11 @@ Turns a validated, uncommitted change into one or more local
 through one of the two entry modes below.
 
 **Consult:** `pragmatic-guard`. Loaded means the session skill list from the
-runtime. When that list includes `pragmatic-guard`, consult it, then follow
-this skill. When it is absent, follow this skill's own steps; the reply and
-the commit message include `pragmatic-guard was not consulted`. A folder on
-disk or a remembered name is not loaded. Name no install command for
-`pragmatic-guard`. That run writes no deferral and no sentence that the
-guard ran.
+runtime. When that list includes `pragmatic-guard`, consult it when the scope
+introduces unreviewed additions or complexity, then follow this skill. When it
+is absent or not consulted, follow this skill's own steps. A folder on disk or
+a remembered name is not loaded. Name no install command for `pragmatic-guard`.
+That run writes no deferral and no sentence claiming the guard ran.
 
 **In / out / handoff:** a validated, uncommitted change → one or more local
 commits → stop. Pushing or opening a review request is a separate, explicit
