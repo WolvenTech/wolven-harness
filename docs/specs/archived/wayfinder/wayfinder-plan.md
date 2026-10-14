@@ -2,7 +2,7 @@
 type: spec
 title: Wayfinder Skill
 description: Ordered units that build the shared renderer and its canvas core, the radial layout, the wayfinder skill and build script, the ADR-004 amendment with the maps validate check and set-dependent setup paths, and the closing smoke, in four gated waves.
-status: stable
+status: deprecated
 ---
 
 # Wayfinder Skill — plan

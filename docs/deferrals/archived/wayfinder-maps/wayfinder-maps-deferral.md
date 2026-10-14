@@ -25,7 +25,7 @@ A new skill is outside [ADR-004](../../../adrs/adr-004-standalone-skills-contrac
 ## Triggers
 
 - [ ] A consumer faces a decision with several open unknowns that need research or prototype tickets before a PRD. Then write a spec for `wayfinder` from that case.
-- [x] The Human opens a spec for it. Met 2026-10-14: `docs/specs/wayfinder/wayfinder-spec.md`.
+- [x] The Human opens a spec for it. Met 2026-10-14: `docs/specs/archived/wayfinder/wayfinder-spec.md`.
 
 ## Non-goals while deferred
 

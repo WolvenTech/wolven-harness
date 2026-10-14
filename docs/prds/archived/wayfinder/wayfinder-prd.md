@@ -2,7 +2,7 @@
 type: prd
 title: Wayfinder Skill
 description: Requires a discovery-set wayfinder skill that charts a decision's open unknowns as ticket files under docs/maps/ and works them one session at a time, drawn by a canvas renderer it shares with journey-map, so their state survives across sessions until the decision is ready for a PRD or spec.
-status: stable
+status: deprecated
 ---
 
 # Wayfinder Skill
@@ -11,7 +11,7 @@ status: stable
 
 - **Who:** A Human in a consumer repo working a decision that is not yet ready for a PRD, because several unknowns each need a research note, a prototype, a grilling or a task outside the chat first.
 - **Pain:** The Human loses track, across sessions, of which unknowns are open, what blocks what, and what has been resolved, so research, prototype and grilling work gets redone, skipped or quietly assumed. `grilling` settles only what one conversation can settle.
-- **Why now:** The [`journey-map` PRD](../archived/journey-map/journey-map-prd.md), shipped on PR #58, dropped its ticket kind and names planning tickets and the wayfinder map as this PRD's work, so ticket trees have no home until this skill ships. The removed ticket rendering is intact at commit `2238220`, which GitHub keeps under `refs/pull/58/head`. The Human has decided to build the skill and the canvas is the reason: without it, adopting the upstream skill would do. Trigger 2 of the [wayfinder deferral](../../deferrals/archived/wayfinder-maps/wayfinder-maps-deferral.md), "The Human opens a spec for it", was met on 2026-10-14, when `code-spec` opened on this PRD.
+- **Why now:** The [`journey-map` PRD](../journey-map/journey-map-prd.md), shipped on PR #58, dropped its ticket kind and names planning tickets and the wayfinder map as this PRD's work, so ticket trees have no home until this skill ships. The removed ticket rendering is intact at commit `2238220`, which GitHub keeps under `refs/pull/58/head`. The Human has decided to build the skill and the canvas is the reason: without it, adopting the upstream skill would do. Trigger 2 of the [wayfinder deferral](../../../deferrals/archived/wayfinder-maps/wayfinder-maps-deferral.md), "The Human opens a spec for it", was met on 2026-10-14, when `code-spec` opened on this PRD.
 - **Evidence:** One expected case: the UX design engagement with discovery phases named in the `journey-map` PRD, which is still being sold. No map has been charted for it yet, so demand beyond that case is an assumption.
 - **Origin:** The method, with its destination, frontier, fog, claims and four ticket kinds, comes from Matt Pocock's MIT-licensed `wayfinder` skill in `mattpocock/skills`; `rengwu/wayfinder-maps` suggested the stale claim, the out-of-scope status and the undermined mark. This PRD borrows ideas only: the skill's text and file format are written here.
 
@@ -290,7 +290,7 @@ Traces to goal: One canvas serves both skills.
 **Out**
 
 - Everything listed under Non-goals.
-- Architecture diagrams and service blueprints, deferred to their own skills ([architectural map](../../deferrals/architectural-map/architectural-map-deferral.md), [service blueprint](../../deferrals/service-blueprint/service-blueprint-deferral.md)).
+- Architecture diagrams and service blueprints, deferred to their own skills ([architectural map](../../../deferrals/architectural-map/architectural-map-deferral.md), [service blueprint](../../../deferrals/service-blueprint/service-blueprint-deferral.md)).
 
 ## Open questions
 

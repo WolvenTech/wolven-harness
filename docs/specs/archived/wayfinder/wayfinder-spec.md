@@ -2,7 +2,7 @@
 type: spec
 title: Wayfinder Skill
 description: Freezes the discovery-set wayfinder skill, its ticket files under docs/maps/, the inward radial canvas added to the renderer it shares with journey-map, and the warning-level validate check and set-dependent setup paths that need an ADR-004 amendment.
-status: stable
+status: deprecated
 ---
 
 # Wayfinder Skill
