@@ -43,11 +43,11 @@ The map is one JSON file, `<slug>-map.json`, with `version: 1`.
 |-------|---------|
 | `version` | Always `1` |
 | `title`, `subtitle` | Shown in the top bar |
-| `persona` | Optional. `{ name, role?, goal? }`, where `name` is required. Draws as the header of the first tree's start card |
-| `scenario` | Optional string. Draws beside the persona |
-| `trees` | One or more trees, drawn top to bottom |
+| `persona` | Optional. `{ name, role?, goal? }`, where `name` is required. Draws as the header of the first tree's start card, in place of that card's `label` and `sub`. A long name or role wraps |
+| `scenario` | Optional string. Draws below the persona |
+| `trees` | One or more trees, drawn top to bottom. Each is `{ id, label?, nodes }`; `id` is required and unique among trees |
 | `links` | `{ from, to, label? }`. The only edges that cross between trees. Drawn dashed with a label pill |
-| `annotations` | `{ id, target, text }`. A sticky attached to the node `target` |
+| `annotations` | `{ id, target, text }`, all three required, `id` unique among annotations. A sticky attached to the node `target` |
 
 ## Journeys
 
@@ -84,6 +84,7 @@ The map is one JSON file, `<slug>-map.json`, with `version: 1`.
 - Node ids are unique across the whole map. Every node has `id`, `kind`
   and `label`.
 - A tree has exactly one `start` node.
+- A `card` ends its path, so it has no `next`.
 - A tree has no cycles. A tree follows `next` edges.
 - `next` and `gates` point only at nodes in their own tree.
   Only `links` cross between trees.
@@ -132,7 +133,9 @@ Field details:
 ## What the page shows
 
 - The page reveals steps from the start. It passes through
-  `start` and `waypoint` nodes. At a `choice` it continues only through
+  `start` and `waypoint` nodes. On a map with journey steps, step by step
+  is on by default: the walk also holds at each waypoint until Next or its
+  Continue. At a `choice` it continues only through
   the chosen option. At a `checklist` or `text` it continues only after
   Continue.
 - "Show whole map" draws the unrevealed steps too, faint.
@@ -141,16 +144,20 @@ Field details:
 ## Feedback text
 
 "Copy for agent" writes plain text. The first line is
-`journey-map feedback for <input path>`. Then come the touched nodes in
+`journey-map feedback for <input path>`, with the path relative to the
+folder the build ran in, or only the file name when the map sits outside
+it. Then come the touched nodes in
 layout order, one line each. A node with an answer and a note gets two
 lines. Labels and typed text are JSON-escaped.
 
 ```
 <id> "<label>": chose <key> "<option label>"
 <id> "<label>": ticked <keys>; unticked <keys>
+<id> "<label>": continued with no change
 <id> "<label>": typed "<text>"
 <id> "<label>": note "<text>"
 ```
 
-Keys are separated by a comma and a space, in item order. Untouched nodes
-are left out.
+Keys are separated by a comma and a space, in item order. A checklist
+continued with every item as it started gets the "continued with no
+change" line. Untouched nodes are left out.

@@ -19,11 +19,14 @@
   const isStep = (node, map) =>
     node.kind === 'waypoint' && (map?.persona !== undefined || JOURNEY_FIELDS.some((field) => node[field] !== undefined));
 
+  const isRecord = (value) => value !== null && typeof value === 'object' && !Array.isArray(value);
+  const isList = Array.isArray;
+
   const all = (map) => (map.trees || []).flatMap((tree) => tree.nodes || []);
 
   /** Ids a node leads to: each option of a choice, otherwise its single `next`. */
   const outgoing = (node) => {
-    if (node.kind === 'choice') return (node.options || []).map((option) => option.next);
+    if (node.kind === 'choice') return isList(node.options) ? node.options.filter(isRecord).map((option) => option.next) : [];
     return node.next ? [node.next] : [];
   };
 
@@ -33,13 +36,45 @@
    * reader can find the bad node without searching.
    */
   function validate(map) {
+    if (!isRecord(map)) return ['map: must be a JSON object'];
     const errors = [];
-    const nodes = all(map);
+    // hazard: a shape this check did not foresee must still reach the error panel, not throw past it.
+    try {
+      checkMap(map, errors);
+    } catch (error) {
+      errors.push(`map: could not check the map (${error.message})`);
+    }
+    return [...new Set(errors)];
+  }
+
+  function checkMap(map, errors) {
     const byId = new Map();
     const fail = (id, message) => errors.push(`${id || '(missing id)'}: ${message}`);
 
+    /** The object entries of a list; any other entry is named as an error and skipped. */
+    const objects = (value, owner, noun) =>
+      (isList(value) ? value : []).filter((entry, i) => {
+        if (!isRecord(entry)) fail(owner, `${noun} ${i + 1} must be an object`);
+        return isRecord(entry);
+      });
+    /** Like `objects`, and a value that is present but not a list is an error too. */
+    const list = (value, owner, noun) => {
+      if (value !== undefined && !isList(value)) fail(owner, `${noun}s must be a list`);
+      return objects(value, owner, noun);
+    };
+
     if (map.version !== 1) errors.push('map: version must be 1');
-    if (!Array.isArray(map.trees) || !map.trees.length) errors.push('map: trees must be a nonempty array');
+    if (!isList(map.trees) || !map.trees.length) errors.push('map: trees must be a nonempty array');
+
+    const trees = objects(map.trees, 'map', 'tree');
+    const treeIds = new Set();
+    trees.forEach((tree) => {
+      if (typeof tree.id !== 'string' || !tree.id) fail('map', `tree ${map.trees.indexOf(tree) + 1} has no id`);
+      else if (treeIds.has(tree.id)) fail(tree.id, 'duplicate tree id');
+      treeIds.add(tree.id);
+    });
+    const nodesOf = new Map(trees.map((tree) => [tree, list(tree.nodes, tree.id, 'node')]));
+    const nodes = [...nodesOf.values()].flat();
 
     if (map.persona !== undefined && typeof map.persona?.name !== 'string') {
       errors.push('map: persona.name must be a string');
@@ -72,15 +107,20 @@
     };
 
     const checkChoice = (node) => {
-      if (!Array.isArray(node.options) || !node.options.length) fail(node.id, 'missing options');
-      const keys = checkKeyedEntries(node, node.options || [], 'option');
+      if (!isList(node.options) || !node.options.length) fail(node.id, 'missing options');
+      const keys = checkKeyedEntries(node, objects(node.options, node.id, 'option'), 'option');
       if (node.default !== undefined && !keys.has(node.default)) fail(node.id, 'default is not an option key');
     };
 
     const checkChecklist = (node, local) => {
-      if (!Array.isArray(node.items)) fail(node.id, 'missing items');
-      checkKeyedEntries(node, node.items || [], 'item');
-      for (const item of node.items || []) {
+      if (!isList(node.items)) fail(node.id, 'missing items');
+      const items = objects(node.items, node.id, 'item');
+      checkKeyedEntries(node, items, 'item');
+      for (const item of items) {
+        if (item.gates !== undefined && (!isList(item.gates) || item.gates.some((id) => typeof id !== 'string'))) {
+          fail(node.id, 'gates must be a list of waypoint ids');
+          continue;
+        }
         for (const gated of item.gates || []) {
           checkTarget(node.id, 'gates', gated, { local });
           if (byId.has(gated) && byId.get(gated).kind !== 'waypoint') {
@@ -129,6 +169,7 @@
       if (node.kind === 'checklist') checkChecklist(node, local);
       if (node.kind === 'waypoint' && typeof node.tag !== 'string') fail(node.id, 'missing tag');
       if (node.kind === 'card') checkSections(node);
+      if (node.kind === 'card' && node.next !== undefined) fail(node.id, 'a card has no next');
     };
 
     /** Depth-first walk over next/option edges inside one tree; reaching a node already on the path is a cycle. */
@@ -152,8 +193,8 @@
       for (const node of treeNodes) visit(node.id);
     };
 
-    for (const tree of map.trees || []) {
-      const treeNodes = tree.nodes || [];
+    for (const tree of trees) {
+      const treeNodes = nodesOf.get(tree);
       const local = new Set(treeNodes.map((node) => node.id));
       if (!treeNodes.length) fail(tree.id, 'empty tree');
       if (treeNodes.filter((node) => node.kind === 'start').length !== 1) {
@@ -163,13 +204,19 @@
       checkCycles(treeNodes, local);
     }
 
-    for (const link of map.links || []) {
+    for (const link of list(map.links, 'map', 'link')) {
       checkTarget(link.from, 'link from', link.from);
       checkTarget(link.from, 'link to', link.to);
     }
-    for (const annotation of map.annotations || []) checkTarget(annotation.id, 'annotation', annotation.target);
-
-    return [...new Set(errors)];
+    const annotationIds = new Set();
+    for (const annotation of list(map.annotations, 'map', 'annotation')) {
+      const { id } = annotation;
+      if (typeof id !== 'string' || !id) fail('map', `annotation ${map.annotations.indexOf(annotation) + 1} has no id`);
+      else if (annotationIds.has(id)) fail(id, 'duplicate annotation id');
+      annotationIds.add(id);
+      if (typeof annotation.text !== 'string') fail(id, 'annotation text must be a string');
+      checkTarget(id, 'annotation', annotation.target);
+    }
   }
 
   /** Every edge the page draws: flow edges, then cross-tree links. */
@@ -234,6 +281,11 @@
     noteSlot: 48,
     annoChars: 32,
     annoLine: 22,
+    personaNameChars: 20,
+    personaName: 20,
+    personaRoleChars: 26,
+    personaRole: 18,
+    eyebrowChars: 30,
   };
 
   /**
@@ -346,7 +398,10 @@
   /** The persona header rows that sit in the first tree's start node. */
   function personaRows(opts) {
     const { persona } = opts;
-    const result = [{ kind: 'pheader', h: 54 }];
+    const name = lines(persona.name, M.personaNameChars);
+    const role = persona.role ? lines(persona.role, M.personaRoleChars) : [];
+    const h = Math.max(54, 16 + name.length * M.personaName + role.length * M.personaRole);
+    const result = [{ kind: 'pheader', h, name, role }];
     if (persona.goal) result.push({ kind: 'pgoal', h: 20 + lines(persona.goal, 34).length * M.body + 6 });
     if (opts.scenario) result.push({ kind: 'pscen', h: lines(opts.scenario, 36).length * M.body + 8 });
     return result;

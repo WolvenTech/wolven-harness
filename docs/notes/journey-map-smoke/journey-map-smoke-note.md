@@ -89,3 +89,23 @@ Each row lists the 1440 result, then the 800 result.
 
 - Found and fixed: in the first run at 800 px the menu opened by the "More controls" button was clipped at the left edge. The menu is 230 px wide and aligns its right edge to the button. The wrapped toolbar puts the button at x 33 to 72, so the menu ran from x -158 to 72 and only the P, W and E hints showed. The renderer (`draw.js`) now shifts the menu to stay 8 px inside the viewport. The recheck on rebuilt pages measures it fully visible at both widths (1440: 1056.6 to 1286.6; 800: 547 to 777).
 - Not covered: none.
+
+## Review fixes
+
+The pre-merge review of PR #58 found two maps that passed `validate` and then crashed the page, plus several smaller page defects. This run checks the fixed renderer in the desktop browser pane. Every page was built from the branch with `build-map.mjs` and served from a local folder.
+
+The test maps:
+
+- `long-map`: `cj-001-reference-map`, with the persona name set to "Alexandra Montgomery-Rivera de la Cruz", the role set to "Owner of a small bookkeeping and invoicing consultancy", and one tag set to "Consideration and evaluation of the shortlisted vendors".
+- `odd-map`: `cj-001-map`, with every waypoint id ending in a space and `"q"`.
+- `noannid-map` and `notreeid-map`: `lotr-map`, one with the annotation's `id` removed and one with the tree's `id` and `label` removed.
+
+| Check | Steps | Expected | Observed | Result |
+| --- | --- | --- | --- | --- |
+| Former crash maps | Build and open `noannid-map` and `notreeid-map`. | Exit 1, and the page shows the error panel. | The build exits 1 with `map: annotation 1 has no id` and `map: tree 1 has no id`. Both pages show "This map needs a fix" with that line. The console has no errors. | PASS at 1440 |
+| Long persona and tag | Open `long-map`. Measure every text box against its card. | The name and role wrap inside the start card, clear of the pencil. The long tag is cut on one line. | The name wraps to 3 lines and the role to 3. No text box runs past its card's right edge. The tag reads "CONSIDERATION AND EVALUATION …", and its `<title>` holds the full tag. | PASS at 1440 |
+| A note becomes a sticky | Click a step's pencil, type a note, press Enter. | The input closes, the note shows as a sticky, and focus returns to the pencil. | 0 note inputs remain, the sticky text shows, and focus is on `note-aw-1`. | PASS at 1440 |
+| `r` needs two presses | With a note set, press `r` once, then again. | The first press warns. The second clears. | The first press sets the status to "Press R again to clear every answer and note" and the note stays. The second clears it, and the status reads "2 of 9 nodes revealed · 0 notes". | PASS at 1440 |
+| Odd ids | Open `odd-map`. Press `n` three times. | Next moves focus with no error, and band corners clip. | 5 of 13 nodes are revealed, and focus sits in `co-1b "q"`. The clip paths are `clip-0` to `clip-3`, and every `clip-path` reference resolves. The console has no errors. | PASS at 1440 |
+| Short window | Open `long-map` at 800 × 260. Press `w`. | The map fits at a usable zoom instead of 5%. | The zoom reads 25%. The timeline overlaps the lower part of the map at this height. | PASS at 800 × 260 |
+| Enter during input-method composition | Read the code. | Enter that ends a composition doesn't submit. | The field's keydown handler returns early on `e.isComposing`. The pane has no input method to type with, so this was checked by reading only. | PASS by reading |

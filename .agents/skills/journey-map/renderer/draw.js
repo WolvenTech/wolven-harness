@@ -16,9 +16,9 @@
     document.getElementById('stage').hidden = true;
   }
 
-  document.getElementById('title').textContent = map.title || 'Journey map';
-  document.title = map.title || 'Journey map';
-  document.getElementById('subtitle').textContent = map.subtitle || '';
+  document.getElementById('title').textContent = map?.title || 'Journey map';
+  document.title = map?.title || 'Journey map';
+  document.getElementById('subtitle').textContent = map?.subtitle || '';
 
   const errors = L.validate(map);
   if (errors.length) {
@@ -229,7 +229,8 @@
     const vw = svg.clientWidth;
     const vh = svg.clientHeight;
     const top = 84;
-    const bottom = Math.max(70, dockH);
+    // why: on a short window the timeline would leave the map almost no room, so it may overlap instead.
+    const bottom = vh - top - Math.max(70, dockH) < 160 ? 70 : Math.max(70, dockH);
     const side = 32;
     const k = Math.max(0.05, Math.min(maxK, (vw - 2 * side) / b.w, (vh - top - bottom) / b.h));
     return {
@@ -278,14 +279,19 @@
     field.dataset.node = id;
     field.dataset.field = isNote ? 'note' : 'text';
     fo.appendChild(field);
-    if (!isNote) {
-      field.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && !state[id]?.done) {
-          e.preventDefault();
-          act(JSON.stringify(['done', id]));
-        }
-      });
-    }
+    field.addEventListener('keydown', (e) => {
+      // why: Enter that confirms an input-method composition must not also submit the field.
+      if (e.isComposing) return;
+      if (!isNote && e.key === 'Enter' && !state[id]?.done) {
+        e.preventDefault();
+        act(JSON.stringify(['done', id]));
+      }
+      if (isNote && (e.key === 'Enter' || e.key === 'Escape')) {
+        e.preventDefault();
+        noteOpen.delete(id);
+        render(`note-${id}`);
+      }
+    });
     field.addEventListener('input', () => {
       state[id] ||= {};
       state[id][isNote ? 'note' : 'text'] = field.value;
@@ -319,14 +325,21 @@
     }
   }
 
+  // why: node ids may hold spaces or quotes, which break a url(#…) reference, so clip paths get their own ids.
+  const clipIds = new Map();
+  const clipId = (id) => {
+    if (!clipIds.has(id)) clipIds.set(id, `clip-${clipIds.size}`);
+    return clipIds.get(id);
+  };
+
   /** The 32px header band of a step: the mood colour with face and first name, or neutral grey; the face alone with no persona. */
   function drawBand(g, n, b, m) {
     const { x, y, w, h } = b;
-    const clip = el('clipPath', { id: `clip-${n.id}` }, g);
+    const clip = el('clipPath', { id: clipId(n.id) }, g);
     el('rect', { x, y, width: w, height: h, rx: 14 }, clip);
     el(
       'rect',
-      { x, y, width: w, height: 32, 'clip-path': `url(#clip-${n.id})`, style: `fill:${m ? m.color : '#e9eaf0'}` },
+      { x, y, width: w, height: 32, 'clip-path': `url(#${clipId(n.id)})`, style: `fill:${m ? m.color : '#e9eaf0'}` },
       g,
     );
     const first = (map.persona?.name || '').split(' ')[0];
@@ -394,9 +407,11 @@
     const [name, color] = KIND[n.kind];
     const step = L.isStep(n, map);
     const m = step ? L.moodOf(n) : null;
-    const label = step ? n.tag : name;
-    const t = text(g, x, top + 17, label.toUpperCase(), FONT.eyebrow, m ? m.color : `var(${color})`);
+    const full = (step ? n.tag : name).toUpperCase();
+    const shown = full.length > M.eyebrowChars ? `${full.slice(0, M.eyebrowChars - 1)}…` : full;
+    const t = text(g, x, top + 17, shown, FONT.eyebrow, m ? m.color : `var(${color})`);
     t.style.letterSpacing = '0.08em';
+    if (shown !== full) el('title', {}, t).textContent = full;
   }
 
   /** The persona header, goal and scenario that sit in the first start card. */
@@ -412,8 +427,9 @@
         .join('')
         .slice(0, 2);
       text(g, x + 42, cy + 5, initials, FONT.label, '#fff', 'middle');
-      text(g, x + 74, cy - 3, p.name, FONT.title, 'var(--ink)');
-      if (p.role) text(g, x + 74, cy + 15, p.role, FONT.body, 'var(--muted)');
+      r.name.forEach((line, i) => text(g, x + 74, top + 25 + i * M.personaName, line, FONT.title, 'var(--ink)'));
+      const roleTop = top + 23 + r.name.length * M.personaName;
+      r.role.forEach((line, i) => text(g, x + 74, roleTop + i * M.personaRole, line, FONT.body, 'var(--muted)'));
     }
     if (r.kind === 'pgoal') {
       text(g, x + M.pad, top + 14, 'GOAL', FONT.eyebrow, 'var(--select)').style.letterSpacing = '0.08em';
@@ -783,6 +799,8 @@
   function act(serialized) {
     const [kind, id, key] = JSON.parse(serialized);
     const n = byId.get(id);
+    // invariant: acting anywhere else turns each other written note from an input into its sticky.
+    for (const other of [...noteOpen]) if (other !== id && state[other]?.note) noteOpen.delete(other);
     if (kind === 'open') {
       if (open.has(id)) open.delete(id);
       else open.add(id);
@@ -814,7 +832,7 @@
     else if (fresh.length) focusOn([id, ...fresh]);
     if (kind === 'done') {
       const next = [...world.querySelectorAll('[data-focus]')].find((e) =>
-        fresh.some((f) => e.closest(`[data-node="${f}"]`)),
+        fresh.includes(e.closest('[data-node]')?.dataset.node),
       );
       next?.focus({ preventScroll: true });
     }
@@ -967,6 +985,18 @@
     else focusOn(shownNow());
   }
 
+  // why: one stray R would wipe every answer and note, so the shortcut needs a second press within 3s.
+  let resetArmedAt = 0;
+  function resetFromKey() {
+    if (!Object.keys(state).length || Date.now() - resetArmedAt < 3000) {
+      resetArmedAt = 0;
+      resetWalk();
+      return;
+    }
+    resetArmedAt = Date.now();
+    statusEl.textContent = 'Press R again to clear every answer and note';
+  }
+
   function resetWalk() {
     state = Object.create(null);
     noteOpen.clear();
@@ -1097,7 +1127,7 @@
     const k = e.key.toLowerCase();
     if (k === 'n') nextStep();
     else if (k === 'b') prevStep();
-    else if (k === 'r') resetWalk();
+    else if (k === 'r') resetFromKey();
     else if (k === 'p') toggleStepwise();
     else if (k === 'w') toggleShowAll();
     else if (k === 'e') toggleExpandAll();

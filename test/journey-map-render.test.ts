@@ -99,6 +99,39 @@ const cases: Array<[string, string, (m: Map) => void]> = [
   ['a missing label', 'shire', (m) => delete m.trees[0].nodes[0].label],
   ['a tree with no start', 'shire-journey', (m) => (m.trees[0].nodes[0].kind = 'waypoint')],
   ['a tree with two starts', 'shire-journey', (m) => (m.trees[0].nodes[2].kind = 'start')],
+  ['a tree with no id', 'map', (m) => delete m.trees[0].id],
+  [
+    'a duplicate tree id',
+    'shire-journey',
+    (m) => {
+      addTree(m);
+      m.trees[1].id = 'shire-journey';
+    },
+  ],
+  ['an annotation with no id', 'map', (m) => delete m.annotations[0].id],
+  ['a duplicate annotation id', 'shared-note', (m) => m.annotations.push({ ...m.annotations[0] })],
+  ['an annotation text that is not a string', 'shared-note', (m) => (m.annotations[0].text = 5)],
+  ['a card with a next', 'doom', (m) => (m.trees[0].nodes.find((n: Map) => n.id === 'doom').next = 'halt')],
+  [
+    'gates given as a string',
+    'pack',
+    (m) => {
+      m.trees[0].nodes.find((n: Map) => n.id === 'pack').items[0].gates = 'forest';
+    },
+  ],
+  [
+    'gates given as a number',
+    'pack',
+    (m) => {
+      m.trees[0].nodes.find((n: Map) => n.id === 'pack').items[0].gates = 5;
+    },
+  ],
+  ['a null node', 'shire-journey', (m) => m.trees[0].nodes.push(null)],
+  ['nodes given as an object', 'shire-journey', (m) => (m.trees[0].nodes = {})],
+  ['a null option', 'route', (m) => m.trees[0].nodes.find((n: Map) => n.id === 'route').options.push(null)],
+  ['a null annotation', 'map', (m) => m.annotations.push(null)],
+  ['links given as an object', 'map', (m) => (m.links = {})],
+  ['a null tree', 'map', (m) => m.trees.push(null)],
 ];
 
 test('journey-map validate: returns no errors for the LotR fixture', () => {
@@ -120,6 +153,13 @@ for (const [name, id, mutate] of cases) {
     );
   });
 }
+
+test('journey-map validate: a map that is not an object gets one map error instead of a throw', () => {
+  const logic = loadLogic();
+  for (const value of [null, 5, 'map', []]) {
+    assert.deepEqual([...logic.validate(value)], ['map: must be a JSON object'], JSON.stringify(value));
+  }
+});
 
 test('journey-map validate: the malformed fixture names every journey case', () => {
   const errors: string[] = [...loadLogic().validate(fixture('malformed-map.json'))];
@@ -239,6 +279,30 @@ test('journey-map layout: height equals the sum of the zones', () => {
     assert.equal(logic.height(node, opts), p.inset + p.card + p.tail, node.id);
     assert.equal(p.inset, zoneSum(p.rows, 'top'), node.id);
     assert.equal(p.tail, zoneSum(p.rows, 'bottom'), node.id);
+  }
+});
+
+test('journey-map layout: a long persona name and role wrap and grow the header without overlap', () => {
+  const logic = loadLogic();
+  const map = fixture('cj-001-map.json');
+  const header = (m: Map) => logic.rows(logic.all(m)[0], logic.ctx(m)).find((r: Map) => r.kind === 'pheader');
+  const short = header(map);
+  map.persona = {
+    ...map.persona,
+    name: 'Alexandra Montgomery-Rivera de la Cruz',
+    role: 'Owner of a small bookkeeping and invoicing consultancy',
+  };
+  const long = header(map);
+  assert.ok(long.name.length > 1 && long.role.length > 1, JSON.stringify(long));
+  assert.ok(long.h > short.h);
+  const opts = logic.ctx(map, { open: openAll(map) });
+  const p = logic.parts(logic.all(map)[0], opts);
+  assert.equal(logic.height(logic.all(map)[0], opts), p.inset + p.card + p.tail);
+  const { boxes } = logic.layout(map, { open: openAll(map) });
+  for (let i = 0; i < boxes.length; i++) {
+    for (let j = i + 1; j < boxes.length; j++) {
+      assert.ok(!overlaps(boxes[i], boxes[j]), `${boxes[i].id} overlaps ${boxes[j].id}`);
+    }
   }
 });
 
@@ -471,6 +535,27 @@ test('journey-map build: a malformed map writes the error page, names the nodes 
     assert.ok(errors.length > 0);
     assert.deepEqual(result.stderr.trim().split('\n'), errors);
     assert.match(result.html ?? '', /id="errors"/);
+  });
+});
+
+test('journey-map build: a wrongly shaped map still rewrites the page as the error page', () => {
+  inTempDir((dir) => {
+    const good = buildMap(dir, 'shape-map.json', fixture('lotr-map.json'));
+    assert.equal(good.status, 0, good.stderr);
+    const bad = buildMap(dir, 'shape-map.json', { ...fixture('lotr-map.json'), annotations: [null] });
+    assert.equal(bad.status, 1);
+    assert.match(bad.stderr, /^map: annotation 1 must be an object$/m);
+    assert.notEqual(bad.html, good.html);
+    assert.ok((bad.html ?? '').includes('"annotations":[null]'));
+  });
+});
+
+test('journey-map build: the page data names the input by a relative path, never an absolute one', () => {
+  inTempDir((dir) => {
+    const result = buildMap(dir, 'lotr-map.json', fixture('lotr-map.json'));
+    assert.equal(result.status, 0, result.stderr);
+    assert.ok(!(result.html ?? '').includes(dir));
+    assert.ok((result.html ?? '').includes('"path":"lotr-map.json"'));
   });
 });
 

@@ -1,5 +1,6 @@
 // why: usage is `node build-map.mjs <dir>/<slug>-map.json`; the page is written next to the input.
 import { readFile, writeFile } from 'node:fs/promises';
+import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import vm from 'node:vm';
 
@@ -21,6 +22,12 @@ function escapeJson(value) {
     .replaceAll(PARAGRAPH_SEPARATOR, '\\u2029');
 }
 
+/** The input as the agent can open it from where the build ran; never an absolute path, since the page may be published. */
+function pagePath(inputPath) {
+  const relative = path.relative(process.cwd(), path.resolve(inputPath));
+  return relative.startsWith('..') ? path.basename(inputPath) : relative;
+}
+
 const countNodes = (map) => map.trees.reduce((sum, tree) => sum + tree.nodes.length, 0);
 
 async function build(inputPath) {
@@ -38,7 +45,7 @@ async function build(inputPath) {
 
   // hazard: a replacer function keeps `$` sequences in the data from being read as replacement patterns.
   const html = shell.replace(/@@DATA@@|@@RENDERER@@/g, (slot) =>
-    slot === '@@DATA@@' ? escapeJson({ tree: map, path: inputPath }) : logic + draw,
+    slot === '@@DATA@@' ? escapeJson({ tree: map, path: pagePath(inputPath) }) : logic + draw,
   );
   const output = `${inputPath.slice(0, -'.json'.length)}.html`;
   // why: an invalid map still writes the page so it can show the error panel.
