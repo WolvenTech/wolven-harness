@@ -71,6 +71,12 @@ Flags. Each value flag takes `--flag value` or `--flag=value`.
     from `package.json`, it prints the install command instead.
   - It never commits.
   - It rewrites `.wolven-harness.json` on every run.
+  - Some paths depend on the chosen skill sets. With `discovery` it creates
+    `docs/maps/.gitkeep`, a `docs/maps/.gitignore` that ignores built
+    canvases, a `maps` collection in `.qmd/index.yml` and a `docs/maps/`
+    row in `WOLVEN.md`. Without `discovery` it creates none of them. The
+    create-only guarantee still holds, so a re-run never adds the collection
+    or the row to a file that already exists.
 
 ### `skills`
 
@@ -177,6 +183,7 @@ Finding codes:
 | `claim-deprecated` | error |
 | `claim-slug-mismatch` | error |
 | `profile-iteration-doc` | warn |
+| `profile-map-doc` | warn |
 | `skill-stub-open` | warn |
 | `step0-pending` | warn |
 | `adr-unrecognized` | warn |
@@ -293,3 +300,7 @@ number is not the guarantee. This policy is.
   `bump-patch-for-minor-pre-major` is set, and `bump-minor-pre-major` stays
   set so a breaking change stays a minor. Chosen by the maintainer.
 - 2026-10-05: `profile-iteration-doc` starts as a warning.
+- 2026-10-14: `profile-map-doc` added as a warning code for docs under
+  `docs/maps/`. `setup` gains its first paths that depend on the chosen
+  skill sets, the maps pieces above. Both are additive under the change
+  policy and ship as a `feat`. Approved by the maintainer.

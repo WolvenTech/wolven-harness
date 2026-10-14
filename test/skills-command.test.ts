@@ -450,6 +450,7 @@ test('proof-journey-map-install: skills --skills journey-map copies the whole fo
   assert.deepEqual(await filesUnder(path.join(dir, '.agents', 'skills', 'journey-map')), [
     'SKILL.md',
     'references/tree-format.md',
+    'renderer/canvas.js',
     'renderer/draw.js',
     'renderer/logic.js',
     'renderer/page.html',

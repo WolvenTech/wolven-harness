@@ -43,4 +43,4 @@ The PRD grilling on 2026-10-09 settled these decisions:
 
 ## Beyond this change
 
-The Human wants a skill in the discovery set that builds journey maps like this one, for showing a flow and for working on it with an agent. A handoff for a separate `create-prd` session covers that skill. It has to settle its relationship to the deferred `wayfinder` skill in `docs/deferrals/wayfinder-maps/`.
+The Human wants a skill in the discovery set that builds journey maps like this one, for showing a flow and for working on it with an agent. A handoff for a separate `create-prd` session covers that skill. It has to settle its relationship to the deferred `wayfinder` skill in `docs/deferrals/archived/wayfinder-maps/`.

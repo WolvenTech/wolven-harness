@@ -35,7 +35,7 @@ test('setup-layout: .qmd/index.yml has one collection per folder with the doc-fo
     assert.equal(collection.pattern, '!(archived)/**/*.md', `collection "${folder}" uses the doc-folder pattern`);
   }
 
-  assert.deepEqual(Object.keys(parsed.collections).sort(), ['adrs', ...DOC_FOLDERS].sort());
+  assert.deepEqual(Object.keys(parsed.collections).sort(), ['adrs', 'maps', ...DOC_FOLDERS].sort());
 });
 
 test('setup-layout: WRITING-PROFILE.md documents the layout, the type map, and stays <= 80 lines', async () => {

@@ -2,6 +2,7 @@ import type { Dirent } from 'node:fs';
 import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { classifyFrontmatter, skillIdentity } from '../frontmatter.js';
+import { isSkillSet, type SkillSet } from './skill-sets.js';
 import type { Context } from './types.js';
 
 const SKILLS_TABLE_PLACEHOLDER = '{{skills_table}}';
@@ -31,6 +32,27 @@ async function readSkillFrontmatter(skillMdPath: string): Promise<SkillFrontmatt
   if (!name || !description) return undefined;
 
   return { name, description };
+}
+
+const SET_MARKER = /\s*(?:<!-- set:([a-z]+) -->|# set:([a-z]+))$/;
+
+/**
+ * Applies the set-marker rule: a line ending in `<!-- set:NAME -->` or
+ * `# set:NAME` is written without the marker when NAME is in `sets` (or
+ * `sets` is undefined, meaning every set), and dropped otherwise.
+ */
+export function applySetMarkers(text: string, sets?: readonly SkillSet[]): string {
+  const out: string[] = [];
+  for (const line of text.split('\n')) {
+    const m = SET_MARKER.exec(line);
+    const name = m?.[1] ?? m?.[2];
+    if (m === null || name === undefined) {
+      out.push(line);
+    } else if (sets === undefined || (isSkillSet(name) && sets.includes(name))) {
+      out.push(line.slice(0, m.index));
+    }
+  }
+  return out.join('\n');
 }
 
 /**
@@ -73,12 +95,16 @@ function renderSkillsTable(skills: SkillFrontmatter[]): string {
  * it for the `{{skills_table}}` placeholder. When `only` is given, the
  * table lists just those skill folders.
  */
-export async function renderWolven(ctx: Context, only?: readonly string[]): Promise<string> {
+export async function renderWolven(
+  ctx: Context,
+  only?: readonly string[],
+  sets?: readonly SkillSet[],
+): Promise<string> {
   const templatePath = path.join(ctx.templatesDir, 'WOLVEN.md');
   const template = await readFile(templatePath, 'utf8');
 
   const skills = await collectSkills(ctx.templatesDir, only);
   const table = renderSkillsTable(skills);
 
-  return template.split(SKILLS_TABLE_PLACEHOLDER).join(table);
+  return applySetMarkers(template.split(SKILLS_TABLE_PLACEHOLDER).join(table), sets);
 }

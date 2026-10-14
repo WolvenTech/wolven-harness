@@ -24,7 +24,13 @@ export const CORE_SKILLS: readonly string[] = [
  */
 export const SET_SKILLS: Record<SkillSet, readonly string[]> = {
   ship: ['code-commit', 'code-pr', 'code-review', 'code-ci'],
-  discovery: ['create-prd', 'prototype', 'handoff', 'the-fool', 'the-jury', 'journey-map'],
+  discovery: ['create-prd', 'prototype', 'handoff', 'the-fool', 'the-jury', 'journey-map', 'wayfinder'],
+};
+
+/** Repo-relative path prefixes a set owns; `applyTemplates` skips them unless the set is chosen. */
+export const SET_PATHS: Record<SkillSet, readonly string[]> = {
+  ship: [],
+  discovery: ['docs/maps/'],
 };
 
 /** Optional sets in display order. */

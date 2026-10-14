@@ -14,3 +14,6 @@ collections:
   deferrals:
     path: ./docs/deferrals
     pattern: "!(archived)/**/*.md"
+  maps: # set:discovery
+    path: ./docs/maps # set:discovery
+    pattern: "!(archived)/**/*.md" # set:discovery

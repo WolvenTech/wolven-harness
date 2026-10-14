@@ -19,6 +19,7 @@ pnpm score      # harness-score --min-level 3, with drops in .harness-score.json
 
 - `src/` — CLI source (`cli.ts`, `setup/`, `validate/`, `comments/`); `pnpm build` compiles it to `dist/`.
 - `templates/` — files `setup` copies into a consumer repo.
+- `renderer/` — the one source of the canvas renderer files; `pnpm sync:renderer` copies each skill only the files its manifest in `renderer/sync.mjs` lists, into `templates/.agents/skills/<skill>/renderer/` and `.agents/skills/<skill>/renderer/`, and `test/renderer-copies.test.ts` fails on any drift. Outside `"files"`, so it does not ship; edit here, never in a copy.
 - `test/` — `node:test` suites, run in-process against `src/` via `tsx` (no build required).
 - `CONTRIBUTING.md` — contributor entry point: requirements, the local gate, and the PR rules.
 - `assets/` — the Wolven marks the `README.md` header embeds; outside `"files"`, so they do not ship.
@@ -78,6 +79,7 @@ qmd query "<question>"
 | prototype | Build a throwaway prototype that answers one question — a runnable program for logic and state, or a few switchable variations for UI — then discard or promote it deliberately |
 | qmd | Searches local markdown knowledge bases, notes, docs, and wikis with QMD. Use when users ask to find notes, retrieve documents, inspect a wiki, answer from indexed markdown, or set up QMD access. |
 | research | Investigates a question against primary sources, cites every claim, and lands the answer as a note in the repository; refuses secondary-only summaries. Use when a question about a tool, API, library, spec, or standard needs an answer backed by evidence rather than memory. |
+| wayfinder | Charts a decision that is too big to settle in one session as a map of tickets under docs/maps/, works one ticket per session through the right skill, and hands the settled decisions to a PRD or spec. Use when the Human asks to chart, map or work through a large unknown, to pick up the next ticket on a map, or accepts a one-line offer of a map. |
 
 ### Standing rules
 

@@ -1,5 +1,5 @@
 ---
-description: The nineteen skills available, which ones setup installs, and the three standing rules.
+description: The twenty skills available, which ones setup installs, and the three standing rules.
 ---
 
 # Skills
@@ -19,7 +19,7 @@ For a one-file change, you can ask for `code-execute` directly and skip the spec
 
 ## Full inventory
 
-Nineteen skills are available under `.agents/skills/`. `setup` always installs the nine core skills (`harness-init`, `adr`, `grilling`, `pragmatic-guard`, `qmd`, `research`, `code-spec`, `code-plan`, `code-execute`). The `ship` set (`code-commit`, `code-pr`, `code-review`, `code-ci`) and the `discovery` set (`create-prd`, `prototype`, `journey-map`, `handoff`, `the-fool`, `the-jury`) are optional. A fresh interactive setup preselects `ship`; a fresh non-interactive setup defaults to `ship`. Select `--skills discovery` or `--skills ship,discovery` to add sets, or `--skills none` for core skills only. Re-runs never remove installed files or sets. The four marked **ask-only** require an explicit request. PR creation, review, and CI work never merge the PR.
+Twenty skills are available under `.agents/skills/`. `setup` always installs the nine core skills (`harness-init`, `adr`, `grilling`, `pragmatic-guard`, `qmd`, `research`, `code-spec`, `code-plan`, `code-execute`). The `ship` set (`code-commit`, `code-pr`, `code-review`, `code-ci`) and the `discovery` set (`create-prd`, `prototype`, `journey-map`, `wayfinder`, `handoff`, `the-fool`, `the-jury`) are optional. A fresh interactive setup preselects `ship`; a fresh non-interactive setup defaults to `ship`. Select `--skills discovery` or `--skills ship,discovery` to add sets, or `--skills none` for core skills only. Re-runs never remove installed files or sets. The four marked **ask-only** require an explicit request. PR creation, review, and CI work never merge the PR.
 
 `grilling` (core) interviews toward a settled plan. `the-fool` challenges without forcing a decision. `the-jury` spawns five isolated juror agents, then deliberates with shared first-round opinions, and returns a dissent-preserving advisory verdict with confidence and a concrete test. Keep the three distinct.
 
@@ -44,6 +44,7 @@ Nineteen skills are available under `.agents/skills/`. `setup` always installs t
 | `research` | Investigate against primary sources, cite every claim, and land the answer as an in-repo note. |
 | `the-fool` | Challenge an idea or plan with structured critique and synthesis after the user responds; does not force a decision. |
 | `the-jury` | Spawn five distinct juror agents for a parallel isolated first round, deliberate with shared opinions, preserve dissent, and deliver an advisory verdict with confidence and one concrete test. |
+| `wayfinder` | Chart a decision too big for one session as a map of tickets under `docs/maps/`, work one ticket per session, and hand the settled decisions to a PRD or spec. |
 
 ## Rules applied each session
 

@@ -501,7 +501,7 @@ test('journey-map build: writes the page and prints the wrote line', () => {
 
 test('journey-map build: both pages carry a byte-identical renderer and load only the allowed hosts', () => {
   inTempDir((dir) => {
-    const region = `<script>${rendererFile('logic.js')}${rendererFile('draw.js')}</script>`;
+    const region = `<script>${rendererFile('logic.js')}${rendererFile('canvas.js')}${rendererFile('draw.js')}</script>`;
     for (const [name, map] of [
       ['lotr-map.json', fixture('lotr-map.json')],
       ['second-map.json', stackedUpwardLinkMap()],

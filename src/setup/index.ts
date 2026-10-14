@@ -71,7 +71,7 @@ export async function runSetup(argv: string[], io: Io): Promise<number> {
     const wiredNames = opts.runtimes.map(runtimeName).join(' / ');
 
     const applyResult = await ui.phase('Copying skills and rules', 'Copied skills and rules', () =>
-      traced(io, debug, 'applyTemplates', () => applyTemplates(ctx, skillFolders(opts.skillSets))),
+      traced(io, debug, 'applyTemplates', () => applyTemplates(ctx, skillFolders(opts.skillSets), opts.skillSets)),
     );
     const runtimeResult = await ui.phase(`Wiring ${wiredNames}`, `Wired ${wiredNames}`, () =>
       traced(io, debug, 'wireRuntimes', () => wireRuntimes(opts, ctx)),

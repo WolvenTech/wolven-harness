@@ -1,7 +1,7 @@
 # Writing profile
 
 `wolven-harness validate` enforces four rules on every profile doc under
-`docs/{adrs,prds,specs,notes,deferrals}/`.
+`docs/{adrs,prds,specs,notes,deferrals,maps}/`.
 
 ## Layout
 
@@ -11,7 +11,10 @@ Every other doc-folder holds one slug folder per document:
 `docs/<folder>/<slug>/<slug>-<type>.md`. `docs/specs/<slug>/` may also hold
 `<slug>-plan.md` (also `type: spec`) and review-fix rounds
 `<slug>-iteration-<N>-spec.md` / `<slug>-iteration-<N>-plan.md`, whose
-violations only warn. Other files in a slug folder, and everything under a
+violations only warn. `docs/maps/<slug>/` holds the main doc
+`docs/maps/<slug>/<slug>-map.md` (`type: map`) and ticket files
+`<nn>-<ticket-slug>.md` beside it; map findings only warn, and ticket files are
+not checked. Other files in a slug folder, and everything under a
 doc-folder's `archived/`, are not checked.
 
 ## Type map
@@ -23,6 +26,7 @@ doc-folder's `archived/`, are not checked.
 | `specs` | `spec` |
 | `notes` | `note` |
 | `deferrals` | `deferral` |
+| `maps` | `map` |
 
 ## The four rules
 

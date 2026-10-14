@@ -1,6 +1,8 @@
 // why: a classic script with no DOM and no modules, so the page inlines it and node:vm loads it unchanged.
 (() => {
   const KINDS = ['start', 'choice', 'checklist', 'text', 'waypoint', 'card'];
+  const TICKET_TYPES = ['research', 'prototype', 'grilling', 'task'];
+  const TICKET_STATUSES = ['open', 'claimed', 'closed', 'out_of_scope'];
 
   const JOURNEY_FIELDS = ['mood', 'thought', 'touchpoints', 'pains', 'opportunities'];
 
@@ -30,24 +32,31 @@
     return node.next ? [node.next] : [];
   };
 
+  /** The entries of a ticket's list field, or none when the field is absent or not a list. */
+  const ticketEdges = (node, field) => (isList(node[field]) ? node[field] : []);
+
   /**
    * Checks a map and returns one error string per problem. Every string starts
    * with `<nodeId>:` (or `<treeId>:` for a tree, `map:` for the whole map), so a
    * reader can find the bad node without searching.
+   *
+   * `kinds` is the set of node kinds the caller allows and defaults to the six
+   * flow kinds. Passing a set that includes `ticket` allows ticket nodes, runs
+   * the ticket checks, and lets a tree made only of tickets omit its `start`.
    */
-  function validate(map) {
+  function validate(map, { kinds = KINDS } = {}) {
     if (!isRecord(map)) return ['map: must be a JSON object'];
     const errors = [];
     // hazard: a shape this check did not foresee must still reach the error panel, not throw past it.
     try {
-      checkMap(map, errors);
+      checkMap(map, errors, kinds);
     } catch (error) {
       errors.push(`map: could not check the map (${error.message})`);
     }
     return [...new Set(errors)];
   }
 
-  function checkMap(map, errors) {
+  function checkMap(map, errors, kinds) {
     const byId = new Map();
     const fail = (id, message) => errors.push(`${id || '(missing id)'}: ${message}`);
 
@@ -84,14 +93,15 @@
       if (typeof node.id !== 'string' || !node.id) fail(node.id, 'missing id');
       if (byId.has(node.id)) fail(node.id, 'duplicate id');
       byId.set(node.id, node);
-      if (!KINDS.includes(node.kind)) fail(node.id, `unknown kind ${node.kind}`);
+      if (!kinds.includes(node.kind)) fail(node.id, `unknown kind ${node.kind}`);
       if (typeof node.label !== 'string' || !node.label.trim()) fail(node.id, 'missing label');
     }
 
-    /** Checks that `value` names a node; `local`, when given, is the set of ids in the source node's own tree. */
-    const checkTarget = (id, field, value, { local = null } = {}) => {
+    /** Checks that `value` names a node (a ticket, when `ticketOnly`); `local`, when given, is the set of ids in the source node's own tree. */
+    const checkTarget = (id, field, value, { ticketOnly = false, local = null } = {}) => {
       const target = byId.get(value);
       if (!target) fail(id, `${field} target ${value} does not exist`);
+      else if (ticketOnly && target.kind !== 'ticket') fail(id, `${field} target ${value} is not a ticket`);
       else if (local && !local.has(value)) fail(id, `${field} crosses trees; use links`);
     };
 
@@ -161,6 +171,27 @@
       });
     };
 
+    /** Ticket fields: type and status values, dependency edges, and the claim and undermined marks. */
+    const checkTicket = (node, local) => {
+      if (!TICKET_TYPES.includes(node.ticket)) fail(node.id, `bad ticket ${node.ticket}`);
+      if (!TICKET_STATUSES.includes(node.status)) fail(node.id, `bad status ${node.status}`);
+      for (const field of ['blocked_by', 'undermined_by']) {
+        if (node[field] !== undefined && !isList(node[field])) fail(node.id, `${field} must be a list`);
+      }
+      for (const blocker of ticketEdges(node, 'blocked_by')) {
+        checkTarget(node.id, 'blocked_by', blocker, { ticketOnly: true, local });
+      }
+      for (const mark of ticketEdges(node, 'undermined_by')) {
+        checkTarget(node.id, 'undermined_by', mark, { ticketOnly: true });
+      }
+      if ((node.claimed_by === undefined) !== (node.claimed_at === undefined)) {
+        fail(node.id, 'claimed_by and claimed_at must appear together');
+      }
+      if (ticketEdges(node, 'undermined_by').length && !['closed', 'claimed'].includes(node.status)) {
+        fail(node.id, `undermined_by needs status closed or claimed, not ${node.status}`);
+      }
+    };
+
     const checkNode = (node, local) => {
       checkJourney(node);
       if (['start', 'checklist'].includes(node.kind) && !node.next) fail(node.id, 'missing next');
@@ -170,9 +201,10 @@
       if (node.kind === 'waypoint' && typeof node.tag !== 'string') fail(node.id, 'missing tag');
       if (node.kind === 'card') checkSections(node);
       if (node.kind === 'card' && node.next !== undefined) fail(node.id, 'a card has no next');
+      if (node.kind === 'ticket' && kinds.includes('ticket')) checkTicket(node, local);
     };
 
-    /** Depth-first walk over next/option edges inside one tree; reaching a node already on the path is a cycle. */
+    /** Depth-first walk over next/option edges (blocked_by for a ticket) inside one tree; reaching a node already on the path is a cycle. */
     const checkCycles = (treeNodes, local) => {
       const onPath = new Set();
       const done = new Set();
@@ -185,7 +217,9 @@
         onPath.add(id);
         const node = byId.get(id);
         if (node) {
-          for (const to of outgoing(node)) if (local.has(to)) visit(to);
+          for (const to of node.kind === 'ticket' ? ticketEdges(node, 'blocked_by') : outgoing(node)) {
+            if (local.has(to)) visit(to);
+          }
         }
         onPath.delete(id);
         done.add(id);
@@ -197,7 +231,9 @@
       const treeNodes = nodesOf.get(tree);
       const local = new Set(treeNodes.map((node) => node.id));
       if (!treeNodes.length) fail(tree.id, 'empty tree');
-      if (treeNodes.filter((node) => node.kind === 'start').length !== 1) {
+      // why: a tree made only of tickets is a dependency board and has no start.
+      const isBoard = kinds.includes('ticket') && treeNodes.length > 0 && treeNodes.every((node) => node.kind === 'ticket');
+      if (!isBoard && treeNodes.filter((node) => node.kind === 'start').length !== 1) {
         fail(tree.id, 'tree requires exactly one start');
       }
       for (const node of treeNodes) checkNode(node, local);

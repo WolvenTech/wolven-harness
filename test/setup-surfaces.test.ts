@@ -58,6 +58,8 @@ test('setup-surfaces: creates exactly the expected paths', async () => {
     'docs/specs/.gitkeep',
     'docs/notes/.gitkeep',
     'docs/deferrals/.gitkeep',
+    'docs/maps/.gitkeep',
+    'docs/maps/.gitignore',
     '.qmd/index.yml',
     '.qmd/.gitignore',
     '.wolven-harness.json',
