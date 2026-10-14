@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 /** The renderer files each skill loads; a skill's `renderer/` folder holds exactly these. */
 export const MANIFEST = {
   'journey-map': ['logic.js', 'canvas.js', 'draw.js', 'page.html'],
+  wayfinder: ['logic.js', 'canvas.js', 'radial.js', 'radial-draw.js', 'radial.html'],
 };
 
 /** Where each skill's copy lives: the shipped template and this repo's installed copy. */

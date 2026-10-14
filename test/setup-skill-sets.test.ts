@@ -38,13 +38,13 @@ test('setup-skill-sets: --skills none installs core only', async () => {
   assert.match(result.stdout, /✔ 9 skills \(core\) and 3 rules/);
 });
 
-test('setup-skill-sets: --skills ship,discovery installs all nineteen', async () => {
+test('setup-skill-sets: --skills ship,discovery installs all twenty', async () => {
   const dir = await makeRepo({}, { git: true });
 
   const result = await run([...BASE, '--skills=ship,discovery'], { cwd: dir });
 
   assert.equal(result.code, 0, result.stderr);
-  assert.equal((await installed(dir)).length, 19);
+  assert.equal((await installed(dir)).length, 20);
   assert.deepEqual((await config(dir)).skillSets, ['ship', 'discovery']);
 });
 
@@ -94,9 +94,9 @@ test('setup-skill-sets: re-running with discovery keeps ship and adds discovery'
   const again = await run([...BASE, '--skills', 'discovery'], { cwd: dir });
 
   assert.equal(again.code, 0, again.stderr);
-  assert.equal((await installed(dir)).length, 19);
+  assert.equal((await installed(dir)).length, 20);
   assert.deepEqual((await config(dir)).skillSets, ['ship', 'discovery']);
-  assert.match(again.stdout, /✔ 6 skills \(discovery\) in \.agents\//);
+  assert.match(again.stdout, /✔ 7 skills \(discovery\) in \.agents\//);
   assert.match(again.stdout, /Left the ship skills in place/);
 });
 

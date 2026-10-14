@@ -93,7 +93,6 @@
     reduceMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
   });
 
-  /* ---- header ---- */
   document.title = model.title ? `${model.title} — wayfinder` : 'Wayfinder canvas';
   $('title').textContent = model.title;
   $('destination').textContent = model.destination;
@@ -101,7 +100,6 @@
     h('span', `chip ${item.key}`, `${item.count} ${item.label}`, $('counts'));
   }
 
-  /* ---- world ---- */
   const { rings } = placed;
   const bands = el('g', {}, world);
   if (placed.hasOos) el('circle', { class: 'band band-oos', r: rings.outer }, bands);
@@ -195,7 +193,6 @@
     nodeEls.set(t.id, g);
   }
 
-  /* ---- interaction state ---- */
   let hover = null;
   let focus = null;
   let selected = null;
@@ -263,7 +260,6 @@
     drawLabels();
   };
 
-  /* ---- panel ---- */
   function ticketRow(id, parent) {
     const t = model.byId[id];
     const row = h('button', 'p-row', undefined, parent);
@@ -380,7 +376,6 @@
     refresh();
   }
 
-  /* ---- camera ---- */
   /** The camera that fits the whole layout beside the side panel, widening the fitted box until the map clears the panel. */
   function fitCam() {
     const e = placed.extent;
@@ -404,7 +399,6 @@
 
   core.bindInput();
 
-  /* ---- events ---- */
   for (const [id, g] of nodeEls) {
     g.addEventListener('pointerenter', () => {
       hover = id;

@@ -79,6 +79,7 @@ qmd query "<question>"
 | prototype | Build a throwaway prototype that answers one question — a runnable program for logic and state, or a few switchable variations for UI — then discard or promote it deliberately |
 | qmd | Searches local markdown knowledge bases, notes, docs, and wikis with QMD. Use when users ask to find notes, retrieve documents, inspect a wiki, answer from indexed markdown, or set up QMD access. |
 | research | Investigates a question against primary sources, cites every claim, and lands the answer as a note in the repository; refuses secondary-only summaries. Use when a question about a tool, API, library, spec, or standard needs an answer backed by evidence rather than memory. |
+| wayfinder | Charts a decision that is too big to settle in one session as a map of tickets under docs/maps/, works one ticket per session through the right skill, and hands the settled decisions to a PRD or spec. Use when the Human asks to chart, map or work through a large unknown, to pick up the next ticket on a map, or accepts a one-line offer of a map. |
 
 ### Standing rules
 

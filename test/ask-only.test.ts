@@ -29,11 +29,12 @@ const EXPECTED_SKILLS = [
   'research',
   'the-fool',
   'the-jury',
+  'wayfinder',
 ].sort();
 
 const ASK_ONLY_SKILLS = new Set(['code-pr', 'code-review', 'code-ci', 'handoff']);
 
-test('ask-only: the template skill set is exactly the nineteen expected folders', async () => {
+test('ask-only: the template skill set is exactly the twenty expected folders', async () => {
   const entries = await readdir(skillsRoot, { withFileTypes: true });
   const actual = entries
     .filter((e) => e.isDirectory())
