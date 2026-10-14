@@ -31,13 +31,13 @@ To be asked questions, stdin and stdout must both be a TTY. Otherwise pass `--gi
 Nine core skills are always installed. Two optional sets add more:
 
 - `ship`: `code-commit`, `code-pr`, `code-review`, `code-ci`.
-- `discovery`: `create-prd`, `prototype`, `handoff`, `the-fool`, `the-jury`.
+- `discovery`: `create-prd`, `prototype`, `journey-map`, `handoff`, `the-fool`, `the-jury`.
 
 Interactive runs preselect `ship`. Non-interactive runs without `--skills` install core and `ship`. Use `--skills ship,discovery` to pick sets, or `--skills none` for core only. Re-runs never remove an installed set.
 
 ## What to do next
 
-Ask your agent to run `harness-init`. On a fresh or thin-evidence repo, the lean path asks for your immediate goal in one sentence (unless you stated one), then may defer a few items after naming each to you; [`lean-path.md`](https://github.com/WolvenTech/wolven-harness/blob/main/templates/.agents/skills/harness-init/references/lean-path.md) lists them. Your choices land under **Deferred / skipped steps** in the session note, and skill proposals still run. See [harness-init](https://wolventech.github.io/wolven-harness/harness-init). Then:
+Ask your agent to run `harness-init`. It first asks how much setup you want right now. The basics path notes your first goal and updates `AGENTS.md`, then hands back; [`lean-path.md`](https://github.com/WolvenTech/wolven-harness/blob/main/templates/.agents/skills/harness-init/references/lean-path.md) lists what it leaves for later. The full tour opens with one checklist of what this run should cover. Either way, the run ends by offering to start a spec for your goal. See [harness-init](https://wolventech.github.io/wolven-harness/harness-init). Then:
 
 1. `code-spec`: agree on the change and how to verify it.
 2. `code-plan`: approve the implementation steps.
@@ -46,9 +46,9 @@ Ask your agent to run `harness-init`. On a fresh or thin-evidence repo, the lean
 
 Commits are manual by default. For a one-file change, go straight to `code-execute`.
 
-`create-prd`, `prototype`, `handoff`, `the-fool`, and `the-jury` need the discovery set: `pnpm exec wolven-harness setup --skills discovery`. `code-pr`, `code-review`, `code-ci`, and `handoff` are ask-only and never merge.
+`create-prd`, `prototype`, `journey-map`, `handoff`, `the-fool`, and `the-jury` need the discovery set: `pnpm exec wolven-harness setup --skills discovery`. `code-pr`, `code-review`, `code-ci`, and `handoff` are ask-only and never merge.
 
-All 18 skills are listed on the [skills page](https://wolventech.github.io/wolven-harness/skills).
+All 19 skills are listed on the [skills page](https://wolventech.github.io/wolven-harness/skills).
 
 ## License
 

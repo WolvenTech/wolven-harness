@@ -1,0 +1,214 @@
+{
+  "version": 1,
+  "title": "harness-init redesign",
+  "subtitle": "The setup prompts, then the guided agent session. Nothing is written until you say yes.",
+  "trees": [
+    {
+      "id": "setup",
+      "label": "setup",
+      "nodes": [
+        { "id": "setup-start", "kind": "start", "label": "wolven-harness setup", "next": "setup-host" },
+        {
+          "id": "setup-host",
+          "kind": "choice",
+          "label": "Where is this repository hosted?",
+          "options": [
+            { "key": "github", "label": "GitHub", "next": "setup-runtimes" },
+            { "key": "bitbucket", "label": "Bitbucket", "next": "setup-runtimes" }
+          ]
+        },
+        {
+          "id": "setup-runtimes",
+          "kind": "checklist",
+          "label": "Which agent runtimes do you use?",
+          "items": [
+            { "key": "claude", "label": "Claude Code" },
+            { "key": "codex", "label": "Codex" },
+            { "key": "cursor", "label": "Cursor" }
+          ],
+          "next": "setup-skillsets"
+        },
+        {
+          "id": "setup-skillsets",
+          "kind": "checklist",
+          "label": "Which extra skill sets do you want?",
+          "items": [
+            { "key": "ship", "label": "Ship", "hint": "commit, PR, review, CI" },
+            { "key": "discovery", "label": "Discovery", "hint": "PRD, prototype, handoff, fool, jury, journey map" }
+          ],
+          "next": "setup-command"
+        },
+        {
+          "id": "setup-command",
+          "kind": "card",
+          "label": "Your command",
+          "sections": [
+            { "head": "Copy this", "items": ["The setup command, ready to paste"] },
+            { "head": "Optional flags", "items": ["--verbose", "--debug"] },
+            { "head": "Skill folders you end up with", "items": ["The folders that match your answers"] }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "harness-init",
+      "label": "harness-init",
+      "nodes": [
+        {
+          "id": "init-start",
+          "kind": "start",
+          "label": "harness-init",
+          "sub": "Nothing is written until you have seen it and said yes",
+          "next": "init-depth"
+        },
+        {
+          "id": "init-depth",
+          "kind": "choice",
+          "label": "How much setup do you want right now?",
+          "default": "basics",
+          "options": [
+            {
+              "key": "basics",
+              "label": "Just the basics",
+              "hint": "Note your first goal and update AGENTS.md",
+              "next": "basics-goal"
+            },
+            {
+              "key": "full",
+              "label": "The full tour",
+              "hint": "Go through every step, leaving out what you don't want yet",
+              "next": "full-scope"
+            }
+          ]
+        },
+        {
+          "id": "basics-goal",
+          "kind": "text",
+          "label": "What do you want to get done first in this repo?",
+          "sub": "One sentence, kept as written",
+          "next": "basics-agents"
+        },
+        {
+          "id": "basics-agents",
+          "kind": "choice",
+          "label": "How much should we change your current AGENTS.md?",
+          "options": [
+            { "key": "line", "label": "Just one line", "next": "handback" },
+            { "key": "section", "label": "A short section", "next": "handback" },
+            { "key": "guide", "label": "The whole guide", "next": "handback" }
+          ]
+        },
+        {
+          "id": "full-scope",
+          "kind": "checklist",
+          "label": "What should this run cover?",
+          "sub": "Unticking an item leaves its step for later",
+          "items": [
+            { "key": "adrs", "label": "Move old decision records", "gates": ["wp-decisions"] },
+            { "key": "stage", "label": "Ask about the project's stage and plans", "gates": ["wp-know"] },
+            { "key": "research", "label": "Look up your tools on the web", "gates": ["wp-research"] },
+            { "key": "skills", "label": "Suggest skills for this repo", "gates": ["wp-skills"] },
+            { "key": "score", "label": "Check the harness score now", "gates": ["wp-score"] },
+            { "key": "checks", "label": "Set up automatic checks", "gates": ["wp-checks"] }
+          ],
+          "next": "full-agents"
+        },
+        {
+          "id": "full-agents",
+          "kind": "choice",
+          "label": "How much should we change your current AGENTS.md?",
+          "options": [
+            { "key": "line", "label": "Just one line", "next": "wp-decisions" },
+            { "key": "section", "label": "A short section", "next": "wp-decisions" },
+            { "key": "guide", "label": "The whole guide", "next": "wp-decisions" }
+          ]
+        },
+        {
+          "id": "wp-decisions",
+          "kind": "waypoint",
+          "label": "Old decisions",
+          "tag": "Records found elsewhere move into docs/adrs/",
+          "next": "wp-know"
+        },
+        {
+          "id": "wp-know",
+          "kind": "waypoint",
+          "label": "Getting to know the repo",
+          "tag": "Reads the code, README and CI",
+          "next": "wp-research"
+        },
+        {
+          "id": "wp-research",
+          "kind": "waypoint",
+          "label": "Research",
+          "tag": "At most five official sources, each cited",
+          "next": "wp-skills"
+        },
+        {
+          "id": "wp-skills",
+          "kind": "waypoint",
+          "label": "Skills",
+          "tag": "Suggest skills for this repo",
+          "next": "full-skills-q"
+        },
+        {
+          "id": "full-skills-q",
+          "kind": "choice",
+          "label": "Is this repo new or still unexplored?",
+          "options": [
+            { "key": "yes", "label": "Yes, suggest skills", "next": "wp-score" },
+            { "key": "no", "label": "No, leave skills alone", "next": "wp-score" }
+          ]
+        },
+        {
+          "id": "wp-score",
+          "kind": "waypoint",
+          "label": "Score",
+          "tag": "Shows what the harness is missing",
+          "next": "wp-checks"
+        },
+        {
+          "id": "wp-checks",
+          "kind": "waypoint",
+          "label": "Automatic checks",
+          "tag": "Set up how the harness is checked",
+          "next": "full-checks-q"
+        },
+        {
+          "id": "full-checks-q",
+          "kind": "choice",
+          "label": "How should we check the harness?",
+          "options": [
+            { "key": "pr", "label": "On every pull request", "next": "full-commits" },
+            { "key": "existing", "label": "With your existing checks", "next": "full-commits" },
+            { "key": "manual", "label": "Only when I run it", "next": "full-commits" }
+          ]
+        },
+        {
+          "id": "full-commits",
+          "kind": "checklist",
+          "label": "What should be saved as commits?",
+          "items": [
+            { "key": "agents", "label": "The AGENTS.md change" },
+            { "key": "adrs", "label": "Moved decision records" },
+            { "key": "rest", "label": "Everything else" }
+          ],
+          "next": "handback"
+        },
+        {
+          "id": "handback",
+          "kind": "card",
+          "label": "Hand-back",
+          "sub": "What the agent tells you at the end",
+          "sections": [
+            { "head": "What's installed", "items": ["What was set up in this run"] },
+            { "head": "Left for later", "items": ["Steps you left out for now"] },
+            { "head": "What to do next", "items": ["The next step for you"], "numbered": true }
+          ]
+        }
+      ]
+    }
+  ],
+  "links": [{ "from": "setup-command", "to": "init-start", "label": "then, in your agent" }],
+  "annotations": []
+}

@@ -63,6 +63,15 @@ record, not a gap to paper over.
 
 ## Suggestions
 
+Before suggesting anything, judge the repo and tell the Human your call and
+the reason. The repo is **new or unexplored** when it has few source files and
+no recorded decisions: no ADRs, no specs, and no project skills beyond those
+`setup` installed. It is **well understood** when it has any of those.
+
+On a well-understood repo, skip this step and the next, and say in the session
+note that you skipped them and why. The Human can overrule that call, and an
+overrule runs the rules below unchanged. On a new repo, the rules below run.
+
 From the context, lifecycle, and decided tools discovery produced, and
 whatever research added, suggest two to four architectural skills. Each one:
 

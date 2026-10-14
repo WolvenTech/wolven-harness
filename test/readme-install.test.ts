@@ -53,23 +53,29 @@ test('readme-install: the release page says to close and reopen the release PR b
   assert.match(release, /[Cc]lose and reopen the release PR before merging/);
 });
 
-test('readme-install: README and the harness-init page explain the lean path', async () => {
+test('proof-docs-basics-path: README and the harness-init page explain the basics path and the full tour', async () => {
   const readme = await readReadme();
   const page = await readDoc('site/harness-init.md');
-  const lean = section(page, 'Lean path');
+  const basics = section(page, 'Basics path');
 
-  assert.match(readme, /lean path/i);
-  assert.match(readme, /skill proposals still run/i);
-  // invariant: the four deferrable items are listed only in lean-path.md; docs link there.
-  for (const doc of [readme, lean]) {
+  assert.match(readme, /basics path/i);
+  assert.match(readme, /full tour opens with one checklist/i);
+  assert.match(basics, /asking how much setup you want right now/);
+  assert.match(basics, /\*\*Just the basics\*\* asks for your first goal in one sentence/);
+  assert.match(basics, /"What should this run cover\?"/);
+  assert.match(basics, /\*\*Left for later\*\*/);
+  for (const doc of [readme, basics]) {
     assert.match(doc, /references\/lean-path\.md/);
-    assert.doesNotMatch(doc, /per-dimension score-gap keep\/drop/i);
-    assert.doesNotMatch(doc, /deep discovery Q&A/i);
+    assert.doesNotMatch(doc, /thin-evidence/i);
+    assert.doesNotMatch(doc, /skill proposals (always|still) run/i);
+    assert.doesNotMatch(doc, /lean-init-walkthrough/);
   }
-  assert.match(lean, /thin-evidence/i);
-  assert.match(lean, /immediate goal/i);
-  assert.match(lean, /Deferred \/ skipped steps/);
-  assert.match(lean, /Skill proposals always run/i);
+});
+
+test('proof-walkthrough-deprecated: the lean walkthrough note is retired', async () => {
+  const note = await readDoc('docs/notes/lean-init-walkthrough/lean-init-walkthrough-note.md');
+
+  assert.match(note.split('\n---')[0] ?? '', /^status: deprecated$/m);
 });
 
 test('readme-install: the contributing page keeps clone-and-build with pnpm build', async () => {

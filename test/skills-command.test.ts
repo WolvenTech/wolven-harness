@@ -439,3 +439,20 @@ test('proof-skills-command-write-error', async () => {
     await chmod(blocked, 0o755);
   }
 });
+
+test('proof-journey-map-install: skills --skills journey-map copies the whole folder', async () => {
+  const dir = await makeRepo({});
+  const result = await run(['skills', '--skills', 'journey-map', '--runtimes', 'codex', '--scope', 'project'], {
+    cwd: dir,
+  });
+
+  assert.equal(result.code, 0, result.stderr);
+  assert.deepEqual(await filesUnder(path.join(dir, '.agents', 'skills', 'journey-map')), [
+    'SKILL.md',
+    'references/tree-format.md',
+    'renderer/draw.js',
+    'renderer/logic.js',
+    'renderer/page.html',
+    'scripts/build-map.mjs',
+  ]);
+});
