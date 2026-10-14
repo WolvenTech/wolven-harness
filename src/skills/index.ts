@@ -34,5 +34,6 @@ export async function runSkills(argv: string[], io: Io): Promise<number> {
     io.stderr.write(`wolven-harness skills: ${err.message}\n`);
     return 1;
   }
+
   return 0;
 }

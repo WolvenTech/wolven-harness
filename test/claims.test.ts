@@ -265,13 +265,14 @@ test('claim-fail-closed: claim-ok — a stable ADR with a bare and a correct slu
 test("self-claim: the package repo's own ADR-001 doc and AGENTS.md citation pass validate", async () => {
   // why: the folded harness section cites ADR-000 and the standing rules, so the fixture has to include them.
   const read = (rel: string) => readFile(path.join(repoRoot, rel), 'utf8');
-  const [adr001, adr000, agentsMd, qmdFirst, yagni, comments] = await Promise.all([
+  const [adr001, adr000, agentsMd, qmdFirst, yagni, comments, precedence] = await Promise.all([
     read('docs/adrs/adr-001-claim-path.md'),
     read('docs/adrs/adr-000-record-architecture-decisions.md'),
     read('AGENTS.md'),
     read('.agents/rules/qmd-first.md'),
     read('.agents/rules/yagni-strict.md'),
     read('.agents/rules/comments.md'),
+    read('.agents/rules/project-skill-precedence.md'),
   ]);
 
   const dir = await makeRepo(
@@ -282,6 +283,7 @@ test("self-claim: the package repo's own ADR-001 doc and AGENTS.md citation pass
       '.agents/rules/qmd-first.md': qmdFirst,
       '.agents/rules/yagni-strict.md': yagni,
       '.agents/rules/comments.md': comments,
+      '.agents/rules/project-skill-precedence.md': precedence,
     },
     { git: true },
   );

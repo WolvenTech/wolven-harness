@@ -48,6 +48,7 @@ test('setup-surfaces: creates exactly the expected paths', async () => {
   const nonSkillFiles = [
     'WOLVEN.md',
     '.agents/rules/comments.md',
+    '.agents/rules/project-skill-precedence.md',
     '.agents/rules/qmd-first.md',
     '.agents/rules/yagni-strict.md',
     '.agents/hooks/README.md',

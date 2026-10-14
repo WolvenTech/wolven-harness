@@ -10,11 +10,11 @@ Works an open pull request pass after pass — conflicts → comments → CI →
 closure — until it is merge-ready or genuinely blocked, then reports.
 
 **Consult:** `pragmatic-guard`. Loaded means the session skill list from the
-runtime. When that list includes `pragmatic-guard`, consult it, then follow
-this skill. When it is absent, follow this skill's own steps; the reply and
-any durable text this run writes include `pragmatic-guard was not consulted`.
+runtime. When that list includes `pragmatic-guard`, consult it when resolving
+issues or conflicts introduces unreviewed additions or complexity, then follow
+this skill. When it is absent or not consulted, follow this skill's own steps.
 A folder on disk or a remembered name is not loaded. Name no install command
-for `pragmatic-guard`. That run writes no deferral and no sentence that the
+for `pragmatic-guard`. That run writes no deferral and no sentence claiming the
 guard ran. Reading `pragmatic-guard was not consulted` does not treat the
 guard as having run and does not claim the pull request is merge-ready.
 **Host steps:** [host operations](../code-pr/references/host-operations.md) — every git-host action below (push branch, list unresolved threads, reply to a thread, resolve a thread, read check status, read a failing log) goes through that table; try its MCP tool first, and fall back to its other route without asking. A host action follows `code-pr/references/host-operations.md` when `code-pr/SKILL.md` is at `.agents/skills/code-pr/SKILL.md` or `.claude/skills/code-pr/SKILL.md`. When that file is on neither path, stop before the host action, name `code-pr`, and do not copy the host procedure. That check does not consult the session skill list.

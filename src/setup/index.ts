@@ -81,7 +81,6 @@ export async function runSetup(argv: string[], io: Io): Promise<number> {
     );
     const warning = await traced(io, debug, 'devDependencyWarning', () => devDependencyWarning(ctx));
     const scoreWarning = await traced(io, debug, 'harnessScoreWarning', () => harnessScoreWarning(ctx));
-
     ui.summary(buildSummary(applyResult, runtimeResult, scriptResult, opts.runtimes, opts.keptSets));
     if (verbose) {
       const results = [applyResult, runtimeResult, scriptResult];
