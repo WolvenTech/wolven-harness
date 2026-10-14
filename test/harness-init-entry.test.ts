@@ -171,6 +171,12 @@ test('step0-fixture: an existing AGENTS.md plus the light block passes validate 
 
   const wolvenTemplate = await readFile(path.join(repoRoot, 'templates', 'WOLVEN.md'), 'utf8');
   const standing = wolvenTemplate.split('## Standing rules')[1]?.split('\n## ')[0]?.trim() ?? '';
+  assert.match(
+    standing,
+    /before using a skill, check `\.agents\/skills\/<name>\/SKILL\.md` and `\.claude\/skills\/<name>\/SKILL\.md`/i,
+  );
+  assert.match(standing, /follow an available project copy, use the user-level copy only when neither exists/i);
+  assert.match(standing, /resolve relative references from the selected skill directory/i);
   const light = lightBlock.replace('<standing-rules>', standing);
   const ruleFiles = await collectCitedRules(light);
   assert.ok(Object.keys(ruleFiles).length > 0, 'WOLVEN.md standing rules cite no rule files to copy');
