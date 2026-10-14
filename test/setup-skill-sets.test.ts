@@ -158,6 +158,7 @@ test('setup-skill-sets: --help lists --skills', async () => {
 const JOURNEY_MAP_FILES = [
   'SKILL.md',
   'references/tree-format.md',
+  'renderer/canvas.js',
   'renderer/draw.js',
   'renderer/logic.js',
   'renderer/page.html',

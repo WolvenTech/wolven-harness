@@ -19,6 +19,7 @@ pnpm score      # harness-score --min-level 3, with drops in .harness-score.json
 
 - `src/` — CLI source (`cli.ts`, `setup/`, `validate/`, `comments/`); `pnpm build` compiles it to `dist/`.
 - `templates/` — files `setup` copies into a consumer repo.
+- `renderer/` — the one source of the canvas renderer files; `pnpm sync:renderer` copies each skill only the files its manifest in `renderer/sync.mjs` lists, into `templates/.agents/skills/<skill>/renderer/` and `.agents/skills/<skill>/renderer/`, and `test/renderer-copies.test.ts` fails on any drift. Outside `"files"`, so it does not ship; edit here, never in a copy.
 - `test/` — `node:test` suites, run in-process against `src/` via `tsx` (no build required).
 - `CONTRIBUTING.md` — contributor entry point: requirements, the local gate, and the PR rules.
 - `assets/` — the Wolven marks the `README.md` header embeds; outside `"files"`, so they do not ship.

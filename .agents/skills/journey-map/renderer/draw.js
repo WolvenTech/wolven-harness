@@ -1,20 +1,14 @@
 (() => {
   const L = globalThis.JourneyMapLogic;
+  const { showErrors, el } = globalThis.CanvasCore;
   const M = L.M;
   const { tree: map, path } = JSON.parse(document.getElementById('map-data').textContent);
   const ROUGH_URL = 'https://cdn.jsdelivr.net/npm/roughjs@4.6.6/bundled/rough.js';
 
-  const errorPanel = document.getElementById('errors');
   const statusEl = document.getElementById('status');
   const feedbackPanel = document.getElementById('feedback-panel');
   const feedbackBox = document.getElementById('feedback');
   const copyButton = document.getElementById('copy');
-
-  function showErrors(messages) {
-    errorPanel.hidden = false;
-    document.getElementById('error-text').textContent = messages.join('\n');
-    document.getElementById('stage').hidden = true;
-  }
 
   document.getElementById('title').textContent = map?.title || 'Journey map';
   document.title = map?.title || 'Journey map';
@@ -73,13 +67,6 @@
   const revealOpts = () => ({ stepwise });
   const layoutOpts = () => ({ open });
   let plan = L.layout(map, layoutOpts());
-
-  function el(tag, attrs, parent) {
-    const node = document.createElementNS(SVG_NS, tag);
-    for (const key in attrs) node.setAttribute(key, attrs[key]);
-    if (parent) parent.appendChild(node);
-    return node;
-  }
 
   function text(parent, x, y, str, font, color = 'var(--ink)', anchor = 'start') {
     const t = el('text', { x, y, 'text-anchor': anchor }, parent);
@@ -189,56 +176,9 @@
     );
   }
 
-  const cam = { x: 0, y: 0, k: 1 };
   const pct = document.getElementById('pct');
-
-  function applyCam() {
-    world.setAttribute('transform', `translate(${cam.x} ${cam.y}) scale(${cam.k})`);
-    const cell = 24 * cam.k;
-    stage.style.backgroundSize = `${cell}px ${cell}px`;
-    stage.style.backgroundPosition = `${cam.x}px ${cam.y}px`;
-    pct.textContent = `${Math.round(cam.k * 100)}%`;
-  }
-
-  let anim = 0;
-  function animateTo(target) {
-    cancelAnimationFrame(anim);
-    if (reduceMotion) {
-      Object.assign(cam, target);
-      applyCam();
-      return;
-    }
-    const from = { ...cam };
-    const t0 = performance.now();
-    const step = (t) => {
-      const p = Math.min(1, (t - t0) / 460);
-      const ease = 1 - (1 - p) ** 3;
-      cam.x = from.x + (target.x - from.x) * ease;
-      cam.y = from.y + (target.y - from.y) * ease;
-      cam.k = from.k + (target.k - from.k) * ease;
-      applyCam();
-      if (p < 1) anim = requestAnimationFrame(step);
-    };
-    anim = requestAnimationFrame(step);
-  }
-
-  // invariant: dockH is the bottom strip the timeline island covers, so camera fits keep nodes clear of it.
-  let dockH = 0;
-
-  function fitTarget(b, maxK = 1) {
-    const vw = svg.clientWidth;
-    const vh = svg.clientHeight;
-    const top = 84;
-    // why: on a short window the timeline would leave the map almost no room, so it may overlap instead.
-    const bottom = vh - top - Math.max(70, dockH) < 160 ? 70 : Math.max(70, dockH);
-    const side = 32;
-    const k = Math.max(0.05, Math.min(maxK, (vw - 2 * side) / b.w, (vh - top - bottom) / b.h));
-    return {
-      k,
-      x: side + (vw - 2 * side - b.w * k) / 2 - b.x * k,
-      y: top + (vh - top - bottom - b.h * k) / 2 - b.y * k,
-    };
-  }
+  const canvas = globalThis.CanvasCore.create({ svg, world, stage, pct, reduceMotion });
+  const { cam, applyCam, animateTo, fitTarget, zoomAt, centerZoom } = canvas;
 
   function union(ids, pad = 40) {
     const rs = ids.map((id) => rects[id]).filter(Boolean);
@@ -258,14 +198,6 @@
   function fitAll() {
     const b = world.getBBox();
     animateTo(fitTarget({ x: b.x - 30, y: b.y - 30, w: b.width + 60, h: b.height + 60 }));
-  }
-
-  function zoomAt(factor, sx, sy) {
-    const k = Math.max(0.05, Math.min(3, cam.k * factor));
-    cam.x = sx - (sx - cam.x) * (k / cam.k);
-    cam.y = sy - (sy - cam.y) * (k / cam.k);
-    cam.k = k;
-    applyCam();
   }
 
   function input(g, id, x, y, w, value, placeholder, isNote = false) {
@@ -838,60 +770,10 @@
     }
   }
 
-  const pointers = new Map();
-  let moved = false;
-  let pinch = null;
-
-  svg.addEventListener('pointerdown', (e) => {
-    if (e.target.closest('input')) return;
-    pointers.set(e.pointerId, { x: e.clientX, y: e.clientY, ox: e.clientX, oy: e.clientY });
-    if (pointers.size === 1) moved = false;
-    if (pointers.size === 2) {
-      const [a, b] = [...pointers.values()];
-      pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), mx: (a.x + b.x) / 2, my: (a.y + b.y) / 2 };
-      moved = true;
-    }
-  });
-
-  svg.addEventListener('pointermove', (e) => {
-    const prev = pointers.get(e.pointerId);
-    if (!prev) return;
-    const cur = { ...prev, x: e.clientX, y: e.clientY };
-    if (pointers.size === 2 && pinch) {
-      pointers.set(e.pointerId, cur);
-      const [a, b] = [...pointers.values()];
-      const d = Math.hypot(a.x - b.x, a.y - b.y);
-      const mx = (a.x + b.x) / 2;
-      const my = (a.y + b.y) / 2;
-      cancelAnimationFrame(anim);
-      zoomAt(d / Math.max(1, pinch.d), mx, my);
-      cam.x += mx - pinch.mx;
-      cam.y += my - pinch.my;
-      applyCam();
-      pinch = { d, mx, my };
-      return;
-    }
-    if (!moved && Math.hypot(cur.x - prev.ox, cur.y - prev.oy) < 4) return;
-    cancelAnimationFrame(anim);
-    svg.setPointerCapture(e.pointerId);
-    stage.classList.add('panning');
-    cam.x += cur.x - prev.x;
-    cam.y += cur.y - prev.y;
-    moved = true;
-    applyCam();
-    pointers.set(e.pointerId, cur);
-  });
-
-  function endPointer(e) {
-    pointers.delete(e.pointerId);
-    if (pointers.size < 2) pinch = null;
-    if (!pointers.size) stage.classList.remove('panning');
-  }
-  svg.addEventListener('pointerup', endPointer);
-  svg.addEventListener('pointercancel', endPointer);
+  canvas.bindInput();
 
   svg.addEventListener('click', (e) => {
-    if (moved) return;
+    if (canvas.moved) return;
     const h = e.target.closest('.hit');
     if (h) act(h.dataset.act);
   });
@@ -918,27 +800,8 @@
     }
   });
 
-  svg.addEventListener(
-    'wheel',
-    (e) => {
-      if (e.target.closest('input')) return;
-      e.preventDefault();
-      cancelAnimationFrame(anim);
-      if (e.ctrlKey || e.metaKey) {
-        zoomAt(Math.exp(-e.deltaY * 0.01), e.clientX, e.clientY);
-      } else {
-        cam.x -= e.deltaX;
-        cam.y -= e.deltaY;
-        applyCam();
-      }
-    },
-    { passive: false },
-  );
-
   const startIds = () =>
     plan.boxes.filter((b) => b.column <= 1 && b.tree === map.trees[0].id).map((b) => b.id);
-  const centerZoom = (factor) => zoomAt(factor, svg.clientWidth / 2, svg.clientHeight / 2);
-
   const nextBtn = document.getElementById('next');
   const prevBtn = document.getElementById('prev');
   const moreBtn = document.getElementById('more');
@@ -1081,7 +944,7 @@
       .filter((n) => L.moodOf(n))
       .map((n) => ({ n, m: L.moodOf(n) }));
     timelineEl.hidden = !pts.length;
-    dockH = pts.length ? 66 + 120 + 12 : 0;
+    canvas.dockH = pts.length ? 66 + 120 + 12 : 0;
     if (!pts.length) return;
     const sp = 58;
     const w = Math.max(220, pts.length * sp + 56);
@@ -1140,14 +1003,8 @@
 
   copyButton.onclick = async () => {
     const value = L.feedback(map, state, path);
-    try {
-      await navigator.clipboard.writeText(value);
+    if (await globalThis.CanvasCore.copyText(value, { panel: feedbackPanel, box: feedbackBox })) {
       statusEl.textContent = 'Copied. Paste it into your agent chat.';
-    } catch {
-      feedbackPanel.hidden = false;
-      feedbackBox.value = value;
-      feedbackBox.focus();
-      feedbackBox.select();
     }
   };
   document.getElementById('close-feedback').onclick = () => {

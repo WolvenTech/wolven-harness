@@ -34,8 +34,9 @@ async function build(inputPath) {
   if (!inputPath?.endsWith(INPUT_SUFFIX)) throw new Error(`input must end in ${INPUT_SUFFIX}`);
   const map = JSON.parse(await readFile(inputPath, 'utf8'));
 
-  const [logic, draw, shell] = await Promise.all([
+  const [logic, canvas, draw, shell] = await Promise.all([
     readRenderer('logic.js'),
+    readRenderer('canvas.js'),
     readRenderer('draw.js'),
     readRenderer('page.html'),
   ]);
@@ -45,7 +46,7 @@ async function build(inputPath) {
 
   // hazard: a replacer function keeps `$` sequences in the data from being read as replacement patterns.
   const html = shell.replace(/@@DATA@@|@@RENDERER@@/g, (slot) =>
-    slot === '@@DATA@@' ? escapeJson({ tree: map, path: pagePath(inputPath) }) : logic + draw,
+    slot === '@@DATA@@' ? escapeJson({ tree: map, path: pagePath(inputPath) }) : logic + canvas + draw,
   );
   const output = `${inputPath.slice(0, -'.json'.length)}.html`;
   // why: an invalid map still writes the page so it can show the error panel.
