@@ -2,7 +2,7 @@
 type: spec
 title: Project skill precedence — iteration 1 remediation
 description: Narrow PR #60 to explicit project-first skill instructions and remove clash scanning and its command integrations.
-status: draft
+status: stable
 ---
 
 # Project skill precedence — iteration 1 remediation
@@ -11,7 +11,8 @@ status: draft
 
 **Supersedes:** The scan, warning and help-text obligations in `docs/specs/project-skill-precedence/project-skill-precedence-spec.md` (R2–R5 and R7.2–R7.3) and corresponding Wave 2 obligations in `docs/specs/project-skill-precedence/project-skill-precedence-plan.md` are explicitly replaced by the Human's narrowed scope. Their removal is not a failure against the original spec. Preserve the original rule-delivery obligations that remain in scope.
 
-**Next:** After the Human approves → `code-plan` → `code-execute`, one implementation wave. This document remains `draft` until explicit approval.
+**Approval:** The Human approved this spec; status is `stable`.
+**Next:** `code-plan` → `code-execute`, one implementation wave.
 **Named proof (this spec's own structural gate):** `proof-project-skill-precedence-iteration-1-spec-obligations`
 
 ## Repository grounding

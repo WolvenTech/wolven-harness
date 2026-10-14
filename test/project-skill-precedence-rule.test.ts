@@ -34,42 +34,23 @@ test('proof-project-skill-precedence-rule-file', async () => {
   assert.match(body, /^# /m);
 });
 
-test('proof-project-skill-precedence-rule-imperative', async () => {
+test('proof-project-skill-precedence-iteration-1-selection', async () => {
   const body = await readFile(templateRule, 'utf8');
 
+  assert.match(body, /Before using a skill/i);
   assert.match(body, /\.agents\/skills\/<name>\/SKILL\.md/);
   assert.match(body, /\.claude\/skills\/<name>\/SKILL\.md/);
-  assert.match(body, /base directory/i);
-  assert.match(body, /read that file and follow it instead/i);
-  assert.match(body, /project copy is authoritative/i);
+  assert.match(body, /Follow an\s+available project copy/i);
+  assert.match(body, /user-level copy only when neither project\s+copy exists/i);
 });
 
-test('proof-project-skill-precedence-rule-remedy', async () => {
+test('proof-project-skill-precedence-iteration-1-relative-references', async () => {
   const body = await readFile(templateRule, 'utf8');
 
-  assert.match(body, /rename or delete the user-level copy/i);
-  assert.match(body, /skillOverrides/);
-  assert.match(body, /symlink[\s\S]{0,40}project tree/i);
+  assert.match(body, /Resolve relative references from the directory containing the selected\s+`SKILL\.md`/i);
 });
 
-test('proof-project-skill-precedence-router', async () => {
-  const bullets = await standingRules();
-
-  assert.ok(bullets.includes(RULE), 'the Standing rules list cites the rule file');
-  assert.match(bullets, /follow that copy instead/);
-});
-
-test('proof-project-skill-precedence-harness-init-fold', async () => {
-  const bullets = await standingRules();
-  const cited = [...bullets.matchAll(/\.agents\/rules\/[a-z0-9-]+\.md/g)].map((m) => m[0]);
-  assert.ok(cited.includes(RULE), 'the standing rules list cites every rule the fold copies');
-
-  for (const rel of cited) {
-    assert.equal(await pathExists(path.join(repoRoot, 'templates', rel)), true, `${rel} ships for the fold`);
-  }
-});
-
-test('proof-project-skill-precedence-self-install', async () => {
+test('proof-project-skill-precedence-iteration-1-entry-delivery', async () => {
   const [template, installed, agents] = await Promise.all([
     readFile(templateRule),
     readFile(installedRule),
@@ -77,6 +58,34 @@ test('proof-project-skill-precedence-self-install', async () => {
   ]);
 
   assert.deepEqual(installed, template, 'this repo installs the shipped rule byte for byte');
-  assert.ok(agents.includes(RULE), 'AGENTS.md cites the installed rule');
-  assert.match(agents, /read `\.agents\/skills\/<name>\/SKILL\.md` and follow that copy instead/);
+  const bullets = await standingRules();
+  for (const [name, entry] of [
+    ['WOLVEN.md', bullets],
+    ['AGENTS.md', agents],
+  ] as const) {
+    assert.ok(entry.includes(RULE), `${name} cites the project-skill-precedence rule`);
+    assert.match(
+      entry,
+      /before using a skill, check `\.agents\/skills\/<name>\/SKILL\.md` and `\.claude\/skills\/<name>\/SKILL\.md`/i,
+    );
+    assert.match(entry, /follow an available project copy, use the user-level copy only when neither exists/i);
+    assert.match(entry, /resolve relative references from the selected skill directory/i);
+  }
+});
+
+test('proof-project-skill-precedence-iteration-1-fold', async () => {
+  const bullets = await standingRules();
+  const cited = [...bullets.matchAll(/\.agents\/rules\/[a-z0-9-]+\.md/g)].map((m) => m[0]);
+  assert.ok(cited.includes(RULE), 'the Standing rules list cites the rule file');
+
+  for (const rel of cited) {
+    assert.equal(await pathExists(path.join(repoRoot, 'templates', rel)), true, `${rel} ships for the fold`);
+  }
+
+  assert.match(
+    bullets,
+    /before using a skill, check `\.agents\/skills\/<name>\/SKILL\.md` and `\.claude\/skills\/<name>\/SKILL\.md`/i,
+  );
+  assert.match(bullets, /follow an available project copy, use the user-level copy only when neither exists/i);
+  assert.match(bullets, /resolve relative references from the selected skill directory/i);
 });

@@ -3,7 +3,6 @@ import { canPrompt } from '../setup/options.js';
 import { CORE_SKILLS, isSkillSet, SET_SKILLS, SKILL_SETS } from '../setup/skill-sets.js';
 import type { Io, Prompter, Runtime } from '../setup/types.js';
 import { clackPrompter } from '../setup/ui.js';
-import { USER_SKILL_ROOTS } from './clash.js';
 
 const SCOPES = ['project', 'global'] as const;
 
@@ -216,7 +215,7 @@ export async function resolveChoices(flags: SkillsFlagValues, io: Io): Promise<S
   return { runtimes, scopes, skills };
 }
 
-/** Help for `skills --help`. Names the flags, values, ship and discovery skills, setup for core, and the clash check. */
+/** Help for `skills --help`. Names the flags, values, ship and discovery skills, and setup for core. */
 export function skillsHelpText(): string {
   return [
     'Usage: wolven-harness skills [--runtimes <claude,codex,cursor>] [--scope <project|global|project,global>] [--skills <name|ship|discovery>]',
@@ -229,10 +228,6 @@ export function skillsHelpText(): string {
     `Ship: ${SET_SKILLS.ship.join(', ')}`,
     `Discovery: ${SET_SKILLS.discovery.join(', ')}`,
     'Core skills are installed by setup.',
-    '',
-    'The run reports a project skill that also exists at user level, because the',
-    'runtime may load the user-level copy. User-level roots scanned:',
-    `  ${USER_SKILL_ROOTS.map((root) => `~/${root}`).join(', ')}`,
     '',
   ].join('\n');
 }

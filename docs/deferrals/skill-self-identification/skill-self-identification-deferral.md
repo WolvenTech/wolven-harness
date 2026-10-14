@@ -1,7 +1,7 @@
 ---
 type: deferral
 title: Self-identifying line in every shipped skill
-description: Adding a marker line to all 19 shipped skills waits until the standing rule is shown to be inadequate, because the marker only means something once the rule defines it.
+description: Adding a marker line to all 19 shipped skills waits until the project-first rule is shown to be inadequate, because the marker only means something once the rule defines it.
 status: stable
 ---
 
@@ -26,7 +26,8 @@ silent no-op, leaving marker-less bodies in place.
 **Today:** precedence is steered by the standing rule
 `.agents/rules/project-skill-precedence.md`, which tells the agent to check the
 loaded skill's base directory and read the project copy when the loaded copy is
-not the project's. Clash reporting lives in `setup` and `skills`.
+not the project's. The rule also covers both project skill roots and resolves
+relative references from the selected project skill directory.
 
 ## Contract impact
 
@@ -44,8 +45,9 @@ existing consumer's next `skills` run.
 - [ ] A runtime stops reporting the loaded skill's base directory, so the
       rule's directory check has nothing to read, while still allowing two
       same-named skills to exist at project and user level.
-- [ ] A consumer reports a same-name clash that the marker would have made
-      obvious in the loaded text.
+- [ ] A consumer reports that the project-first rule does not identify the
+      project copy clearly enough, and an in-band marker would address that
+      gap.
 
 ## Non-goals while deferred
 

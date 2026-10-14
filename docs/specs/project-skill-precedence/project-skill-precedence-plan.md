@@ -1,11 +1,18 @@
 ---
 type: spec
 title: Project skill precedence over same-named user-level skills — plan
-description: Two waves of work units for the standing rule and the clash warning, with the rule and its delivery first and the reporting half second.
-status: draft
+description: Historical implementation plan superseded by the project skill precedence iteration 1 remediation.
+status: deprecated
 ---
 
 # Project skill precedence over same-named user-level skills — plan
+
+> **Historical plan:** The locked original spec remains historical context. Its
+> scanner and command-warning obligations are superseded by [iteration 1's
+> remediation spec](project-skill-precedence-iteration-1-spec.md) and
+> [implementation plan](project-skill-precedence-iteration-1-plan.md), which
+> remove clash scanning and preserve only the confirmed project-first rule
+> scope. Do not use this plan to implement or promise scanner behavior.
 
 ## Structural gate
 
