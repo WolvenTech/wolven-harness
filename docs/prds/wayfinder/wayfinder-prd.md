@@ -11,7 +11,7 @@ status: draft
 
 - **Who:** A Human in a consumer repo working a decision that is not yet ready for a PRD, because several unknowns each need a research note, a prototype, a grilling or a task outside the chat first.
 - **Pain:** The Human loses track, across sessions, of which unknowns are open, what blocks what, and what has been resolved, so research, prototype and grilling work gets redone, skipped or quietly assumed. `grilling` settles only what one conversation can settle.
-- **Why now:** The `journey-map` PRD on PR #58 dropped its ticket kind and names planning tickets and the wayfinder map as this PRD's work, so ticket trees have no home until this skill ships. The removed ticket rendering is intact at commit `2238220` on the #58 branch. The Human has decided to build the skill. This PRD meets trigger 2 of the [wayfinder deferral](../../deferrals/wayfinder-maps/wayfinder-maps-deferral.md).
+- **Why now:** The [`journey-map` PRD](../archived/journey-map/journey-map-prd.md), shipped on PR #58, dropped its ticket kind and names planning tickets and the wayfinder map as this PRD's work, so ticket trees have no home until this skill ships. The removed ticket rendering is intact at commit `2238220`, which GitHub keeps under `refs/pull/58/head`. The Human has decided to build the skill. This PRD meets trigger 2 of the [wayfinder deferral](../../deferrals/wayfinder-maps/wayfinder-maps-deferral.md).
 - **Evidence:** One expected case: the UX design engagement with discovery phases named in the `journey-map` PRD, which is still being sold. No map has been charted for it yet, so demand beyond that case is an assumption.
 
 A **map** here is a `docs/maps/<slug>/` folder: one `<slug>-map.md` holding the destination and what is settled, plus one file per ticket. A **ticket** is one unknown with a kind, a status and the tickets that block it. The **canvas** is the pan-and-zoom whiteboard renderer `journey-map` ships, with its notes and "Copy for agent"; this PRD makes it a shared install both skills load. The **frontier** keeps the meaning `grilling` gives it: every `open` ticket whose blockers are all `closed`.
@@ -241,8 +241,7 @@ Traces to goal: One canvas serves both skills; The skill and its folder ship wit
 **Out**
 
 - Everything listed under Non-goals.
-- Shipping before `journey-map` (PR #58) merges, since the shared canvas moves its renderer.
-- Architecture diagrams and service blueprints, deferred to their own skills (`docs/deferrals/architectural-map/`, `docs/deferrals/service-blueprint/` on PR #58).
+- Architecture diagrams and service blueprints, deferred to their own skills ([architectural map](../../deferrals/architectural-map/architectural-map-deferral.md), [service blueprint](../../deferrals/service-blueprint/service-blueprint-deferral.md)).
 
 ## Open questions
 
