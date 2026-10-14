@@ -113,3 +113,9 @@ fail`, `validate: ok`; `pnpm comments` — `comments: ok (0 findings)`;
 `git diff --check` — clean. The completion marks are checked for the
 PR-required commit of this completed wave; `.agents/code-commit.config.yml` is
 absent, so code-execute itself did not commit the work.
+
+## Post-plan follow-up
+
+At the Human's direction, the three deferral records created by the original
+initiative were removed after this wave. The scanner and marker proposals are
+not tracked for future work.

@@ -2,7 +2,7 @@
 type: spec
 title: Project skill precedence over same-named user-level skills
 description: Ship a standing rule so an agent follows the project copy of a clashing skill, and a clash warning in setup and skills that names the skill and both paths.
-status: stable
+status: deprecated
 ---
 
 # Project skill precedence over same-named user-level skills
@@ -15,6 +15,12 @@ harness can't change that order, so the fix has to steer agents and surface
 clashes", and acceptance "when the Human invokes that skill, the agent follows
 the project copy" and "`setup` or `skills` prints a warning naming the
 clashing skill and both paths".
+
+**Superseded:** This implementation spec is retained as historical context.
+The approved [iteration 1 remediation spec](project-skill-precedence-iteration-1-spec.md)
+replaces its scanner and warning requirements with the project-first rule
+scope. The three deferral records originally requested here were later removed
+by Human direction; no follow-up scanner or marker work is tracked.
 
 **Next:** After the Human approves → `code-plan` → `code-execute`, wave 1.
 
@@ -161,22 +167,23 @@ The Human ruled every row below on 2026-10-14, before this spec was frozen.
   reports.
 - Scanning plugin skill directories (`~/.claude/plugins/**`, `~/.cursor/plugins/local/**`)
   or machine-scope roots (`/etc/codex/skills`).
-- Repairing a user-level symlink that points into a project tree, which is a
-  documented remedy that would do harm on this machine. Deferred with a trigger
-  at [skill-clash-symlink-repair-deferral.md](../../deferrals/skill-clash-symlink-repair/skill-clash-symlink-repair-deferral.md).
-- Editing shipped skill bodies (deferred, R6.2).
-- Any check-time or CI-time standing check (deferred, R6.2).
+- Repairing a user-level symlink that points into a project tree; no repair is
+  planned, and its historical deferral record was removed by Human direction.
+- Editing shipped skill bodies or adding a check-time or CI-time standing
+  check; neither is part of the superseding rule-only scope.
 
 ## Pragmatic-guard refuses
 
 - **Option (c) as shipped work** — need 3/10 (the rule already covers the
   behaviour; the marker only helps a marker-aware agent), complexity 6/10
   (36 files across two trees, plus a replacement-prompt tax on every existing
-  consumer, plus every context-pinned skill test). Deferred with a trigger.
+  consumer, plus every context-pinned skill test). Not selected; its historical
+  deferral record was later removed by Human direction.
 - **A standing check in `validate`** — need 2/10 (the failure is a clash, not a
   repo defect; a consumer with a user-level twin would gate CI on their own
   machine state), complexity 5/10 (a new finding code, home access in
-  `validate`, and a contract entry). Deferred with a trigger.
+  `validate`, and a contract entry). Not selected; its historical deferral
+  record was later removed by Human direction.
 - **A `--quiet` flag, a config key for the scan roots, or a plugin-dir scan** —
   refused outright: no present need.
 - **Fixing skill resolution in the runtimes** — out of the harness's control
@@ -196,7 +203,8 @@ flowchart TD
 
 A failed gate aborts before the next wave. Wave 1 is the rule and its delivery,
 which is what the behavioural acceptance rests on; wave 2 adds the reporting
-half and the deferrals.
+half and the deferrals. The deferral records were later removed by Human
+direction; this deprecated spec records the original scope, not current work.
 
 **What the issue's first acceptance criterion can and cannot be given here.**
 "When the Human invokes that skill, the agent follows the project copy" cannot
@@ -206,10 +214,10 @@ steering — a shipped rule that tells the agent to check the loaded skill's bas
 directory and read the project copy when it is not the project's — and by
 surfacing, so a human can remove the twin. A five-seat jury recorded that this
 leg is verifiable as wiring and not as observed runtime behaviour. The
-self-identifying skill line, which is the candidate that would make the wrong
-copy recognisable inside the loaded text, is deferred with a behavioural
-trigger. Readers should treat the first acceptance criterion as steered, not
-enforced. Verify the rule itself rather than the criterion: the named proofs
+self-identifying skill line, which could make the wrong copy recognisable
+inside loaded text, was later declined and is no longer tracked as a deferral.
+Readers should treat the first acceptance criterion as steered, not enforced.
+Verify the rule itself rather than the criterion: the named proofs
 show the text exists, is cited where sessions load it, and survives the fold.
 
 ## Acceptance

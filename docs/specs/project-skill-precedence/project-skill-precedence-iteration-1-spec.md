@@ -12,6 +12,9 @@ status: stable
 **Supersedes:** The scan, warning and help-text obligations in `docs/specs/project-skill-precedence/project-skill-precedence-spec.md` (R2–R5 and R7.2–R7.3) and corresponding Wave 2 obligations in `docs/specs/project-skill-precedence/project-skill-precedence-plan.md` are explicitly replaced by the Human's narrowed scope. Their removal is not a failure against the original spec. Preserve the original rule-delivery obligations that remain in scope.
 
 **Approval:** The Human approved this spec; status is `stable`.
+**Post-approval follow-up:** The Human later directed removal of all three
+deferral records created by the original initiative. No marker, scanner or
+symlink-repair work remains tracked as deferred scope.
 **Next:** `code-plan` → `code-execute`, one implementation wave.
 **Named proof (this spec's own structural gate):** `proof-project-skill-precedence-iteration-1-spec-obligations`
 
@@ -29,8 +32,7 @@ status: stable
 | `test/setup-clash.test.ts`, scanner cases in `test/skills-clash.test.ts` | yes on PR #60 | Scanner-only coverage to remove; retain unrelated command/install coverage |
 | `test/project-skill-precedence-rule.test.ts`, `test/harness-init-entry.test.ts` | yes on PR #60 | Retain and focus rule delivery and fold coverage |
 | `docs/adrs/adr-004-standalone-skills-contract.md` | yes, stable | Existing command and template contract; no command contract change is authorized |
-| `docs/deferrals/skill-clash-standing-check/`, `docs/deferrals/skill-clash-symlink-repair/` | yes on PR #60 | Scanner-specific documentation to remove or simplify so it no longer promises scanner behavior |
-| `docs/deferrals/skill-self-identification/` | yes on PR #60 | Simplify only if it promises scanner behavior; unrelated content stays out of scope |
+| Original scanner and marker deferral records | present earlier on PR #60; later removed by Human direction | No deferral record remains for scanner, marker or symlink-repair work |
 
 ## Surface walk
 

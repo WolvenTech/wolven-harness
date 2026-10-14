@@ -7,6 +7,10 @@ status: deprecated
 
 # Project skill precedence over same-named user-level skills — plan
 
+> **Post-plan update:** The deferral records created by this historical plan
+> were removed by Human direction after iteration 1. Unit 03 below records
+> their original creation; it is not a current instruction to recreate them.
+
 > **Historical plan:** The locked original spec remains historical context. Its
 > scanner and command-warning obligations are superseded by [iteration 1's
 > remediation spec](project-skill-precedence-iteration-1-spec.md) and
