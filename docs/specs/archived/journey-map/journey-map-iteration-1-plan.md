@@ -9,7 +9,7 @@ status: deprecated
 
 **Source:** `docs/specs/archived/journey-map/journey-map-iteration-1-spec.md` (status `stable`).
 **Base plan:** `docs/specs/archived/journey-map/journey-map-plan.md`, units 01–16, all done. Numbering continues from 17.
-**Prototype:** `docs/notes/visual-map-kinds/journey-details-prototype/`, layout H.
+**Prototype:** [`journey-details-prototype/` at `385d5fc`](https://github.com/WolvenTech/wolven-harness/tree/385d5fcc88a86d58f448b9f2db3a8199659be84e/docs/notes/visual-map-kinds/journey-details-prototype), layout H.
 **Next:** After the Human approves → `code-execute`, wave 4 first.
 
 ## Structural gate

@@ -37,7 +37,8 @@ references for that kind.
   research artifact of the same name, which charts a persona's stages and
   emotions (`docs/prds/archived/journey-map/journey-map-prd.md:17`).
 - **The cj_001 test.** The journey in `cj-001-source.json` was translated
-  by hand into today's format, as `cj-001-test-map.json` in this folder.
+  by hand into today's format, as [`cj-001-test-map.json`](https://github.com/WolvenTech/wolven-harness/blob/385d5fcc88a86d58f448b9f2db3a8199659be84e/docs/notes/visual-map-kinds/cj-001-test-map.json)
+  (kept at `385d5fc`, removed before merge).
   - Mood, touchpoints and thoughts became subtitle text and stickies,
     because the format has no field for them.
   - The first version put all 20 steps in one tree. Fit-to-screen then
@@ -145,7 +146,8 @@ Mermaid.
 ## Decisions
 
 Rafael decided these on 2026-10-13 in a one-question-at-a-time grilling
-session.
+session. R1–R8 below supersede D4–D11 and D13–D15, so read this table as
+history; D1 narrows, and D2, D12 and D16 stand.
 
 | # | Decision |
 |---|----------|
@@ -183,7 +185,7 @@ stand, and D12 holds without the rename.
 | R5 | Architecture diagrams go to a deferred `architectural-map` skill (`docs/deferrals/architectural-map/`). |
 | R6 | Journey grids and service blueprints go to a deferred `service-blueprint` skill (`docs/deferrals/service-blueprint/`). The prototype is its primary source. |
 | R7 | A second prototype, on cj_001 drawn as a path, tries combinations of journey details and expanded and collapsed states before the spec. |
-| R8 | The second prototype ran three rounds and Rafael approved its layout H ([journey-details-prototype/](journey-details-prototype/README.md)). A mood header band, a thought cloud above the card, collapsible details with pains and ideas as stickies, mood-coloured arrows, a docked mood timeline, Prev and Next, and a toolbar trimmed to two buttons plus a menu. The journey-map PRD's US-5 records it. |
+| R8 | The second prototype ran three rounds and Rafael approved its layout H ([journey-details-prototype/ at `385d5fc`](https://github.com/WolvenTech/wolven-harness/tree/385d5fcc88a86d58f448b9f2db3a8199659be84e/docs/notes/visual-map-kinds/journey-details-prototype), [published](https://claude.ai/artifact/XKt1gaaCPo3FwbwGagto4t)). A mood header band, a thought cloud above the card, collapsible details with pains and ideas as stickies, mood-coloured arrows, a docked mood timeline, Prev and Next, and a toolbar trimmed to two buttons plus a menu. The journey-map PRD's US-5 records it. |
 
 ## Recommendation (superseded by R1–R7)
 
@@ -266,7 +268,7 @@ and plan are revised on the held branch (D12).
 | `templates/.agents/skills/journey-map/SKILL.md` | source code | The anti-pattern the first test map broke |
 | `docs/prds/archived/journey-map/journey-map-prd.md` | repo doc | The "not the UX artifact" scope line |
 | `docs/adrs/adr-004-standalone-skills-contract.md` | ADR | Skills install on their own |
-| `docs/notes/visual-map-kinds/cj-001-source.json`, `cj-001-test-map.json` | test data | The cj_001 test and its findings |
+| `docs/notes/visual-map-kinds/cj-001-source.json`, [`cj-001-test-map.json` at `385d5fc`](https://github.com/WolvenTech/wolven-harness/blob/385d5fcc88a86d58f448b9f2db3a8199659be84e/docs/notes/visual-map-kinds/cj-001-test-map.json) | test data | The cj_001 test and its findings |
 | https://www.nngroup.com/articles/journey-mapping-101/ | method reference | Journey map parts, emotion line |
 | https://www.nngroup.com/articles/ux-mapping-cheat-sheet/ | method reference | Swim-lane structure of journey maps and blueprints |
 | https://www.nngroup.com/articles/service-blueprints-definition/ | method reference | Blueprint lanes, lines and extras |

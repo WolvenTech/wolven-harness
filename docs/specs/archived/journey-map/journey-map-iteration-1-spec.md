@@ -9,7 +9,7 @@ status: deprecated
 
 **Source:** `docs/prds/archived/journey-map/journey-map-prd.md` (status `stable`, amended after the cj_001 test and the journey-details prototype).
 **Base:** `docs/specs/archived/journey-map/journey-map-spec.md`. Waves 1 to 3 shipped on PR #58 and stay as frozen. This file holds only the delta. Where the two disagree, this file wins, and the rows it removes are listed under Removed.
-**Prototype:** `docs/notes/visual-map-kinds/journey-details-prototype/`. Verdict: promote layout H, with the thought cloud's scalloped bumps removed. Its data, rows and drawing are the starting point; layouts A to F and G are not ported.
+**Prototype:** [`journey-details-prototype/` at `385d5fc`](https://github.com/WolvenTech/wolven-harness/tree/385d5fcc88a86d58f448b9f2db3a8199659be84e/docs/notes/visual-map-kinds/journey-details-prototype), removed from `docs/notes/` before merge. Verdict: promote layout H, with the thought cloud's scalloped bumps removed. Its data, rows and drawing are the starting point; layouts A to F and G are not ported.
 **Next:** After the Human approves → `code-plan` → `code-execute`, waves **4 → 5 → 6**.
 **Named proof (this spec's own structural gate):** `proof-journey-map-iter1-spec-obligations`
 
@@ -41,7 +41,7 @@ status: deprecated
 | `test/journey-map-render.test.ts`, `test/skill-journey-map.test.ts` | yes | Ticket tests removed, new tests added |
 | `test/fixtures/journey-map/lotr-map.json`, `malformed-map.json` | yes | Ticket nodes and ticket cases removed |
 | `test/fixtures/journey-map/harness-init-redesign-map.json` | yes | Must still validate and build unchanged |
-| `docs/notes/visual-map-kinds/journey-details-prototype/` | yes | The approved prototype: `cj-001-journey.json`, `renderer/logic.js`, `renderer/draw.js`, `renderer/page.html` |
+| [`journey-details-prototype/` at `385d5fc`](https://github.com/WolvenTech/wolven-harness/tree/385d5fcc88a86d58f448b9f2db3a8199659be84e/docs/notes/visual-map-kinds/journey-details-prototype) | yes | The approved prototype: `cj-001-journey.json`, `renderer/logic.js`, `renderer/draw.js`, `renderer/page.html` |
 | `docs/notes/visual-map-kinds/cj-001-source.json` | yes | The cj_001 source, which scores mood from −1 to 4 |
 | `docs/notes/journey-map-smoke/journey-map-smoke-note.md` | yes | Gains the wave 6 smoke |
 | `AGENTS.md` skills table, `site/skills.md` | yes | Both repeat the description that says "ticket graph" |
@@ -59,7 +59,7 @@ status: deprecated
 - **Out of mutate scope (unchanged):**
   - `scripts/build-map.mjs`, `src/**`, `package.json`
   - `SET_SKILLS`, the partition test and the skill count: the skill stays, in `discovery`
-  - `docs/notes/visual-map-kinds/journey-details-prototype/`, the prototype's record
+  - [`journey-details-prototype/` at `385d5fc`](https://github.com/WolvenTech/wolven-harness/tree/385d5fcc88a86d58f448b9f2db3a8199659be84e/docs/notes/visual-map-kinds/journey-details-prototype), the prototype's record
   - the deferral folders and every other shipped skill
 
 ## Design
