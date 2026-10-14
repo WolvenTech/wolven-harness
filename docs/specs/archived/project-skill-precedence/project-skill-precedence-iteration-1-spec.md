@@ -2,16 +2,16 @@
 type: spec
 title: Project skill precedence — iteration 1 remediation
 description: Narrow PR #60 to explicit project-first skill instructions and remove clash scanning and its command integrations.
-status: stable
+status: deprecated
 ---
 
 # Project skill precedence — iteration 1 remediation
 
 **Source:** Human-confirmed remediation scope for [PR #60](https://github.com/WolvenTech/wolven-harness/pull/60): before using a skill, check local/project skills first; follow the project copy when present; use a user-level copy only when no project copy exists; resolve relative references from the selected copy's directory. Support `.agents/skills` and standalone `.claude/skills` project installations. Keep the imperative in the entry-file bullets and shipped rule; remove the clash scanner and its integrations, help text and scanner-only tests; simplify documentation promising scanner behavior; preserve installation behavior and command contracts; add no dependencies, discovery machinery or runtime infrastructure.
 
-**Supersedes:** The scan, warning and help-text obligations in `docs/specs/project-skill-precedence/project-skill-precedence-spec.md` (R2–R5 and R7.2–R7.3) and corresponding Wave 2 obligations in `docs/specs/project-skill-precedence/project-skill-precedence-plan.md` are explicitly replaced by the Human's narrowed scope. Their removal is not a failure against the original spec. Preserve the original rule-delivery obligations that remain in scope.
+**Supersedes:** The scan, warning and help-text obligations in `docs/specs/archived/project-skill-precedence/project-skill-precedence-spec.md` (R2–R5 and R7.2–R7.3) and corresponding Wave 2 obligations in `docs/specs/archived/project-skill-precedence/project-skill-precedence-plan.md` are explicitly replaced by the Human's narrowed scope. Their removal is not a failure against the original spec. Preserve the original rule-delivery obligations that remain in scope.
 
-**Approval:** The Human approved this spec; status is `stable`.
+**Approval:** The Human approved this spec before implementation; its status is now `deprecated` as part of pre-merge closure.
 **Post-approval follow-up:** The Human later directed removal of all three
 deferral records created by the original initiative. No marker, scanner or
 symlink-repair work remains tracked as deferred scope.
