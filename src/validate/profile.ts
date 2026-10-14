@@ -234,11 +234,12 @@ function addTo(map: Map<string, Set<string>>, key: string, value: string): void 
 
 /**
  * Enforces the writing profile on `docs/adrs/*.md` (flat, unchanged) and on
- * the doc-folder layout `docs/{prds,specs,notes,deferrals}/<slug>/<slug>-<type>.md`
+ * the doc-folder layout `docs/{prds,specs,notes,deferrals,maps}/<slug>/<slug>-<type>.md`
  * (plus `<slug>-plan.md` and `<slug>-iteration-<N>-{spec,plan}.md` for specs). A
  * flat `.md` under a doc-folder fails, naming the expected doc-folder path; a slug
  * folder without its main doc fails too. Other files in a slug folder, and
- * everything under a doc-folder's `archived/`, are out of scope.
+ * everything under a doc-folder's `archived/`, are out of scope. Every finding
+ * under `docs/maps/` is reported as a `profile-map-doc` warning.
  */
 export async function checkProfile(ctx: RepoContext): Promise<Finding[]> {
   const findings: Finding[] = [];

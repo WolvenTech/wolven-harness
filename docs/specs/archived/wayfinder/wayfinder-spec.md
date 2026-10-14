@@ -194,7 +194,7 @@ A failed gate aborts before the next wave. Wave 1 captures the AC-7.3 baseline f
 
 | ID | Obligation | Named proof | Evidence shape |
 |----|------------|--------------|------------------|
-| R2.1 | `build-canvas.mjs` turns a fixture map folder into `<slug>-canvas.json` and `<slug>-canvas.html` beside the map, exits 0 with the `wrote` line, and the page loads only Google Fonts from the network (AC-4.1) | `proof-wayfinder-build-writes-canvas` | Test: build `test/fixtures/wayfinder/billing-migration/` in a temp copy; assert the files, the line, and every `src` and `href` host |
+| R2.1 | `build-canvas.mjs` turns a fixture map folder into `<slug>-canvas.json` and `<slug>-canvas.html` beside the map, exits 0 with the `wrote` line, and the page loads only Google Fonts from the network (AC-4.1) | `proof-wayfinder-build-writes-canvas` | Test: build `test/fixtures/wayfinder/billing-30/` in a temp copy; assert the files, the line, and every `src` and `href` host |
 | R2.2 | A `blocked_by` naming no ticket, a cycle, and each status-rule breach exit 1 naming the ticket, and the page carries the error panel (AC-4.1) | `proof-wayfinder-build-errors` | Test: one fixture folder per case |
 | R2.3 | A non-flat frontmatter value, an input not ending in `-map.md`, and a map with no `docs/maps/.gitignore` above it each exit 1 and write nothing (AC-6.4) | `proof-wayfinder-build-input-errors` | Test: three cases, asserting exit 1 and no output files |
 | R2.4 | Building the same folder twice gives byte-identical JSON and HTML | `proof-wayfinder-build-deterministic` | Test: build twice; compare bytes |
