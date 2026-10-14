@@ -11,6 +11,7 @@ const DIR_TYPE: Record<string, string> = {
   specs: 'spec',
   notes: 'note',
   deferrals: 'deferral',
+  maps: 'map',
 };
 
 const STATUSES = new Set(['draft', 'stable', 'deprecated']);
@@ -19,10 +20,10 @@ const STATUSES = new Set(['draft', 'stable', 'deprecated']);
 const ADR_FILE_RE = /^docs\/adrs\/([^/]+\.md)$/;
 
 /** A `.md` directly under a doc-folder — the flat layout, always rejected. */
-const FLAT_FILE_RE = /^docs\/(prds|specs|notes|deferrals)\/([^/]+)\.md$/;
+const FLAT_FILE_RE = /^docs\/(prds|specs|notes|deferrals|maps)\/([^/]+)\.md$/;
 
 /** A file under a doc-folder's slug folder: captures dir, slug, and the rest of the path. */
-const SLUG_FILE_RE = /^docs\/(prds|specs|notes|deferrals)\/([^/]+)\/(.+)$/;
+const SLUG_FILE_RE = /^docs\/(prds|specs|notes|deferrals|maps)\/([^/]+)\/(.+)$/;
 
 /** Kebab-case, ASCII-only filename. */
 const KEBAB_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*\.md$/;
@@ -324,5 +325,15 @@ export async function checkProfile(ctx: RepoContext): Promise<Finding[]> {
     }
   }
 
-  return findings;
+  // why: maps are new in the profile, and ADR-004 lets a new check only warn.
+  return findings.map((finding) =>
+    finding.file?.startsWith('docs/maps/')
+      ? {
+          ...finding,
+          level: 'warn',
+          rule: 'profile-map-doc',
+          message: `${finding.rule}: ${finding.message}`,
+        }
+      : finding,
+  );
 }

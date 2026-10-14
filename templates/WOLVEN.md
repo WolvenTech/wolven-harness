@@ -10,6 +10,7 @@ Before anything else: run the `harness-init` skill, step 0 — it integrates thi
 | `docs/adrs/` | Architecture decision records (profile ADRs), flat: `adr-NNN-<slug>.md` |
 | `docs/prds/<slug>/` | Product requirement docs: `docs/prds/<slug>/<slug>-prd.md` |
 | `docs/specs/<slug>/` | Active specs: `docs/specs/<slug>/<slug>-spec.md` (plus `<slug>-plan.md`) |
+| `docs/maps/<slug>/` | Maps of a large decision: `docs/maps/<slug>/<slug>-map.md` plus one file per ticket | <!-- set:discovery -->
 | `docs/notes/<slug>/` | Research notes: `docs/notes/<slug>/<slug>-note.md` |
 | `docs/deferrals/<slug>/` | Deferred scope with revisit triggers: `docs/deferrals/<slug>/<slug>-deferral.md` |
 | `docs/WRITING-PROFILE.md` | The four rules every `docs/**` markdown file follows |

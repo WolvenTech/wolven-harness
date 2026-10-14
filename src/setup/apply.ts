@@ -2,12 +2,14 @@ import type { Dirent } from 'node:fs';
 import { lstat, mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { pathExists } from '../path-exists.js';
-import { renderWolven } from './render-wolven.js';
+import { applySetMarkers, renderWolven } from './render-wolven.js';
+import { SET_PATHS, SKILL_SETS, type SkillSet } from './skill-sets.js';
 import type { Context, StepResult } from './types.js';
 
 /** Relative path (posix, `/`-joined) of the one file `setup` must never create or edit. */
 const AGENTS_MD = 'AGENTS.md';
 const WOLVEN_MD = 'WOLVEN.md';
+const QMD_INDEX = '.qmd/index.yml';
 
 /**
  * Template files installed under a different name. why: npm drops every
@@ -15,6 +17,7 @@ const WOLVEN_MD = 'WOLVEN.md';
  */
 const INSTALLED_AS: Record<string, string> = {
   '.qmd/gitignore': '.qmd/.gitignore',
+  'docs/maps/gitignore': 'docs/maps/.gitignore',
 };
 
 function toPosix(relFsPath: string): string {
@@ -76,9 +79,15 @@ async function walkFiles(dir: string): Promise<string[]> {
  * carried one. A template listed in `INSTALLED_AS` is written under its mapped name. `WOLVEN.md`'s content comes from `renderWolven(ctx)` rather
  * than being copied verbatim. When `skillFolders` is given, only those
  * skill folders under `.agents/skills/` are considered; the rest are neither
- * created nor reported.
+ * created nor reported. When `sets` is given, a template under a set's
+ * `SET_PATHS` is skipped unless that set is chosen, and set-marked lines in
+ * `WOLVEN.md` and `.qmd/index.yml` follow the same choice.
  */
-export async function applyTemplates(ctx: Context, skillFolders?: readonly string[]): Promise<StepResult> {
+export async function applyTemplates(
+  ctx: Context,
+  skillFolders?: readonly string[],
+  sets?: readonly SkillSet[],
+): Promise<StepResult> {
   const created: string[] = [];
   const skipped: string[] = [];
 
@@ -90,6 +99,11 @@ export async function applyTemplates(ctx: Context, skillFolders?: readonly strin
 
     const skillName = /^\.agents\/skills\/([^/]+)\//.exec(rel)?.[1];
     if (skillFolders !== undefined && skillName !== undefined && !skillFolders.includes(skillName)) continue;
+
+    const unchosen =
+      sets !== undefined &&
+      SKILL_SETS.some((set) => !sets.includes(set) && SET_PATHS[set].some((p) => rel.startsWith(p)));
+    if (unchosen) continue;
 
     if (rel === AGENTS_MD) {
       // invariant: setup never creates or edits AGENTS.md, even when a template lists it.
@@ -106,10 +120,13 @@ export async function applyTemplates(ctx: Context, skillFolders?: readonly strin
 
     await mkdir(path.dirname(targetPath), { recursive: true });
 
+    const raw = () => readFile(path.join(ctx.templatesDir, ...sourceRel.split('/')), 'utf8');
     const content =
       rel === WOLVEN_MD
-        ? await renderWolven(ctx, skillFolders)
-        : await readFile(path.join(ctx.templatesDir, ...sourceRel.split('/')), 'utf8');
+        ? await renderWolven(ctx, skillFolders, sets)
+        : rel === QMD_INDEX
+          ? applySetMarkers(await raw(), sets)
+          : await raw();
 
     await writeFile(targetPath, content, 'utf8');
     created.push(rel);
