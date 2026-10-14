@@ -1,0 +1,101 @@
+{
+  "//": "PROTOTYPE — throwaway. The agent wrote this file from cj-001-source.json.",
+  "version": 1,
+  "kind": "journey",
+  "title": "Switching to automated invoicing (cj_001)",
+  "subtitle": "Alex Rivera, small business owner. Research data except what is marked illustrative.",
+  "scenario": "Alex needs to switch from manual spreadsheets to an automated invoicing tool to save time.",
+  "scale": { "min": -5, "max": 5 },
+  "personas": [
+    { "id": "alex", "name": "Alex Rivera", "role": "Small Business Owner", "goal": "Find a reliable and affordable invoicing software", "color": "#5b5bd6" },
+    { "id": "jordan", "name": "Jordan Lee", "role": "Part-time bookkeeper", "goal": "Invoice five clients without leaving the spreadsheet habit", "color": "#e11d74", "illustrative": true }
+  ],
+  "stages": [
+    { "id": "awareness", "label": "Awareness", "steps": [
+      { "id": "aw-notice", "label": "Notice the cost" },
+      { "id": "aw-search", "label": "Search" } ] },
+    { "id": "consideration", "label": "Consideration", "steps": [
+      { "id": "co-reviews", "label": "Read reviews" },
+      { "id": "co-trial", "label": "Start trial" } ] },
+    { "id": "decision", "label": "Decision / Purchase", "steps": [
+      { "id": "de-pay", "label": "Pay" },
+      { "id": "de-send", "label": "Send invoice" } ] },
+    { "id": "retention", "label": "Retention / Support", "steps": [
+      { "id": "re-paid", "label": "First payment" },
+      { "id": "re-chat", "label": "Ask support" } ] }
+  ],
+  "lanes": [
+    { "id": "actions", "label": "Actions", "type": "text" },
+    { "id": "touchpoints", "label": "Touchpoints", "type": "text" },
+    { "id": "thoughts", "label": "Thoughts", "type": "text" },
+    { "id": "mood", "label": "Mood", "type": "mood" },
+    { "id": "pain", "label": "Pain points", "type": "text" },
+    { "id": "opps", "label": "Opportunities", "type": "text" },
+    { "id": "front", "label": "Frontstage", "type": "frontstage", "illustrative": true },
+    { "id": "back", "label": "Backstage", "type": "backstage", "illustrative": true },
+    { "id": "process", "label": "Support processes", "type": "process", "illustrative": true }
+  ],
+  "mood": {
+    "alex": { "awareness": -1, "consideration": 1, "decision": 3, "retention": 4 },
+    "jordan": { "aw-notice": -2, "aw-search": 0, "co-reviews": 1, "co-trial": -1, "de-pay": 2, "de-send": 1, "re-paid": 3, "re-chat": 2 }
+  },
+  "cells": [
+    { "lane": "actions", "at": "aw-notice", "text": "Realizes manual invoicing takes too much time" },
+    { "lane": "actions", "at": "aw-search", "text": "Searches Google for 'best small business invoicing tools'" },
+    { "lane": "actions", "at": "co-reviews", "text": "Reads reviews on Capterra" },
+    { "lane": "actions", "at": "co-trial", "text": "Signs up for a free 14-day trial" },
+    { "lane": "actions", "at": "de-pay", "text": "Enters credit card details for the monthly plan" },
+    { "lane": "actions", "at": "de-send", "text": "Generates and sends the first client invoice" },
+    { "lane": "actions", "at": "re-paid", "text": "Receives first online payment from a client" },
+    { "lane": "actions", "at": "re-chat", "text": "Contacts live chat with a tax-formatting question" },
+
+    { "lane": "touchpoints", "at": "awareness", "items": ["Google Search", "Industry Blog Post"] },
+    { "lane": "touchpoints", "at": "consideration", "items": ["Review Site", "Landing Page", "Onboarding Email"] },
+    { "lane": "touchpoints", "at": "decision", "items": ["Checkout Page", "Payment Confirmation Screen"] },
+    { "lane": "touchpoints", "at": "retention", "items": ["In-App Chat Support", "Customer Portal"] },
+
+    { "lane": "thoughts", "at": "awareness", "text": "There are too many options. Which one is actually simple to use?" },
+    { "lane": "thoughts", "at": "consideration", "text": "I hope setting up my first invoice doesn't take longer than 10 minutes." },
+    { "lane": "thoughts", "at": "decision", "text": "That was fast and painless. Let's see how clients react to the link." },
+    { "lane": "thoughts", "at": "retention", "text": "Support answered in 2 minutes. This is worth the monthly subscription." },
+
+    { "lane": "pain", "at": "awareness", "items": ["Overwhelmed by generic comparison lists", "Unclear pricing tiers"] },
+    { "lane": "pain", "at": "consideration", "items": ["Blank dashboard upon first login without a quick-start template"] },
+    { "lane": "pain", "at": "decision", "items": ["Worry about hidden renewal fees"] },
+    { "lane": "pain", "at": "retention", "items": ["Difficulty finding local tax settings documentation"] },
+
+    { "lane": "opps", "at": "awareness", "items": ["Publish a clear, interactive feature and pricing comparison guide"] },
+    { "lane": "opps", "at": "consideration", "items": ["Add a 1-minute interactive setup wizard upon sign-up"] },
+    { "lane": "opps", "at": "decision", "items": ["Send a transparent receipt and a one-click calendar reminder before trial ends"] },
+    { "lane": "opps", "at": "retention", "items": ["Proactively surface regional tax setup tooltips in the settings panel"] },
+
+    { "lane": "front", "at": "aw-search", "text": "Search snippet and blog call to action", "illustrative": true },
+    { "lane": "front", "at": "co-reviews", "text": "Review-site listing page", "illustrative": true },
+    { "lane": "front", "at": "co-trial", "text": "Sign-up form and welcome email", "illustrative": true },
+    { "lane": "front", "at": "de-pay", "text": "Checkout page with plan summary", "illustrative": true },
+    { "lane": "front", "at": "de-send", "text": "Invoice composer and send dialog", "illustrative": true },
+    { "lane": "front", "at": "re-paid", "text": "Payment received notification", "illustrative": true },
+    { "lane": "front", "at": "re-chat", "text": "Live chat agent replies", "illustrative": true },
+
+    { "lane": "back", "at": "co-trial", "text": "Create trial workspace and seed sample data", "illustrative": true },
+    { "lane": "back", "at": "de-pay", "text": "Authorise the card with the payment provider", "illustrative": true },
+    { "lane": "back", "at": "de-send", "text": "Render the PDF and email the invoice link", "illustrative": true },
+    { "lane": "back", "at": "re-paid", "text": "Reconcile the payout to the invoice", "illustrative": true },
+    { "lane": "back", "at": "re-chat", "text": "Agent looks up the account's tax region", "illustrative": true },
+
+    { "lane": "process", "at": "co-trial", "text": "Trial-expiry reminder scheduler", "illustrative": true },
+    { "lane": "process", "at": "de-pay", "text": "Billing and renewal ledger", "illustrative": true },
+    { "lane": "process", "at": "re-chat", "text": "Tax-rule knowledge base", "illustrative": true }
+  ],
+  "lines": [
+    { "id": "loi", "type": "interaction", "between": ["opps", "front"], "illustrative": true },
+    { "id": "lov", "type": "visibility", "between": ["front", "back"], "illustrative": true },
+    { "id": "lii", "type": "internal", "between": ["back", "process"], "illustrative": true }
+  ],
+  "annotations": [
+    { "on": "mood:aw-notice", "text": "The source scores mood once per stage (-1, 1, 3, 4). Both steps of a stage carry that score unchanged." },
+    { "on": "pain:decision", "text": "Mood peaks at 3 here, yet a worry is listed. Worth asking Alex about." },
+    { "on": "jordan", "text": "Not from cj_001. Added to try the persona comparison." },
+    { "on": "thoughts:retention", "text": "The only thought that names a price." }
+  ]
+}

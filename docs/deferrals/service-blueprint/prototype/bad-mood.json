@@ -1,0 +1,19 @@
+{
+  "//": "PROTOTYPE — throwaway. Fixture: build must exit 1 on the out-of-scale mood value.",
+  "version": 1,
+  "kind": "journey",
+  "title": "Bad mood fixture",
+  "scenario": "One persona, one stage.",
+  "scale": { "min": -2, "max": 2 },
+  "personas": [{ "id": "alex", "name": "Alex" }],
+  "stages": [{ "id": "one", "label": "One", "steps": [{ "id": "a", "label": "A" }, { "id": "b", "label": "B" }] }],
+  "lanes": [
+    { "id": "actions", "label": "Actions", "type": "text" },
+    { "id": "mood", "label": "Mood", "type": "mood" }
+  ],
+  "mood": { "alex": { "a": 4, "b": 1 } },
+  "cells": [
+    { "lane": "actions", "at": "a", "text": "Does a thing" },
+    { "lane": "nope", "at": "b", "text": "Names a missing lane" }
+  ]
+}
