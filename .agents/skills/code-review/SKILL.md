@@ -99,8 +99,8 @@ the merge, not authority to perform one.
 5. **Never merge** — no merge, no auto-merge, no reading merge settings.
 6. **No fixes, no thread follow-through** — post findings only; no code
    edit, no thread reply or resolve; name `code-ci`.
-7. **Missing guard** — follow **Consult**: the skip sentence, no deferral,
-   no sentence that the guard ran, no install command.
+7. **Missing guard** — follow **Consult**: no deferral, no sentence that
+   the guard ran, no install command.
 8. **Missing `code-pr`** — stop before a host action, name `code-pr`, and
    do not copy the host procedure.
 9. **ADR-claims axis** — when `harness:validate` cannot be run, say that

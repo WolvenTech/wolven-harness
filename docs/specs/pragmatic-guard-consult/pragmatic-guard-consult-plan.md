@@ -44,8 +44,8 @@ Units 01 and 02 have disjoint ownership and can run in either order or in parall
 | Unit identifier | 01, 02, 03 — Wave 1 complete |
 | Spec/plan paths | `docs/specs/pragmatic-guard-consult/pragmatic-guard-consult-spec.md` / `docs/specs/pragmatic-guard-consult/pragmatic-guard-consult-plan.md` |
 | Obligation / proof status | R1.1 (`proof-guard-consult-no-negative-commit-pr`) — done; R1.2 (`proof-guard-consult-no-negative-review-ci`) — done; R1.3 (`proof-guard-consult-mirrors-match`) — done; R1.4 (`proof-guard-consult-tests-verify`) — done |
-| `HEAD` commit | `be4b740` |
-| `git status` summary | dirty — unit modifications validated in worktree, uncommitted |
+| `HEAD` commit | `44413d7` |
+| `git status` summary | clean post-44413d7; reviewer fixes in flight |
 | Intended diff scope | `templates/.agents/skills/{code-commit,code-pr,code-review,code-ci}/SKILL.md`, `.agents/skills/{code-commit,code-pr,code-review,code-ci}/SKILL.md`, `test/skill-code-pr.test.ts`, `test/skill-code-ci.test.ts`, `test/skill-code-review.test.ts`, `test/skill-code-commit.test.ts`, `docs/prds/pragmatic-guard-consult/`, `docs/specs/pragmatic-guard-consult/` |
 | Decision on every discrepancy | none |
 

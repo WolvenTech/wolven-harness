@@ -140,6 +140,7 @@ test('proof-cloud-session-skills-consults-stay', async () => {
   assert.match(consult, /Reading `pragmatic-guard was not consulted`/);
   assert.doesNotMatch(consult, /posted review include/);
   assert.doesNotMatch(consult, /That check does not consult the session skill list/);
+  assert.doesNotMatch(skill.body, /skip sentence/i);
 
   assert.ok(handoffAt >= 0 && verdictAt > handoffAt, 'expected the handoff before the verdict');
   const handoff = flat.slice(handoffAt, verdictAt);
