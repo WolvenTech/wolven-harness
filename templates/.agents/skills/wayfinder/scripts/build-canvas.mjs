@@ -35,9 +35,9 @@ function stringify(value, indent = '') {
   }
   if (value && typeof value === 'object') {
     const inner = `${indent}  `;
-    const entries = Object.entries(value).map(
-      ([key, item]) => `${inner}${JSON.stringify(key)}: ${stringify(item, inner)}`,
-    );
+    const entries = Object.entries(value)
+      .filter(([, item]) => item !== undefined)
+      .map(([key, item]) => `${inner}${JSON.stringify(key)}: ${stringify(item, inner)}`);
     return `{\n${entries.join(',\n')}\n${indent}}`;
   }
   return JSON.stringify(value);
@@ -209,6 +209,7 @@ async function build(inputPath) {
     readRenderer('radial.html'),
   ]);
   const errors = [...tickets.flatMap((ticket) => ticket.errors), ...validateMap(logic, map)];
+  if (!meta.title) errors.unshift(`${path.basename(inputPath)}: the map needs a title in its frontmatter`);
 
   // why: a map with errors writes only the page, whose data carries the errors so it shows the error panel.
   const data = errors.length ? { version: 1, title: map.title, errors } : map;

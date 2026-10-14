@@ -16,17 +16,23 @@ values. Anything else fails the build, which names the file and line.
 
 ```
 ---
+title: <short name of the decision>
+description: <one sentence: what the map decides>
 type: map
 status: draft
 ---
 ```
 
-It has five sections, in this order:
+The build reads `title` for the canvas header and fails without it.
+
+It has five sections, in this order. A section with nothing in it yet keeps
+its heading and stays empty.
 
 - `## Destination`: the first paragraph is the destination the build reads.
 - `## Notes`: context that is not a decision.
-- `## Decisions so far`: one list item per `closed` ticket, a one-line gist
-  with a markdown link to the ticket file. The build reads a ticket's gist from the item that links to its file.
+- `## Decisions so far`: one list item per `closed` ticket: a markdown link
+  to the ticket's file whose link text is the one-line gist. The build reads
+  a ticket's gist from the item that links to its file.
 - `## Not yet specified`: one list item per area that is not yet a ticket.
   Each item is a fog patch on the canvas.
 - `## Out of scope`: one list item per `out_of_scope` ticket, with the

@@ -34,9 +34,13 @@ Chart when the Human asks for a map, or accepts your one-line offer of one.
    frontier, and write nothing over any file. Then follow "Work a ticket"
    if the Human wants to continue.
 2. Run `grilling` to settle the destination: what the Human wants decided,
-   in one paragraph. Keep going until the unknowns are named too.
-3. Write `docs/maps/<slug>/<slug>-map.md` with `type: map` and
-   `status: draft` in its frontmatter and five sections, in this order:
+   in one paragraph. Keep going until the unknowns are named too. If
+   `grilling` is not installed, ask the same questions yourself, one at a
+   time, and name its install command,
+   `pnpm exec wolven-harness skills --skills grilling`.
+3. Write `docs/maps/<slug>/<slug>-map.md` with `title`, `description`,
+   `type: map` and `status: draft` in its frontmatter and five sections, in
+   this order:
    Destination, Notes, Decisions so far, Not yet specified, Out of scope.
    Put a vague area that is not yet a ticket under Not yet specified.
 4. Write one `<nn>-<ticket-slug>.md` per unknown, numbered from `01`. Each

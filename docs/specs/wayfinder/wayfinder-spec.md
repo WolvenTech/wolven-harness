@@ -282,53 +282,53 @@ A failed gate aborts before the next wave. Wave 1 captures the AC-7.3 baseline f
 
 ### Wave 1
 
-- [ ] `proof-wayfinder-journey-map-unchanged` PASS: the baseline was committed before any renderer edit, and every fixture matches it
-- [ ] `proof-wayfinder-renderer-copies` PASS: each folder holds exactly its manifest, byte-identical, and sync restores a drifted, missing or stray file
-- [ ] `proof-wayfinder-canvas-core` PASS: one camera, error panel and clipboard write, in `canvas.js` only
-- [ ] `proof-wayfinder-kinds-gate` PASS: a ticket fails by default and passes with `kinds: ["ticket"]`
-- [ ] `proof-wayfinder-ticket-checks` PASS: each ticket fault names its node
-- [ ] `proof-wayfinder-journey-map-silent` PASS: the whole `journey-map` folder names neither
-- [ ] `proof-wayfinder-subset-isolation` PASS: a radial-only change leaves `journey-map`'s folder byte-identical
-- [ ] `proof-wayfinder-model-states` PASS: exact counts, frontier and reached flag
-- [ ] `proof-wayfinder-layout-rings` PASS: every ticket in its ring, no overlaps
-- [ ] `proof-wayfinder-labels-30` PASS: no shown overlaps, and the frontier list is complete
-- [ ] `proof-wayfinder-focus-order` PASS: frontier ring first
-- [ ] `proof-wayfinder-copy-text` PASS: six exact strings, with and without a note
+- [x] `proof-wayfinder-journey-map-unchanged` PASS: the baseline was committed before any renderer edit, and every fixture matches it Evidence: `test/renderer-baseline.test.ts` (baseline committed in `93b2d28`) and `test/journey-map-render.test.ts`.
+- [x] `proof-wayfinder-renderer-copies` PASS: each folder holds exactly its manifest, byte-identical, and sync restores a drifted, missing or stray file Evidence: `test/renderer-copies.test.ts`.
+- [x] `proof-wayfinder-canvas-core` PASS: one camera, error panel and clipboard write, in `canvas.js` only Evidence: `test/canvas-core.test.ts`.
+- [x] `proof-wayfinder-kinds-gate` PASS: a ticket fails by default and passes with `kinds: ["ticket"]` Evidence: `test/renderer-kinds.test.ts`.
+- [x] `proof-wayfinder-ticket-checks` PASS: each ticket fault names its node Evidence: `test/renderer-kinds.test.ts`.
+- [x] `proof-wayfinder-journey-map-silent` PASS: the whole `journey-map` folder names neither Evidence: `test/skill-journey-map.test.ts`, unchanged from `main`.
+- [x] `proof-wayfinder-subset-isolation` PASS: a radial-only change leaves `journey-map`'s folder byte-identical Evidence: the test of that name, in the 794-test run at the ship gate.
+- [x] `proof-wayfinder-model-states` PASS: exact counts, frontier and reached flag Evidence: `test/radial-model.test.ts`.
+- [x] `proof-wayfinder-layout-rings` PASS: every ticket in its ring, no overlaps Evidence: `test/radial-model.test.ts`.
+- [x] `proof-wayfinder-labels-30` PASS: no shown overlaps, and the frontier list is complete Evidence: the test of that name, in the 794-test run at the ship gate.
+- [x] `proof-wayfinder-focus-order` PASS: frontier ring first Evidence: the test of that name, in the 794-test run at the ship gate.
+- [x] `proof-wayfinder-copy-text` PASS: six exact strings, with and without a note Evidence: the test of that name, in the 794-test run at the ship gate.
 
 ### Wave 2
 
-- [ ] `proof-wayfinder-build-writes-canvas` PASS: both files, the `wrote` line, one network host
-- [ ] `proof-wayfinder-build-errors` PASS: each fault exits 1 naming the ticket
-- [ ] `proof-wayfinder-build-input-errors` PASS: three cases write nothing
-- [ ] `proof-wayfinder-build-deterministic` PASS: same bytes twice
-- [ ] `proof-wayfinder-no-html-injection` PASS: no unescaped title, no `innerHTML`
-- [ ] `proof-wayfinder-standalone` PASS: either skill builds alone, and its page holds every manifest script
-- [ ] `proof-wayfinder-skill-basics` PASS
-- [ ] `proof-wayfinder-skill-chart` PASS
-- [ ] `proof-wayfinder-skill-work` PASS
-- [ ] `proof-wayfinder-skill-checklist` PASS
-- [ ] `proof-wayfinder-skill-update` PASS
-- [ ] `proof-wayfinder-skill-canvas` PASS
-- [ ] `proof-wayfinder-skill-handoff` PASS
-- [ ] `proof-wayfinder-skill-missing-pieces` PASS
-- [ ] `proof-wayfinder-partition` PASS: 20 folders
-- [ ] `proof-wayfinder-comments-clean` PASS: zero findings in both skills' scripts
-- [ ] `proof-wayfinder-listings` PASS
+- [x] `proof-wayfinder-build-writes-canvas` PASS: both files, the `wrote` line, one network host Evidence: the test of that name, in the 794-test run at the ship gate.
+- [x] `proof-wayfinder-build-errors` PASS: each fault exits 1 naming the ticket Evidence: the test of that name, in the 794-test run at the ship gate.
+- [x] `proof-wayfinder-build-input-errors` PASS: three cases write nothing Evidence: the test of that name, in the 794-test run at the ship gate.
+- [x] `proof-wayfinder-build-deterministic` PASS: same bytes twice Evidence: the test of that name, in the 794-test run at the ship gate.
+- [x] `proof-wayfinder-no-html-injection` PASS: no unescaped title, no `innerHTML` Evidence: the test of that name, in the 794-test run at the ship gate.
+- [x] `proof-wayfinder-standalone` PASS: either skill builds alone, and its page holds every manifest script Evidence: the test of that name, in the 794-test run at the ship gate.
+- [x] `proof-wayfinder-skill-basics` PASS Evidence: the test of that name, in the 794-test run at the ship gate.
+- [x] `proof-wayfinder-skill-chart` PASS Evidence: the test of that name, in the 794-test run at the ship gate.
+- [x] `proof-wayfinder-skill-work` PASS Evidence: the test of that name, in the 794-test run at the ship gate.
+- [x] `proof-wayfinder-skill-checklist` PASS Evidence: the test of that name, in the 794-test run at the ship gate.
+- [x] `proof-wayfinder-skill-update` PASS Evidence: the test of that name, in the 794-test run at the ship gate.
+- [x] `proof-wayfinder-skill-canvas` PASS Evidence: the test of that name, in the 794-test run at the ship gate.
+- [x] `proof-wayfinder-skill-handoff` PASS Evidence: the test of that name, in the 794-test run at the ship gate.
+- [x] `proof-wayfinder-skill-missing-pieces` PASS Evidence: the test of that name, in the 794-test run at the ship gate.
+- [x] `proof-wayfinder-partition` PASS: 20 folders Evidence: `test/skill-sets.test.ts`.
+- [x] `proof-wayfinder-comments-clean` PASS: zero findings in both skills' scripts Evidence: the test of that name, in the 794-test run at the ship gate.
+- [x] `proof-wayfinder-listings` PASS Evidence: the test of that name, in the 794-test run at the ship gate.
 
 ### Wave 3
 
-- [ ] `proof-wayfinder-adr-amendment` PASS: amendment, code table and claims
-- [ ] `proof-wayfinder-validate-maps` PASS: warnings only, tickets and archive skipped
-- [ ] `proof-wayfinder-setup-discovery` PASS: four maps pieces, no marker text left
-- [ ] `proof-wayfinder-setup-absent` PASS: nothing for `ship` and `none`
-- [ ] `proof-wayfinder-setup-rerun` PASS: existing files byte-identical
-- [ ] `proof-wayfinder-writing-profile` PASS
+- [x] `proof-wayfinder-adr-amendment` PASS: amendment, code table and claims Evidence: ADR-004 amendment dated 2026-10-14, approved by the Human, and `test/contract.test.ts`.
+- [x] `proof-wayfinder-validate-maps` PASS: warnings only, tickets and archive skipped Evidence: `test/validate-maps.test.ts`.
+- [x] `proof-wayfinder-setup-discovery` PASS: four maps pieces, no marker text left Evidence: the test of that name, in the 794-test run at the ship gate.
+- [x] `proof-wayfinder-setup-absent` PASS: nothing for `ship` and `none` Evidence: the test of that name, in the 794-test run at the ship gate.
+- [x] `proof-wayfinder-setup-rerun` PASS: existing files byte-identical Evidence: the test of that name, in the 794-test run at the ship gate.
+- [x] `proof-wayfinder-writing-profile` PASS Evidence: `test/writing-profile-maps.test.ts`.
 
 ### Wave 4
 
-- [ ] `proof-wayfinder-reference-map` PASS: a subagent's map from the skill alone builds
-- [ ] `proof-wayfinder-browser-smoke` PASS: keyboard, tap, hover, arcs, copy, fallback, fonts fallback and reached state recorded
-- [ ] `proof-wayfinder-journey-map-smoke` PASS: `journey-map` pans, zooms, fits, shows errors and copies as on `main`
+- [x] `proof-wayfinder-reference-map` PASS: a subagent's map from the skill alone builds Evidence: the test of that name, in the 794-test run at the ship gate.
+- [x] `proof-wayfinder-browser-smoke` PASS: keyboard, tap, hover, arcs, copy, fallback, fonts fallback and reached state recorded Evidence: `docs/notes/wayfinder-smoke/wayfinder-smoke-note.md`; a real clipboard success is untested because the pane denies the permission.
+- [x] `proof-wayfinder-journey-map-smoke` PASS: `journey-map` pans, zooms, fits, shows errors and copies as on `main` Evidence: `docs/notes/wayfinder-smoke/wayfinder-smoke-note.md`; pinch zoom is untested because the pane has no multi-touch.
 
 ## Eval / gates
 

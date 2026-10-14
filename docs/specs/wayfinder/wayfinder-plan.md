@@ -8,7 +8,7 @@ status: stable
 # Wayfinder Skill — plan
 
 **Source:** `docs/specs/wayfinder/wayfinder-spec.md` (status `stable`).
-**Next:** After the Human approves → `code-execute`, wave 1 first.
+**Next:** All 23 units are done. Before merge, run the pre-merge closure: archive the spec, plan and PRD, then run `harness:validate`.
 
 ## Structural gate
 
@@ -46,9 +46,9 @@ Every `spawn` unit runs as a Sonnet subagent.
 | 18 | `setup` adds maps pieces only with discovery | 16 | `src/setup/{skill-sets.ts,apply.ts,render-wolven.ts}`, `templates/docs/maps/{.gitkeep,gitignore}`, `templates/WOLVEN.md`, `templates/.qmd/index.yml`, `test/setup-maps.test.ts` | `spawn` | [x] `setup --skills discovery` creates `docs/maps/.gitkeep`, a `docs/maps/.gitignore` holding exactly the two canvas lines, the `maps` collection and the maps row, with no marker text left. `ship` and `none` create none of them. A second run leaves every existing file byte-identical. Proof: `proof-wayfinder-setup-discovery`, `proof-wayfinder-setup-absent`, `proof-wayfinder-setup-rerun` |
 | 19 | The writing profile documents maps | 16 | `templates/docs/WRITING-PROFILE.md`, `docs/WRITING-PROFILE.md`, `test/writing-profile-maps.test.ts` | `spawn` | [x] Both profiles document `docs/maps/<slug>/<slug>-map.md` and `type: map`. Proof: `proof-wayfinder-writing-profile` |
 | 20 | **Wave 3 gate** | 17, 18, 19 | — | `inline` | [x] `pnpm build`, `pnpm test`, `pnpm lint`, `node dist/cli.js validate` and `pnpm comments` pass. Every wave 3 proof has its evidence. Failure → **abort** before wave 4 |
-| 21 | A fresh agent charts a map from the skill alone | 20 | `test/fixtures/wayfinder/reference/**`, `test/wayfinder-canvas.test.ts` (reference case) | `spawn` | [ ] A subagent given only the installed `wayfinder` folder charts a map with five tickets, one blocker chain and one Not yet specified item. Its folder is committed as the fixture, and a test asserts the build exits 0. Proof: `proof-wayfinder-reference-map` |
-| 22 | Both canvases are smoke-tested in a browser | 21 | `docs/notes/wayfinder-smoke/wayfinder-smoke-note.md` | `spawn` | [ ] Over a loopback server, each step and its result is written into the note. For the wayfinder canvas: Tab, Enter, Escape and `L`; a tap opening the panel and showing edges; edges on hover only; undermined arcs always drawn; "Take this ticket" copying, and the fallback under a `clipboard-write` denial; the fonts falling back when Google Fonts is blocked; the reached map. For journey-map, the LotR fixture and `malformed-map.json` built from `main` and from the branch, compared side by side: pan, zoom, fit, the camera moving on a choice, the error panel, and copy with its fallback. Proof: `proof-wayfinder-browser-smoke`, `proof-wayfinder-journey-map-smoke` |
-| 23 | **Ship gate** | 22 | — | `inline` | [ ] `pnpm test` and `node dist/cli.js validate` pass, and every acceptance box in the spec is ticked with evidence. `git diff main` shows no change to `jm/SKILL.md`, `jm/references/**`, `src/comments/**` or any other shipped skill folder. Failure → **abort**; do not hand off |
+| 21 | A fresh agent charts a map from the skill alone | 20 | `test/fixtures/wayfinder/reference/**`, `test/wayfinder-canvas.test.ts` (reference case) | `spawn` | [x] A subagent given only the installed `wayfinder` folder charts a map with five tickets, one blocker chain and one Not yet specified item. Its folder is committed as the fixture, and a test asserts the build exits 0. Proof: `proof-wayfinder-reference-map` |
+| 22 | Both canvases are smoke-tested in a browser | 21 | `docs/notes/wayfinder-smoke/wayfinder-smoke-note.md` | `spawn` | [x] Over a loopback server, each step and its result is written into the note. For the wayfinder canvas: Tab, Enter, Escape and `L`; a tap opening the panel and showing edges; edges on hover only; undermined arcs always drawn; "Take this ticket" copying, and the fallback under a `clipboard-write` denial; the fonts falling back when Google Fonts is blocked; the reached map. For journey-map, the LotR fixture and `malformed-map.json` built from `main` and from the branch, compared side by side: pan, zoom, fit, the camera moving on a choice, the error panel, and copy with its fallback. Proof: `proof-wayfinder-browser-smoke`, `proof-wayfinder-journey-map-smoke` |
+| 23 | **Ship gate** | 22 | — | `inline` | [x] `pnpm test` and `node dist/cli.js validate` pass, and every acceptance box in the spec is ticked with evidence. `git diff main` shows no change to `jm/SKILL.md`, `jm/references/**`, `src/comments/**` or any other shipped skill folder. Failure → **abort**; do not hand off |
 
 ## Wave stops
 
@@ -117,4 +117,33 @@ Wave 3 (units 16 to 20) is committed together after its gate passed: build, 792 
 - Unit 18 also changed `src/setup/index.ts` by one line, to pass the chosen sets to `applyTemplates`. It updated the expected file and collection lists in `test/setup-surfaces.test.ts` and `test/setup-layout.test.ts`.
 - At the gate, both writing profiles' list of checked folders gained `maps`.
 
-Next: unit 21, wave 4.
+### Unit 21 — A fresh agent charts a map from the skill alone
+
+| Field | Value |
+|-------|-------|
+| Unit identifier | 21 — A fresh agent charts a map from the skill alone (wave 4, first unit) |
+| Spec/plan paths | `docs/specs/wayfinder/wayfinder-spec.md` / `docs/specs/wayfinder/wayfinder-plan.md` |
+| Obligation / proof status | R3.9 `proof-wayfinder-reference-map`: done. The fixture is at `test/fixtures/wayfinder/reference/`, and its build test passes |
+| `HEAD` commit | `9a54aae` |
+| `git status` summary | dirty: this plan only |
+| Intended diff scope | `test/fixtures/wayfinder/reference/**`, `test/wayfinder-canvas.test.ts` (reference case) |
+| Decision on every discrepancy | A spawned agent that sees the repo's spec and tests isn't working "from the skill alone". Resolved: the charting agent works in a scratch repo that holds only the installed skill and the `docs/maps/` pieces. It plays both sides of the `grilling` step, with the destination given. The parent copies its folder into the fixture and adds the test |
+
+Unit 21 found three gaps in the skill, all fixed:
+- The map's frontmatter had no `title`, and the build wrote `"title": undefined`, which is invalid JSON, yet still exited 0. Now:
+  - `ticket-format.md` and charting step 3 require `title` and `description`, as the writing profile does.
+  - The build exits 1 naming the map file, and a test covers this.
+  - The JSON writer skips keys whose value is `undefined`.
+- Charting had no rule for a missing `grilling`. The agent now asks the same questions itself and names the install command.
+- The format didn't say what to do with an empty section, or what a Decisions-so-far item looks like. It now says.
+
+Wave 4 (units 21 to 23) is committed together after the ship gate passed:
+- build, 794 tests, lint, validate and comments clean, and sync reported no change
+- no change against the merge base to journey-map's `SKILL.md` or `references/`, to `src/comments/`, or to any other shipped skill
+- all 38 acceptance boxes in the spec ticked, each with its evidence
+
+Unit 22's smoke found two layout faults in `radial-draw.js`, both now fixed and re-checked in the browser:
+- Labels were drawn from the left edge of an estimated width. They now sit centred, 0 px from their circle.
+- The fitted camera ignored a header whose counts wrap. It now keeps the map below the header: at 1280x800 the header ends at y=129 and the ring starts at y=140.
+
+The smoke note records two untested checks with their reasons: a real clipboard success, which the pane denies, and journey-map's pinch zoom, which needs multi-touch.

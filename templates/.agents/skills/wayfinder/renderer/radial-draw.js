@@ -236,7 +236,7 @@
       const node = svgText(
         c.kind === 'patch' ? 'lab patch' : 'lab',
         c.text,
-        { x: core.cam.x + c.x, y: core.cam.y + c.y + 11 },
+        { x: core.cam.x + c.x + c.w / 2, y: core.cam.y + c.y + 11, 'text-anchor': 'middle' },
         labelLayer,
       );
       node.setAttribute('data-key', c.key);
@@ -381,9 +381,13 @@
     const e = placed.extent;
     const box = { x: -e, y: -e, w: e * 2, h: e * 2 };
     const strip = wide() ? panel.offsetWidth + 14 : 0;
+    // why: the core keeps 84px clear at the top, but a header whose counts wrap reaches lower than that.
+    const header = $('top').getBoundingClientRect().bottom - svg.getBoundingClientRect().top + 12;
+    const lift = Math.max(0, header - 84);
     let target = core.fitTarget(box, MAX_FIT_K);
-    for (let i = 0; i < 3 && strip; i++) {
-      target = core.fitTarget({ ...box, w: box.w + strip / target.k }, MAX_FIT_K);
+    for (let i = 0; i < 3 && (strip || lift); i++) {
+      const up = lift / target.k;
+      target = core.fitTarget({ x: box.x, y: box.y - up, w: box.w + strip / target.k, h: box.h + up }, MAX_FIT_K);
     }
     return target;
   }

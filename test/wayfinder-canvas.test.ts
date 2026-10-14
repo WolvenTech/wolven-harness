@@ -98,6 +98,18 @@ for (const [name, ticket] of errorCases) {
   });
 }
 
+test('proof-wayfinder-build-errors: a map without a title exits 1 naming the map file', () => {
+  inRepo((repo) => {
+    const { input } = place(repo, billing, 'billing-30');
+    writeFileSync(input, readFileSync(input, 'utf8').replace(/^title: .*\n/m, ''));
+    const result = build(input);
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /^billing-30-map\.md: the map needs a title/m);
+    assert.ok(pageErrors(result.html).some((error) => error.startsWith('billing-30-map.md: ')));
+    assert.equal(result.json, null);
+  });
+});
+
 test('proof-wayfinder-build-input-errors: a non-flat frontmatter value exits 1 and writes nothing', () => {
   inRepo((repo) => {
     const { folder, input } = place(repo, path.join(fixtures, 'errors', 'non-flat-frontmatter', 'tiny'), 'tiny');
@@ -159,5 +171,23 @@ test('proof-wayfinder-no-html-injection: an injected ticket title stays escaped 
     const html = result.html ?? '';
     assert.ok(!html.includes(title));
     assert.ok(html.includes('\\u003c/script>\\u003cimg onerror=alert(1)>'));
+  });
+});
+
+test('proof-wayfinder-reference-map: the map a fresh agent charted from the skill alone builds', () => {
+  inRepo((repo) => {
+    const { input } = place(repo, path.join(fixtures, 'reference'), 'postgres-backups');
+    const result = build(input);
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(result.stdout, `wayfinder: wrote ${result.page} (5 tickets)\n`);
+    const map = JSON.parse(result.json ?? '');
+    assert.equal(map.fog.length, 1);
+    const blockers = Object.fromEntries(
+      map.trees[0].nodes.map((node: { id: string; blocked_by: string[] }) => [node.id, node.blocked_by]),
+    );
+    assert.ok(
+      Object.entries(blockers).some(([, by]) => by.some((id) => blockers[id]?.length > 0)),
+      'a blocker chain',
+    );
   });
 });
