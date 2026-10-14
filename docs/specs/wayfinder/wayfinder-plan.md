@@ -26,7 +26,7 @@ Every `spawn` unit runs as a Sonnet subagent.
 
 | # | Unit | Depends | Owns | Subagent | Done when |
 |---|------|---------|------|----------|-----------|
-| 01 | journey-map's output on `main` is pinned | — | `test/fixtures/journey-map/baseline.json`, `test/renderer-baseline.test.ts` | `inline` | [ ] Before any renderer file changes, `baseline.json` holds `validate(map)` and `layout(map)` for every `jm` fixture, computed with `main`'s `logic.js`. The new test recomputes them and passes on the unchanged tree. Proof: `proof-wayfinder-journey-map-unchanged` (baseline part) |
+| 01 | journey-map's output on `main` is pinned | — | `test/fixtures/journey-map/baseline.json`, `test/renderer-baseline.test.ts` | `inline` | [x] Before any renderer file changes, `baseline.json` holds `validate(map)` and `layout(map)` for every `jm` fixture, computed with `main`'s `logic.js`. The new test recomputes them and passes on the unchanged tree. Proof: `proof-wayfinder-journey-map-unchanged` (baseline part) |
 | 02 | One renderer source feeds journey-map | 01 | `renderer/{logic.js,draw.js,page.html,sync.mjs}`, `package.json` (`sync:renderer`), `AGENTS.md` (Layout line), `test/renderer-copies.test.ts`, synced copies | `inline` | [ ] `renderer/` holds journey-map's three files, moved byte for byte. `sync.mjs` carries the manifest, with journey-map's entry only, and `pnpm sync:renderer` reports no change. The drift test passes, and in a temp tree it fails naming a changed file, a missing one and a stray `radial.js`, then passes after sync. Proof: `proof-wayfinder-renderer-copies` (journey-map part) |
 | 03 | journey-map runs on the extracted canvas core | 02 | `renderer/{canvas.js,draw.js}`, `jm/scripts/build-map.mjs` (inline list), `test/journey-map-render.test.ts` (renderer-region assertion only), `test/canvas-core.test.ts`, synced copies | `spawn` | [ ] `canvas.js` holds `showErrors`, `el`, the camera functions, pointer and wheel input and the clipboard write with its fallback, moved from `draw.js` with no behaviour change. `draw.js` calls them through `CanvasCore`. `build-map.mjs` inlines `logic.js`, `canvas.js` and `draw.js`. `baseline.json` still matches, every `jm` render test passes, and the only render-test change is the widened region assertion. No `jm` file names `wayfinder` or `docs/maps`. Proof: `proof-wayfinder-canvas-core` (journey-map part), `proof-wayfinder-journey-map-unchanged`, `proof-wayfinder-journey-map-silent` |
 | 04 | Validation allows tickets only when asked | 03 | `renderer/logic.js` (`validate` and the ticket checks), `test/renderer-kinds.test.ts`, synced copies | `spawn` | [ ] With the default kinds, `validate` names a `ticket` node as an unknown kind, and `build-map.mjs` exits 1 on it. With `{ kinds: ["ticket"] }`, a ticket-only tree with no `start` passes, and each ticket fault the spec lists names its node. `baseline.json` still matches. Proof: `proof-wayfinder-kinds-gate`, `proof-wayfinder-ticket-checks` |
@@ -91,3 +91,17 @@ Unit 16 waits for the Human to approve the amendment.
 ```
 
 Never pack a later wave into an earlier wave's mutate batch to skip its gate.
+
+## Execution / resume section
+
+### Unit 01 — journey-map's output on `main` is pinned
+
+| Field | Value |
+|-------|-------|
+| Unit identifier | 01 — journey-map's output on `main` is pinned (wave 1, frontier head) |
+| Spec/plan paths | `docs/specs/wayfinder/wayfinder-spec.md` / `docs/specs/wayfinder/wayfinder-plan.md` |
+| Obligation / proof status | R1.2 `proof-wayfinder-journey-map-unchanged` (baseline part) — done |
+| `HEAD` commit | `928517c` |
+| `git status` summary | clean |
+| Intended diff scope | `test/fixtures/journey-map/baseline.json`, `test/renderer-baseline.test.ts` |
+| Decision on every discrepancy | R1.2's proof says the baseline is committed in this unit, but no `.agents/code-commit.config.yml` exists, so cadence is `autocommit: false` — resolved: the baseline is computed from `git show main:` and records `main`'s commit, so where it came from doesn't depend on commit order. The Human then chose to commit per wave and to commit this unit on its own first |

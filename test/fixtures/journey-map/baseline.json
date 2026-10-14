@@ -1,0 +1,1104 @@
+{
+  "source": "main@224b614655daa59806d2b6728e5b54e9aa71ccdf",
+  "fixtures": {
+    "cj-001-map.json": {
+      "validate": [],
+      "layout": {
+        "boxes": [
+          {
+            "id": "start",
+            "tree": "journey",
+            "column": 0,
+            "row": 0,
+            "x": 60,
+            "y": 340.5,
+            "w": 300,
+            "h": 223,
+            "inset": 0,
+            "tail": 0,
+            "ay": 452
+          },
+          {
+            "id": "aw-1",
+            "tree": "journey",
+            "column": 1,
+            "row": 1,
+            "x": 450,
+            "y": 386,
+            "w": 300,
+            "h": 132,
+            "inset": 0,
+            "tail": 0,
+            "ay": 452
+          },
+          {
+            "id": "aw-2",
+            "tree": "journey",
+            "column": 2,
+            "row": 2,
+            "x": 840,
+            "y": 288,
+            "w": 300,
+            "h": 328,
+            "inset": 142,
+            "tail": 0,
+            "ay": 523
+          },
+          {
+            "id": "co-1",
+            "tree": "journey",
+            "column": 3,
+            "row": 3,
+            "x": 1230,
+            "y": 381,
+            "w": 300,
+            "h": 142,
+            "inset": 0,
+            "tail": 0,
+            "ay": 452
+          },
+          {
+            "id": "co-1b",
+            "tree": "journey",
+            "column": 4,
+            "row": 4,
+            "x": 1620,
+            "y": 343,
+            "w": 300,
+            "h": 218,
+            "inset": 0,
+            "tail": 108,
+            "ay": 398
+          },
+          {
+            "id": "co-choice",
+            "tree": "journey",
+            "column": 5,
+            "row": 5,
+            "x": 2010,
+            "y": 335,
+            "w": 300,
+            "h": 234,
+            "inset": 0,
+            "tail": 0,
+            "ay": 452
+          },
+          {
+            "id": "co-2",
+            "tree": "journey",
+            "column": 6,
+            "row": 6,
+            "x": 2400,
+            "y": 110,
+            "w": 300,
+            "h": 306,
+            "inset": 142,
+            "tail": 0,
+            "ay": 334
+          },
+          {
+            "id": "co-comp",
+            "tree": "journey",
+            "column": 6,
+            "row": 11,
+            "x": 2400,
+            "y": 488,
+            "w": 300,
+            "h": 306,
+            "inset": 142,
+            "tail": 0,
+            "ay": 712
+          },
+          {
+            "id": "de-1",
+            "tree": "journey",
+            "column": 7,
+            "row": 7,
+            "x": 2790,
+            "y": 252,
+            "w": 300,
+            "h": 164,
+            "inset": 0,
+            "tail": 0,
+            "ay": 334
+          },
+          {
+            "id": "co-end",
+            "tree": "journey",
+            "column": 7,
+            "row": 12,
+            "x": 2790,
+            "y": 488,
+            "w": 300,
+            "h": 164,
+            "inset": 0,
+            "tail": 0,
+            "ay": 570
+          },
+          {
+            "id": "de-2",
+            "tree": "journey",
+            "column": 8,
+            "row": 8,
+            "x": 3180,
+            "y": 299,
+            "w": 300,
+            "h": 306,
+            "inset": 142,
+            "tail": 0,
+            "ay": 523
+          },
+          {
+            "id": "re-1",
+            "tree": "journey",
+            "column": 9,
+            "row": 9,
+            "x": 3570,
+            "y": 370,
+            "w": 300,
+            "h": 164,
+            "inset": 0,
+            "tail": 0,
+            "ay": 452
+          },
+          {
+            "id": "re-2",
+            "tree": "journey",
+            "column": 10,
+            "row": 10,
+            "x": 3960,
+            "y": 299,
+            "w": 300,
+            "h": 306,
+            "inset": 142,
+            "tail": 0,
+            "ay": 523
+          }
+        ],
+        "edges": [
+          {
+            "from": "start",
+            "to": "aw-1"
+          },
+          {
+            "from": "aw-1",
+            "to": "aw-2"
+          },
+          {
+            "from": "aw-2",
+            "to": "co-1"
+          },
+          {
+            "from": "co-1",
+            "to": "co-1b"
+          },
+          {
+            "from": "co-1b",
+            "to": "co-choice"
+          },
+          {
+            "from": "co-choice",
+            "to": "co-2"
+          },
+          {
+            "from": "co-choice",
+            "to": "co-comp"
+          },
+          {
+            "from": "co-2",
+            "to": "de-1"
+          },
+          {
+            "from": "co-comp",
+            "to": "co-end"
+          },
+          {
+            "from": "de-1",
+            "to": "de-2"
+          },
+          {
+            "from": "de-2",
+            "to": "re-1"
+          },
+          {
+            "from": "re-1",
+            "to": "re-2"
+          }
+        ],
+        "width": 4320,
+        "height": 944
+      }
+    },
+    "cj-001-reference-map.json": {
+      "validate": [],
+      "layout": {
+        "boxes": [
+          {
+            "id": "start",
+            "tree": "journey",
+            "column": 0,
+            "row": 0,
+            "x": 60,
+            "y": 151.5,
+            "w": 300,
+            "h": 223,
+            "inset": 0,
+            "tail": 0,
+            "ay": 263
+          },
+          {
+            "id": "aw-1",
+            "tree": "journey",
+            "column": 1,
+            "row": 1,
+            "x": 450,
+            "y": 197,
+            "w": 300,
+            "h": 132,
+            "inset": 0,
+            "tail": 0,
+            "ay": 263
+          },
+          {
+            "id": "aw-2",
+            "tree": "journey",
+            "column": 2,
+            "row": 2,
+            "x": 840,
+            "y": 110,
+            "w": 300,
+            "h": 306,
+            "inset": 142,
+            "tail": 0,
+            "ay": 334
+          },
+          {
+            "id": "co-1",
+            "tree": "journey",
+            "column": 3,
+            "row": 3,
+            "x": 1230,
+            "y": 208,
+            "w": 300,
+            "h": 110,
+            "inset": 0,
+            "tail": 0,
+            "ay": 263
+          },
+          {
+            "id": "co-2",
+            "tree": "journey",
+            "column": 4,
+            "row": 4,
+            "x": 1620,
+            "y": 110,
+            "w": 300,
+            "h": 306,
+            "inset": 142,
+            "tail": 0,
+            "ay": 334
+          },
+          {
+            "id": "de-1",
+            "tree": "journey",
+            "column": 5,
+            "row": 5,
+            "x": 2010,
+            "y": 197,
+            "w": 300,
+            "h": 132,
+            "inset": 0,
+            "tail": 0,
+            "ay": 263
+          },
+          {
+            "id": "de-2",
+            "tree": "journey",
+            "column": 6,
+            "row": 6,
+            "x": 2400,
+            "y": 110,
+            "w": 300,
+            "h": 306,
+            "inset": 142,
+            "tail": 0,
+            "ay": 334
+          },
+          {
+            "id": "re-1",
+            "tree": "journey",
+            "column": 7,
+            "row": 7,
+            "x": 2790,
+            "y": 197,
+            "w": 300,
+            "h": 132,
+            "inset": 0,
+            "tail": 0,
+            "ay": 263
+          },
+          {
+            "id": "re-2",
+            "tree": "journey",
+            "column": 8,
+            "row": 8,
+            "x": 3180,
+            "y": 110,
+            "w": 300,
+            "h": 306,
+            "inset": 142,
+            "tail": 0,
+            "ay": 334
+          }
+        ],
+        "edges": [
+          {
+            "from": "start",
+            "to": "aw-1"
+          },
+          {
+            "from": "aw-1",
+            "to": "aw-2"
+          },
+          {
+            "from": "aw-2",
+            "to": "co-1"
+          },
+          {
+            "from": "co-1",
+            "to": "co-2"
+          },
+          {
+            "from": "co-2",
+            "to": "de-1"
+          },
+          {
+            "from": "de-1",
+            "to": "de-2"
+          },
+          {
+            "from": "de-2",
+            "to": "re-1"
+          },
+          {
+            "from": "re-1",
+            "to": "re-2"
+          }
+        ],
+        "width": 3540,
+        "height": 566
+      }
+    },
+    "harness-init-redesign-map.json": {
+      "validate": [],
+      "layout": {
+        "boxes": [
+          {
+            "id": "setup-start",
+            "tree": "setup",
+            "column": 0,
+            "row": 0,
+            "x": 60,
+            "y": 219,
+            "w": 300,
+            "h": 76,
+            "inset": 0,
+            "tail": 0,
+            "ay": 257
+          },
+          {
+            "id": "setup-host",
+            "tree": "setup",
+            "column": 1,
+            "row": 1,
+            "x": 450,
+            "y": 150,
+            "w": 300,
+            "h": 214,
+            "inset": 0,
+            "tail": 0,
+            "ay": 257
+          },
+          {
+            "id": "setup-runtimes",
+            "tree": "setup",
+            "column": 2,
+            "row": 2,
+            "x": 840,
+            "y": 117,
+            "w": 300,
+            "h": 280,
+            "inset": 0,
+            "tail": 0,
+            "ay": 257
+          },
+          {
+            "id": "setup-skillsets",
+            "tree": "setup",
+            "column": 3,
+            "row": 3,
+            "x": 1230,
+            "y": 110,
+            "w": 300,
+            "h": 294,
+            "inset": 0,
+            "tail": 0,
+            "ay": 257
+          },
+          {
+            "id": "setup-command",
+            "tree": "setup",
+            "column": 4,
+            "row": 4,
+            "x": 1620,
+            "y": 116,
+            "w": 300,
+            "h": 282,
+            "inset": 0,
+            "tail": 0,
+            "ay": 257
+          },
+          {
+            "id": "init-start",
+            "tree": "harness-init",
+            "column": 0,
+            "row": 0,
+            "x": 60,
+            "y": 883.5,
+            "w": 300,
+            "h": 110,
+            "inset": 0,
+            "tail": 0,
+            "ay": 938.5
+          },
+          {
+            "id": "init-depth",
+            "tree": "harness-init",
+            "column": 1,
+            "row": 1,
+            "x": 450,
+            "y": 783.5,
+            "w": 300,
+            "h": 310,
+            "inset": 0,
+            "tail": 0,
+            "ay": 938.5
+          },
+          {
+            "id": "basics-goal",
+            "tree": "harness-init",
+            "column": 2,
+            "row": 2,
+            "x": 840,
+            "y": 554,
+            "w": 300,
+            "h": 235,
+            "inset": 0,
+            "tail": 0,
+            "ay": 671.5
+          },
+          {
+            "id": "full-scope",
+            "tree": "harness-init",
+            "column": 2,
+            "row": 5,
+            "x": 840,
+            "y": 861,
+            "w": 300,
+            "h": 462,
+            "inset": 0,
+            "tail": 0,
+            "ay": 1092
+          },
+          {
+            "id": "basics-agents",
+            "tree": "harness-init",
+            "column": 3,
+            "row": 3,
+            "x": 1230,
+            "y": 636.5,
+            "w": 300,
+            "h": 266,
+            "inset": 0,
+            "tail": 0,
+            "ay": 769.5
+          },
+          {
+            "id": "full-agents",
+            "tree": "harness-init",
+            "column": 3,
+            "row": 6,
+            "x": 1230,
+            "y": 974.5,
+            "w": 300,
+            "h": 266,
+            "inset": 0,
+            "tail": 0,
+            "ay": 1107.5
+          },
+          {
+            "id": "handback",
+            "tree": "harness-init",
+            "column": 13,
+            "row": 4,
+            "x": 5130,
+            "y": 796.5,
+            "w": 300,
+            "h": 284,
+            "inset": 0,
+            "tail": 0,
+            "ay": 938.5
+          },
+          {
+            "id": "wp-decisions",
+            "tree": "harness-init",
+            "column": 4,
+            "row": 7,
+            "x": 1620,
+            "y": 879.5,
+            "w": 300,
+            "h": 118,
+            "inset": 0,
+            "tail": 0,
+            "ay": 938.5
+          },
+          {
+            "id": "wp-know",
+            "tree": "harness-init",
+            "column": 5,
+            "row": 8,
+            "x": 2010,
+            "y": 879.5,
+            "w": 300,
+            "h": 118,
+            "inset": 0,
+            "tail": 0,
+            "ay": 938.5
+          },
+          {
+            "id": "wp-research",
+            "tree": "harness-init",
+            "column": 6,
+            "row": 9,
+            "x": 2400,
+            "y": 879.5,
+            "w": 300,
+            "h": 118,
+            "inset": 0,
+            "tail": 0,
+            "ay": 938.5
+          },
+          {
+            "id": "wp-skills",
+            "tree": "harness-init",
+            "column": 7,
+            "row": 10,
+            "x": 2790,
+            "y": 879.5,
+            "w": 300,
+            "h": 118,
+            "inset": 0,
+            "tail": 0,
+            "ay": 938.5
+          },
+          {
+            "id": "full-skills-q",
+            "tree": "harness-init",
+            "column": 8,
+            "row": 11,
+            "x": 3180,
+            "y": 831.5,
+            "w": 300,
+            "h": 214,
+            "inset": 0,
+            "tail": 0,
+            "ay": 938.5
+          },
+          {
+            "id": "wp-score",
+            "tree": "harness-init",
+            "column": 9,
+            "row": 12,
+            "x": 3570,
+            "y": 879.5,
+            "w": 300,
+            "h": 118,
+            "inset": 0,
+            "tail": 0,
+            "ay": 938.5
+          },
+          {
+            "id": "wp-checks",
+            "tree": "harness-init",
+            "column": 10,
+            "row": 13,
+            "x": 3960,
+            "y": 879.5,
+            "w": 300,
+            "h": 118,
+            "inset": 0,
+            "tail": 0,
+            "ay": 938.5
+          },
+          {
+            "id": "full-checks-q",
+            "tree": "harness-init",
+            "column": 11,
+            "row": 14,
+            "x": 4350,
+            "y": 805.5,
+            "w": 300,
+            "h": 266,
+            "inset": 0,
+            "tail": 0,
+            "ay": 938.5
+          },
+          {
+            "id": "full-commits",
+            "tree": "harness-init",
+            "column": 12,
+            "row": 15,
+            "x": 4740,
+            "y": 798.5,
+            "w": 300,
+            "h": 280,
+            "inset": 0,
+            "tail": 0,
+            "ay": 938.5
+          }
+        ],
+        "edges": [
+          {
+            "from": "setup-start",
+            "to": "setup-host"
+          },
+          {
+            "from": "setup-host",
+            "to": "setup-runtimes"
+          },
+          {
+            "from": "setup-host",
+            "to": "setup-runtimes"
+          },
+          {
+            "from": "setup-runtimes",
+            "to": "setup-skillsets"
+          },
+          {
+            "from": "setup-skillsets",
+            "to": "setup-command"
+          },
+          {
+            "from": "init-start",
+            "to": "init-depth"
+          },
+          {
+            "from": "init-depth",
+            "to": "basics-goal"
+          },
+          {
+            "from": "init-depth",
+            "to": "full-scope"
+          },
+          {
+            "from": "basics-goal",
+            "to": "basics-agents"
+          },
+          {
+            "from": "basics-agents",
+            "to": "handback"
+          },
+          {
+            "from": "basics-agents",
+            "to": "handback"
+          },
+          {
+            "from": "basics-agents",
+            "to": "handback"
+          },
+          {
+            "from": "full-scope",
+            "to": "full-agents"
+          },
+          {
+            "from": "full-agents",
+            "to": "wp-decisions"
+          },
+          {
+            "from": "full-agents",
+            "to": "wp-decisions"
+          },
+          {
+            "from": "full-agents",
+            "to": "wp-decisions"
+          },
+          {
+            "from": "wp-decisions",
+            "to": "wp-know"
+          },
+          {
+            "from": "wp-know",
+            "to": "wp-research"
+          },
+          {
+            "from": "wp-research",
+            "to": "wp-skills"
+          },
+          {
+            "from": "wp-skills",
+            "to": "full-skills-q"
+          },
+          {
+            "from": "full-skills-q",
+            "to": "wp-score"
+          },
+          {
+            "from": "full-skills-q",
+            "to": "wp-score"
+          },
+          {
+            "from": "wp-score",
+            "to": "wp-checks"
+          },
+          {
+            "from": "wp-checks",
+            "to": "full-checks-q"
+          },
+          {
+            "from": "full-checks-q",
+            "to": "full-commits"
+          },
+          {
+            "from": "full-checks-q",
+            "to": "full-commits"
+          },
+          {
+            "from": "full-checks-q",
+            "to": "full-commits"
+          },
+          {
+            "from": "full-commits",
+            "to": "handback"
+          },
+          {
+            "from": "setup-command",
+            "to": "init-start",
+            "label": "then, in your agent",
+            "link": true
+          }
+        ],
+        "width": 5490,
+        "height": 1473
+      }
+    },
+    "lotr-map.json": {
+      "validate": [],
+      "layout": {
+        "boxes": [
+          {
+            "id": "shire",
+            "tree": "shire-journey",
+            "column": 0,
+            "row": 0,
+            "x": 60,
+            "y": 333.5,
+            "w": 300,
+            "h": 110,
+            "inset": 0,
+            "tail": 0,
+            "ay": 388.5
+          },
+          {
+            "id": "route",
+            "tree": "shire-journey",
+            "column": 1,
+            "row": 1,
+            "x": 450,
+            "y": 235,
+            "w": 300,
+            "h": 307,
+            "inset": 0,
+            "tail": 0,
+            "ay": 388.5
+          },
+          {
+            "id": "bree",
+            "tree": "shire-journey",
+            "column": 2,
+            "row": 2,
+            "x": 840,
+            "y": 223.5,
+            "w": 300,
+            "h": 140,
+            "inset": 0,
+            "tail": 0,
+            "ay": 293.5
+          },
+          {
+            "id": "forest",
+            "tree": "shire-journey",
+            "column": 2,
+            "row": 15,
+            "x": 840,
+            "y": 435.5,
+            "w": 300,
+            "h": 118,
+            "inset": 0,
+            "tail": 0,
+            "ay": 494.5
+          },
+          {
+            "id": "rivendell",
+            "tree": "shire-journey",
+            "column": 3,
+            "row": 3,
+            "x": 1230,
+            "y": 275.5,
+            "w": 300,
+            "h": 226,
+            "inset": 0,
+            "tail": 108,
+            "ay": 334.5
+          },
+          {
+            "id": "pack",
+            "tree": "shire-journey",
+            "column": 4,
+            "row": 4,
+            "x": 1620,
+            "y": 201.5,
+            "w": 300,
+            "h": 374,
+            "inset": 0,
+            "tail": 0,
+            "ay": 388.5
+          },
+          {
+            "id": "pony",
+            "tree": "shire-journey",
+            "column": 5,
+            "row": 5,
+            "x": 2010,
+            "y": 272.5,
+            "w": 300,
+            "h": 232,
+            "inset": 0,
+            "tail": 0,
+            "ay": 388.5
+          },
+          {
+            "id": "meal",
+            "tree": "shire-journey",
+            "column": 6,
+            "row": 6,
+            "x": 2400,
+            "y": 329.5,
+            "w": 300,
+            "h": 118,
+            "inset": 0,
+            "tail": 0,
+            "ay": 388.5
+          },
+          {
+            "id": "descent",
+            "tree": "shire-journey",
+            "column": 7,
+            "row": 7,
+            "x": 2790,
+            "y": 318.5,
+            "w": 300,
+            "h": 140,
+            "inset": 0,
+            "tail": 0,
+            "ay": 388.5
+          },
+          {
+            "id": "armor",
+            "tree": "shire-journey",
+            "column": 8,
+            "row": 8,
+            "x": 3180,
+            "y": 329.5,
+            "w": 300,
+            "h": 118,
+            "inset": 0,
+            "tail": 0,
+            "ay": 388.5
+          },
+          {
+            "id": "mountains",
+            "tree": "shire-journey",
+            "column": 9,
+            "row": 9,
+            "x": 3570,
+            "y": 253.5,
+            "w": 300,
+            "h": 270,
+            "inset": 0,
+            "tail": 0,
+            "ay": 388.5
+          },
+          {
+            "id": "caradhras",
+            "tree": "shire-journey",
+            "column": 10,
+            "row": 10,
+            "x": 3960,
+            "y": 234.5,
+            "w": 300,
+            "h": 118,
+            "inset": 0,
+            "tail": 0,
+            "ay": 293.5
+          },
+          {
+            "id": "moria",
+            "tree": "shire-journey",
+            "column": 10,
+            "row": 12,
+            "x": 3960,
+            "y": 424.5,
+            "w": 300,
+            "h": 118,
+            "inset": 0,
+            "tail": 0,
+            "ay": 483.5
+          },
+          {
+            "id": "doom",
+            "tree": "shire-journey",
+            "column": 11,
+            "row": 11,
+            "x": 4350,
+            "y": 110,
+            "w": 300,
+            "h": 345,
+            "inset": 0,
+            "tail": 0,
+            "ay": 282.5
+          },
+          {
+            "id": "regroup",
+            "tree": "shire-journey",
+            "column": 11,
+            "row": 13,
+            "x": 4350,
+            "y": 527,
+            "w": 300,
+            "h": 140,
+            "inset": 0,
+            "tail": 0,
+            "ay": 597
+          },
+          {
+            "id": "halt",
+            "tree": "shire-journey",
+            "column": 12,
+            "row": 14,
+            "x": 4740,
+            "y": 139.5,
+            "w": 300,
+            "h": 498,
+            "inset": 0,
+            "tail": 0,
+            "ay": 388.5
+          }
+        ],
+        "edges": [
+          {
+            "from": "shire",
+            "to": "route"
+          },
+          {
+            "from": "route",
+            "to": "bree"
+          },
+          {
+            "from": "route",
+            "to": "forest"
+          },
+          {
+            "from": "bree",
+            "to": "rivendell"
+          },
+          {
+            "from": "forest",
+            "to": "rivendell"
+          },
+          {
+            "from": "rivendell",
+            "to": "pack"
+          },
+          {
+            "from": "pack",
+            "to": "pony"
+          },
+          {
+            "from": "pony",
+            "to": "meal"
+          },
+          {
+            "from": "meal",
+            "to": "descent"
+          },
+          {
+            "from": "descent",
+            "to": "armor"
+          },
+          {
+            "from": "armor",
+            "to": "mountains"
+          },
+          {
+            "from": "mountains",
+            "to": "caradhras"
+          },
+          {
+            "from": "mountains",
+            "to": "moria"
+          },
+          {
+            "from": "caradhras",
+            "to": "doom"
+          },
+          {
+            "from": "moria",
+            "to": "regroup"
+          },
+          {
+            "from": "regroup",
+            "to": "halt"
+          },
+          {
+            "from": "doom",
+            "to": "shire",
+            "label": "Back to the Shire",
+            "link": true
+          },
+          {
+            "from": "halt",
+            "to": "route",
+            "label": "Choose the road again",
+            "link": true
+          }
+        ],
+        "width": 5100,
+        "height": 817
+      }
+    },
+    "malformed-map.json": {
+      "validate": [
+        "map: persona.name must be a string",
+        "bree: unknown kind dragon",
+        "route: mood only on a waypoint",
+        "forest: mood must be a whole number from -2 to 2 (got 3)",
+        "forest: next target lost-rivendell does not exist",
+        "rivendell: thought must be a string",
+        "meal: pains must be a list of strings",
+        "descent: touchpoints must be a list of strings",
+        "armor: opportunities must be a list of strings"
+      ],
+      "layout": null
+    }
+  }
+}
