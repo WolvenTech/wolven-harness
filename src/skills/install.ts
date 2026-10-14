@@ -13,7 +13,7 @@ import type { SkillChoices, SkillScope } from './parse.js';
  * Home for global load paths. `io.env.HOME` is the value the CLI passes from
  * the environment; `os.homedir()` applies when that variable is unset.
  */
-function globalHome(io: Io): string {
+export function globalHome(io: Io): string {
   const home = io.env?.HOME;
   if (home !== undefined && home.length > 0) return home;
   return homedir();
@@ -81,7 +81,7 @@ async function listFiles(dir: string): Promise<string[]> {
 }
 
 /** True when every relative path and file byte in `dest` matches `source`. */
-async function sameTree(source: string, dest: string): Promise<boolean> {
+export async function sameTree(source: string, dest: string): Promise<boolean> {
   const sourceFiles = await listFiles(source);
   const destFiles = await listFiles(dest);
   if (sourceFiles.length !== destFiles.length) return false;

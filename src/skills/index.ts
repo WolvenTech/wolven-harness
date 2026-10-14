@@ -1,5 +1,6 @@
 import type { Io } from '../setup/types.js';
-import { installChoices } from './install.js';
+import { clashNotesFor } from './clash.js';
+import { globalHome, installChoices } from './install.js';
 import { parseSkillsArgv, resolveChoices, skillsHelpText } from './parse.js';
 
 /** True when `err` is a filesystem exception with a string `code`. */
@@ -33,6 +34,12 @@ export async function runSkills(argv: string[], io: Io): Promise<number> {
     if (!isFsError(err)) throw err;
     io.stderr.write(`wolven-harness skills: ${err.message}\n`);
     return 1;
+  }
+
+  // why: the scan runs after the copy so a global install reports the clash it
+  // just created, and it reads every user root whatever --scope selected.
+  for (const note of await clashNotesFor({ root: io.cwd, home: globalHome(io) })) {
+    io.stderr.write(`wolven-harness skills: warning: ${note}\n`);
   }
   return 0;
 }

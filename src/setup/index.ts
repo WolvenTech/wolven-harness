@@ -1,5 +1,7 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { clashNotesFor } from '../skills/clash.js';
+import { globalHome } from '../skills/install.js';
 import { applyTemplates } from './apply.js';
 import { HARNESS_SCORE_VERSION, harnessScoreWarning } from './harness-score.js';
 import { resolveOptions } from './options.js';
@@ -81,6 +83,9 @@ export async function runSetup(argv: string[], io: Io): Promise<number> {
     );
     const warning = await traced(io, debug, 'devDependencyWarning', () => devDependencyWarning(ctx));
     const scoreWarning = await traced(io, debug, 'harnessScoreWarning', () => harnessScoreWarning(ctx));
+    const clashWarnings = await traced(io, debug, 'clashWarning', () =>
+      clashNotesFor({ root: ctx.root, home: globalHome(ctx.io) }),
+    );
 
     ui.summary(buildSummary(applyResult, runtimeResult, scriptResult, opts.runtimes, opts.keptSets));
     if (verbose) {
@@ -92,6 +97,7 @@ export async function runSetup(argv: string[], io: Io): Promise<number> {
     }
     if (warning !== undefined) ui.warn(warning);
     if (scoreWarning !== undefined) ui.warn(scoreWarning);
+    for (const clashWarning of clashWarnings) ui.warn(clashWarning);
     const hasScripts = scriptResult.created.length + scriptResult.skipped.length > 0;
     ui.nextSteps(nextSteps(opts.runtimes, hasScripts));
   } catch (err) {
