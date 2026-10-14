@@ -184,6 +184,7 @@ test('proof-cloud-session-skills-consults-stay', async () => {
     /Loaded means the session skill list from the runtime\. When that list includes `pragmatic-guard`/,
   );
   assert.match(consult, /A folder on disk or a remembered name is not loaded/);
+  assert.doesNotMatch(consult, /pragmatic-guard was not consulted/);
   assert.doesNotMatch(consult, /That check does not consult the session skill list/);
   assert.match(flat, /That check does not consult the session skill list/);
 

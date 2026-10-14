@@ -12,12 +12,11 @@ Ask-only: `disable-model-invocation: true` stays set, and nothing merges
 from here.
 
 **Consult:** `pragmatic-guard`. Loaded means the session skill list from the
-runtime. When that list includes `pragmatic-guard`, consult it, then follow
-this skill. When it is absent, follow this skill's own steps; the reply and
-the pull request body include `pragmatic-guard was not consulted`. A folder
-on disk or a remembered name is not loaded. Name no install command for
-`pragmatic-guard`. That run writes no deferral and no sentence that the
-guard ran.
+runtime. When that list includes `pragmatic-guard`, consult it when the scope
+introduces unreviewed additions or complexity, then follow this skill. When it
+is absent or not consulted, follow this skill's own steps. A folder on disk or
+a remembered name is not loaded. Name no install command for `pragmatic-guard`.
+That run writes no deferral and no sentence claiming the guard ran.
 **Body template:** [pr-body-template.md](references/pr-body-template.md).
 **Closure (last batch before merge):** [pre-merge-closure.md](references/pre-merge-closure.md).
 **Host operations:** [host-operations.md](references/host-operations.md) — every host action this skill performs (push branch, open PR, read PR and diff) goes through that table.

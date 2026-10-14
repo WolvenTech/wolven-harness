@@ -137,6 +137,8 @@ test('proof-cloud-session-skills-consults-stay', async () => {
   const consult = flat.slice(consultAt, hostAt);
   assert.match(consult, /when the session skill list includes `pragmatic-guard`/);
   assert.match(consult, /A folder on disk or a remembered name is not loaded/);
+  assert.match(consult, /Reading `pragmatic-guard was not consulted`/);
+  assert.doesNotMatch(consult, /posted review include/);
   assert.doesNotMatch(consult, /That check does not consult the session skill list/);
 
   assert.ok(handoffAt >= 0 && verdictAt > handoffAt, 'expected the handoff before the verdict');

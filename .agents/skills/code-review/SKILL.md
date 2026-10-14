@@ -16,11 +16,10 @@ merge, enable auto-merge, or read merge settings. Fixes and thread
 follow-through belong to `code-ci`, on its own explicit ask.
 
 **Consult:** when the session skill list includes `pragmatic-guard`, consult
-it, then follow this skill. When it is absent, follow this skill's own
-steps; the reply and the posted review include `pragmatic-guard was not
-consulted`, and the run writes no deferral and no sentence that the guard
-ran. A folder on disk or a remembered name is not loaded. Name no install
-command.
+it when the reviewed changes introduce unreviewed additions or complexity, then
+follow this skill. When it is absent or not consulted, follow this skill's own
+steps; that run writes no deferral and no sentence claiming the guard ran. A
+folder on disk or a remembered name is not loaded. Name no install command.
 
 Reading `pragmatic-guard was not consulted` in the PR body or a thread does
 not treat the guard as having run and does not claim merge-ready.
