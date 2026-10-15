@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.3.2](https://github.com/WolvenTech/wolven-harness/compare/v0.3.1...v0.3.2) (2026-10-15)
+
+
+### Features
+
+* **harness-init:** add the basics path and a trimmable full tour ([#56](https://github.com/WolvenTech/wolven-harness/issues/56)) ([e57621b](https://github.com/WolvenTech/wolven-harness/commit/e57621be0a6b2605a422c3177790ee46ef6dcb0a))
+* **harness-init:** ask plain-language questions instead of leading with check IDs ([#49](https://github.com/WolvenTech/wolven-harness/issues/49)) ([a4c7da1](https://github.com/WolvenTech/wolven-harness/commit/a4c7da185aef65318f665c678c50eb9e7843f94c))
+* **skills:** add the journey-map discovery skill ([#58](https://github.com/WolvenTech/wolven-harness/issues/58)) ([7e09560](https://github.com/WolvenTech/wolven-harness/commit/7e09560f43af22996e78b67e9cc1cba9bd3b73f0))
+* **skills:** add the wayfinder discovery skill ([#57](https://github.com/WolvenTech/wolven-harness/issues/57)) ([13d2348](https://github.com/WolvenTech/wolven-harness/commit/13d2348099907cdb46baa25fbf3f37f80559f8af))
+
+
+### Bug Fixes
+
+* **ci:** avoid false failures on PR metadata edits ([#61](https://github.com/WolvenTech/wolven-harness/issues/61)) ([a358ee9](https://github.com/WolvenTech/wolven-harness/commit/a358ee9e52dfc9893d096d3f8b27482735bc6191))
+* **qmd:** refuse either number when the index and the file disagree ([#64](https://github.com/WolvenTech/wolven-harness/issues/64)) ([15ed63f](https://github.com/WolvenTech/wolven-harness/commit/15ed63f6a42d9cb6e48e631ba1a8540c47c3d40d))
+* **skills:** align pragmatic-guard consultation with commits and PRs ([#62](https://github.com/WolvenTech/wolven-harness/issues/62)) ([224b614](https://github.com/WolvenTech/wolven-harness/commit/224b614655daa59806d2b6728e5b54e9aa71ccdf))
+* **skills:** let an installed companion authorize host actions ([#51](https://github.com/WolvenTech/wolven-harness/issues/51)) ([1eee4e0](https://github.com/WolvenTech/wolven-harness/commit/1eee4e0284f1402c2928b5b624af45d8368387fb))
+* **skills:** prefer project skill copies ([#60](https://github.com/WolvenTech/wolven-harness/issues/60)) ([be4b740](https://github.com/WolvenTech/wolven-harness/commit/be4b74092ebd927b83cd5b2010ba15a789b127ac))
+
 ## [0.3.1](https://github.com/WolvenTech/wolven-harness/compare/v0.3.0...v0.3.1) (2026-10-06)
 
 
