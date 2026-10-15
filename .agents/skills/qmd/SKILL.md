@@ -22,6 +22,12 @@ The workflow is always: search for candidates, retrieve the full text with
 docids. Do not answer from snippets alone when the user needs facts,
 decisions, quotes, or nuance — snippets are only leads.
 
+`qmd get` returns the stored index body, not a live read of the file. Read
+that file before treating the indexed body as the decision. When they
+disagree, state neither number as the limit to use. A disagreement table may
+show both numbers. Do not tell the reader to use the on-disk number or the
+indexed number. A note is not the decision.
+
 **Search ADRs first, then widen.** Architecture decision records are the
 record you may depend on — search `-c adrs` first and widen only on a miss:
 
