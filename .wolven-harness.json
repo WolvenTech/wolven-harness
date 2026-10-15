@@ -13,7 +13,8 @@
   "comments": {
     "paths": [
       "src",
-      "test"
+      "test",
+      "renderer"
     ]
   },
   "skillSets": [
