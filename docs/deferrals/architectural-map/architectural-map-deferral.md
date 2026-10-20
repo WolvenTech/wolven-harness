@@ -29,7 +29,7 @@ Sources: [C4 notation](https://c4model.com/diagrams/notation), [C4 abstractions]
 
 ## Contract impact
 
-A new skill in a skill set is outside the public contract (ADR-004). It needs a set entry, the partition test and listings.
+A new skill in a skill set is outside the public contract (ADR-005). It needs a set entry, the partition test and listings.
 
 Every skill installs on its own, so it ships its own copy of the canvas, notes and feedback code, or a later decision makes that code a shared install.
 

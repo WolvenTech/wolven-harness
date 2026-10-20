@@ -26,7 +26,7 @@ status: stable
     - `templates/WOLVEN.md` says `.agents/rules/` load unconditionally, but `src/setup/runtimes.ts` wires Claude only with the `.claude/skills` symlink and an `@AGENTS.md` stub.
     - `setup` never checks that `qmd` is installed.
     - Every command `setup` prints assumes pnpm: `pnpm harness:validate`, `pnpm exec`, `pnpm dlx` and `pnpm add -D` (`src/setup/index.ts`, `src/setup/own-package.ts`, `src/setup/harness-score.ts`). So do `WOLVEN.md`, `wayfinder` and the CI wiring `harness-init` writes (`templates/.agents/skills/harness-init/references/validate-wiring.md`). Only `code-execute` names npm and yarn.
-    - `setup` exits 1 when not run at a git top-level ([ADR-004](../../adrs/adr-004-standalone-skills-contract.md)), so a user who cannot commit harness files into the client repo has no supported place to install.
+    - `setup` exits 1 when not run at a git top-level ([ADR-005](../../adrs/adr-005-install-anywhere-contract.md)), so a user who cannot commit harness files into the client repo has no supported place to install.
   - Prior art: Compozy up to v0.2.9 installs its CLI globally, runs `compozy setup` to link skills into each detected agent, and has its run commands refuse missing skill installs and offer to refresh outdated ones ([README at v0.2.9](https://github.com/compozy/compozy/blob/v0.2.9/README.md)).
 
 ## Goals
@@ -300,4 +300,4 @@ Traces to goal: The harness fits the project instead of forcing it.
 
 ## Handoff
 
-After approval → `code-spec`. The spec writes the next profile ADR as the full successor to ADR-004. That ADR carries the contract forward, replaces `setup`'s exit rule outside a git top-level, and adds `doctor`. This PRD does not authorize implementation.
+After approval → `code-spec`. The spec writes the next profile ADR as the full successor to the previous public-contract ADR. That ADR carries the contract forward, replaces `setup`'s exit rule outside a git top-level, and adds `doctor`. This PRD does not authorize implementation.

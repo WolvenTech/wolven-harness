@@ -4,17 +4,17 @@ import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { CONFIG_FILENAME, readConfig, writeConfig } from '../src/setup/config.js';
+import { RUNTIME_REGISTRY } from '../src/setup/runtimes.js';
 import { SetupError } from '../src/setup/types.js';
 import { makeRepo, run } from './helpers/fixture.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const ADR = path.join(ROOT, 'docs', 'adrs', 'adr-004-standalone-skills-contract.md');
-const ADR_005 = path.join(ROOT, 'docs', 'adrs', 'adr-005-install-anywhere-contract.md');
+const ADR = path.join(ROOT, 'docs', 'adrs', 'adr-005-install-anywhere-contract.md');
 
-/** Text of ADR-004 from the line starting with `start` up to the next line starting with `end` (or the end of the file). */
+/** Text of ADR-005 from the line starting with `start` up to the next line starting with `end` (or the end of the file). */
 function adrSection(adr: string, start: string, end?: string): string {
   const from = adr.indexOf(start);
-  assert.notEqual(from, -1, `ADR-004 has no "${start}" section`);
+  assert.notEqual(from, -1, `ADR-005 has no "${start}" section`);
   const rest = adr.slice(from + start.length);
   const to = end === undefined ? -1 : rest.indexOf(end);
   return to === -1 ? rest : rest.slice(0, to);
@@ -58,34 +58,34 @@ function assertSameSet(what: string, actual: Set<string>, documented: Set<string
   const stale = [...documented].filter((c) => !actual.has(c)).sort();
   assert.ok(
     undocumented.length === 0 && stale.length === 0,
-    `${what} drifted from ADR-004 (update the ADR with a superseding ADR, or revert):\n` +
+    `${what} drifted from ADR-005 (update the ADR with a superseding ADR, or revert):\n` +
       `  emitted by src/ but missing from the ADR: ${undocumented.join(', ') || '(none)'}\n` +
       `  listed in the ADR but not emitted by src/: ${stale.join(', ') || '(none)'}`,
   );
 }
 
-test('contract: validate finding codes match ADR-004', async () => {
+test('contract: validate finding codes match ADR-005', async () => {
   const adr = await readFile(ADR, 'utf8');
-  const table = adrSection(adr, 'Finding codes:', '### `comments`');
+  const table = adrSection(adr, '### `validate`', '### `comments`');
   const documented = new Set(backticked(table, /^[a-z0-9]+(-[a-z0-9]+)+$/));
-  assert.ok(documented.size > 0, 'ADR-004 lists no validate finding codes');
+  assert.ok(documented.size > 0, 'ADR-005 lists no validate finding codes');
 
   const files = await tsFiles(path.join(ROOT, 'src', 'validate'));
   assertSameSet('validate finding codes', await literalsFor('rule', files), documented);
 });
 
-test('contract: comments finding kinds match ADR-004', async () => {
+test('contract: comments finding kinds match ADR-005', async () => {
   const adr = await readFile(ADR, 'utf8');
   const para = adrSection(adr, 'Finding kinds:', '### `.wolven-harness.json`');
   const documented = new Set(backticked(para, /^[a-z]+(-[a-z]+)*$/));
-  assert.ok(documented.size > 0, 'ADR-004 lists no comments finding kinds');
+  assert.ok(documented.size > 0, 'ADR-005 lists no comments finding kinds');
 
   const files = ['rules.ts', 'leak-rules.ts'].map((f) => path.join(ROOT, 'src', 'comments', f));
   assertSameSet('comments finding kinds', await literalsFor('kind', files), documented);
 });
 
 test('contract: setup flags match ADR-005', async () => {
-  const adr = await readFile(ADR_005, 'utf8');
+  const adr = await readFile(ADR, 'utf8');
   const table = adrSection(adr, 'Flags. Each value flag', '- Any other argument');
   const documented = new Set(backticked(table, /^--[a-z-]+$/));
 
@@ -102,12 +102,55 @@ test('contract: setup flags match ADR-005', async () => {
   );
 });
 
+test('contract: runtime ids match ADR-005', async () => {
+  const adr = await readFile(ADR, 'utf8');
+  const list = adrSection(adr, '### Runtime ids', 'Each id names');
+  const documented = new Set(backticked(list, /^[a-z][a-z0-9-]*$/));
+  assert.ok(documented.size > 0, 'ADR-005 lists no runtime ids');
+
+  const actual = new Set(RUNTIME_REGISTRY.map((row) => row.id));
+  assertSameSet('runtime ids', actual, documented);
+});
+
+test('contract: doctor finding codes match ADR-005', async () => {
+  const adr = await readFile(ADR, 'utf8');
+  const table = adrSection(adr, '### `doctor`', '### `skills`');
+  const documented = new Set(backticked(table, /^doctor-[a-z-]+$/));
+  assert.ok(documented.size > 0, 'ADR-005 lists no doctor finding codes');
+
+  const files = (await tsFiles(path.join(ROOT, 'src', 'doctor'))).filter((file) => !file.endsWith('report.ts'));
+  const emitted = new Set<string>();
+  for (const file of files) {
+    for (const match of (await readFile(file, 'utf8')).matchAll(/'(doctor-[a-z-]+)'/g)) emitted.add(match[1]);
+  }
+  assertSameSet('doctor finding codes', emitted, documented);
+});
+
+test('contract: config keys match ADR-005', async () => {
+  const adr = await readFile(ADR, 'utf8');
+  const table = adrSection(
+    adr,
+    '### `.wolven-harness.json`, schema `version: 1`',
+    '### `.wolven-harness.manifest.json`',
+  );
+  const documented = new Set(
+    [...table.matchAll(/^\| `([A-Za-z.]+)` \|/gm)].map((match) => match[1]).filter((key) => !key.includes('.')),
+  );
+  assert.ok(documented.size > 0, 'ADR-005 lists no config keys');
+
+  const source = await readFile(path.join(ROOT, 'src', 'setup', 'config.ts'), 'utf8');
+  const block = /const KNOWN_KEYS = new Set\(\[([\s\S]*?)\]\);/.exec(source);
+  assert.ok(block, 'KNOWN_KEYS not found in src/setup/config.ts');
+  const actual = new Set([...block[1].matchAll(/'([A-Za-z]+)'/g)].map((match) => match[1]));
+  assertSameSet('config keys', actual, documented);
+});
+
 test('contract: --help lists the commands and --version', async () => {
   const dir = await makeRepo({});
   const result = await run(['--help'], { cwd: dir });
 
   assert.equal(result.code, 0);
-  for (const word of ['setup', 'validate', 'comments', '--version']) {
+  for (const word of ['setup', 'doctor', 'validate', 'comments', '--version']) {
     assert.ok(result.stdout.includes(word), `--help output does not mention ${word}`);
   }
 });

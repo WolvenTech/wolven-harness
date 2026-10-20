@@ -15,7 +15,7 @@ status: draft
 
 ## Contract impact
 
-None. ADR-004 already lists the Claude project path as `.claude/skills/<skill>/`. The symlink is how setup fills it.
+None. ADR-005 already lists the Claude project path as `.claude/skills/<skill>/`. The symlink is how setup fills it.
 
 ## Triggers
 

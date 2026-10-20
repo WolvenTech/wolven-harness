@@ -155,7 +155,7 @@
     { "from": "t-end", "to": "e-start", "label": "repair path" }
   ],
   "annotations": [
-    { "id": "a-adr", "target": "p-wire", "text": "Changes ADR-004's exit rule: the spec writes its successor ADR" },
+    { "id": "a-adr", "target": "p-wire", "text": "Changes ADR-005's exit rule: the spec writes its successor ADR" },
     { "id": "a-multi", "target": "p-home", "text": "One code repo per install; multi-repo is deferred" },
     { "id": "a-qmd", "target": "p-doctor", "text": "qmd has no opt-out: without it, doctor fails" },
     { "id": "a-drift", "target": "p-ok", "text": "The drift report replaces the deferred setup --check" },

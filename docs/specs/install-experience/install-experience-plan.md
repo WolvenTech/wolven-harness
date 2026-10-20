@@ -45,12 +45,12 @@ template owns both copies.
 | 11 | Install manifest | 06 | `src/setup/manifest.ts` (new), `src/setup/apply.ts`, `src/setup/runtimes.ts` (route wiring writes through the recorder), `test/setup-apply.test.ts` | `spawn` | [x] After `setup`, the manifest keys equal the set of files it created, including generated rule files, and the hashes match. A re-run adds only new entries. Proof: `proof-install-experience-manifest` |
 | 12 | Setup outside a git top-level | 09, 11 | `src/setup/index.ts`, `src/setup/options.ts` (top-level check only), `test/setup-outside-root.test.ts` | `spawn` | [x] Outside a top-level, the written set equals exactly `CORE_SKILLS`, the runtime skills wiring, the config and the manifest. It exits 0, and the next step names `harness-init`. A non-global executable path gets the global-install hint. Existing `setup-*` and `contract` tests pass unchanged. Proofs: `proof-install-experience-outside-root`, `proof-install-experience-global-hint`, `proof-install-experience-root-unchanged` |
 | 13 | **Wave 2 gate** | 10, 12 | — | `inline` | [x] Proofs of units 07 to 12 pass. The five wave-1 commands pass. A manual `node dist/cli.js setup` in an empty temp dir writes only the R3.2 set. On failure, **abort** before wave 3 |
-| 14 | `doctor` command, output and read-only run | 13 | `src/cli.ts`, `src/doctor/index.ts` (new), `src/doctor/report.ts` (new), `test/doctor.test.ts` | `spawn` | [ ] `wolven-harness doctor [--dir]` prints findings and the summary line in the ADR-005 shape, exits 0 or 1, and rejects unknown args. A folder with no config yields only `doctor-config`. The fixture tree's hashes are unchanged after a run. Proofs: `proof-install-experience-doctor-output`, `proof-install-experience-doctor-readonly` |
-| 15 | Doctor runtime checks | 14 | `src/doctor/runtime-checks.ts` (new), `test/doctor-runtime.test.ts` | `spawn` | [ ] `doctor-entry`, `doctor-rules` and `doctor-skills` fire per wired runtime from the registry, and `linked` layouts are followed through `harnessHome`. Proof: `proof-install-experience-doctor-checks` (runtime half) |
-| 16 | Doctor environment checks | 14 | `src/doctor/env-checks.ts` (new), `test/doctor-env.test.ts` | `spawn` | [ ] `doctor-docs`, `doctor-qmd`, `doctor-code-repo` and `doctor-not-global` fire on their fixtures, with a stub `PATH`. The audited-shape fixture exits 1 with the expected codes, and the repaired one exits 0. Proofs: `proof-install-experience-doctor-checks` (environment half), `proof-install-experience-no-code-writes`, `proof-install-experience-pm-global` |
-| 17 | Doctor drift report | 14 | `src/doctor/drift.ts` (new), `test/doctor-drift.test.ts`, `docs/deferrals/setup-drift-check/` (deleted) | `spawn` | [ ] Each drift class has a fixture that yields its warning, and a manifest-less fixture reports differing files as edited. `doctor-version-behind` fires on an older `packageVersion`. The deferral folder is gone. Proofs: `proof-install-experience-drift`, `proof-install-experience-drift-deferral` |
-| 18 | Supersede ADR-004 with ADR-005 | 15, 16, 17 | `test/contract.test.ts`, every live (non-archived) file outside `docs/adrs/` that claims ADR-004, `docs/adrs/adr-004-standalone-skills-contract.md` (status and `superseded_by` only) | `inline` | [ ] Contract tests read ADR-005, and cover the `doctor` codes, `--package-manager`, the runtime ids and the config keys. No live claim targets ADR-004. ADR-004 is `deprecated` with `superseded_by: adr-005-install-anywhere-contract`. Proof: `proof-install-experience-contract` with `pnpm validate` at 0 claim failures |
-| 19 | **Wave 3 gate** | 18 | — | `inline` | [ ] Proofs of units 14 to 18 pass. The five commands pass. `node dist/cli.js doctor --dir <fixture>` exits 1 on the audited-shape fixture and 0 on the repaired one. On failure, **abort** before wave 4 |
+| 14 | `doctor` command, output and read-only run | 13 | `src/cli.ts`, `src/doctor/index.ts` (new), `src/doctor/report.ts` (new), `test/doctor.test.ts` | `spawn` | [x] `wolven-harness doctor [--dir]` prints findings and the summary line in the ADR-005 shape, exits 0 or 1, and rejects unknown args. A folder with no config yields only `doctor-config`. The fixture tree's hashes are unchanged after a run. Proofs: `proof-install-experience-doctor-output`, `proof-install-experience-doctor-readonly` |
+| 15 | Doctor runtime checks | 14 | `src/doctor/runtime-checks.ts` (new), `test/doctor-runtime.test.ts` | `spawn` | [x] `doctor-entry`, `doctor-rules` and `doctor-skills` fire per wired runtime from the registry, and `linked` layouts are followed through `harnessHome`. Proof: `proof-install-experience-doctor-checks` (runtime half) |
+| 16 | Doctor environment checks | 14 | `src/doctor/env-checks.ts` (new), `test/doctor-env.test.ts` | `spawn` | [x] `doctor-docs`, `doctor-qmd`, `doctor-code-repo` and `doctor-not-global` fire on their fixtures, with a stub `PATH`. The audited-shape fixture exits 1 with the expected codes, and the repaired one exits 0. Proofs: `proof-install-experience-doctor-checks` (environment half), `proof-install-experience-no-code-writes`, `proof-install-experience-pm-global` |
+| 17 | Doctor drift report | 14 | `src/doctor/drift.ts` (new), `test/doctor-drift.test.ts`, `docs/deferrals/setup-drift-check/` (deleted) | `spawn` | [x] Each drift class has a fixture that yields its warning, and a manifest-less fixture reports differing files as edited. `doctor-version-behind` fires on an older `packageVersion`. The deferral folder is gone. Proofs: `proof-install-experience-drift`, `proof-install-experience-drift-deferral` |
+| 18 | Supersede the previous contract ADR with ADR-005 | 15, 16, 17 | `test/contract.test.ts`, every live (non-archived) file outside `docs/adrs/` that claims the previous contract ADR, and that ADR's status and `superseded_by` | `inline` | [x] Contract tests read ADR-005, and cover the `doctor` codes, `--package-manager`, the runtime ids and the config keys. No live claim targets the previous contract ADR. That ADR is `deprecated` with `superseded_by: adr-005-install-anywhere-contract`. Proof: `proof-install-experience-contract` with `pnpm validate` at 0 claim failures |
+| 19 | **Wave 3 gate** | 18 | — | `inline` | [x] Proofs of units 14 to 18 pass. The five commands pass. `node dist/cli.js doctor --dir <fixture>` exits 1 on the audited-shape fixture and 0 on the repaired one. On failure, **abort** before wave 4 |
 | 20 | harness-init: harness home and linked layout | 19 | `templates/.agents/skills/harness-init/SKILL.md`, `templates/.agents/skills/harness-init/references/layout.md` (new), their `.agents/skills/harness-init/` copies, `test/harness-init-layout.test.ts` | `spawn` | [ ] The skill asks before `git init`, gitignores `codeRepo` and records `layout: "home"`. For a linked layout, it creates the three symlinks and replaces bootstrap copies only on matching manifest hashes. It forbids moves. Proofs: `proof-install-experience-init-home`, `proof-install-experience-init-linked` |
 | 21 | harness-init: commit convention | 20 | `templates/.agents/skills/harness-init/SKILL.md` (convention step), `templates/.agents/skills/harness-init/references/convention.md` (new), their `.agents/skills/harness-init/` copies, `test/harness-init-layout.test.ts` (convention case) | `spawn` | [ ] The step reads 30 subjects, proposes a pattern at 80% agreement, falls back to Conventional Commits, and records both config shapes after confirmation. Proof: `proof-install-experience-convention-init` |
 | 22 | code-commit and code-pr follow the recorded convention | 19 | `templates/.agents/skills/code-commit/SKILL.md`, `templates/.agents/skills/code-pr/SKILL.md`, their `.agents/skills/` copies, `test/convention-skills.test.ts` | `spawn` | [ ] Both skills read `commitConvention` for `codeRepo` work and keep Conventional Commits in the harness home. Proof: `proof-install-experience-convention-skills` |
@@ -219,7 +219,7 @@ Units run in parallel only when their Owns are disjoint:
 | `HEAD` commit | `10a18b4` |
 | `git status` summary | dirty — units 07, 08 and 11 own the modified paths; this unit's Owns start clean |
 | Intended diff scope | `src/setup/package-manager.ts` (new), `src/setup/options.ts` (`--package-manager` only), `src/setup/own-package.ts`, `src/setup/harness-score.ts`, `test/package-manager.test.ts` (new), plus the pnpm assertions in `test/install-devdep.test.ts` and the warning assertion in `test/setup-harness-score.test.ts`, the setup-flags test in `test/contract.test.ts` (reads ADR-005), and the setup usage lines in `src/cli.ts` |
-| Decision on every discrepancy | resolved — `--package-manager` is in ADR-005 but not ADR-004, so the flags contract test reads ADR-005 for that one case (unit 18 repoints the rest); the existing warning assertions name pnpm, which a `package.json` without a signal no longer resolves to |
+| Decision on every discrepancy | resolved — `--package-manager` is in ADR-005 but not in the previous contract ADR, so the flags contract test reads ADR-005 for that one case (unit 18 repoints the rest); the existing warning assertions name pnpm, which a `package.json` without a signal no longer resolves to |
 
 ### Unit 10 — Templates call `wolven-harness` directly
 
@@ -256,3 +256,51 @@ Units run in parallel only when their Owns are disjoint:
 | `git status` summary | dirty — the wave-2 batch (units 07–12 plus the runtime-id prerequisite) is uncommitted |
 | Intended diff scope | the wave-2 batch, no new writes |
 | Decision on every discrepancy | none — `pnpm build && pnpm test && pnpm lint && pnpm validate && pnpm comments` passed at 872 tests, and a manual `node dist/cli.js setup` in an empty folder wrote exactly the R3.2 set |
+
+### Unit 14 — `doctor` command, output and read-only run
+
+| Field | Value |
+|-------|-------|
+| Unit identifier | 14 — `doctor` command, output and read-only run (wave 3, frontier 1) |
+| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Obligation / proof status | R7.1 (output/config/read-only half), R7.2, R7.5 / `proof-install-experience-doctor-output`, `proof-install-experience-doctor-readonly` — done |
+| `HEAD` commit | `e4b91b1` |
+| `git status` summary | clean at dispatch |
+| Intended diff scope | `src/cli.ts` (dispatch and usage), `src/doctor/index.ts` (new), `src/doctor/report.ts` (new), `test/doctor.test.ts` (new), plus the three check-module stubs `src/doctor/runtime-checks.ts`, `src/doctor/env-checks.ts`, `src/doctor/drift.ts` that units 15–17 will fill |
+| Decision on every discrepancy | resolved — units 15–17 run in parallel and must not all edit `src/doctor/index.ts`, so this unit scaffolds each check module with a no-op export and wires all three into the default check list; 15–17 own only their module body and test file |
+
+### Units 15–17 — Doctor checks and drift
+
+| Field | Value |
+|-------|-------|
+| Unit identifier | 15 runtime checks; 16 environment checks; 17 drift and version-behind (wave 3, frontier 2) |
+| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Obligation / proof status | R7.1, R7.2, R4.4, R5.3, R7.4, R9.3 / `proof-install-experience-doctor-checks`, `proof-install-experience-no-code-writes`, `proof-install-experience-pm-global`, `proof-install-experience-drift`, `proof-install-experience-drift-deferral` — done |
+| `HEAD` commit | `e4b91b1` |
+| `git status` summary | dirty — units 14–17's own files; the three units run on disjoint paths |
+| Intended diff scope | `src/doctor/{runtime-checks,env-checks,drift}.ts` (one each), `test/doctor-{runtime,env,drift}.test.ts` (one each), and unit 17 deletes `docs/deferrals/setup-drift-check/` |
+| Decision on every discrepancy | resolved — unit 14 scaffolds all three modules and wires them into `DEFAULT_CHECKS`, so each unit fills one body and no unit edits `index.ts`; the plan's split test-file rule keeps the proof files disjoint |
+
+### Unit 18 — Supersede the previous contract ADR
+
+| Field | Value |
+|-------|-------|
+| Unit identifier | 18 — Supersede the previous contract ADR with ADR-005 (wave 3, frontier 3, inline) |
+| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Obligation / proof status | R9.1 / `proof-install-experience-contract` — done |
+| `HEAD` commit | `e4b91b1` |
+| `git status` summary | dirty — the wave-3 batch; the deferral deletion is staged so `git ls-files` matches the worktree |
+| Intended diff scope | `test/contract.test.ts`, every live claim to the previous contract ADR (25 files: skills, live docs, site pages, the profile comments), and that ADR's `status`/`superseded_by` |
+| Decision on every discrepancy | resolved — ADR-005 carries two `Finding codes:` sections (doctor first, validate second), so the validate-codes test anchors on the `### validate` section; the repoint also covered the two `// why:` comments in `src/validate/profile.ts`, which R9.1's "every live file" requires even though the spec freezes that folder |
+
+### Unit 19 — Wave 3 gate
+
+| Field | Value |
+|-------|-------|
+| Unit identifier | 19 — Wave 3 gate (wave 3, frontier 4, inline) |
+| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Obligation / proof status | Units 14–18 proofs — done; gate — pass |
+| `HEAD` commit | `e4b91b1` |
+| `git status` summary | dirty — the wave-3 batch is uncommitted, with the deferral deletion staged |
+| Intended diff scope | the wave-3 batch, no new writes |
+| Decision on every discrepancy | none — `pnpm build && pnpm test && pnpm lint && pnpm validate && pnpm comments` passed at 915 tests, and the doctor smoke exited 1 on the audited-shape fixture and 0 on the repaired one |
