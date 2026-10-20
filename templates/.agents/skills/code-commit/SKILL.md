@@ -143,6 +143,16 @@ resent an already-processed event. Retries are now keyed by the
 provider's idempotency id, so a replay is a no-op.
 ```
 
+### Wave batch (more than one unit)
+
+A wave batch of more than one unit gets **one** Conventional Commit: a
+subject that states the batch's outcome and a body of **at most three
+lines**. Never join per-unit subjects into one message.
+
+A one-unit wave and a standalone commit keep the message shape above: no
+invented batch summary and no three-line cap. The split rule for unrelated
+contexts still applies (see Multi-commit heuristics).
+
 Common types: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`, `ci`,
 `style`, `perf`.
 
