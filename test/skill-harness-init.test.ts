@@ -76,7 +76,10 @@ test('skill-shape: re-run skips step 0, step 1, and resumes a draft session note
   const skill = await readSkill('harness-init');
   const flat = flatten(skill.body);
 
-  assert.match(flat, /step 0 is skipped when `WOLVEN\.md` is already gone, or `AGENTS\.md` already mentions it/i);
+  assert.match(
+    flat,
+    /step 0 is skipped when `WOLVEN\.md` is already gone, or `AGENTS\.md` already holds the harness start marker/i,
+  );
   assert.match(flat, /step 1 is skipped when there are no legacy-adr warnings/i);
   assert.match(flat, /draft.*session note.*interrupted run.*is resumed/i);
   assert.match(flat, /resumed, not replaced/i);

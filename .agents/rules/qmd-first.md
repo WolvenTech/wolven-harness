@@ -1,6 +1,7 @@
 ---
 description: Search docs/ with QMD before answering from memory or the web; ADRs first, then widen.
 alwaysApply: true
+trigger: always_on
 ---
 
 # QMD before web
@@ -38,7 +39,9 @@ indexed number.
    over bare text.
 2. `qmd get` / `multi-get` retrieve the stored body. Read the file before
    treating that body as the decision.
-3. Only then use the web.
+3. When a harness tool such as `qmd` fails, tell the Human which tool failed
+   and the error before using a fallback.
+4. Only then use the web.
 
 Collection setup: `.qmd/index.yml`. After meaningful `docs/` writes:
 `qmd update` (then `qmd embed` if content changed).

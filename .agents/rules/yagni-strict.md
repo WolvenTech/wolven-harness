@@ -1,6 +1,7 @@
 ---
 description: Strict YAGNI enforcement via pragmatic-guard — challenge scope expansion, deferrals under docs/deferrals/ only.
 alwaysApply: true
+trigger: always_on
 ---
 
 # YAGNI Strict (pragmatic-guard)

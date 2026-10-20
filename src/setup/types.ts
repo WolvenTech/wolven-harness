@@ -35,7 +35,16 @@ export interface Prompter {
 }
 
 export type GitHost = 'gh' | 'bit';
-export type Runtime = 'claude' | 'codex' | 'cursor';
+export type Runtime =
+  | 'claude'
+  | 'codex'
+  | 'cursor'
+  | 'opencode'
+  | 'amp'
+  | 'copilot'
+  | 'gemini'
+  | 'kiro'
+  | 'antigravity';
 
 export interface Options {
   gitHost: GitHost;

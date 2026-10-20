@@ -32,12 +32,12 @@ template owns both copies.
 
 | # | Unit | Depends | Owns | Subagent | Done when |
 |---|------|---------|------|----------|-----------|
-| 01 | Runtime registry | — | `src/setup/runtimes.ts` (registry data and its types), `src/setup/types.ts`, `test/runtime-registry.test.ts` | `spawn` | [ ] The registry exports nine complete rows, and marker paths resolve under overridden `HOME`, `XDG_CONFIG_HOME` and `CODEX_HOME`. Proof: `proof-install-experience-registry` |
-| 02 | Rule frontmatter and truthful router text | — | `templates/.agents/rules/*.md`, `.agents/rules/*.md`, `templates/WOLVEN.md`, `test/rules-frontmatter.test.ts` | `spawn` | [ ] Each rule carries `trigger: always_on`. `WOLVEN.md` no longer says the rules "load unconditionally". `qmd-first.md` tells the agent to report a failed harness tool before falling back. Proofs: `proof-install-experience-rule-frontmatter`, `proof-install-experience-tool-report` |
-| 03 | Native rules wiring in setup | 01 | `src/setup/runtimes.ts` (wiring functions), `src/setup/summary.ts`, `test/setup-native-wiring.test.ts` | `spawn` | [ ] For each native row, `setup` creates the wiring path from the registry. An existing `opencode.json` stays byte-identical and is named in the summary. With `codex` wired, no native rule wiring is created for any runtime. Proofs: `proof-install-experience-native-wiring`, `proof-install-experience-inline-rules` (setup half) |
-| 04 | harness-init: Full and Light only, with markers | 02 | `templates/.agents/skills/harness-init/SKILL.md`, `templates/.agents/skills/harness-init/references/entry-modes.md`, their `.agents/skills/harness-init/` copies, `templates/WOLVEN.md` (markers only), `test/harness-init-entry.test.ts` | `spawn` | [ ] Mention-only is gone. Both modes write the start and end markers. When `codex` is wired, the section holds the rule bodies between the rules markers. Proofs: `proof-install-experience-entry-modes`, `proof-install-experience-inline-rules` (harness-init half) |
-| 05 | `step0-pending` keys on the marker | — | `src/validate/spine.ts`, `test/spine.test.ts` | `spawn` | [ ] An `AGENTS.md` with only the mention line warns `step0-pending`, and one with the markers doesn't. Proof: `proof-install-experience-step0-marker` |
-| 06 | **Wave 1 gate** | 03, 04, 05 | — | `inline` | [ ] Proofs of units 01 to 05 pass. `pnpm build && pnpm test && pnpm lint && pnpm validate && pnpm comments` pass. On failure, **abort** before wave 2 |
+| 01 | Runtime registry | — | `src/setup/runtimes.ts` (registry data and its types), `src/setup/types.ts`, `test/runtime-registry.test.ts` | `spawn` | [x] The registry exports nine complete rows, and marker paths resolve under overridden `HOME`, `XDG_CONFIG_HOME` and `CODEX_HOME`. Proof: `proof-install-experience-registry` |
+| 02 | Rule frontmatter and truthful router text | — | `templates/.agents/rules/*.md`, `.agents/rules/*.md`, `templates/WOLVEN.md`, `test/rules-frontmatter.test.ts` | `spawn` | [x] Each rule carries `trigger: always_on`. `WOLVEN.md` no longer says the rules "load unconditionally". `qmd-first.md` tells the agent to report a failed harness tool before falling back. Proofs: `proof-install-experience-rule-frontmatter`, `proof-install-experience-tool-report` |
+| 03 | Native rules wiring in setup | 01 | `src/setup/runtimes.ts` (wiring functions), `src/setup/summary.ts`, `test/setup-native-wiring.test.ts` | `spawn` | [x] For each native row, `setup` creates the wiring path from the registry. An existing `opencode.json` stays byte-identical and is named in the summary. With `codex` wired, no native rule wiring is created for any runtime. Proofs: `proof-install-experience-native-wiring`, `proof-install-experience-inline-rules` (setup half) |
+| 04 | harness-init: Full and Light only, with markers | 02 | `templates/.agents/skills/harness-init/SKILL.md`, `templates/.agents/skills/harness-init/references/entry-modes.md`, their `.agents/skills/harness-init/` copies, `templates/WOLVEN.md` (markers only), `test/harness-init-entry.test.ts` | `spawn` | [x] Mention-only is gone. Both modes write the start and end markers. When `codex` is wired, the section holds the rule bodies between the rules markers. Proofs: `proof-install-experience-entry-modes`, `proof-install-experience-inline-rules` (harness-init half) |
+| 05 | `step0-pending` keys on the marker | — | `src/validate/spine.ts`, `test/spine.test.ts` | `spawn` | [x] An `AGENTS.md` with only the mention line warns `step0-pending`, and one with the markers doesn't. Proof: `proof-install-experience-step0-marker` |
+| 06 | **Wave 1 gate** | 03, 04, 05 | — | `inline` | [x] Proofs of units 01 to 05 pass. `pnpm build && pnpm test && pnpm lint && pnpm validate && pnpm comments` pass. On failure, **abort** before wave 2 |
 | 07 | Runtime detection and confirmation | 06 | `src/setup/options.ts` (detection, prompt initial values, `--runtimes` values), `test/setup-runtimes.test.ts` | `spawn` | [ ] On a TTY, the prompt pre-selects runtimes whose markers exist. With no markers, nothing is pre-selected. `--runtimes` accepts every registry id. Proofs: `proof-install-experience-detect`, `proof-install-experience-detect-none` |
 | 08 | Config accepts the new optional keys | 06 | `src/setup/config.ts`, `test/config-keys.test.ts` | `spawn` | [ ] `packageManager`, `layout`, `harnessHome`, `codeRepo` and `commitConvention` validate per ADR-005's config table. Bad values exit 1 naming the key. Existing configs still load. Proof: `proof-install-experience-contract` (config rows) |
 | 09 | Package-manager resolution and command forms | 07, 08 | `src/setup/package-manager.ts` (new), `src/setup/options.ts` (`--package-manager` only), `src/setup/own-package.ts`, `src/setup/harness-score.ts`, `test/package-manager.test.ts` | `spawn` | [ ] Resolution follows the R4.1 order and records `packageManager`. Several lockfiles without a TTY is an error naming the flag. Every printed command matches the manager × command-kind table. Proofs: `proof-install-experience-pm-detect`, `proof-install-experience-pm-commands` |
@@ -96,3 +96,67 @@ Units run in parallel only when their Owns are disjoint:
   They run in dependency order, never at the same time.
 - Units 04, 10, 20 and 21 each touch `harness-init`, and their dependencies
   keep them in sequence.
+
+## Execution / resume section
+
+`HEAD` at the start of wave 1 is `3027dc3`, and `git status` is clean.
+
+### Unit 01 — Runtime registry
+
+| Field | Value |
+|-------|-------|
+| Unit identifier | 01 — Runtime registry (frontier 1) |
+| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Obligation / proof status | R1.1 / `proof-install-experience-registry` — done |
+| `HEAD` commit | `3027dc3` |
+| `git status` summary | clean |
+| Intended diff scope | `src/setup/runtimes.ts`, `src/setup/types.ts`, `test/runtime-registry.test.ts` |
+| Decision on every discrepancy | none |
+
+### Unit 02 — Rule frontmatter and truthful router text
+
+| Field | Value |
+|-------|-------|
+| Unit identifier | 02 — Rule frontmatter and truthful router text (frontier 1) |
+| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Obligation / proof status | R2.1, R2.6 / `proof-install-experience-rule-frontmatter`, `proof-install-experience-tool-report` — done |
+| `HEAD` commit | `3027dc3` |
+| `git status` summary | clean |
+| Intended diff scope | `templates/.agents/rules/*.md`, `.agents/rules/*.md`, `templates/WOLVEN.md`, `test/rules-frontmatter.test.ts` |
+| Decision on every discrepancy | none |
+
+### Unit 05 — `step0-pending` keys on the marker
+
+| Field | Value |
+|-------|-------|
+| Unit identifier | 05 — `step0-pending` keys on the marker (frontier 1) |
+| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Obligation / proof status | R2.5 / `proof-install-experience-step0-marker` — done |
+| `HEAD` commit | `3027dc3` |
+| `git status` summary | clean |
+| Intended diff scope | `src/validate/spine.ts`, `test/spine.test.ts` |
+| Decision on every discrepancy | none |
+
+### Unit 03 — Native rules wiring in setup
+
+| Field | Value |
+|-------|-------|
+| Unit identifier | 03 — Native rules wiring in setup (frontier 2) |
+| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Obligation / proof status | R2.2, R2.3 (setup half) / `proof-install-experience-native-wiring`, `proof-install-experience-inline-rules` — done |
+| `HEAD` commit | `3027dc3` |
+| `git status` summary | dirty — units 01, 02 and 05 own the modified paths; this unit's Owns start clean |
+| Intended diff scope | `src/setup/runtimes.ts` (wiring functions only), `src/setup/summary.ts`, `test/setup-native-wiring.test.ts` (new) |
+| Decision on every discrepancy | resolved — `test/setup-runtimes.test.ts`'s "codex,cursor" cases stay correct because codex's inline strategy suppresses native rule wiring; no edit needed there. The six new ids are proved through `wireRuntimes`/`buildSummary` because `src/setup/config.ts` still rejects them at the flag parser (raised for wave 2) |
+
+### Unit 04 — harness-init: Full and Light only, with markers
+
+| Field | Value |
+|-------|-------|
+| Unit identifier | 04 — harness-init: Full and Light only, with markers (frontier 2) |
+| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Obligation / proof status | R2.3 (harness-init half), R2.4 / `proof-install-experience-entry-modes`, `proof-install-experience-inline-rules` — done |
+| `HEAD` commit | `3027dc3` |
+| `git status` summary | dirty — units 01, 02 and 05 own the modified paths; this unit's Owns start clean |
+| Intended diff scope | `templates/.agents/skills/harness-init/SKILL.md`, `templates/.agents/skills/harness-init/references/entry-modes.md`, their `.agents/skills/harness-init/` copies, `templates/WOLVEN.md` (markers only), `test/harness-init-entry.test.ts`, plus the one re-run-skip assertion at `test/skill-harness-init.test.ts:79` |
+| Decision on every discrepancy | resolved — the two `step0-pending` fixtures in `test/harness-init-entry.test.ts` now warn after unit 05; this unit's marker rewrite is what clears them. `test/skill-harness-init.test.ts:79` pins the old mention-based skip condition, which R2.5 falsifies; that single assertion moves to the start marker |

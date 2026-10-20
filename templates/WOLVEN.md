@@ -1,11 +1,13 @@
 Before anything else: run the `harness-init` skill, step 0 — it integrates this file into `AGENTS.md` and then removes it. `WOLVEN.md` is transient; do not treat it as durable documentation.
 
+<!-- wolven-harness:start -->
+
 # Wolven harness — entry router
 
 | Where | What lives there |
 | --- | --- |
 | `.agents/skills/` | Agent skills, one folder per skill, each with a `SKILL.md` |
-| `.agents/rules/` | Standing rules agents load unconditionally |
+| `.agents/rules/` | Standing rules the harness wires into each runtime |
 | `.agents/hooks/` | Hook scripts and wiring (placeholder until the project needs one) |
 | `docs/adrs/` | Architecture decision records (profile ADRs), flat: `adr-NNN-<slug>.md` |
 | `docs/prds/<slug>/` | Product requirement docs: `docs/prds/<slug>/<slug>-prd.md` |
@@ -70,3 +72,5 @@ wolven-harness validate
 Run validate after any change to `.agents/**` or `docs/**` — it enforces the
 writing profile (`docs/WRITING-PROFILE.md`) and the architecture-claims rule
 above.
+
+<!-- wolven-harness:end -->

@@ -76,7 +76,8 @@ before moving on.
 A re-run does not redo what an earlier run already finished:
 
 - Step 0 is skipped when `WOLVEN.md` is already gone, or `AGENTS.md`
-  already mentions it.
+  already holds the harness start marker (`<!-- wolven-harness:start -->`).
+  A plain mention of `WOLVEN.md` does not count.
 - An `AGENTS.md` that already holds the harness section was integrated by
   an earlier run, even when `setup` has since brought `WOLVEN.md` back:
   never fold it a second time; show the diff, ask whether to refresh the
@@ -129,10 +130,15 @@ before any file is written. See
 
 ### 0. Entry integration
 
-Fold the entry file into `AGENTS.md` in one of three modes — full, light,
-or mention-only. Put the mode to the Human as one question, the recommended
-mode first with the reason and the other two as options; never pick it
-silently. This step also checks for existing `AGENTS.md` content, an
+Fold the entry file into `AGENTS.md` in one of two modes — full or light.
+Put the mode to the Human as one question, the recommended mode first with
+the reason, and the other mode as the remaining option; never pick it
+silently. Both modes
+write the harness section between `<!-- wolven-harness:start -->` and
+`<!-- wolven-harness:end -->`; when `.wolven-harness.json` lists `codex`
+under `runtimes`, the section also carries the rule bodies between
+`<!-- wolven-harness:rules:start -->` and `<!-- wolven-harness:rules:end -->`.
+This step also checks for existing `AGENTS.md` content, an
 overlapping router or rule, a `CLAUDE.md` that should import `AGENTS.md`,
 any harness path an ignore rule keeps from other clones (proposing
 re-include rules), and existing content in the five doc folders the

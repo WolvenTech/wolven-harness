@@ -1,12 +1,18 @@
 # Entry Modes
 
-Step 0 folds `WOLVEN.md` into `AGENTS.md` in one of three modes — full,
-light, or mention-only — and runs five checks alongside whichever mode the
-Human picks. `WOLVEN.md`'s own first line names this step; every mode drops
-that line from whatever it carries forward.
+Step 0 folds `WOLVEN.md` into `AGENTS.md` in one of two modes — full or
+light — and runs five checks alongside whichever mode the Human picks.
+`WOLVEN.md`'s own first line names this step; both modes drop that line from
+whatever they carry forward, and both delete `WOLVEN.md` once the change
+lands.
+
+Both modes write the harness section between
+`<!-- wolven-harness:start -->` and `<!-- wolven-harness:end -->`, so a
+later run can find the section and refresh it instead of folding a second
+one.
 
 **Contents:** [Full](#full) · [Light](#light) ·
-[Mention-only](#mention-only) · [Deletion rule](#deletion-rule) ·
+[Rules for `codex`](#rules-for-codex) · [Deletion rule](#deletion-rule) ·
 [Already integrated](#already-integrated) ·
 [Recommending a mode](#recommending-a-mode) ·
 [Before writing](#before-writing) (the five checks) ·
@@ -16,7 +22,9 @@ that line from whatever it carries forward.
 
 The `WOLVEN.md` body, without its first line, goes into `AGENTS.md` as a
 new `## Wolven harness` section, added after whatever `AGENTS.md` already
-holds.
+holds. Its markers travel with it and stay around the whole section:
+`<!-- wolven-harness:start -->` before the `## Wolven harness` heading, and
+`<!-- wolven-harness:end -->` after its last line.
 
 **Heading levels:** the body opens with its own H1 title and continues in
 H2 sections. The new `## Wolven harness` heading replaces that H1, so drop
@@ -26,7 +34,13 @@ sections nest under `## Wolven harness` instead of sitting beside it.
 **No-`AGENTS.md` case:** when the repo has no `AGENTS.md` yet, `WOLVEN.md`
 (without its first line) becomes `AGENTS.md` outright — there is no
 existing content to fold into, so nothing is appended, and the body's H1
-stays as the file's title with its headings unchanged.
+stays as the file's title with its headings unchanged. The markers stay
+intact around the harness body.
+
+When `.wolven-harness.json` lists `codex` under `runtimes`, append the
+[rules block](#rules-for-codex) inside the section's markers, after the
+folded body and before `<!-- wolven-harness:end -->`. Otherwise write no
+rules block.
 
 `WOLVEN.md` is deleted once the fold lands.
 
@@ -42,14 +56,17 @@ full text, which this mode does not reuse.
 
 Hold this block when writing it into `AGENTS.md`. The `<standing-rules>`
 line is not literal: replace it with the bullet list under `WOLVEN.md`'s
-Standing rules heading.
+Standing rules heading. Both markers sit inside the `## Wolven harness`
+section.
 
 ```markdown
 ## Wolven harness
 
+<!-- wolven-harness:start -->
+
 Skills live under `.agents/skills/` (one folder per skill, each with a
-`SKILL.md`); standing rules live under `.agents/rules/` and load
-unconditionally:
+`SKILL.md`); standing rules live under `.agents/rules/`, wired into each
+runtime by `setup`:
 
 <standing-rules>
 
@@ -65,37 +82,70 @@ Search this repo's knowledge with `qmd query` before answering from memory
 or the web — ADRs first, then widen.
 
 Run `harness:validate` after any change to `.agents/**` or `docs/**`.
+
+<!-- wolven-harness:end -->
 ```
+
+When `.wolven-harness.json` lists `codex` under `runtimes`, insert the
+[rules block](#rules-for-codex) before the closing
+`<!-- wolven-harness:end -->`. Otherwise write no rules block.
 
 `WOLVEN.md` is deleted once the block lands.
 
-## Mention-only
+## Rules for `codex`
 
-`AGENTS.md` gets one line pointing at `WOLVEN.md`, appended after whatever
-it already holds.
+Read `.wolven-harness.json` before writing either mode. When its `runtimes`
+list includes `codex`, that runtime cannot import files, so the standing
+rules reach it only from `AGENTS.md`. Both modes then put the four rule
+bodies inside the harness section, between exactly
+`<!-- wolven-harness:rules:start -->` and
+`<!-- wolven-harness:rules:end -->`, and inside the section's own start and
+end markers.
 
-Hold this line verbatim when writing it into `AGENTS.md`:
+Read every `.agents/rules/*.md` and strip its YAML frontmatter. Replace the
+rule's H1 title with a `###` heading of the same name, put its body below,
+and demote every remaining heading one level so it nests under the rule.
+The block holds all four named rules in one span:
 
 ```markdown
-This repo's Wolven harness router, with its skills table and full layout, lives in WOLVEN.md.
+<!-- wolven-harness:rules:start -->
+
+### QMD before web
+
+#### Search ADRs first, then widen
+
+<qmd-first body>
+
+### YAGNI Strict (pragmatic-guard)
+
+<yagni-strict body>
+
+### Comment style
+
+<comments body>
+
+### Prefer project skills
+
+<project-skill-precedence body>
+
+<!-- wolven-harness:rules:end -->
 ```
 
-`WOLVEN.md` stays in the repo, without its first line — this is the one
-mode that keeps it.
+When `codex` is not wired, write no rules block: the wired runtimes read
+`.agents/rules/` through their own wiring.
 
 ## Deletion rule
 
-`WOLVEN.md` is deleted in full and light — both fold its content elsewhere,
-so nothing is left for it to hold. It is kept, minus its first line, in
-mention-only — the line in `AGENTS.md` only points at it, so the file it
-points to has to remain.
+`WOLVEN.md` is deleted in both full and light — each folds its content
+elsewhere, so nothing is left for it to hold. Deleting it is the last write
+of step 0, after the section markers and any rules block are in place.
 
 ## Already integrated
 
 `setup` writes every path that is missing, so running it again after a full
 or light fold (to wire another runtime, or after a package upgrade) brings
-`WOLVEN.md` back. Neither the light block nor the full body names
-`WOLVEN.md`, so `harness:validate` reports step 0 as pending again.
+`WOLVEN.md` back. The start marker shows the section is already integrated,
+so `harness:validate` does not report step 0 as pending.
 
 Before picking a mode, check whether `AGENTS.md` already holds the harness
 section: a `## Wolven harness` heading (full or light into an existing
@@ -120,17 +170,14 @@ first, but the Human always picks:
 The mode is always put to the Human as one question phrased in plain language:
 explain what each option does to the repo's instructions (full embeds the
 complete harness router and skills table directly into `AGENTS.md`; light adds
-a concise summary block with pointers to `.agents/`; mention-only keeps
-`WOLVEN.md` as a separate router file with one pointer line in `AGENTS.md`).
-Present the recommended mode first with the reason, and the other two modes as
-the remaining options. Mode names are supporting references, never unexplained
-jargon. Never pick a mode silently, even when one recommendation looks obvious.
+a concise summary block with pointers to `.agents/`). Present the recommended
+mode first with the reason, and the other mode as the remaining option. Mode
+names are supporting references, never unexplained jargon. Never pick a mode
+silently, even when one recommendation looks obvious.
 
-Ask it as "How much should we change your current AGENTS.md?", with three
+Ask it as "How much should we change your current AGENTS.md?", with two
 answers named for what they do:
 
-- **Just one line** (mention-only): adds a single line pointing to
-  `WOLVEN.md`, which stays as its own file.
 - **A short section** (light): adds a brief summary of where skills and
   rules live; the Human's own text stays untouched.
 - **The whole guide** (full): copies the full harness guide and skills list
