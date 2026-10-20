@@ -1,7 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { execGit, gitTopLevel } from '../git.js';
-import { isUnderDir } from '../path-exists.js';
+import { isUnderDir, pathExists } from '../path-exists.js';
 
 /**
  * Everything the check modules need: the git root, the scanned file list
@@ -68,9 +68,14 @@ export async function buildRepoContext(root: string, opts: BuildRepoContextOptio
   const files = allFiles.filter((f) => !dirs.some((dir) => isUnderDir(f, dir)));
   const ignoredCount = allFiles.length - files.length;
 
+  // why: git ls-files lists the index; a tracked file deleted but not staged is not in the working tree, and scanning it would abort the run.
+  const present = await Promise.all(
+    files.map(async (rel) => ((await pathExists(path.join(root, rel))) ? rel : undefined)),
+  );
+
   return {
     root,
-    files,
+    files: present.filter((rel): rel is string => rel !== undefined),
     ignore: { entries: opts.ignoreEntries, count: ignoredCount },
     read: (rel: string) => readFile(path.join(root, rel), 'utf8'),
   };
