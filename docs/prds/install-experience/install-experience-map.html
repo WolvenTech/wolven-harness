@@ -1,0 +1,2197 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Journey map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Inter:wght@400;500;600&display=swap">
+<style>
+:root {
+  --paper: #f6f6f9;
+  --grid: #dcdce6;
+  --card: #ffffff;
+  --line: #e3e3ec;
+  --ink: #1d1d27;
+  --muted: #6e7180;
+  --select: #5b5bd6;
+  --select-soft: #eeeefd;
+  --accent: #5b5bd6;
+  --edge: #a3a6b4;
+  --link: #8b5cf6;
+  --warn: #c2410c;
+  --warn-bg: #fff1e8;
+  --tag-ink: #4b5060;
+  --tag-bg: #f0f1f5;
+  --rec-ink: #0f766e;
+  --rec-bg: #e3f6f2;
+  --sticky-ink: #6b4e00;
+  --sticky-bg: #fff4c2;
+  --pain: #dc2626;
+  --pain-bg: #fde8e8;
+  --opp: #12a150;
+  --opp-bg: #e0f5ea;
+  --k-choice: #5b5bd6;
+  --k-check: #2563eb;
+  --k-text: #0f766e;
+  --k-step: #6e7180;
+  --k-card: #1d1d27;
+  --shadow: 0 1px 2px rgba(20, 20, 40, .06), 0 4px 16px rgba(20, 20, 40, .06);
+  --ui: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body { background: var(--paper); color: var(--ink); font: 14px var(--ui); overflow: hidden; overscroll-behavior: none; }
+[hidden] { display: none !important; }
+#stage {
+  position: fixed; inset: 0; touch-action: none; cursor: grab;
+  background-color: var(--paper);
+  background-image: radial-gradient(circle, var(--grid) 1px, transparent 1.2px);
+}
+#stage.panning { cursor: grabbing; }
+#stage:focus { outline: none; }
+.morewrap { position: relative; display: block; }
+#menu { position: absolute; top: 40px; right: 0; z-index: 8; min-width: 230px; background: var(--card); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); padding: 4px; display: flex; flex-direction: column; }
+#menu button { appearance: none; border: 0; background: transparent; display: flex; justify-content: space-between; align-items: center; gap: 24px; padding: 8px 10px; border-radius: 8px; font: 500 13px var(--ui); color: var(--ink); cursor: pointer; text-align: left; }
+#menu button:hover:not(:disabled) { background: var(--tag-bg); }
+#menu button:disabled { opacity: .4; cursor: default; }
+#menu button[aria-checked="true"] span::after { content: " ✓"; color: var(--select); }
+#menu kbd { font: 600 11px ui-monospace, Menlo, monospace; border: 1px solid var(--line); border-radius: 5px; padding: 1px 6px; color: var(--muted); background: var(--paper); }
+#timeline { bottom: calc(env(safe-area-inset-bottom, 0px) + 66px); left: 50%; transform: translateX(-50%); max-width: calc(100vw - 32px); height: 120px; overflow-x: auto; overflow-y: hidden; padding: 0; }
+#timeline svg { display: block; flex: none; }
+.tl-zero { stroke: var(--line); stroke-dasharray: 3 4; }
+.tl-seg { stroke-width: 3; stroke-linecap: round; fill: none; }
+.tl-cap { font: 600 9px var(--ui); letter-spacing: .1em; fill: var(--muted); }
+.tl-pt { cursor: pointer; }
+.tl-dot { stroke-width: 2; }
+.tl-newest { fill: none; stroke: var(--select); stroke-width: 2; opacity: .5; }
+.tl-face { font-size: 14px; pointer-events: none; font-family: "Apple Color Emoji", "Segoe UI Emoji", sans-serif; }
+#canvas { width: 100%; height: 100%; display: block; }
+#canvas text { user-select: none; -webkit-user-select: none; }
+
+.card { fill: var(--card); stroke: var(--line); stroke-width: 1; filter: url(#lift); }
+.card.start { fill: var(--select-soft); stroke: var(--select); stroke-width: 1.5; }
+.card.k-waypoint { fill: #fafafc; stroke: #c9cbd6; stroke-dasharray: 6 5; filter: none; }
+.card.k-step { fill: #fff; stroke: #c9cbd6; }
+.card.k-card { stroke: #cfd0dc; }
+.opt { fill: var(--card); stroke: var(--line); stroke-width: 1; transition: fill .12s, stroke .12s; }
+.hit:hover .opt, .hit:focus-visible .opt { fill: #f7f7ff; stroke: var(--select); }
+.opt.chosen { fill: var(--select-soft); stroke: var(--select); stroke-width: 1.5; }
+.radio { fill: var(--card); stroke: #b8bac8; stroke-width: 1.5; }
+.radio.on { stroke: var(--select); }
+.radio-dot { fill: var(--select); }
+.row { fill: transparent; transition: fill .12s; }
+.hit:hover .row, .hit:focus-visible .row { fill: #f4f5fb; }
+.box { fill: var(--card); stroke: #b8bac8; stroke-width: 1.5; }
+.box.on { fill: var(--select); stroke: var(--select); }
+.tick { fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.primary { fill: var(--select); transition: fill .12s; }
+.hit:hover .primary, .hit:focus-visible .primary { fill: #4747c2; }
+.rule { stroke: var(--line); }
+.note-btn { fill: transparent; transition: fill .12s; }
+.note-btn.has { fill: var(--sticky-bg); }
+.hit:hover .note-btn, .hit:focus-visible .note-btn { fill: var(--tag-bg); }
+.pencil { fill: none; stroke: var(--muted); stroke-width: 1.4; stroke-linejoin: round; }
+.row.bar { fill: transparent; }
+.bband { fill: transparent; transition: fill .12s; }
+.hit:hover .bband, .hit:focus-visible .bband { fill: rgba(255, 255, 255, .3); }
+.bband.neu { fill: transparent; }
+.hit:hover .bband.neu, .hit:focus-visible .bband.neu { fill: rgba(0, 0, 0, .08); }
+.bband.has { fill: var(--sticky-bg); }
+.hit:focus-visible .bband { stroke: var(--ink); stroke-width: 2; }
+.band-ico { fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.cloud-shadow { filter: drop-shadow(0 4px 7px rgba(20, 20, 40, .16)); }
+.cloud-edge { fill: #fff; stroke: #c3c8dc; stroke-width: 3; }
+.cloud-fill { fill: #fff; stroke: none; }
+.cloud-dot { fill: #fff; stroke: #c3c8dc; stroke-width: 1.6; filter: drop-shadow(0 2px 3px rgba(20, 20, 40, .14)); }
+.stickybox { stroke-width: 1; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .12)); }
+.sticky { fill: var(--sticky-bg); stroke: #f1df8a; }
+.hit { cursor: pointer; outline: none; }
+.hit:focus-visible .opt, .hit:focus-visible .row, .hit:focus-visible .note-btn { stroke: var(--select); stroke-width: 2; }
+.hit:focus-visible .primary { stroke: var(--ink); stroke-width: 2; }
+.dim { opacity: .45; }
+.faded { opacity: .3; transition: opacity .15s; }
+.ghost { opacity: .32; }
+.faded:hover, .ghost:hover, .faded:focus-within, .ghost:focus-within { opacity: .7; }
+
+.island {
+  position: fixed; z-index: 2; background: rgba(255, 255, 255, .92); backdrop-filter: blur(8px);
+  border-radius: 12px; box-shadow: var(--shadow); border: 1px solid var(--line);
+  display: flex; align-items: center; gap: 4px; padding: 4px;
+}
+#top { top: calc(env(safe-area-inset-top, 0px) + 14px); left: 16px; right: 16px; padding: 6px 6px 6px 16px; gap: 12px; flex-wrap: wrap; }
+#top .heading { display: flex; flex-direction: column; margin-right: auto; min-width: 0; }
+#top h1 { margin: 0; font: 600 15px/1.25 var(--ui); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#top p { margin: 0; font: 400 12.5px/1.3 var(--ui); color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#zoom { bottom: calc(env(safe-area-inset-bottom, 0px) + 14px); left: 16px; }
+.btn {
+  appearance: none; border: 1px solid transparent; background: transparent; color: var(--ink);
+  height: 34px; min-width: 34px; padding: 0 12px; border-radius: 9px;
+  font: 500 13px var(--ui); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; white-space: nowrap;
+}
+.btn:hover { background: var(--tag-bg); }
+.btn:focus-visible { outline: 2px solid var(--select); outline-offset: 1px; }
+.btn.secondary { border-color: var(--line); background: var(--card); }
+.btn.secondary[aria-pressed="true"] { background: var(--select-soft); border-color: var(--select); color: var(--select); }
+.btn.primary-btn { background: var(--select); color: #fff; }
+.btn.primary-btn:hover { background: #4747c2; }
+.btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+#pct { min-width: 56px; font-variant-numeric: tabular-nums; }
+.sep { width: 1px; align-self: stretch; background: var(--line); margin: 4px 2px; }
+#status {
+  position: fixed; right: 16px; bottom: calc(env(safe-area-inset-bottom, 0px) + 14px); z-index: 2;
+  padding: 8px 12px; font: 500 12.5px var(--ui); color: var(--muted);
+  background: rgba(255, 255, 255, .92); border: 1px solid var(--line); border-radius: 999px; box-shadow: var(--shadow);
+}
+#canvas .node-input {
+  width: 100%; height: 36px; border: 1px solid var(--line); border-radius: 8px; background: #fbfbfd;
+  font: 400 14px var(--ui); padding: 0 10px; color: var(--ink);
+}
+#canvas .node-input:focus { outline: 2px solid var(--select); outline-offset: -1px; background: #fff; }
+#canvas .note-input { background: var(--sticky-bg); border-color: #f1df8a; font: 500 19px Caveat, cursive; color: var(--sticky-ink); }
+#feedback-panel {
+  position: fixed; right: 16px; bottom: 70px; z-index: 4; background: var(--card); padding: 16px;
+  border: 1px solid var(--line); border-radius: 12px; width: min(520px, calc(100vw - 32px)); box-shadow: var(--shadow);
+  display: flex; flex-direction: column; gap: 10px;
+}
+#feedback-panel label { font: 600 13px var(--ui); }
+#feedback { width: 100%; height: 170px; font: 12px ui-monospace, Menlo, monospace; border: 1px solid var(--line); border-radius: 8px; padding: 8px; resize: vertical; }
+#feedback-panel .btn { align-self: flex-end; }
+#errors {
+  position: fixed; inset: 100px 24px 80px; overflow: auto; z-index: 5; background: var(--card);
+  border: 1px solid var(--warn); border-radius: 12px; padding: 24px; box-shadow: var(--shadow);
+}
+#errors h2 { margin: 0 0 12px; font: 600 18px var(--ui); color: var(--warn); }
+#errors pre { margin: 0; white-space: pre-wrap; font: 13px/1.6 ui-monospace, Menlo, monospace; }
+@media (max-width: 720px) {
+  #top p { display: none; }
+  #top { gap: 6px; }
+  #status { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .opt, .row, .primary, .note-btn, .faded { transition: none; }
+}
+</style>
+</head><body>
+<header class="island" id="top">
+  <div class="heading"><h1 id="title"></h1><p id="subtitle"></p></div>
+  <button class="btn secondary" id="prev" type="button" hidden>Prev</button>
+  <button class="btn secondary" id="next" type="button" hidden>Next</button>
+  <button class="btn" id="reset" type="button">Start over</button>
+  <span class="morewrap"><button class="btn" id="more" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="More controls">⋯</button><div id="menu" role="menu" hidden></div></span>
+  <button class="btn primary-btn" id="copy" type="button">Copy for agent</button>
+</header>
+
+<div id="stage">
+  <svg id="canvas" xmlns="http://www.w3.org/2000/svg" aria-label="Clickable journey map">
+    <defs><filter id="lift" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#14142a" flood-opacity=".08"/></filter></defs>
+    <g id="world"></g>
+  </svg>
+</div>
+
+<div class="island" id="timeline" hidden></div>
+<div class="island" id="zoom" role="group" aria-label="Zoom">
+  <button class="btn" id="zout" type="button" aria-label="Zoom out"><svg viewBox="0 0 20 20"><path d="M5 10h10"/></svg></button>
+  <button class="btn" id="pct" type="button" aria-label="Reset zoom to 100%">100%</button>
+  <button class="btn" id="zin" type="button" aria-label="Zoom in"><svg viewBox="0 0 20 20"><path d="M5 10h10M10 5v10"/></svg></button>
+  <span class="sep"></span>
+  <button class="btn" id="fit" type="button" aria-label="Fit everything shown"><svg viewBox="0 0 20 20"><path d="M3 7V3h4M13 3h4v4M17 13v4h-4M7 17H3v-4"/></svg></button>
+</div>
+
+<section id="errors" hidden role="alert"><h2>This map needs a fix</h2><pre id="error-text"></pre></section>
+<section id="feedback-panel" hidden><label for="feedback">Copy this and paste it into your agent chat</label><textarea id="feedback" readonly></textarea><button class="btn secondary" id="close-feedback" type="button">Close</button></section>
+<div id="status" role="status" aria-live="polite"></div>
+<script id="map-data" type="application/json">{"tree":{"version":1,"title":"Setup and init: today vs proposed","subtitle":"Walk each tree, compare the dashed links, leave notes, then copy for agent","trees":[{"id":"today","label":"Today (0.3.2)","nodes":[{"id":"t-start","kind":"start","label":"Today, 0.3.2","sub":"npx @wolven-tech/harness setup","next":"t-where"},{"id":"t-where","kind":"choice","tag":"setup","label":"Where does setup run?","options":[{"key":"root","label":"At a git top-level","next":"t-scaffold"},{"key":"outside","label":"Anywhere else","hint":"e.g. beside a client repo","next":"t-refuse"}]},{"id":"t-refuse","kind":"card","label":"setup exits 1","sections":[{"head":"What happens","items":["\"not a git top-level\"","No supported place when the client repo can't hold harness files","Users hand-roll a layout, like the audited install"]}]},{"id":"t-scaffold","kind":"waypoint","tag":"setup","label":"Scaffolds .agents/, docs/, WOLVEN.md; links .claude/skills; CLAUDE.md = @AGENTS.md","next":"t-qmd"},{"id":"t-qmd","kind":"waypoint","tag":"setup","label":"Writes .qmd/index.yml; never checks qmd is installed","next":"t-mode"},{"id":"t-mode","kind":"choice","tag":"harness-init step 0","label":"Entry mode for AGENTS.md?","options":[{"key":"full","label":"Full","hint":"WOLVEN.md folded in","next":"t-full"},{"key":"light","label":"Light","hint":"short block","next":"t-light"},{"key":"mention","label":"Mention-only","hint":"one plain-text line","next":"t-mention"}]},{"id":"t-full","kind":"waypoint","tag":"router","label":"Router in context; rules only as one-line bullets","next":"t-conv"},{"id":"t-light","kind":"waypoint","tag":"router","label":"Short block in context; rules only as bullets","next":"t-conv"},{"id":"t-mention","kind":"waypoint","tag":"router","label":"No import: router and rules never reach the agent","next":"t-conv"},{"id":"t-conv","kind":"waypoint","tag":"commits","label":"code-commit and code-pr: Conventional Commits only","next":"t-validate"},{"id":"t-validate","kind":"waypoint","tag":"validate","label":"Green as soon as AGENTS.md mentions WOLVEN.md","next":"t-end"},{"id":"t-end","kind":"card","label":"Looks finished, half works","sections":[{"head":"What the agent gets","items":["Skills, through .claude/skills","Router only in Full or Light","Rules: .agents/rules is not loaded by Claude Code (alwaysApply is Cursor's)","qmd missing: silent fallback to grep"]},{"head":"What flags it","items":["Nothing: validate is green and there is no doctor"]}]}]},{"id":"proposed","label":"Proposed","nodes":[{"id":"p-start","kind":"start","label":"Proposed","sub":"npm install -g @wolven-tech/harness","next":"p-where"},{"id":"p-where","kind":"choice","tag":"setup","label":"Where does setup run?","options":[{"key":"root","label":"At a git top-level","hint":"same as today","next":"p-scaffold"},{"key":"outside","label":"Anywhere else","hint":"now supported","next":"p-wire"}]},{"id":"p-scaffold","kind":"waypoint","tag":"setup","label":"Same scaffold as today","next":"p-mode"},{"id":"p-mode","kind":"waypoint","tag":"harness-init","label":"Entry mode as today, but every mode loads router and rules in each runtime","next":"p-conv"},{"id":"p-wire","kind":"waypoint","tag":"setup","label":"Writes only skills and runtime wiring in this folder","next":"p-handoff"},{"id":"p-handoff","kind":"waypoint","tag":"setup","label":"Prints: open your agent here and run harness-init","next":"p-layout"},{"id":"p-layout","kind":"choice","tag":"harness-init","label":"What does this folder hold?","default":"fresh","options":[{"key":"fresh","label":"Nothing yet","hint":"default layout","next":"p-home"},{"key":"existing","label":"An existing layout","hint":"e.g. harness beside the code","next":"p-keep"}]},{"id":"p-home","kind":"waypoint","tag":"harness-init","label":"Proposes a harness home: git init here after OK, code repo inside and in .gitignore","next":"p-conv"},{"id":"p-keep","kind":"waypoint","tag":"harness-init","label":"Recognises the layout, keeps it, wires the runtime in place","next":"p-conv"},{"id":"p-conv","kind":"choice","tag":"harness-init","label":"Code repo's commit convention?","default":"inferred","options":[{"key":"inferred","label":"Found in git log","hint":"e.g. DEV-123: …, Human confirms","next":"p-load"},{"key":"ask","label":"No clear pattern","hint":"ask; Conventional by default","next":"p-load"}]},{"id":"p-load","kind":"waypoint","tag":"runtime","label":"Router and four rules in context from turn one; a missing tool is reported, not routed around","next":"p-doctor"},{"id":"p-doctor","kind":"choice","tag":"doctor","label":"wolven-harness doctor: minimal install passes?","options":[{"key":"pass","label":"Every check passes","hint":"exit 0","next":"p-ok"},{"key":"fail","label":"Something fails","hint":"exit 1, each failure names its fix","next":"p-repair"}]},{"id":"p-repair","kind":"waypoint","tag":"harness-doctor skill","label":"One fix at a time, after OK; keeps the layout; refreshes unedited stale templates; reruns doctor","next":"p-fixed"},{"id":"p-ok","kind":"card","label":"Working install","sections":[{"head":"Minimal install","items":["Router and rules load in each wired runtime","Skills resolve where the agent opens","docs/ lives in a repo you can commit to","qmd installed and indexed"]},{"head":"Warnings only","items":["CLI not installed globally","Project skills older than the global CLI","Drift: edited, stale or missing template files"]}]},{"id":"p-fixed","kind":"card","label":"Repaired install","sections":[{"head":"Closing summary","items":["What changed","Declined fixes listed as still failing","doctor rerun result"]}]}]},{"id":"existing","label":"Existing install, after upgrade","nodes":[{"id":"e-start","kind":"start","label":"A half-working install","sub":"like the audited one","next":"e-doctor"},{"id":"e-doctor","kind":"waypoint","tag":"doctor","label":"wolven-harness doctor exits 1 and lists router, rules, qmd, unversioned docs","next":"e-skill"},{"id":"e-skill","kind":"waypoint","tag":"harness-doctor skill","label":"Proposes each fix; wires in place; never moves folders unless a check can't pass otherwise","next":"e-end"},{"id":"e-end","kind":"card","label":"Same layout, working install","sections":[{"head":"Not forced","items":["Layout kept","Client repo untouched","Convention recorded instead of overridden"]}]}]}],"links":[{"from":"t-where","to":"p-where","label":"outside now supported"},{"from":"t-mention","to":"p-mode","label":"every mode loads"},{"from":"t-conv","to":"p-conv","label":"learns the repo's convention"},{"from":"t-validate","to":"p-doctor","label":"doctor checks what validate can't"},{"from":"t-end","to":"e-start","label":"repair path"}],"annotations":[{"id":"a-adr","target":"p-wire","text":"Changes ADR-004's exit rule: the spec writes its successor ADR"},{"id":"a-multi","target":"p-home","text":"One code repo per install; multi-repo is deferred"},{"id":"a-qmd","target":"p-doctor","text":"qmd has no opt-out: without it, doctor fails"},{"id":"a-drift","target":"p-ok","text":"The drift report replaces the deferred setup --check"},{"id":"a-runtimes","target":"p-start","text":"setup detects installed agents (Claude Code and AGENTS.md runtimes); the Human confirms"},{"id":"a-pm-today","target":"t-scaffold","text":"Every printed command assumes pnpm"},{"id":"a-pm","target":"p-scaffold","text":"Commands use the project's npm, yarn or pnpm; no package.json means the global binary"}]},"path":"docs/prds/install-experience/install-experience-map.json"}</script>
+<script src="https://cdn.jsdelivr.net/npm/roughjs@4.6.6/bundled/rough.js" integrity="sha384-1NLkwxMO2sOqcq7rQkFBhIAUJtbt8ziLxhVKVgKfFGMEU8pF+GEq5LVogviveup6" crossorigin="anonymous"></script>
+<!-- journey-map:renderer --><script>// why: a classic script with no DOM and no modules, so the page inlines it and node:vm loads it unchanged.
+(() => {
+  const KINDS = ['start', 'choice', 'checklist', 'text', 'waypoint', 'card'];
+  const TICKET_TYPES = ['research', 'prototype', 'grilling', 'task'];
+  const TICKET_STATUSES = ['open', 'claimed', 'closed', 'out_of_scope'];
+
+  const JOURNEY_FIELDS = ['mood', 'thought', 'touchpoints', 'pains', 'opportunities'];
+
+  const MOOD = [
+    { value: -2, face: '\u{1F641}', name: 'Frustrated', color: '#dc2626', soft: '#fde4e4' },
+    { value: -1, face: '\u{1F615}', name: 'Uneasy', color: '#ea7a1a', soft: '#fdeedd' },
+    { value: 0, face: '\u{1F610}', name: 'Neutral', color: '#8b8fa3', soft: '#eceef3' },
+    { value: 1, face: '\u{1F642}', name: 'Positive', color: '#65a30d', soft: '#ecf7d6' },
+    { value: 2, face: '\u{1F603}', name: 'Delighted', color: '#12a150', soft: '#dcf5e7' },
+  ];
+
+  /** The MOOD entry for a node's `mood`, or null when it has none. */
+  const moodOf = (node) => (node.mood === undefined ? null : MOOD[node.mood + 2]);
+
+  /** A waypoint is a journey step on a map (or layout options) with a persona, or when it carries any journey field. */
+  const isStep = (node, map) =>
+    node.kind === 'waypoint' && (map?.persona !== undefined || JOURNEY_FIELDS.some((field) => node[field] !== undefined));
+
+  const isRecord = (value) => value !== null && typeof value === 'object' && !Array.isArray(value);
+  const isList = Array.isArray;
+
+  const all = (map) => (map.trees || []).flatMap((tree) => tree.nodes || []);
+
+  /** Ids a node leads to: each option of a choice, otherwise its single `next`. */
+  const outgoing = (node) => {
+    if (node.kind === 'choice') return isList(node.options) ? node.options.filter(isRecord).map((option) => option.next) : [];
+    return node.next ? [node.next] : [];
+  };
+
+  /** The entries of a ticket's list field, or none when the field is absent or not a list. */
+  const ticketEdges = (node, field) => (isList(node[field]) ? node[field] : []);
+
+  /**
+   * Checks a map and returns one error string per problem. Every string starts
+   * with `<nodeId>:` (or `<treeId>:` for a tree, `map:` for the whole map), so a
+   * reader can find the bad node without searching.
+   *
+   * `kinds` is the set of node kinds the caller allows and defaults to the six
+   * flow kinds. Passing a set that includes `ticket` allows ticket nodes, runs
+   * the ticket checks, and lets a tree made only of tickets omit its `start`.
+   */
+  function validate(map, { kinds = KINDS } = {}) {
+    if (!isRecord(map)) return ['map: must be a JSON object'];
+    const errors = [];
+    // hazard: a shape this check did not foresee must still reach the error panel, not throw past it.
+    try {
+      checkMap(map, errors, kinds);
+    } catch (error) {
+      errors.push(`map: could not check the map (${error.message})`);
+    }
+    return [...new Set(errors)];
+  }
+
+  function checkMap(map, errors, kinds) {
+    const byId = new Map();
+    const fail = (id, message) => errors.push(`${id || '(missing id)'}: ${message}`);
+
+    /** The object entries of a list; any other entry is named as an error and skipped. */
+    const objects = (value, owner, noun) =>
+      (isList(value) ? value : []).filter((entry, i) => {
+        if (!isRecord(entry)) fail(owner, `${noun} ${i + 1} must be an object`);
+        return isRecord(entry);
+      });
+    /** Like `objects`, and a value that is present but not a list is an error too. */
+    const list = (value, owner, noun) => {
+      if (value !== undefined && !isList(value)) fail(owner, `${noun}s must be a list`);
+      return objects(value, owner, noun);
+    };
+
+    if (map.version !== 1) errors.push('map: version must be 1');
+    if (!isList(map.trees) || !map.trees.length) errors.push('map: trees must be a nonempty array');
+
+    const trees = objects(map.trees, 'map', 'tree');
+    const treeIds = new Set();
+    trees.forEach((tree) => {
+      if (typeof tree.id !== 'string' || !tree.id) fail('map', `tree ${map.trees.indexOf(tree) + 1} has no id`);
+      else if (treeIds.has(tree.id)) fail(tree.id, 'duplicate tree id');
+      treeIds.add(tree.id);
+    });
+    const nodesOf = new Map(trees.map((tree) => [tree, list(tree.nodes, tree.id, 'node')]));
+    const nodes = [...nodesOf.values()].flat();
+
+    if (map.persona !== undefined && typeof map.persona?.name !== 'string') {
+      errors.push('map: persona.name must be a string');
+    }
+
+    for (const node of nodes) {
+      if (typeof node.id !== 'string' || !node.id) fail(node.id, 'missing id');
+      if (byId.has(node.id)) fail(node.id, 'duplicate id');
+      byId.set(node.id, node);
+      if (!kinds.includes(node.kind)) fail(node.id, `unknown kind ${node.kind}`);
+      if (typeof node.label !== 'string' || !node.label.trim()) fail(node.id, 'missing label');
+    }
+
+    /** Checks that `value` names a node (a ticket, when `ticketOnly`); `local`, when given, is the set of ids in the source node's own tree. */
+    const checkTarget = (id, field, value, { ticketOnly = false, local = null } = {}) => {
+      const target = byId.get(value);
+      if (!target) fail(id, `${field} target ${value} does not exist`);
+      else if (ticketOnly && target.kind !== 'ticket') fail(id, `${field} target ${value} is not a ticket`);
+      else if (local && !local.has(value)) fail(id, `${field} crosses trees; use links`);
+    };
+
+    /** Keys must be non-empty and unique; every entry needs a string label. */
+    const checkKeyedEntries = (node, entries, noun) => {
+      const keys = new Set();
+      for (const entry of entries) {
+        if (!entry.key || keys.has(entry.key)) fail(node.id, `missing or duplicate ${noun} key`);
+        keys.add(entry.key);
+        if (typeof entry.label !== 'string') fail(node.id, `missing ${noun} label`);
+      }
+      return keys;
+    };
+
+    const checkChoice = (node) => {
+      if (!isList(node.options) || !node.options.length) fail(node.id, 'missing options');
+      const keys = checkKeyedEntries(node, objects(node.options, node.id, 'option'), 'option');
+      if (node.default !== undefined && !keys.has(node.default)) fail(node.id, 'default is not an option key');
+    };
+
+    const checkChecklist = (node, local) => {
+      if (!isList(node.items)) fail(node.id, 'missing items');
+      const items = objects(node.items, node.id, 'item');
+      checkKeyedEntries(node, items, 'item');
+      for (const item of items) {
+        if (item.gates !== undefined && (!isList(item.gates) || item.gates.some((id) => typeof id !== 'string'))) {
+          fail(node.id, 'gates must be a list of waypoint ids');
+          continue;
+        }
+        for (const gated of item.gates || []) {
+          checkTarget(node.id, 'gates', gated, { local });
+          if (byId.has(gated) && byId.get(gated).kind !== 'waypoint') {
+            fail(node.id, `gates target ${gated} is not a waypoint`);
+          }
+        }
+      }
+    };
+
+    /** Journey fields belong on a waypoint; each is checked for shape. */
+    const checkJourney = (node) => {
+      const present = JOURNEY_FIELDS.filter((field) => node[field] !== undefined);
+      if (present.length && node.kind !== 'waypoint') fail(node.id, `${present.join(', ')} only on a waypoint`);
+      if (node.mood !== undefined && (!Number.isInteger(node.mood) || node.mood < -2 || node.mood > 2)) {
+        fail(node.id, `mood must be a whole number from -2 to 2 (got ${JSON.stringify(node.mood)})`);
+      }
+      if (node.thought !== undefined && typeof node.thought !== 'string') fail(node.id, 'thought must be a string');
+      for (const field of ['touchpoints', 'pains', 'opportunities']) {
+        const value = node[field];
+        if (value !== undefined && (!Array.isArray(value) || value.some((item) => typeof item !== 'string'))) {
+          fail(node.id, `${field} must be a list of strings`);
+        }
+      }
+    };
+
+    const checkSections = (node) => {
+      if (!Array.isArray(node.sections)) return fail(node.id, 'missing sections');
+      node.sections.forEach((section, i) => {
+        const where = `section ${i + 1}`;
+        if (section === null || typeof section !== 'object') return fail(node.id, `${where} must be an object`);
+        if (typeof section.head !== 'string') fail(node.id, `${where} head must be a string`);
+        if (!Array.isArray(section.items) || section.items.some((item) => typeof item !== 'string')) {
+          fail(node.id, `${where} items must be an array of strings`);
+        }
+        if (section.numbered !== undefined && typeof section.numbered !== 'boolean') {
+          fail(node.id, `${where} numbered must be a boolean`);
+        }
+      });
+    };
+
+    /** Ticket fields: type and status values, dependency edges, and the claim and undermined marks. */
+    const checkTicket = (node, local) => {
+      if (!TICKET_TYPES.includes(node.ticket)) fail(node.id, `bad ticket ${node.ticket}`);
+      if (!TICKET_STATUSES.includes(node.status)) fail(node.id, `bad status ${node.status}`);
+      for (const field of ['blocked_by', 'undermined_by']) {
+        if (node[field] !== undefined && !isList(node[field])) fail(node.id, `${field} must be a list`);
+      }
+      for (const blocker of ticketEdges(node, 'blocked_by')) {
+        checkTarget(node.id, 'blocked_by', blocker, { ticketOnly: true, local });
+      }
+      for (const mark of ticketEdges(node, 'undermined_by')) {
+        checkTarget(node.id, 'undermined_by', mark, { ticketOnly: true });
+      }
+      if ((node.claimed_by === undefined) !== (node.claimed_at === undefined)) {
+        fail(node.id, 'claimed_by and claimed_at must appear together');
+      }
+      if (ticketEdges(node, 'undermined_by').length && !['closed', 'claimed'].includes(node.status)) {
+        fail(node.id, `undermined_by needs status closed or claimed, not ${node.status}`);
+      }
+    };
+
+    const checkNode = (node, local) => {
+      checkJourney(node);
+      if (['start', 'checklist'].includes(node.kind) && !node.next) fail(node.id, 'missing next');
+      for (const next of outgoing(node)) checkTarget(node.id, 'next', next, { local });
+      if (node.kind === 'choice') checkChoice(node);
+      if (node.kind === 'checklist') checkChecklist(node, local);
+      if (node.kind === 'waypoint' && typeof node.tag !== 'string') fail(node.id, 'missing tag');
+      if (node.kind === 'card') checkSections(node);
+      if (node.kind === 'card' && node.next !== undefined) fail(node.id, 'a card has no next');
+      if (node.kind === 'ticket' && kinds.includes('ticket')) checkTicket(node, local);
+    };
+
+    /** Depth-first walk over next/option edges (blocked_by for a ticket) inside one tree; reaching a node already on the path is a cycle. */
+    const checkCycles = (treeNodes, local) => {
+      const onPath = new Set();
+      const done = new Set();
+      const visit = (id) => {
+        if (onPath.has(id)) {
+          fail(id, 'cycle in tree');
+          return;
+        }
+        if (done.has(id)) return;
+        onPath.add(id);
+        const node = byId.get(id);
+        if (node) {
+          for (const to of node.kind === 'ticket' ? ticketEdges(node, 'blocked_by') : outgoing(node)) {
+            if (local.has(to)) visit(to);
+          }
+        }
+        onPath.delete(id);
+        done.add(id);
+      };
+      for (const node of treeNodes) visit(node.id);
+    };
+
+    for (const tree of trees) {
+      const treeNodes = nodesOf.get(tree);
+      const local = new Set(treeNodes.map((node) => node.id));
+      if (!treeNodes.length) fail(tree.id, 'empty tree');
+      // why: a tree made only of tickets is a dependency board and has no start.
+      const isBoard = kinds.includes('ticket') && treeNodes.length > 0 && treeNodes.every((node) => node.kind === 'ticket');
+      if (!isBoard && treeNodes.filter((node) => node.kind === 'start').length !== 1) {
+        fail(tree.id, 'tree requires exactly one start');
+      }
+      for (const node of treeNodes) checkNode(node, local);
+      checkCycles(treeNodes, local);
+    }
+
+    for (const link of list(map.links, 'map', 'link')) {
+      checkTarget(link.from, 'link from', link.from);
+      checkTarget(link.from, 'link to', link.to);
+    }
+    const annotationIds = new Set();
+    for (const annotation of list(map.annotations, 'map', 'annotation')) {
+      const { id } = annotation;
+      if (typeof id !== 'string' || !id) fail('map', `annotation ${map.annotations.indexOf(annotation) + 1} has no id`);
+      else if (annotationIds.has(id)) fail(id, 'duplicate annotation id');
+      annotationIds.add(id);
+      if (typeof annotation.text !== 'string') fail(id, 'annotation text must be a string');
+      checkTarget(id, 'annotation', annotation.target);
+    }
+  }
+
+  /** Every edge the page draws: flow edges, then cross-tree links. */
+  function edges(map) {
+    const fromNodes = all(map).flatMap((node) => outgoing(node).map((to) => ({ from: node.id, to })));
+    return [...fromNodes, ...(map.links || []).map((link) => ({ ...link, link: true }))];
+  }
+
+  /** Splits text on newlines and wraps each paragraph at `width` characters, breaking words longer than a line. */
+  function lines(text, width = 34) {
+    const result = [];
+    for (const paragraph of String(text || '').split('\n')) {
+      let line = '';
+      for (const word of paragraph.split(' ')) {
+        for (let i = 0; i < word.length || i === 0; i += width) {
+          const chunk = word.slice(i, i + width);
+          if (line && `${line} ${chunk}`.length > width) {
+            result.push(line);
+            line = '';
+          }
+          line += (line ? ' ' : '') + chunk;
+        }
+      }
+      result.push(line);
+    }
+    return result;
+  }
+
+  // invariant: draw.js places every row from this table, so a card's drawn height always equals its layout height.
+  const M = {
+    w: 300,
+    pad: 20,
+    col: 390,
+    rowGap: 72,
+    treeGap: 150,
+    eyebrow: 26,
+    title: 22,
+    titleChars: 30,
+    body: 19,
+    bodyChars: 38,
+    tag: 30,
+    optLabel: 20,
+    optChars: 28,
+    optHint: 18,
+    optHintChars: 34,
+    optPill: 24,
+    optPad: 12,
+    optGap: 8,
+    itemPad: 10,
+    button: 50,
+    input: 50,
+    sectionHead: 24,
+    sectionItem: 19,
+    sectionChars: 36,
+    band: 22,
+    dbar: 32,
+    chipH: 22,
+    chipTextChars: 36,
+    chipTextLine: 15,
+    chipChars: 260,
+    cloudChars: 26,
+    noteSlot: 48,
+    annoChars: 32,
+    annoLine: 22,
+    personaNameChars: 20,
+    personaName: 20,
+    personaRoleChars: 26,
+    personaRole: 18,
+    eyebrowChars: 30,
+  };
+
+  /**
+   * Greedy wrap of touchpoint chips into rows no wider than `width`, each chip `{ t, w, h, lines }`.
+   * A chip whose text is longer than the row wraps its words across lines, so no chip is wider than the card.
+   */
+  function chipRows(items, width = M.chipChars) {
+    const result = [[]];
+    let used = 0;
+    for (const t of items) {
+      const wrapped = lines(t, M.chipTextChars);
+      const w = Math.round(Math.max(...wrapped.map((line) => line.length)) * 6.6 + 20);
+      const chip = { t, w, h: M.chipH + (wrapped.length - 1) * M.chipTextLine, lines: wrapped };
+      if (used && used + w + 6 > width) {
+        result.push([]);
+        used = 0;
+      }
+      result[result.length - 1].push(chip);
+      used += w + 6;
+    }
+    return result;
+  }
+
+  /** The height of each chip row: its tallest chip plus the row gap. */
+  const chipRowHeights = (rowsOfChips) => rowsOfChips.map((row) => Math.max(...row.map((c) => c.h)) + 6);
+
+  const stickyH = (items) => 22 + items.reduce((h, item) => h + lines(item, 30).length * M.body + 2, 0) + 20;
+
+  /** Height of a label plus its optional hint, wrapped the way option and checklist rows are drawn. */
+  const labelAndHint = (entry) =>
+    lines(entry.label, M.optChars).length * M.optLabel +
+    (entry.hint ? lines(entry.hint, M.optHintChars).length * M.optHint : 0);
+
+  /** The rows of a plain node, each `{ kind, h, ...extra }`. */
+  function baseRows(node) {
+    const result = [];
+    const add = (kind, h, extra = {}) => result.push({ kind, h, ...extra });
+
+    if (node.kind === 'start') {
+      add('title', lines(node.label, 24).length * 24 + 4, { chars: 24 });
+      if (node.sub) add('sub', lines(node.sub, 30).length * M.body + 4, { chars: 30 });
+      return result;
+    }
+
+    add('eyebrow', M.eyebrow);
+    add('title', lines(node.label, M.titleChars).length * M.title + 6);
+    if (node.sub) add('sub', lines(node.sub, M.bodyChars).length * M.body + 6);
+    if (node.note) add('note', lines(node.note, M.bodyChars).length * M.body + 6);
+    if (node.tag) add('tag', M.tag);
+
+    if (node.kind === 'choice') {
+      for (const option of node.options || []) {
+        const pill = option.badge || node.default === option.key ? M.optPill : 0;
+        add('option', 2 * M.optPad + labelAndHint(option) + pill + M.optGap, { key: option.key });
+      }
+    }
+    if (node.kind === 'checklist') {
+      for (const item of node.items || []) {
+        add('item', 2 * M.itemPad + labelAndHint(item), { key: item.key });
+      }
+      add('continue', M.button);
+    }
+    if (node.kind === 'text') {
+      add('input', M.input);
+      add('continue', M.button);
+    }
+    if (node.kind === 'card') {
+      for (const section of node.sections || []) {
+        const itemsHeight = section.items.reduce(
+          (h, item) => h + lines(item, M.sectionChars).length * M.sectionItem + 4,
+          0,
+        );
+        add('section', lines(section.head, M.sectionChars).length * M.sectionHead + itemsHeight + 10, { section });
+      }
+    }
+    return result;
+  }
+
+  /**
+   * The rows of a journey step, each `{ zone, kind, h, ...extra }`. `opts.open` is the set
+   * of expanded step ids. invariant: the cloud is a top row and the stickies are bottom rows, so
+   * layout reserves both and no neighbour can be covered.
+   */
+  function stepRows(node, opts) {
+    const result = [];
+    const add = (zone, kind, h, extra = {}) => result.push({ zone, kind, h, ...extra });
+    const touchpoints = node.touchpoints || [];
+    const pains = node.pains || [];
+    const opportunities = node.opportunities || [];
+    const hasLists = touchpoints.length + pains.length + opportunities.length > 0;
+    const isOpen = Boolean(opts.open?.has(node.id));
+
+    if (node.thought) add('top', 'cloud', lines(node.thought, M.cloudChars).length * 22 + 24 + 14 + 38);
+    add('card', 'band', M.band);
+    add('card', 'eyebrow', M.eyebrow);
+    add('card', 'title', lines(node.label, M.titleChars).length * M.title + 6);
+    if (hasLists && !isOpen) add('card', 'dbar', M.dbar);
+    if (isOpen && touchpoints.length) {
+      add('card', 'chips', 24 + chipRowHeights(chipRows(touchpoints)).reduce((a, b) => a + b, 0) + 2, {
+        items: touchpoints,
+      });
+    }
+    if (isOpen && pains.length) add('bottom', 'sticky', stickyH(pains) + 8, { tone: 'pain', items: pains });
+    if (isOpen && opportunities.length) {
+      add('bottom', 'sticky', stickyH(opportunities) + 8, { tone: 'idea', items: opportunities });
+    }
+    return result;
+  }
+
+  /** The persona header rows that sit in the first tree's start node. */
+  function personaRows(opts) {
+    const { persona } = opts;
+    const name = lines(persona.name, M.personaNameChars);
+    const role = persona.role ? lines(persona.role, M.personaRoleChars) : [];
+    const h = Math.max(54, 16 + name.length * M.personaName + role.length * M.personaRole);
+    const result = [{ kind: 'pheader', h, name, role }];
+    if (persona.goal) result.push({ kind: 'pgoal', h: 20 + lines(persona.goal, 34).length * M.body + 6 });
+    if (opts.scenario) result.push({ kind: 'pscen', h: lines(opts.scenario, 36).length * M.body + 8 });
+    return result;
+  }
+
+  /**
+   * Options every layout and draw call shares: the persona header belongs to the
+   * first tree's start, and `annotations` maps a target id to the annotations on it.
+   */
+  function ctx(map, extra = {}) {
+    const first = map.trees?.[0]?.nodes?.find((node) => node.kind === 'start');
+    const annotations = new Map();
+    for (const annotation of map.annotations || []) {
+      if (!annotations.has(annotation.target)) annotations.set(annotation.target, []);
+      annotations.get(annotation.target).push(annotation);
+    }
+    return { persona: map.persona, scenario: map.scenario, personaFor: first?.id, annotations, ...extra };
+  }
+
+  /**
+   * The ordered rows a node is drawn as, each `{ kind, h, zone?, ...extra }`; a row with no
+   * zone is in the card. An annotated node ends with a note slot and one row per annotation,
+   * both in the bottom zone, so the room is reserved whatever the answers are.
+   */
+  function rows(node, opts = {}) {
+    let result;
+    if (node.kind === 'start' && opts.persona && opts.personaFor === node.id) result = personaRows(opts);
+    else if (isStep(node, opts)) result = stepRows(node, opts);
+    else result = baseRows(node);
+    const annotations = opts.annotations?.get(node.id) || [];
+    if (annotations.length) {
+      result = [...result, { zone: 'bottom', kind: 'noteslot', h: M.noteSlot }];
+      for (const annotation of annotations) {
+        const text = lines(annotation.text, M.annoChars);
+        result.push({ zone: 'bottom', kind: 'annotation', h: text.length * M.annoLine + 16, id: annotation.id, text });
+      }
+    }
+    return result;
+  }
+
+  /** Box geometry: `inset` rows sit above the card, `tail` rows below it, `card` is the framed part. */
+  function parts(node, opts = {}) {
+    const result = rows(node, opts);
+    const sum = (zone) => result.filter((row) => (row.zone || 'card') === zone).reduce((h, row) => h + row.h, 0);
+    const body = sum('card');
+    const card = node.kind === 'start' ? Math.max(76, body + 2 * M.pad) : body + M.pad + 14;
+    const inset = sum('top');
+    const tail = sum('bottom');
+    return { rows: result, inset, card, tail, h: inset + card + tail };
+  }
+
+  /** A node's box height: the top zone, the card (its rows plus padding, with a minimum for a start) and the bottom zone. */
+  const height = (node, opts) => parts(node, opts).h;
+
+  /** Column of each node in one tree, by longest path: a node sits one column right of its deepest parent. */
+  function columnDepths(treeNodes) {
+    const depths = new Map();
+    for (const node of treeNodes) depths.set(node.id, 0);
+    // why: relaxing once per node bounds the passes for any acyclic tree, so no topological sort is needed.
+    for (let pass = 0; pass < treeNodes.length; pass++) {
+      for (const node of treeNodes) {
+        for (const to of outgoing(node)) {
+          depths.set(to, Math.max(depths.get(to) || 0, (depths.get(node.id) || 0) + 1));
+        }
+      }
+    }
+    return depths;
+  }
+
+  /** Ids in drawing order: a depth-first walk from the start, then any unreachable node. */
+  function drawOrder(treeNodes, byId) {
+    const order = [];
+    const visited = new Set();
+    const walk = (id) => {
+      if (visited.has(id)) return;
+      visited.add(id);
+      const node = byId.get(id);
+      if (!node) return;
+      order.push(id);
+      for (const to of outgoing(node)) walk(to);
+    };
+    walk(treeNodes.find((node) => node.kind === 'start').id);
+    for (const node of treeNodes) if (!order.includes(node.id)) order.push(node.id);
+    return order;
+  }
+
+  /**
+   * Places every node: trees stack top to bottom, columns run left to right, and
+   * each column is centred on its tree's midline. Returns `{ boxes, edges, width, height }`.
+   */
+  function layout(map, extra = {}) {
+    const opts = ctx(map, extra);
+    const boxes = [];
+    const byId = new Map(all(map).map((node) => [node.id, node]));
+    let top = 110;
+
+    for (const tree of map.trees) {
+      const treeNodes = tree.nodes;
+      const depths = columnDepths(treeNodes);
+      const columns = new Map();
+      drawOrder(treeNodes, byId).forEach((id, index) => {
+        const column = depths.get(id);
+        if (!columns.has(column)) columns.set(column, []);
+        columns.get(column).push({ id, index, ...parts(byId.get(id), opts) });
+      });
+
+      const stackHeight = (list) => list.reduce((sum, b) => sum + b.h, 0) + M.rowGap * (list.length - 1);
+      const tallest = Math.max(...[...columns.values()].map(stackHeight));
+      const midline = top + tallest / 2;
+      for (const [column, list] of columns) {
+        let y = midline - stackHeight(list) / 2;
+        for (const b of list) {
+          boxes.push({
+            id: b.id,
+            tree: tree.id,
+            column,
+            row: b.index,
+            x: 60 + column * M.col,
+            y,
+            w: M.w,
+            h: b.h,
+            inset: b.inset,
+            tail: b.tail,
+            ay: y + b.inset + b.card / 2,
+          });
+          y += b.h + M.rowGap;
+        }
+      }
+      top += tallest + M.treeGap;
+    }
+    return {
+      boxes,
+      edges: edges(map),
+      width: Math.max(...boxes.map((b) => b.x + b.w)) + 60,
+      height: top,
+    };
+  }
+
+  const startOf = (tree) => tree.nodes.find((node) => node.kind === 'start');
+
+  /**
+   * Node ids shown before "show whole map". A flow tree stops at each
+   * unanswered choice and at each checklist or text box not yet continued. With
+   * `opts.stepwise` it also stops at each waypoint until that waypoint carries `done`.
+   */
+  function revealed(map, answers = {}, opts = {}) {
+    const shown = new Set();
+    for (const tree of map.trees) {
+      const byId = new Map(tree.nodes.map((node) => [node.id, node]));
+      const walk = (id) => {
+        const node = byId.get(id);
+        if (!node || shown.has(id)) return;
+        shown.add(id);
+        const answer = answers[id] || {};
+        if (node.kind === 'choice') {
+          if (answer.choice !== undefined) walk(node.options.find((option) => option.key === answer.choice)?.next);
+        } else if (node.kind === 'checklist' || node.kind === 'text') {
+          if (answer.done) walk(node.next);
+        } else if (node.next) {
+          if (!(opts.stepwise && node.kind === 'waypoint' && !answer.done)) walk(node.next);
+        }
+      };
+      walk(startOf(tree).id);
+    }
+    return shown;
+  }
+
+  /**
+   * Ordered node ids along the walk of one tree. At a choice it follows the answer, or
+   * under `showAll` the default option; it stops at an unanswered choice, and with `opts.stepwise` at the first undone waypoint.
+   */
+  function walkTree(tree, answers, showAll, opts) {
+    const byId = new Map(tree.nodes.map((node) => [node.id, node]));
+    const path = [];
+    const seen = new Set();
+    let id = startOf(tree).id;
+    while (id && !seen.has(id) && byId.has(id)) {
+      seen.add(id);
+      path.push(id);
+      const node = byId.get(id);
+      const answer = answers[id] || {};
+      if (node.kind === 'choice') {
+        const key = answer.choice ?? (showAll ? (node.default ?? node.options[0].key) : undefined);
+        id = node.options.find((option) => option.key === key)?.next;
+        continue;
+      }
+      if ((node.kind === 'checklist' || node.kind === 'text') && !answer.done && !showAll) break;
+      if (opts.stepwise && !showAll && node.kind === 'waypoint' && !answer.done) break;
+      id = node.next;
+    }
+    return path;
+  }
+
+  // why: the mood timeline plots one line, so the walk is each tree's path joined in tree order, the same order `pending` and `prevTarget` use.
+  /** Ordered node ids along the walk: each tree's path, in tree order. */
+  const walked = (map, answers = {}, showAll = false, opts = {}) =>
+    map.trees.flatMap((tree) => walkTree(tree, answers, showAll, opts));
+
+  /** The first waypoint, in tree order, that the stepwise walk is holding at (the one a forward step would release), or null. */
+  function pending(map, answers = {}) {
+    for (const tree of map.trees) {
+      const id = walkTree(tree, answers, false, { stepwise: true }).pop();
+      const node = tree.nodes.find((n) => n.id === id);
+      if (node?.kind === 'waypoint' && node.next && !answers[id]?.done) return id;
+    }
+    return null;
+  }
+
+  /**
+   * The id of the node whose answer "Prev" clears so the last node shown is hidden, or null
+   * when nothing can be undone. Only a stepwise, not show-all, walk has a Prev. It undoes the
+   * latest answer of the last tree that has one, so the trees unwind in reverse tree order.
+   */
+  function prevTarget(map, answers = {}, opts = {}) {
+    if (!opts.stepwise || opts.showAll) return null;
+    for (const tree of [...map.trees].reverse()) {
+      const byId = new Map(tree.nodes.map((node) => [node.id, node]));
+      const path = walkTree(tree, answers, false, { stepwise: true });
+      for (let i = path.length - 2; i >= 0; i--) {
+        const node = byId.get(path[i]);
+        const answer = answers[node.id];
+        if (node.kind === 'choice' ? answer?.choice !== undefined : node.kind !== 'start' && answer?.done) {
+          return node.id;
+        }
+      }
+    }
+    return null;
+  }
+
+  /** Whether a checklist item counts as ticked: the answer wins, then the item's `on`, then true. */
+  const isTicked = (item, answer) => (answer?.checks?.[item.key] ?? item.on ?? true) !== false;
+
+  /**
+   * Nodes to draw faded. `faded` holds nodes off the chosen path and waypoints
+   * gated by an unticked checklist item; `later` holds only the gated ones, so
+   * the page can label them "later" instead of "not taken".
+   */
+  function faded(map, answers = {}) {
+    const fade = new Set();
+    const later = new Set();
+    for (const tree of map.trees) {
+      const byId = new Map(tree.nodes.map((node) => [node.id, node]));
+      const reachable = new Set();
+      const walk = (id) => {
+        const node = byId.get(id);
+        if (!node || reachable.has(id)) return;
+        reachable.add(id);
+        const choice = answers[id]?.choice;
+        const targets =
+          node.kind === 'choice' && choice
+            ? node.options.filter((option) => option.key === choice).map((option) => option.next)
+            : outgoing(node);
+        for (const to of targets) walk(to);
+      };
+      walk(startOf(tree).id);
+      for (const node of tree.nodes) {
+        if (!reachable.has(node.id)) fade.add(node.id);
+        if (node.kind !== 'checklist') continue;
+        for (const item of node.items) {
+          if (isTicked(item, answers[node.id])) continue;
+          for (const gated of item.gates || []) {
+            fade.add(gated);
+            later.add(gated);
+          }
+        }
+      }
+    }
+    return { faded: fade, later };
+  }
+
+  /**
+   * The "Copy for agent" text: a header, then one line per answer or note on
+   * each touched node, in layout order. Labels and typed text are JSON-escaped.
+   */
+  function feedback(map, state, path) {
+    const result = [`journey-map feedback for ${path}`];
+    const byId = new Map(all(map).map((node) => [node.id, node]));
+    for (const box of layout(map).boxes) {
+      const node = byId.get(box.id);
+      const answer = state[box.id];
+      if (!answer) continue;
+      const prefix = `${node.id} ${JSON.stringify(node.label)}: `;
+      if (answer.choice !== undefined) {
+        const option = node.options.find((o) => o.key === answer.choice);
+        result.push(`${prefix}chose ${option.key} ${JSON.stringify(option.label)}`);
+      }
+      if (answer.checks !== undefined) {
+        const ticked = node.items.filter((item) => isTicked(item, answer)).map((item) => item.key);
+        const unticked = node.items.filter((item) => !isTicked(item, answer)).map((item) => item.key);
+        result.push(`${prefix}ticked ${ticked.join(', ')}; unticked ${unticked.join(', ')}`);
+      } else if (node.kind === 'checklist' && answer.done) {
+        result.push(`${prefix}continued with no change`);
+      }
+      if (answer.text !== undefined) result.push(`${prefix}typed ${JSON.stringify(answer.text)}`);
+      if (answer.note !== undefined) result.push(`${prefix}note ${JSON.stringify(answer.note)}`);
+    }
+    return result.join('\n');
+  }
+
+  /**
+   * Route of a cross-tree link as polyline points plus a label anchor. It leaves
+   * the source's left edge into the column gutter, crosses to the target's
+   * gutter along the gap just beside the source tree, and enters the target from the
+   * left, so it never passes through a card. `plan` is the result of `layout`.
+   */
+  function linkRoute(plan, link) {
+    const from = plan.boxes.find((b) => b.id === link.from);
+    const to = plan.boxes.find((b) => b.id === link.to);
+    const extent = (treeId) => {
+      const own = plan.boxes.filter((b) => b.tree === treeId);
+      return { top: Math.min(...own.map((b) => b.y)), bottom: Math.max(...own.map((b) => b.y + b.h)) };
+    };
+    const source = extent(from.tree);
+    const target = extent(to.tree);
+    // why: the gap just beside the source tree holds no box of any tree, and the vertical runs sit in column gutters, so trees in between stay clear.
+    let gapY;
+    if (from.tree === to.tree || target.top > source.top) gapY = source.bottom + M.treeGap / 2;
+    else gapY = source.top - M.treeGap / 2;
+
+    const startY = from.y + 30;
+    const points = [
+      [from.x, startY],
+      [from.x - 30, startY],
+      [from.x - 30, gapY],
+      [to.x - 30, gapY],
+      [to.x - 30, to.y + 30],
+      [to.x - 6, to.y + 30],
+    ];
+    return { points, label: { x: to.x - 22, y: gapY - 26 } };
+  }
+
+  globalThis.JourneyMapLogic = { validate, linkRoute, revealed, walked, pending, prevTarget, faded, feedback, layout, edges, isStep, MOOD, moodOf, chipRows, chipRowHeights, ctx, parts, lines, all, outgoing, rows, height, M };
+})();
+(() => {
+  const SVG_NS = 'http://www.w3.org/2000/svg';
+
+  /** Shows the error panel with `messages` and hides the stage. */
+  function showErrors(messages) {
+    document.getElementById('errors').hidden = false;
+    document.getElementById('error-text').textContent = messages.join('\n');
+    document.getElementById('stage').hidden = true;
+  }
+
+  /** Creates an SVG element with `attrs`, appended to `parent` when given. */
+  function el(tag, attrs, parent) {
+    const node = document.createElementNS(SVG_NS, tag);
+    for (const key in attrs) node.setAttribute(key, attrs[key]);
+    if (parent) parent.appendChild(node);
+    return node;
+  }
+
+  /** Writes `value` to the clipboard; if that fails, shows it selected in the fallback box. Resolves true when copied. */
+  async function copyText(value, { panel, box }) {
+    try {
+      await navigator.clipboard.writeText(value);
+      return true;
+    } catch {
+      panel.hidden = false;
+      box.value = value;
+      box.focus();
+      box.select();
+      return false;
+    }
+  }
+
+  /**
+   * Owns the camera of one canvas: `world` is the group that pans and zooms inside `svg`, `stage`
+   * carries the background grid and `pct` shows the zoom. A drawing file passes its elements and
+   * keeps no camera state of its own.
+   */
+  function create({ svg, world, stage, pct, reduceMotion }) {
+    const cam = { x: 0, y: 0, k: 1 };
+    let anim = 0;
+    let moved = false;
+    let pinch = null;
+    const pointers = new Map();
+    function zoomAt(factor, sx, sy) {
+      const k = Math.max(0.05, Math.min(3, cam.k * factor));
+      cam.x = sx - (sx - cam.x) * (k / cam.k);
+      cam.y = sy - (sy - cam.y) * (k / cam.k);
+      cam.k = k;
+      core.applyCam();
+    }
+
+    const core = {
+      cam,
+      // invariant: dockH is the bottom strip the timeline island covers, so camera fits keep nodes clear of it.
+      dockH: 0,
+
+      get moved() {
+        return moved;
+      },
+
+      applyCam() {
+        world.setAttribute('transform', `translate(${cam.x} ${cam.y}) scale(${cam.k})`);
+        const cell = 24 * cam.k;
+        stage.style.backgroundSize = `${cell}px ${cell}px`;
+        stage.style.backgroundPosition = `${cam.x}px ${cam.y}px`;
+        pct.textContent = `${Math.round(cam.k * 100)}%`;
+      },
+
+      /** Stops a running camera animation. */
+      stop() {
+        cancelAnimationFrame(anim);
+      },
+
+      animateTo(target) {
+        cancelAnimationFrame(anim);
+        if (reduceMotion) {
+          Object.assign(cam, target);
+          core.applyCam();
+          return;
+        }
+        const from = { ...cam };
+        const t0 = performance.now();
+        const step = (t) => {
+          const p = Math.min(1, (t - t0) / 460);
+          const ease = 1 - (1 - p) ** 3;
+          cam.x = from.x + (target.x - from.x) * ease;
+          cam.y = from.y + (target.y - from.y) * ease;
+          cam.k = from.k + (target.k - from.k) * ease;
+          core.applyCam();
+          if (p < 1) anim = requestAnimationFrame(step);
+        };
+        anim = requestAnimationFrame(step);
+      },
+
+      /** The camera that fits the world-space box `b` inside the visible canvas. */
+      fitTarget(b, maxK = 1) {
+        const vw = svg.clientWidth;
+        const vh = svg.clientHeight;
+        const top = 84;
+        // why: on a short window the timeline would leave the map almost no room, so it may overlap instead.
+        const bottom = vh - top - Math.max(70, core.dockH) < 160 ? 70 : Math.max(70, core.dockH);
+        const side = 32;
+        const k = Math.max(0.05, Math.min(maxK, (vw - 2 * side) / b.w, (vh - top - bottom) / b.h));
+        return {
+          k,
+          x: side + (vw - 2 * side - b.w * k) / 2 - b.x * k,
+          y: top + (vh - top - bottom - b.h * k) / 2 - b.y * k,
+        };
+      },
+
+      zoomAt,
+
+      centerZoom(factor) {
+        core.zoomAt(factor, svg.clientWidth / 2, svg.clientHeight / 2);
+      },
+
+      /** Wires drag-to-pan, pinch zoom and the wheel onto `svg`; `moved` tells a click from a drag. */
+      bindInput() {
+        svg.addEventListener('pointerdown', (e) => {
+          if (e.target.closest('input')) return;
+          pointers.set(e.pointerId, { x: e.clientX, y: e.clientY, ox: e.clientX, oy: e.clientY });
+          if (pointers.size === 1) moved = false;
+          if (pointers.size === 2) {
+            const [a, b] = [...pointers.values()];
+            pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), mx: (a.x + b.x) / 2, my: (a.y + b.y) / 2 };
+            moved = true;
+          }
+        });
+
+        svg.addEventListener('pointermove', (e) => {
+          const prev = pointers.get(e.pointerId);
+          if (!prev) return;
+          const cur = { ...prev, x: e.clientX, y: e.clientY };
+          if (pointers.size === 2 && pinch) {
+            pointers.set(e.pointerId, cur);
+            const [a, b] = [...pointers.values()];
+            const d = Math.hypot(a.x - b.x, a.y - b.y);
+            const mx = (a.x + b.x) / 2;
+            const my = (a.y + b.y) / 2;
+            cancelAnimationFrame(anim);
+            core.zoomAt(d / Math.max(1, pinch.d), mx, my);
+            cam.x += mx - pinch.mx;
+            cam.y += my - pinch.my;
+            core.applyCam();
+            pinch = { d, mx, my };
+            return;
+          }
+          if (!moved && Math.hypot(cur.x - prev.ox, cur.y - prev.oy) < 4) return;
+          cancelAnimationFrame(anim);
+          svg.setPointerCapture(e.pointerId);
+          stage.classList.add('panning');
+          cam.x += cur.x - prev.x;
+          cam.y += cur.y - prev.y;
+          moved = true;
+          core.applyCam();
+          pointers.set(e.pointerId, cur);
+        });
+
+        function endPointer(e) {
+          pointers.delete(e.pointerId);
+          if (pointers.size < 2) pinch = null;
+          if (!pointers.size) stage.classList.remove('panning');
+        }
+        svg.addEventListener('pointerup', endPointer);
+        svg.addEventListener('pointercancel', endPointer);
+
+        svg.addEventListener(
+          'wheel',
+          (e) => {
+            if (e.target.closest('input')) return;
+            e.preventDefault();
+            cancelAnimationFrame(anim);
+            if (e.ctrlKey || e.metaKey) {
+              core.zoomAt(Math.exp(-e.deltaY * 0.01), e.clientX, e.clientY);
+            } else {
+              cam.x -= e.deltaX;
+              cam.y -= e.deltaY;
+              core.applyCam();
+            }
+          },
+          { passive: false },
+        );
+      },
+    };
+    return core;
+  }
+
+  globalThis.CanvasCore = { showErrors, el, copyText, create };
+})();
+(() => {
+  const L = globalThis.JourneyMapLogic;
+  const { showErrors, el } = globalThis.CanvasCore;
+  const M = L.M;
+  const { tree: map, path } = JSON.parse(document.getElementById('map-data').textContent);
+  const ROUGH_URL = 'https://cdn.jsdelivr.net/npm/roughjs@4.6.6/bundled/rough.js';
+
+  const statusEl = document.getElementById('status');
+  const feedbackPanel = document.getElementById('feedback-panel');
+  const feedbackBox = document.getElementById('feedback');
+  const copyButton = document.getElementById('copy');
+
+  document.getElementById('title').textContent = map?.title || 'Journey map';
+  document.title = map?.title || 'Journey map';
+  document.getElementById('subtitle').textContent = map?.subtitle || '';
+
+  const errors = L.validate(map);
+  if (errors.length) {
+    showErrors(errors);
+    return;
+  }
+  if (!globalThis.rough) {
+    showErrors([`Unable to load rough.js: ${ROUGH_URL}`]);
+    return;
+  }
+
+  const SVG_NS = 'http://www.w3.org/2000/svg';
+  const HTML_NS = 'http://www.w3.org/1999/xhtml';
+  const stage = document.getElementById('stage');
+  const timelineEl = document.getElementById('timeline');
+  const svg = document.getElementById('canvas');
+  const world = document.getElementById('world');
+  const rc = rough.svg(svg);
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const FONT = {
+    eyebrow: '600 11px Inter, system-ui, sans-serif',
+    title: '600 16px Inter, system-ui, sans-serif',
+    start: '600 18px Inter, system-ui, sans-serif',
+    label: '500 14.5px Inter, system-ui, sans-serif',
+    body: '400 13.5px Inter, system-ui, sans-serif',
+    small: '500 12px Inter, system-ui, sans-serif',
+    hand: '500 21px Caveat, cursive',
+    tree: '600 12px Inter, system-ui, sans-serif',
+    band: '600 13px Inter, system-ui, sans-serif',
+    face: '18px "Apple Color Emoji", "Segoe UI Emoji", system-ui, sans-serif',
+    icon: '12px "Apple Color Emoji", "Segoe UI Emoji", sans-serif',
+  };
+  const KIND = {
+    choice: ['Question', '--k-choice'],
+    checklist: ['Checklist', '--k-check'],
+    text: ['Your answer', '--k-text'],
+    waypoint: ['Step', '--k-step'],
+    card: ['Summary', '--k-card'],
+  };
+  let state = Object.create(null);
+  let noteOpen = new Set();
+  const open = new Set();
+  let showAll = false;
+  let rects = {};
+  let anchors = {};
+  let shownBefore = new Set();
+  const byId = new Map(L.all(map).map((n) => [n.id, n]));
+  // why: step by step holds the reveal at each waypoint, which only suits a map that is a journey.
+  const canStep = L.all(map).some((n) => L.isStep(n, map));
+  let stepwise = canStep;
+  const revealOpts = () => ({ stepwise });
+  const layoutOpts = () => ({ open });
+  let plan = L.layout(map, layoutOpts());
+
+  function text(parent, x, y, str, font, color = 'var(--ink)', anchor = 'start') {
+    const t = el('text', { x, y, 'text-anchor': anchor }, parent);
+    t.style.font = font;
+    t.style.fill = color;
+    t.textContent = str;
+    return t;
+  }
+
+  /** Writes wrapped lines of `str` and returns the height they took. */
+  function para(parent, x, y, str, font, color, chars, lineHeight, anchor = 'start') {
+    const wrapped = L.lines(str, chars);
+    wrapped.forEach((line, i) => {
+      text(parent, x, y + i * lineHeight, line, font, color, anchor);
+    });
+    return wrapped.length * lineHeight;
+  }
+
+  /** Derives a stable rough.js seed from an id so edges keep their wobble across renders. */
+  function seed(id) {
+    let h = 7;
+    for (const ch of id) h = (h * 31 + ch.charCodeAt(0)) % 2147483;
+    return h + 1;
+  }
+
+  const measureCtx = document.createElement('canvas').getContext('2d');
+  function textWidth(str, font) {
+    measureCtx.font = font;
+    return measureCtx.measureText(str).width;
+  }
+
+  function pill(parent, x, y, str, fg, bg) {
+    const w = textWidth(str, FONT.small) + 16;
+    el('rect', { x, y, width: w, height: 20, rx: 10, style: `fill:${bg}` }, parent);
+    text(parent, x + 8, y + 14, str, FONT.small, fg);
+    return w;
+  }
+
+  function hit(parent, act, label, role = 'button', checked) {
+    const g = el(
+      'g',
+      { class: 'hit', tabindex: 0, role, 'aria-label': label, 'data-act': act },
+      parent,
+    );
+    if (checked !== undefined) g.setAttribute('aria-checked', String(checked));
+    return g;
+  }
+
+  const SENTINEL = '#000001';
+
+  function arrowHead(pts, opts) {
+    const [ex, ey] = pts[pts.length - 1];
+    const [px, py] = pts[pts.length - 2];
+    const angle = Math.atan2(ey - py, ex - px);
+    const wing = (da) => [
+      ex + 10 * Math.cos(angle + Math.PI + da),
+      ey + 10 * Math.sin(angle + Math.PI + da),
+    ];
+    return rc.polygon([[ex, ey], wing(-0.42), wing(0.42)], {
+      ...opts,
+      strokeLineDash: undefined,
+      fill: SENTINEL,
+      fillStyle: 'solid',
+      roughness: 0.3,
+    });
+  }
+
+  function arrow(parent, id, pts, o = {}) {
+    const stroke = o.stroke ?? 'var(--edge)';
+    const opts = {
+      seed: seed(id),
+      stroke: SENTINEL,
+      strokeWidth: o.sw ?? 1.5,
+      roughness: 0.55,
+      bowing: 0.6,
+      strokeLineDash: o.dash,
+    };
+    const g = el('g', { class: 'edge' }, parent);
+    g.appendChild(o.linear ? rc.linearPath(pts, opts) : rc.curve(pts, opts));
+    g.appendChild(arrowHead(pts, opts));
+    // why: rough.js writes colours as attributes, which cannot read CSS variables, so the sentinel is swapped for a style.
+    g.querySelectorAll('path').forEach((p) => {
+      for (const attr of ['stroke', 'fill']) {
+        if (p.getAttribute(attr) === SENTINEL) {
+          p.removeAttribute(attr);
+          p.style[attr] = stroke;
+        }
+      }
+    });
+    if (o.faded) g.classList.add('faded');
+    return g;
+  }
+
+  function curve(parent, id, x0, y0, x1, y1, o) {
+    const dx = Math.max(40, (x1 - x0) * 0.45);
+    const dy = (y1 - y0) * 0.08;
+    arrow(
+      parent,
+      id,
+      [
+        [x0, y0],
+        [x0 + dx * 0.6, y0 + dy],
+        [x1 - dx * 0.6, y1 - dy],
+        [x1, y1],
+      ],
+      o,
+    );
+  }
+
+  const pct = document.getElementById('pct');
+  const canvas = globalThis.CanvasCore.create({ svg, world, stage, pct, reduceMotion });
+  const { cam, applyCam, animateTo, fitTarget, zoomAt, centerZoom } = canvas;
+
+  function union(ids, pad = 40) {
+    const rs = ids.map((id) => rects[id]).filter(Boolean);
+    if (!rs.length) return null;
+    const x0 = Math.min(...rs.map((r) => r.x)) - pad;
+    const y0 = Math.min(...rs.map((r) => r.y)) - pad;
+    const x1 = Math.max(...rs.map((r) => r.x + r.w)) + pad;
+    const y1 = Math.max(...rs.map((r) => r.y + r.h)) + pad + 40;
+    return { x: x0, y: y0, w: x1 - x0, h: y1 - y0 };
+  }
+
+  function focusOn(ids) {
+    const b = union(ids);
+    if (b) animateTo(fitTarget(b));
+  }
+
+  function fitAll() {
+    const b = world.getBBox();
+    animateTo(fitTarget({ x: b.x - 30, y: b.y - 30, w: b.width + 60, h: b.height + 60 }));
+  }
+
+  function input(g, id, x, y, w, value, placeholder, isNote = false) {
+    const fo = el('foreignObject', { x, y, width: w, height: 38 }, g);
+    const field = document.createElementNS(HTML_NS, 'input');
+    field.className = isNote ? 'node-input note-input' : 'node-input';
+    const label = byId.get(id).label;
+    field.setAttribute('aria-label', isNote ? `Note for ${label}` : label);
+    field.placeholder = placeholder || '';
+    field.value = value || '';
+    field.dataset.node = id;
+    field.dataset.field = isNote ? 'note' : 'text';
+    fo.appendChild(field);
+    field.addEventListener('keydown', (e) => {
+      // why: Enter that confirms an input-method composition must not also submit the field.
+      if (e.isComposing) return;
+      if (!isNote && e.key === 'Enter' && !state[id]?.done) {
+        e.preventDefault();
+        act(JSON.stringify(['done', id]));
+      }
+      if (isNote && (e.key === 'Enter' || e.key === 'Escape')) {
+        e.preventDefault();
+        noteOpen.delete(id);
+        render(`note-${id}`);
+      }
+    });
+    field.addEventListener('input', () => {
+      state[id] ||= {};
+      state[id][isNote ? 'note' : 'text'] = field.value;
+      updateStatus();
+    });
+    return field;
+  }
+
+  const hasDetails = (n) => Boolean(n.touchpoints?.length || n.pains?.length || n.opportunities?.length);
+  const moodLabel = (m) => `${m.name} (${m.value > 0 ? '+' : ''}${m.value})`;
+
+  function frame(g, n, b) {
+    const { x, y, w, h } = b;
+    if (n.kind === 'start') {
+      const persona = map.persona && n.id === L.ctx(map).personaFor;
+      el('rect', { x, y, width: w, height: h, rx: persona ? 18 : h / 2, class: 'card start' }, g);
+      return;
+    }
+    if (L.isStep(n, map)) {
+      el('rect', { x, y, width: w, height: h, rx: 14, class: 'card k-step' }, g);
+      drawBand(g, n, b, L.moodOf(n));
+      return;
+    }
+    el('rect', { x, y, width: w, height: h, rx: 14, class: `card k-${n.kind}` }, g);
+    if (n.kind === 'card') {
+      el(
+        'rect',
+        { x: x + 1, y: y + 1, width: w - 2, height: 5, rx: 2.5, style: 'fill:var(--accent)' },
+        g,
+      );
+    }
+  }
+
+  // why: node ids may hold spaces or quotes, which break a url(#…) reference, so clip paths get their own ids.
+  const clipIds = new Map();
+  const clipId = (id) => {
+    if (!clipIds.has(id)) clipIds.set(id, `clip-${clipIds.size}`);
+    return clipIds.get(id);
+  };
+
+  /** The 32px header band of a step: the mood colour with face and first name, or neutral grey; the face alone with no persona. */
+  function drawBand(g, n, b, m) {
+    const { x, y, w, h } = b;
+    const clip = el('clipPath', { id: clipId(n.id) }, g);
+    el('rect', { x, y, width: w, height: h, rx: 14 }, clip);
+    el(
+      'rect',
+      { x, y, width: w, height: 32, 'clip-path': `url(#${clipId(n.id)})`, style: `fill:${m ? m.color : '#e9eaf0'}` },
+      g,
+    );
+    const first = (map.persona?.name || '').split(' ')[0];
+    if (m) {
+      const face = text(g, x + 12, y + 23, m.face, FONT.face, '#fff');
+      el('title', {}, face).textContent = moodLabel(m);
+      if (first) text(g, x + 40, y + 21, first, FONT.band, '#fff').setAttribute('aria-label', `${first} feels ${m.name}`);
+    } else if (first) {
+      text(g, x + 14, y + 21, first, FONT.band, 'var(--muted)');
+    }
+  }
+
+  /** The chevron and the pencil at the band's right end; the chevron is dimmed and inert on a step with nothing to expand. */
+  function drawBandActions(g, n, b, a) {
+    const { x, y, w } = b;
+    const m = L.moodOf(n);
+    const ink = m ? '#fff' : 'var(--muted)';
+    const neu = m ? '' : ' neu';
+    const isOpen = open.has(n.id);
+    const cx = x + w - 62;
+    const cy = y + 4;
+    const chevD = isOpen ? `M${cx + 7} ${cy + 9} l5 6 l5 -6` : `M${cx + 9} ${cy + 6} l6 6 l-6 6`;
+    if (hasDetails(n)) {
+      const hg = hit(g, JSON.stringify(['open', n.id]), `${isOpen ? 'Collapse' : 'Expand'} details: ${n.label}`);
+      hg.dataset.focus = `open-${n.id}`;
+      el('rect', { x: cx, y: cy, width: 26, height: 24, rx: 7, class: `bband${neu}` }, hg);
+      el('path', { d: chevD, class: 'band-ico', style: `stroke:${ink}` }, hg);
+    } else {
+      const dg = el('g', { opacity: 0.35 }, g);
+      el('path', { d: chevD, class: 'band-ico', style: `stroke:${ink}` }, dg);
+      el('title', {}, dg).textContent = 'Nothing to expand';
+    }
+    const nh = hit(g, JSON.stringify(['note', n.id]), a.note ? `Edit note: ${n.label}` : `Add note: ${n.label}`);
+    nh.dataset.focus = `note-${n.id}`;
+    const nx = x + w - 34;
+    el('rect', { x: nx, y: cy, width: 24, height: 24, rx: 7, class: a.note ? 'bband has' : `bband${neu}` }, nh);
+    el(
+      'path',
+      { d: `M${nx + 7} ${cy + 17} l1 -4 l7 -7 l3 3 l-7 7 z`, class: 'band-ico', style: `stroke:${a.note ? '#6b4e00' : ink}` },
+      nh,
+    );
+  }
+
+  /** The thought cloud above a card: a rounded rectangle with three shrinking circles trailing down to it. */
+  function drawCloud(g, b, r, top, n) {
+    const x0 = b.x + 12;
+    const ry = top + 14;
+    const bodyH = r.h - 14 - 38;
+    const cg = el('g', { class: 'cloud' }, g);
+    const shadow = el('g', { class: 'cloud-shadow' }, cg);
+    el('rect', { x: x0, y: ry, width: b.w - 24, height: bodyH, rx: 24, class: 'cloud-edge' }, shadow);
+    el('rect', { x: x0, y: ry, width: b.w - 24, height: bodyH, rx: 24, class: 'cloud-fill' }, cg);
+    for (const [dx, dy, rr] of [
+      [46, 16, 7],
+      [34, 27, 5],
+      [26, 35, 3.5],
+    ]) {
+      el('circle', { cx: x0 + dx, cy: ry + bodyH + dy, r: rr, class: 'cloud-dot' }, cg);
+    }
+    para(cg, x0 + 22, ry + 28, n.thought, FONT.hand, 'var(--ink)', M.cloudChars, 22);
+  }
+
+  /** The eyebrow: a step's tag in its mood colour, otherwise the kind's name. */
+  function drawEyebrow(g, n, x, top) {
+    const [name, color] = KIND[n.kind];
+    const step = L.isStep(n, map);
+    const m = step ? L.moodOf(n) : null;
+    const full = (step ? n.tag : name).toUpperCase();
+    const shown = full.length > M.eyebrowChars ? `${full.slice(0, M.eyebrowChars - 1)}…` : full;
+    const t = text(g, x, top + 17, shown, FONT.eyebrow, m ? m.color : `var(${color})`);
+    t.style.letterSpacing = '0.08em';
+    if (shown !== full) el('title', {}, t).textContent = full;
+  }
+
+  /** The persona header, goal and scenario that sit in the first start card. */
+  function drawPersona(g, b, r, top) {
+    const p = map.persona;
+    const x = b.x;
+    if (r.kind === 'pheader') {
+      const cy = top + 28;
+      el('circle', { cx: x + 42, cy, r: 20, style: 'fill:var(--select)' }, g);
+      const initials = p.name
+        .split(' ')
+        .map((part) => part[0])
+        .join('')
+        .slice(0, 2);
+      text(g, x + 42, cy + 5, initials, FONT.label, '#fff', 'middle');
+      r.name.forEach((line, i) => text(g, x + 74, top + 25 + i * M.personaName, line, FONT.title, 'var(--ink)'));
+      const roleTop = top + 23 + r.name.length * M.personaName;
+      r.role.forEach((line, i) => text(g, x + 74, roleTop + i * M.personaRole, line, FONT.body, 'var(--muted)'));
+    }
+    if (r.kind === 'pgoal') {
+      text(g, x + M.pad, top + 14, 'GOAL', FONT.eyebrow, 'var(--select)').style.letterSpacing = '0.08em';
+      para(g, x + M.pad, top + 32, p.goal, FONT.body, 'var(--ink)', 34, M.body);
+    }
+    if (r.kind === 'pscen') para(g, x + M.pad, top + 16, map.scenario, FONT.body, 'var(--muted)', 36, M.body);
+  }
+
+  /** The collapsed row of icon counts, shown only for the lists present; it expands the card. */
+  function drawDbar(g, n, b, r, top) {
+    const hg = hit(g, JSON.stringify(['open', n.id]), `Expand details: ${n.label}`);
+    hg.dataset.focus = `open-${n.id}`;
+    el('rect', { x: b.x + 12, y: top + 2, width: b.w - 24, height: r.h - 6, rx: 8, class: 'row bar' }, hg);
+    const counts = [
+      ['\u{1F4CD}', n.touchpoints, 'tag'],
+      ['⚠', n.pains, 'pain'],
+      ['\u{1F4A1}', n.opportunities, 'idea'],
+    ].filter(([, list]) => list?.length);
+    let cx = b.x + 22;
+    for (const [icon, list, tone] of counts) {
+      const bg = tone === 'pain' ? 'var(--pain-bg)' : tone === 'idea' ? 'var(--opp-bg)' : 'var(--tag-bg)';
+      const fg = tone === 'pain' ? 'var(--pain)' : tone === 'idea' ? 'var(--opp)' : 'var(--tag-ink)';
+      el('rect', { x: cx, y: top + 5, width: 38, height: 20, rx: 10, style: `fill:${bg}` }, hg);
+      text(hg, cx + 8, top + 19, icon, FONT.icon, fg);
+      text(hg, cx + 24, top + 19, String(list.length), FONT.small, fg);
+      cx += 44;
+    }
+  }
+
+  /** The expanded touchpoint chips, under a heading. */
+  function drawChips(g, b, r, top) {
+    const x = b.x + M.pad;
+    text(g, x, top + 14, '\u{1F4CD}', FONT.icon, 'var(--muted)');
+    text(g, x + 20, top + 14, 'TOUCHPOINTS', FONT.eyebrow, 'var(--muted)').style.letterSpacing = '0.08em';
+    let rowY = top + 24;
+    const rowsOfChips = L.chipRows(r.items);
+    L.chipRowHeights(rowsOfChips).forEach((rowH, i) => {
+      let cx = x;
+      for (const c of rowsOfChips[i]) {
+        el('rect', { x: cx, y: rowY, width: c.w, height: c.h, rx: 11, style: 'fill:var(--tag-bg)' }, g);
+        c.lines.forEach((line, k) => {
+          text(g, cx + 10, rowY + 15 + k * M.chipTextLine, line, FONT.small, 'var(--tag-ink)');
+        });
+        cx += c.w + 6;
+      }
+      rowY += rowH;
+    });
+  }
+
+  const STICKY = {
+    pain: ['var(--pain-bg)', '#f3b9b9', 'PAINS', '✕'],
+    idea: ['var(--opp-bg)', '#aedfc4', 'OPPORTUNITIES', '✦'],
+  };
+
+  /** A slightly rotated red (pain) or green (idea) sticky below the card. */
+  function drawSticky(g, n, b, r, top, index) {
+    const [fill, stroke, head, mark] = STICKY[r.tone];
+    const rot = ((seed(n.id + r.tone) % 5) - 2) * 0.9;
+    const sx = b.x + 14 + (index % 2) * 6;
+    const sw = b.w - 32;
+    // why: 8px of clearance under the card keeps a rotated corner off it.
+    const sy = top + 12;
+    const sh = r.h - 16;
+    const sg = el('g', { transform: `rotate(${rot} ${sx + sw / 2} ${sy + sh / 2})` }, g);
+    el('rect', { x: sx, y: sy, width: sw, height: sh, rx: 4, style: `fill:${fill};stroke:${stroke}`, class: 'stickybox' }, sg);
+    text(sg, sx + 12, sy + 18, head, FONT.eyebrow, 'var(--muted)').style.letterSpacing = '0.08em';
+    let ty = sy + 38;
+    for (const item of r.items) {
+      text(sg, sx + 12, ty, mark, FONT.small, 'var(--muted)');
+      ty += para(sg, sx + 28, ty, item, FONT.body, 'var(--ink)', 30, M.body) + 2;
+    }
+  }
+
+  function drawTitle(g, n, b, r, top) {
+    if (n.kind === 'start') {
+      para(g, b.x + b.w / 2, top + 20, n.label, FONT.start, 'var(--ink)', r.chars, 24, 'middle');
+      return;
+    }
+    para(g, b.x + M.pad, top + 16, n.label, FONT.title, 'var(--ink)', M.titleChars, M.title);
+  }
+
+  function drawSub(g, n, b, r, top) {
+    if (n.kind === 'start') {
+      para(g, b.x + b.w / 2, top + 14, n.sub, FONT.body, 'var(--muted)', r.chars, M.body, 'middle');
+      return;
+    }
+    para(g, b.x + M.pad, top + 14, n.sub, FONT.body, 'var(--muted)', M.bodyChars, M.body);
+  }
+
+  function drawOption(g, n, b, r, top, a) {
+    const { x, w } = b;
+    const o = n.options.find((opt) => opt.key === r.key);
+    const chosen = a.choice === o.key;
+    const optHeight = r.h - M.optGap;
+    const label = `${n.label}: ${o.label}${chosen ? ', chosen' : ''}`;
+    const hg = hit(g, JSON.stringify(['choice', n.id, o.key]), label, 'radio', chosen);
+    hg.dataset.focus = `choice-${n.id}-${o.key}`;
+    if (a.choice !== undefined && !chosen) hg.classList.add('dim');
+    el(
+      'rect',
+      { x: x + 12, y: top, width: w - 24, height: optHeight, rx: 10, class: chosen ? 'opt chosen' : 'opt' },
+      hg,
+    );
+    const dotY = top + M.optPad + 10;
+    el('circle', { cx: x + 30, cy: dotY, r: 7, class: chosen ? 'radio on' : 'radio' }, hg);
+    if (chosen) el('circle', { cx: x + 30, cy: dotY, r: 3, class: 'radio-dot' }, hg);
+    let ty = top + M.optPad + 15;
+    ty += para(hg, x + 46, ty, o.label, FONT.label, 'var(--ink)', M.optChars, M.optLabel);
+    if (o.hint) {
+      ty += para(hg, x + 46, ty - 2, o.hint, FONT.body, 'var(--muted)', M.optHintChars, M.optHint);
+    }
+    if (o.badge || n.default === o.key) {
+      let px = x + 46;
+      if (n.default === o.key) {
+        px += pill(hg, px, ty - 8, 'recommended', 'var(--rec-ink)', 'var(--rec-bg)') + 6;
+      }
+      if (o.badge) pill(hg, px, ty - 8, o.badge, 'var(--tag-ink)', 'var(--tag-bg)');
+    }
+    anchors[n.id][o.key] = top + optHeight / 2;
+  }
+
+  function drawItem(g, n, b, r, top, a) {
+    const { x, w } = b;
+    const item = n.items.find((i) => i.key === r.key);
+    const on = a.checks?.[item.key] ?? item.on ?? true;
+    const hg = hit(
+      g,
+      JSON.stringify(['check', n.id, item.key]),
+      `${n.label}: ${item.label}`,
+      'checkbox',
+      on,
+    );
+    hg.dataset.focus = `check-${n.id}-${item.key}`;
+    el('rect', { x: x + 12, y: top + 2, width: w - 24, height: r.h - 4, rx: 8, class: 'row' }, hg);
+    el(
+      'rect',
+      { x: x + 22, y: top + M.itemPad + 2, width: 16, height: 16, rx: 4, class: on ? 'box on' : 'box' },
+      hg,
+    );
+    if (on) {
+      el('path', { d: `M${x + 26} ${top + M.itemPad + 10} l3 3 l6 -7`, class: 'tick' }, hg);
+    }
+    let ty = top + M.itemPad + 15;
+    const color = on ? 'var(--ink)' : 'var(--muted)';
+    ty += para(hg, x + 48, ty, item.label, FONT.label, color, M.optChars, M.optLabel);
+    if (item.hint) {
+      para(hg, x + 48, ty - 2, item.hint, FONT.body, 'var(--muted)', M.optHintChars, M.optHint);
+    }
+  }
+
+  function drawContinue(g, n, b, top, a) {
+    const { x, w } = b;
+    if (a.done) {
+      text(g, x + w - M.pad, top + 30, 'continued ✓', FONT.small, 'var(--muted)', 'end');
+      return;
+    }
+    const hg = hit(g, JSON.stringify(['done', n.id]), `Continue from ${n.label}`);
+    hg.dataset.focus = `done-${n.id}`;
+    const bw = 108;
+    const bx = x + w - M.pad - bw;
+    el('rect', { x: bx, y: top + 10, width: bw, height: 32, rx: 16, class: 'primary' }, hg);
+    text(hg, bx + bw / 2, top + 31, 'Continue →', FONT.small, '#fff', 'middle');
+  }
+
+  function drawSection(g, n, b, r, top) {
+    const { x, w } = b;
+    const s = r.section;
+    let ty = top + 16;
+    ty += para(g, x + M.pad, ty, s.head, FONT.eyebrow, 'var(--accent)', M.sectionChars, M.sectionHead);
+    s.items.forEach((item, i) => {
+      text(g, x + M.pad, ty, s.numbered ? `${i + 1}.` : '•', FONT.body, 'var(--muted)');
+      ty +=
+        para(g, x + M.pad + 16, ty, item, FONT.body, 'var(--ink)', M.sectionChars, M.sectionItem) + 4;
+    });
+    if (n.sections.indexOf(s) < n.sections.length - 1) {
+      const ruleY = top + r.h - 4;
+      el('line', { x1: x + M.pad, x2: x + w - M.pad, y1: ruleY, y2: ruleY, class: 'rule' }, g);
+    }
+  }
+
+  /** One annotation under the node: its text in the margin hand, with an arrow up at what is above it. */
+  function drawAnnotation(g, b, r, top) {
+    const ty = top + 24;
+    para(g, b.x + 34, ty, r.text.join('\n'), FONT.hand, 'var(--muted)', M.annoChars, M.annoLine);
+    arrow(
+      g,
+      r.id,
+      [
+        [b.x + 28, ty - 6],
+        [b.x + 16, ty - 12],
+        [b.x + 18, top + 2],
+      ],
+      { stroke: 'var(--muted)', sw: 1.1 },
+    );
+  }
+
+  /** The note a person typed: an input while editing, a sticky once set. */
+  function drawNoteBox(g, n, b, y, a) {
+    if (noteOpen.has(n.id)) {
+      input(g, n.id, b.x + 14, y, b.w - 28, a.note, 'Note for your agent…', true);
+    } else if (a.note) {
+      el('rect', { x: b.x + 14, y, width: b.w - 28, height: 34, rx: 6, class: 'sticky' }, g);
+      text(g, b.x + 24, y + 23, L.lines(a.note, 30)[0], FONT.hand, 'var(--sticky-ink)');
+    }
+  }
+
+  function drawRow(g, n, b, r, top, a) {
+    const { x } = b;
+    if (r.kind === 'cloud') drawCloud(g, b, r, top, n);
+    if (r.kind === 'eyebrow') drawEyebrow(g, n, x + M.pad, top);
+    if (['pheader', 'pgoal', 'pscen'].includes(r.kind)) drawPersona(g, b, r, top);
+    if (r.kind === 'dbar') drawDbar(g, n, b, r, top);
+    if (r.kind === 'chips') drawChips(g, b, r, top);
+    if (r.kind === 'sticky') drawSticky(g, n, b, r, top, r.index);
+    if (r.kind === 'noteslot') drawNoteBox(g, n, b, top + 4, a);
+    if (r.kind === 'annotation') drawAnnotation(g, b, r, top);
+    if (r.kind === 'title') drawTitle(g, n, b, r, top);
+    if (r.kind === 'sub') drawSub(g, n, b, r, top);
+    if (r.kind === 'note') {
+      para(g, x + M.pad, top + 14, n.note, FONT.body, 'var(--muted)', M.bodyChars, M.body);
+    }
+    if (r.kind === 'tag') pill(g, x + M.pad, top + 4, n.tag, 'var(--tag-ink)', 'var(--tag-bg)');
+    if (r.kind === 'option') drawOption(g, n, b, r, top, a);
+    if (r.kind === 'item') drawItem(g, n, b, r, top, a);
+    if (r.kind === 'input') input(g, n.id, x + M.pad, top + 4, b.w - 2 * M.pad, a.text, n.placeholder);
+    if (r.kind === 'continue') drawContinue(g, n, b, top, a);
+    if (r.kind === 'section') drawSection(g, n, b, r, top);
+  }
+
+  /** The pencil: in the band of a step, on the card's right end otherwise. */
+  function drawPencil(g, n, b, a) {
+    if (L.isStep(n, map)) {
+      drawBandActions(g, n, b, a);
+      return;
+    }
+    const nh = hit(g, JSON.stringify(['note', n.id]), a.note ? `Edit note: ${n.label}` : `Add note: ${n.label}`);
+    nh.dataset.focus = `note-${n.id}`;
+    const nx = b.x + b.w - 34;
+    const ny = b.y + (n.kind === 'start' ? b.h / 2 - 12 : 10);
+    el('rect', { x: nx, y: ny, width: 24, height: 24, rx: 7, class: a.note ? 'note-btn has' : 'note-btn' }, nh);
+    el('path', { d: `M${nx + 7} ${ny + 17} l1 -4 l7 -7 l3 3 l-7 7 z`, class: 'pencil' }, nh);
+  }
+
+  function node(layer, n, b, fade, ghost) {
+    const a = state[n.id] || {};
+    const cls = ghost ? 'ghost' : fade.faded.has(n.id) ? 'faded' : '';
+    const g = el('g', { 'data-node': n.id, class: cls }, layer);
+    const P = L.parts(n, L.ctx(map, layoutOpts()));
+    // invariant: the framed card is the middle of the box, between the inset (above) and tail (below) rows.
+    const cb = { ...b, y: b.y + P.inset, h: P.card };
+    frame(g, n, cb);
+    anchors[n.id] = {};
+    const next = { top: b.y, card: cb.y + (n.kind === 'start' ? M.pad : 14), bottom: cb.y + cb.h };
+    let stickyIndex = 0;
+    for (const r of P.rows) {
+      const zone = r.zone || 'card';
+      if (r.kind === 'sticky') r.index = stickyIndex++;
+      drawRow(g, n, cb, r, next[zone], a);
+      next[zone] += r.h;
+    }
+    if (fade.later.has(n.id)) pill(g, b.x + b.w - 62, b.y - 10, 'later', 'var(--rec-ink)', 'var(--rec-bg)');
+    drawPencil(g, n, cb, a);
+    // hazard: a note on an unannotated node has no reserved slot, so it hangs in the gap below the box.
+    if (!P.rows.some((r) => r.kind === 'noteslot')) drawNoteBox(g, n, cb, b.y + b.h + 10, a);
+  }
+
+  function drawTreeLabels(notes, visible) {
+    for (const t of map.trees) {
+      const bs = plan.boxes.filter((b) => b.tree === t.id && visible(b.id));
+      const start = t.nodes.find((n) => n.kind === 'start');
+      if (!bs.length || (start && (t.label || t.id) === start.label)) continue;
+      const label = text(
+        notes,
+        Math.min(...bs.map((b) => b.x)),
+        Math.min(...bs.map((b) => b.y)) - 26,
+        (t.label || t.id).toUpperCase(),
+        FONT.tree,
+        'var(--muted)',
+      );
+      label.style.letterSpacing = '0.1em';
+    }
+  }
+
+  function drawLink(edgeLayer, notes, e) {
+    const route = L.linkRoute(plan, e);
+    arrow(edgeLayer, `${e.from}-${e.to}`, route.points, {
+      stroke: 'var(--link)',
+      dash: [6, 7],
+      linear: true,
+      sw: 1.3,
+    });
+    if (e.label) pill(notes, route.label.x, route.label.y, e.label, 'var(--link)', 'var(--paper)');
+  }
+
+  function drawEdges(edgeLayer, notes, fade, shown, visible) {
+    for (const e of plan.edges) {
+      if (!visible(e.from) || !visible(e.to)) continue;
+      const from = rects[e.from];
+      const to = rects[e.to];
+      const dim = fade.faded.has(e.to) || !shown.has(e.to);
+      if (e.link) {
+        drawLink(edgeLayer, notes, e);
+        continue;
+      }
+      const n = byId.get(e.from);
+      if (n.kind === 'choice') {
+        for (const o of n.options.filter((opt) => opt.next === e.to)) {
+          const chosen = state[n.id]?.choice === o.key;
+          if (!showAll && !chosen) continue;
+          curve(
+            edgeLayer,
+            `${e.from}-${o.key}`,
+            from.x + from.w - 12,
+            anchors[n.id][o.key],
+            to.x - 6,
+            to.ay,
+            { faded: !chosen && dim, stroke: chosen ? 'var(--select)' : undefined },
+          );
+        }
+        continue;
+      }
+      const into = L.isStep(byId.get(e.to), map) ? L.moodOf(byId.get(e.to)) : null;
+      curve(edgeLayer, `${e.from}-${e.to}`, from.x + from.w + 2, from.ay, to.x - 6, to.ay, {
+        faded: dim,
+        ...(into ? { stroke: into.color, sw: 3.2 } : {}),
+      });
+    }
+  }
+
+  /** Redraws the whole map and returns the ids that appeared since the previous render. */
+  function render(refocus) {
+    world.replaceChildren();
+    plan = L.layout(map, layoutOpts());
+    rects = Object.fromEntries(plan.boxes.map((b) => [b.id, b]));
+    anchors = {};
+    const shown = L.revealed(map, state, revealOpts());
+    const fade = L.faded(map, state);
+    const visible = (id) => showAll || shown.has(id);
+    const edgeLayer = el('g', {}, world);
+    const nodeLayer = el('g', {}, world);
+    const notes = el('g', {}, world);
+    drawTreeLabels(notes, visible);
+    for (const b of plan.boxes) {
+      if (visible(b.id)) node(nodeLayer, byId.get(b.id), b, fade, !shown.has(b.id));
+    }
+    drawEdges(edgeLayer, notes, fade, shown, visible);
+    if (refocus) {
+      const target = [...world.querySelectorAll('[data-focus]')].find((e) => e.dataset.focus === refocus);
+      target?.focus({ preventScroll: true });
+    }
+    updateStatus();
+    const fresh = [...shown].filter((id) => !shownBefore.has(id));
+    shownBefore = shown;
+    return fresh;
+  }
+
+  function updateStatus() {
+    const shown = L.revealed(map, state, revealOpts());
+    const noteCount = Object.values(state).filter((a) => a.note).length;
+    drawChrome();
+    drawTimeline();
+    statusEl.textContent = `${shown.size} of ${plan.boxes.length} nodes revealed · ${noteCount} note${noteCount === 1 ? '' : 's'}`;
+  }
+
+  const focus0 = () => document.activeElement?.dataset?.focus;
+
+  function act(serialized) {
+    const [kind, id, key] = JSON.parse(serialized);
+    const n = byId.get(id);
+    // invariant: acting anywhere else turns each other written note from an input into its sticky.
+    for (const other of [...noteOpen]) if (other !== id && state[other]?.note) noteOpen.delete(other);
+    if (kind === 'open') {
+      if (open.has(id)) open.delete(id);
+      else open.add(id);
+      render(focus0());
+      focusOn([id]);
+      return;
+    }
+    state[id] ||= {};
+    const a = state[id];
+    if (kind === 'choice') a.choice = key;
+    if (kind === 'check') {
+      a.checks ||= {};
+      const current = a.checks[key] ?? n.items.find((i) => i.key === key).on ?? true;
+      a.checks[key] = !current;
+    }
+    if (kind === 'done') a.done = true;
+    if (kind === 'note') {
+      noteOpen.add(id);
+      render();
+      const field = [...world.querySelectorAll('input')].find(
+        (i) => i.dataset.node === id && i.dataset.field === 'note',
+      );
+      field?.focus({ preventScroll: true });
+      return;
+    }
+    const focus = document.activeElement?.dataset?.focus;
+    const fresh = render(kind === 'done' ? null : focus);
+    if (kind === 'choice') focusOn([id, n.options.find((o) => o.key === key).next, ...fresh]);
+    else if (fresh.length) focusOn([id, ...fresh]);
+    if (kind === 'done') {
+      const next = [...world.querySelectorAll('[data-focus]')].find((e) =>
+        fresh.includes(e.closest('[data-node]')?.dataset.node),
+      );
+      next?.focus({ preventScroll: true });
+    }
+  }
+
+  canvas.bindInput();
+
+  svg.addEventListener('click', (e) => {
+    if (canvas.moved) return;
+    const h = e.target.closest('.hit');
+    if (h) act(h.dataset.act);
+  });
+
+  svg.addEventListener('keydown', (e) => {
+    if (e.target.closest('input')) return;
+    const h = e.target.closest('.hit');
+    if (h && (e.key === 'Enter' || e.key === ' ')) {
+      e.preventDefault();
+      act(h.dataset.act);
+    }
+  });
+
+  svg.addEventListener('focusin', (e) => {
+    const g = e.target.closest('[data-node]');
+    if (!g || !e.target.matches('.hit, input')) return;
+    const r = rects[g.dataset.node];
+    const vw = svg.clientWidth;
+    const vh = svg.clientHeight;
+    const sx = r.x * cam.k + cam.x;
+    const sy = r.y * cam.k + cam.y;
+    if (sx < 0 || sy < 70 || sx + r.w * cam.k > vw || sy + r.h * cam.k > vh - 60) {
+      focusOn([g.dataset.node]);
+    }
+  });
+
+  const startIds = () =>
+    plan.boxes.filter((b) => b.column <= 1 && b.tree === map.trees[0].id).map((b) => b.id);
+  const nextBtn = document.getElementById('next');
+  const prevBtn = document.getElementById('prev');
+  const moreBtn = document.getElementById('more');
+  const menuEl = document.getElementById('menu');
+  const pathNow = () => L.walked(map, state, showAll, { stepwise });
+  const shownNow = () => (showAll ? [...byId.keys()] : [...L.revealed(map, state, revealOpts())]);
+  const detailIds = () => [...byId.values()].filter((n) => L.isStep(n, map) && hasDetails(n)).map((n) => n.id);
+  const allOpen = () => detailIds().every((id) => open.has(id));
+
+  function nextStep() {
+    const id = showAll ? null : L.pending(map, state);
+    if (id && stepwise) act(JSON.stringify(['done', id]));
+  }
+
+  /** Clears the answer that revealed the last node shown, so the walk steps back one node. */
+  function prevStep() {
+    const id = L.prevTarget(map, state, { stepwise, showAll });
+    if (!id) return;
+    if (byId.get(id).kind === 'choice') delete state[id].choice;
+    else state[id].done = false;
+    render();
+    focusOn(pathNow().slice(-3));
+  }
+
+  function toggleStepwise() {
+    if (!canStep) return;
+    stepwise = !stepwise;
+    render();
+    focusOn(pathNow().slice(-3));
+  }
+
+  function toggleShowAll() {
+    showAll = !showAll;
+    render();
+    if (showAll) fitAll();
+    else focusOn(shownNow());
+  }
+
+  function toggleExpandAll() {
+    if (allOpen()) open.clear();
+    else for (const id of detailIds()) open.add(id);
+    render();
+    if (showAll) fitAll();
+    else focusOn(shownNow());
+  }
+
+  // why: one stray R would wipe every answer and note, so the shortcut needs a second press within 3s.
+  let resetArmedAt = 0;
+  function resetFromKey() {
+    if (!Object.keys(state).length || Date.now() - resetArmedAt < 3000) {
+      resetArmedAt = 0;
+      resetWalk();
+      return;
+    }
+    resetArmedAt = Date.now();
+    statusEl.textContent = 'Press R again to clear every answer and note';
+  }
+
+  function resetWalk() {
+    state = Object.create(null);
+    noteOpen.clear();
+    render();
+    focusOn(startIds());
+  }
+
+  const MENU = [
+    ['Step by step', 'P', () => toggleStepwise(), () => !canStep, () => stepwise],
+    ['Show whole map', 'W', () => toggleShowAll(), () => false, () => showAll],
+    ['Expand all', 'E', () => toggleExpandAll(), () => !detailIds().length, () => null],
+  ];
+
+  function closeMenu() {
+    menuEl.hidden = true;
+    moreBtn.setAttribute('aria-expanded', 'false');
+  }
+
+  function renderMenu() {
+    menuEl.replaceChildren();
+    for (const [label, key, run, off, on] of MENU) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.disabled = off();
+      const checked = on();
+      b.setAttribute('role', checked === null ? 'menuitem' : 'menuitemcheckbox');
+      if (checked !== null) b.setAttribute('aria-checked', String(checked));
+      const name = document.createElement('span');
+      name.textContent = label === 'Expand all' && allOpen() ? 'Collapse all' : label;
+      const kbd = document.createElement('kbd');
+      kbd.textContent = key;
+      b.append(name, kbd);
+      b.onclick = () => {
+        closeMenu();
+        run();
+      };
+      menuEl.appendChild(b);
+    }
+  }
+
+  // why: the toolbar wraps on narrow viewports, so the button can sit near the left edge and a right-aligned menu would clip.
+  function placeMenu() {
+    menuEl.style.right = '0px';
+    menuEl.style.left = 'auto';
+    const r = menuEl.getBoundingClientRect();
+    const vw = document.documentElement.clientWidth;
+    const room = 8;
+    let dx = 0;
+    if (r.left < room) dx = room - r.left;
+    else if (r.right > vw - room) dx = vw - room - r.right;
+    menuEl.style.right = `${-dx}px`;
+  }
+
+  moreBtn.onclick = (e) => {
+    e.stopPropagation();
+    const willOpen = menuEl.hidden;
+    if (willOpen) renderMenu();
+    menuEl.hidden = !willOpen;
+    moreBtn.setAttribute('aria-expanded', String(willOpen));
+    if (willOpen) placeMenu();
+  };
+  document.addEventListener('pointerdown', (e) => {
+    if (!menuEl.hidden && !e.target.closest?.('#menu, #more')) closeMenu();
+  });
+
+  /** Syncs the toolbar with the walk: Prev and Next show only while step by step is on. */
+  function drawChrome() {
+    if (!menuEl.hidden) {
+      renderMenu();
+      placeMenu();
+    }
+    nextBtn.hidden = !stepwise;
+    prevBtn.hidden = !stepwise;
+    nextBtn.disabled = showAll || !L.pending(map, state);
+    prevBtn.disabled = !L.prevTarget(map, state, { stepwise, showAll });
+  }
+
+  /** Draws the mood timeline island from the walked path, with DOM calls only. */
+  function drawTimeline() {
+    const pts = pathNow()
+      .map((id) => byId.get(id))
+      .filter((n) => L.moodOf(n))
+      .map((n) => ({ n, m: L.moodOf(n) }));
+    timelineEl.hidden = !pts.length;
+    canvas.dockH = pts.length ? 66 + 120 + 12 : 0;
+    if (!pts.length) return;
+    const sp = 58;
+    const w = Math.max(220, pts.length * sp + 56);
+    const xOf = (i) => 40 + i * sp;
+    const yOf = (v) => 22 + (2 - v) * 15;
+    const g = document.createElementNS(SVG_NS, 'svg');
+    for (const [k, v] of Object.entries({ width: w, height: 120, viewBox: `0 0 ${w} 120`, role: 'img', 'aria-label': 'Mood along the walk' })) {
+      g.setAttribute(k, v);
+    }
+    el('line', { x1: 14, x2: w - 14, y1: yOf(0), y2: yOf(0), class: 'tl-zero' }, g);
+    const cap = el('text', { x: 14, y: 114, class: 'tl-cap' }, g);
+    cap.textContent = 'MOOD ALONG THE WALK';
+    pts.forEach((p, i) => {
+      if (i) el('line', { x1: xOf(i - 1), y1: yOf(pts[i - 1].m.value), x2: xOf(i), y2: yOf(p.m.value), class: 'tl-seg', style: `stroke:${p.m.color}` }, g);
+    });
+    pts.forEach((p, i) => {
+      const pg = el('g', { class: 'tl-pt', 'data-id': p.n.id }, g);
+      const tip = el('title', {}, pg);
+      tip.textContent = `${p.n.label} - ${p.m.name}`;
+      if (i === pts.length - 1) el('circle', { cx: xOf(i), cy: yOf(p.m.value), r: 17, class: 'tl-newest' }, pg);
+      el('circle', { cx: xOf(i), cy: yOf(p.m.value), r: 12, class: 'tl-dot', style: `fill:${p.m.soft};stroke:${p.m.color}` }, pg);
+      const face = el('text', { x: xOf(i), y: yOf(p.m.value) + 5, 'text-anchor': 'middle', class: 'tl-face' }, pg);
+      face.textContent = p.m.face;
+    });
+    timelineEl.replaceChildren(g);
+    timelineEl.scrollLeft = timelineEl.scrollWidth;
+  }
+
+  timelineEl.addEventListener('click', (e) => {
+    const t = e.target.closest('[data-id]');
+    if (t) focusOn([t.dataset.id]);
+  });
+  nextBtn.onclick = nextStep;
+  prevBtn.onclick = prevStep;
+  // why: listening on window and focusing the stage on load lets shortcuts work before the first click.
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !menuEl.hidden) {
+      closeMenu();
+      moreBtn.focus();
+      return;
+    }
+    if (e.target.closest?.('input, textarea') || e.metaKey || e.ctrlKey || e.altKey) return;
+    const k = e.key.toLowerCase();
+    if (k === 'n') nextStep();
+    else if (k === 'b') prevStep();
+    else if (k === 'r') resetFromKey();
+    else if (k === 'p') toggleStepwise();
+    else if (k === 'w') toggleShowAll();
+    else if (k === 'e') toggleExpandAll();
+  });
+  document.getElementById('zin').onclick = () => centerZoom(1.2);
+  document.getElementById('zout').onclick = () => centerZoom(1 / 1.2);
+  pct.onclick = () => centerZoom(1 / cam.k);
+  document.getElementById('fit').onclick = fitAll;
+  document.getElementById('reset').onclick = resetWalk;
+
+  copyButton.onclick = async () => {
+    const value = L.feedback(map, state, path);
+    if (await globalThis.CanvasCore.copyText(value, { panel: feedbackPanel, box: feedbackBox })) {
+      statusEl.textContent = 'Copied. Paste it into your agent chat.';
+    }
+  };
+  document.getElementById('close-feedback').onclick = () => {
+    feedbackPanel.hidden = true;
+    copyButton.focus();
+  };
+
+  render();
+
+  // hazard: a pane that is still hidden or sizing reports a zero-width canvas, which would fit the camera to the minimum zoom.
+  function place() {
+    if (!svg.clientWidth || !svg.clientHeight) {
+      requestAnimationFrame(place);
+      return;
+    }
+    Object.assign(cam, fitTarget(union(startIds())));
+    applyCam();
+  }
+  place();
+  stage.tabIndex = -1;
+  window.focus();
+  stage.focus({ preventScroll: true });
+})();
+</script><!-- journey-map:renderer -->
+</body></html>
