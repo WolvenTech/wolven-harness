@@ -2,7 +2,7 @@
 type: spec
 title: Trim the shipped templates without cutting contract
 description: Freezes the lean PR body and wave commit message as one contract-change group, and the byte trim of seven reference files as a separate group that keeps every pinned heading, phrase and n/a row.
-status: draft
+status: stable
 ---
 
 # Trim the shipped templates without cutting contract
@@ -129,7 +129,7 @@ the result with `wc -c < <path>`, on the `templates/` copy.
 | ID | Obligation | Named proof | Evidence shape |
 |----|------------|--------------|------------------|
 | R3.1 | The fenced body in `pr-body-template.md` has exactly three headings, `## Summary`, `## Verification` and `## Before merge`. Summary holds two or three lines and the bullets `**What:**`, `**Why:**` and `**How:**`. No Agent/Model line, Overview, Changes Made, Checklist or Risk & Reviewer Notes, and no instruction to re-list acceptance criteria (AC-3.1) | `proof-templates-trim-pr-shape` | Test in `test/skill-code-pr.test.ts` |
-| R3.2 | The template states each What, Why and How bullet is at most 140 characters; Verification holds one to three bullets, each naming a command; a `Task:` line (spec, plan or ticket reference) appears only when one exists, and a `Risk:` line only when the risk is Medium or High, both at the end of Summary; no empty placeholder is left (AC-3.2) | `proof-templates-trim-pr-caps` | Test pins the caps and the two conditional lines |
+| R3.2 | The template states each What, Why and How bullet is at most 140 characters; Verification holds one to three bullets, each naming a command; a `Task:` line (spec, plan or ticket reference) appears at the end of Summary only when one exists, and a `Risk:` line appears at the end of Verification only when the risk is Medium or High; no empty placeholder is left (AC-3.2) | `proof-templates-trim-pr-caps` | Test pins the caps and the two conditional lines |
 | R3.3 | Before merge holds `- [ ] Manual test` and `- [ ] CI green`, plus `- [ ] Pre-merge closure` only when the diff adds or changes files under `docs/specs`, `docs/prds` or `docs/adrs`, linking `pre-merge-closure.md`. The four-box closure block is gone. The checkbox reset rule stays: every box starts as `[ ]` and is ticked only from this session's evidence (AC-3.3) | `proof-templates-trim-pr-before-merge` | Test pins the three boxes, the three folders and `checkbox reset`, and that the four closure items are absent |
 | R3.4 | `N/A` with a stated reason stays valid for a docs-only change with no gate to run, and any gate that ran is named with its command; the template's docs-only scenario says the same (AC-3.4) | `proof-templates-trim-pr-evidence` | Existing test `N\/A.{0,60}docs-only` on the skill body, plus a pin on the template's docs-only scenario |
 | R3.5 | `code-pr/SKILL.md` restates only the new shape: hard gates 9, 10 and 12 and the Pragmatic-guard line name Summary, Verification and Before merge, never Overview, Checklist or Verification & Testing. Gate 11's phrase "needed only to claim merge-ready or to tick a closure checkbox" stays. Template, skill and test change in one batch, both copies (AC-3.5) | `proof-templates-trim-pr-agree` | Test: no old heading is required, and the skill body matches none of them |
