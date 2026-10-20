@@ -10,11 +10,10 @@ fill each step up to its done line.
 
 An existing skill folder is never overwritten. Before writing, check
 `.agents/skills/<name>/` for a match; if it already exists, ask the Human
-for another name or skip that suggestion instead. A half-written skill
-therefore never lands on top of one that already works — and never fires
-on its own either: `disable-model-invocation: true` in `SKILL.md` plus
-`allow_implicit_invocation: false` in `agents/openai.yaml` hold until the
-Human removes them.
+for another name or skip that suggestion instead. Either way, the stub
+never fires on its own: `disable-model-invocation: true` in `SKILL.md`
+plus `allow_implicit_invocation: false` in `agents/openai.yaml` hold
+until the Human removes them.
 
 ## Fill
 
@@ -129,8 +128,7 @@ once per file, for as long as its `metadata` still carries
 `wolven-harness: stub`. Defining a stub means filling each headed step
 until its `Done when` holds, then removing that marker — and, only if
 the Human wants the skill model-invocable, also removing
-`disable-model-invocation: true` and the `agents/openai.yaml` file. Short
-of that, the warning stays and the skill stays ask-only.
+`disable-model-invocation: true` and the `agents/openai.yaml` file.
 
 ## Commit
 
