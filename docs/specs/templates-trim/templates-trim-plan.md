@@ -39,7 +39,7 @@ The per-batch gate in a Done when is
 | 09 | Trim the stub template (wave B) | — | `templates/.agents/skills/harness-init/references/stub-template.md`, `.agents/skills/harness-init/references/stub-template.md` | `spawn` | [x] The file shrinks 0–10%, cutting only prose no `harness-init-stub` test matches; `-file-budgets`, `-na-kept`, `-single-copy`, `-revert-alone` and copies hold; per-batch gate exit 0 |
 | 10 | Trim the `qmd-first` rule (wave B) | — | `templates/.agents/rules/qmd-first.md`, `.agents/rules/qmd-first.md` | `spawn` | [x] The rule shrinks 15–20% and still states both unpinned rules (`proof-templates-trim-qmd-rules`); `cmp` on the pair is clean (`-copies-identical`); `-file-budgets`, `-single-copy`, `-revert-alone` hold; per-batch gate exit 0 |
 | 11 | **Wave B gate** | 04, 05, 06, 07, 08, 09, 10 | — | `inline` | [x] Every wave B acceptance box in the spec PASS, including `proof-templates-trim-kind-restore` (no row kind lost); a batch that failed is reverted alone and reported; `pnpm test` and `node dist/cli.js validate` PASS; failure → **abort before wave C** |
-| 12 | **Ship gate (wave C)** | 03, 11 | — | `inline` | [ ] The eight files shrink 4,883–6,510 B in total (`proof-templates-trim-total-budget`); one spec and one plan filled from the same short ask against `d7cb269` and against the trimmed skills, in a scratch folder outside the repo, diff empty on headings, table header rows and `n/a` lines, or the Human accepts each difference (`proof-templates-trim-fill-compare`); `node dist/cli.js validate` PASS; failure → **stop and report before `code-pr`** |
+| 12 | **Ship gate (wave C)** | 03, 11 | — | `inline` | [x] The eight files shrink 4,883–6,510 B in total (`proof-templates-trim-total-budget`); one spec and one plan filled from the same short ask against `d7cb269` and against the trimmed skills, in a scratch folder outside the repo, diff empty on headings, table header rows and `n/a` lines, or the Human accepts each difference (`proof-templates-trim-fill-compare`); `node dist/cli.js validate` PASS; failure → **stop and report before `code-pr`** |
 
 ## Wave stops
 
@@ -75,3 +75,38 @@ Commit cadence: `.agents/code-commit.config.yml` is absent, so
 uncommitted until a commit is asked for. When commits are asked for, wave A
 is one batch per unit (01, 02) and wave B one batch per copy pair, so R1.4's
 revert-alone holds.
+
+## Execution / resume section
+
+Settled units, with the gate run on this session's tree:
+
+| Unit | Status | Gate output |
+|------|--------|-------------|
+| 01 | done | `pnpm test` 806 pass / 0 fail · `pnpm build` 0 · `node dist/cli.js validate` 0 · `pnpm comments` 0 · `pnpm lint` 0 |
+| 02 | done | `pnpm test` 810 pass / 0 fail · `pnpm build` 0 · `node dist/cli.js validate` 0 · `pnpm comments` 0 · `pnpm lint` 0 |
+| 03 (wave A gate) | done | 10/10 wave A proofs PASS · `pnpm test` 810/810 · `node dist/cli.js validate` ok on the combined tree |
+| 04 | done | 5,232 → 3,753 B (28.26%) · four baseline `n/a` lines found verbatim · copies `cmp` clean · `pnpm test` 810/810 · build/validate/comments/lint 0 |
+| 05 | done | 4,857 → 3,835 B (21.04%) · `spawn`/`inline`, `STOP`, `empty until decided`, one `(bad — re-slice)` all present · copies clean · gate 0 |
+| 06 | done | 5,702 → 4,724 B (17.15%) · fenced block byte-identical (2,655 B) · both `n/a` lines present · copies clean · gate 0 |
+| 07 | done | 4,385 → 3,864 B (11.88%) · all headings identical · nine dimension rows present · three `n/a` lines verbatim · gate 0 |
+| 08 | done | 2,773 → 2,466 B (11.07%) · headings and 12/12 placeholders identical · every pinned string present · gate 0 |
+| 09 | done | 5,016 → 4,883 B (2.65%) · both fenced blocks byte-identical · hand-back tail intact · copies clean · gate 0 |
+| 10 | done | 1,717 → 1,402 B (18.34%) · both unpinned rules present · `cmp` clean · gate 0 |
+| 11 (wave B gate) | done | 7/7 budgets in band · 0 missing baseline `n/a` lines · 7/7 pairs identical · kinds all present · no wave B `test/`/`src/` change · `pnpm test` 810/810 · build/validate/comments/lint 0 |
+
+### Unit 12 — Ship gate (wave C)
+
+| Field | Value |
+|-------|-------|
+| Unit identifier | 12 — Ship gate (wave C), frontier position 1 in wave C |
+| Spec/plan paths | `docs/specs/templates-trim/templates-trim-spec.md` / `docs/specs/templates-trim/templates-trim-plan.md` |
+| Obligation / proof status | R5.1 PASS — 32,552 → 27,458 B, shrink 5,094 B (15.64%). R5.2 PASS — one spec and one plan filled from the same short ask under `/tmp/templates-trim-fill-2026-10-20/{before,after}`, six diffs (spec/plan headings, table header rows, `n/a` lines) all empty. `node dist/cli.js validate` PASS |
+| `HEAD` commit | `bd5e777` from `git rev-parse --short HEAD`; the batches are `98fb6cb`…`bd5e777` |
+| `git status` summary | clean after ten commits — one per wave A unit, one per wave B copy pair, and this record |
+| Intended diff scope | none in the repo beyond the resume record; the fill compare wrote only under `/tmp` |
+| Decision on every discrepancy | resolved: no fill difference needs the Human's acceptance, so `U-output-quality` did not block the gate; `U-trim-depth` and `U-output-quality` stay open with an empty Disposition |
+
+Two quality notes for the Human, not obligations:
+
+- `code-spec/references/EXAMPLE.md` kept one worked row per required kind but dropped the `failure modes`, `data lifecycle`, `external-dependency failure` and `state transitions` landing rows, so the example now lands five of the nine dimensions. `TEMPLATE.md` keeps all nine, and the fill compare still lands all nine — the contract holds, the example is thinner.
+- `qmd-first.md` dropped the permission sentence "A disagreement table may show both numbers" while keeping the rule that neither number is named as the limit to use.
