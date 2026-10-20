@@ -2,7 +2,7 @@
 type: prd
 title: Trim the shipped templates without cutting contract
 description: Cut the verbose prose in the templates this package ships, make the PR body and the wave commit message lean, and keep every pinned heading, phrase and n/a row outside the PR body.
-status: stable
+status: deprecated
 ---
 
 # Trim the shipped templates without cutting contract

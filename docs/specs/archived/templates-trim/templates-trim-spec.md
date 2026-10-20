@@ -2,12 +2,12 @@
 type: spec
 title: Trim the shipped templates without cutting contract
 description: Freezes the lean PR body and wave commit message as one contract-change group, and the byte trim of seven reference files as a separate group that keeps every pinned heading, phrase and n/a row.
-status: stable
+status: deprecated
 ---
 
 # Trim the shipped templates without cutting contract
 
-**Source:** `docs/prds/templates-trim/templates-trim-prd.md` (status `stable`)
+**Source:** `docs/prds/archived/templates-trim/templates-trim-prd.md` (status `deprecated`)
 **Next:** After the Human approves → `code-plan` → `code-execute`. Waves
 **A** and **B** are independent; wave **C** runs once both have passed.
 **Named proof (this spec's own structural gate):** `proof-templates-trim-spec-obligations`

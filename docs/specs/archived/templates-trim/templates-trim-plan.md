@@ -2,12 +2,12 @@
 type: spec
 title: Trim the shipped templates without cutting contract — plan
 description: Ordered work units for the lean PR body, the one-message wave commit, and the seven reference-file trims, with wave stops and carried Unresolved rows.
-status: stable
+status: deprecated
 ---
 
 # Trim the shipped templates without cutting contract — plan
 
-**Spec:** `docs/specs/templates-trim/templates-trim-spec.md` (status `stable`)
+**Spec:** `docs/specs/archived/templates-trim/templates-trim-spec.md` (status `deprecated`)
 **Baseline:** `d7cb269`; `origin/main` has not moved since, so every budget measures against it.
 
 ## Structural gate
@@ -99,7 +99,7 @@ Settled units, with the gate run on this session's tree:
 | Field | Value |
 |-------|-------|
 | Unit identifier | 12 — Ship gate (wave C), frontier position 1 in wave C |
-| Spec/plan paths | `docs/specs/templates-trim/templates-trim-spec.md` / `docs/specs/templates-trim/templates-trim-plan.md` |
+| Spec/plan paths | `docs/specs/archived/templates-trim/templates-trim-spec.md` / `docs/specs/archived/templates-trim/templates-trim-plan.md` |
 | Obligation / proof status | R5.1 PASS — 32,552 → 27,458 B, shrink 5,094 B (15.64%). R5.2 PASS — one spec and one plan filled from the same short ask under `/tmp/templates-trim-fill-2026-10-20/{before,after}`, six diffs (spec/plan headings, table header rows, `n/a` lines) all empty. `node dist/cli.js validate` PASS |
 | `HEAD` commit | `bd5e777` from `git rev-parse --short HEAD`; the batches are `98fb6cb`…`bd5e777` |
 | `git status` summary | clean after ten commits — one per wave A unit, one per wave B copy pair, and this record |
