@@ -38,13 +38,13 @@ template owns both copies.
 | 04 | harness-init: Full and Light only, with markers | 02 | `templates/.agents/skills/harness-init/SKILL.md`, `templates/.agents/skills/harness-init/references/entry-modes.md`, their `.agents/skills/harness-init/` copies, `templates/WOLVEN.md` (markers only), `test/harness-init-entry.test.ts` | `spawn` | [x] Mention-only is gone. Both modes write the start and end markers. When `codex` is wired, the section holds the rule bodies between the rules markers. Proofs: `proof-install-experience-entry-modes`, `proof-install-experience-inline-rules` (harness-init half) |
 | 05 | `step0-pending` keys on the marker | — | `src/validate/spine.ts`, `test/spine.test.ts` | `spawn` | [x] An `AGENTS.md` with only the mention line warns `step0-pending`, and one with the markers doesn't. Proof: `proof-install-experience-step0-marker` |
 | 06 | **Wave 1 gate** | 03, 04, 05 | — | `inline` | [x] Proofs of units 01 to 05 pass. `pnpm build && pnpm test && pnpm lint && pnpm validate && pnpm comments` pass. On failure, **abort** before wave 2 |
-| 07 | Runtime detection and confirmation | 06 | `src/setup/options.ts` (detection, prompt initial values, `--runtimes` values), `test/setup-runtimes.test.ts` | `spawn` | [ ] On a TTY, the prompt pre-selects runtimes whose markers exist. With no markers, nothing is pre-selected. `--runtimes` accepts every registry id. Proofs: `proof-install-experience-detect`, `proof-install-experience-detect-none` |
-| 08 | Config accepts the new optional keys | 06 | `src/setup/config.ts`, `test/config-keys.test.ts` | `spawn` | [ ] `packageManager`, `layout`, `harnessHome`, `codeRepo` and `commitConvention` validate per ADR-005's config table. Bad values exit 1 naming the key. Existing configs still load. Proof: `proof-install-experience-contract` (config rows) |
-| 09 | Package-manager resolution and command forms | 07, 08 | `src/setup/package-manager.ts` (new), `src/setup/options.ts` (`--package-manager` only), `src/setup/own-package.ts`, `src/setup/harness-score.ts`, `test/package-manager.test.ts` | `spawn` | [ ] Resolution follows the R4.1 order and records `packageManager`. Several lockfiles without a TTY is an error naming the flag. Every printed command matches the manager × command-kind table. Proofs: `proof-install-experience-pm-detect`, `proof-install-experience-pm-commands` |
-| 10 | Templates call `wolven-harness` directly | 09 | `templates/WOLVEN.md`, `templates/.agents/skills/{wayfinder,code-execute,harness-init}/**` (command lines and `validate-wiring.md`), their `.agents/skills/` copies, `test/package-manager.test.ts` (template case) | `spawn` | [ ] No `pnpm ` remains in `templates/**` outside the per-manager table in `validate-wiring.md`. That table has npm, yarn, pnpm and no-`package.json` branches. Proof: `proof-install-experience-pm-templates` |
-| 11 | Install manifest | 06 | `src/setup/manifest.ts` (new), `src/setup/apply.ts`, `src/setup/runtimes.ts` (route wiring writes through the recorder), `test/setup-apply.test.ts` | `spawn` | [ ] After `setup`, the manifest keys equal the set of files it created, including generated rule files, and the hashes match. A re-run adds only new entries. Proof: `proof-install-experience-manifest` |
-| 12 | Setup outside a git top-level | 09, 11 | `src/setup/index.ts`, `src/setup/options.ts` (top-level check only), `test/setup-outside-root.test.ts` | `spawn` | [ ] Outside a top-level, the written set equals exactly `CORE_SKILLS`, the runtime skills wiring, the config and the manifest. It exits 0, and the next step names `harness-init`. A non-global executable path gets the global-install hint. Existing `setup-*` and `contract` tests pass unchanged. Proofs: `proof-install-experience-outside-root`, `proof-install-experience-global-hint`, `proof-install-experience-root-unchanged` |
-| 13 | **Wave 2 gate** | 10, 12 | — | `inline` | [ ] Proofs of units 07 to 12 pass. The five wave-1 commands pass. A manual `node dist/cli.js setup` in an empty temp dir writes only the R3.2 set. On failure, **abort** before wave 3 |
+| 07 | Runtime detection and confirmation | 06 | `src/setup/options.ts` (detection, prompt initial values, `--runtimes` values), `test/setup-runtimes.test.ts` | `spawn` | [x] On a TTY, the prompt pre-selects runtimes whose markers exist. With no markers, nothing is pre-selected. `--runtimes` accepts every registry id. Proofs: `proof-install-experience-detect`, `proof-install-experience-detect-none` |
+| 08 | Config accepts the new optional keys | 06 | `src/setup/config.ts`, `test/config-keys.test.ts` | `spawn` | [x] `packageManager`, `layout`, `harnessHome`, `codeRepo` and `commitConvention` validate per ADR-005's config table. Bad values exit 1 naming the key. Existing configs still load. Proof: `proof-install-experience-contract` (config rows) |
+| 09 | Package-manager resolution and command forms | 07, 08 | `src/setup/package-manager.ts` (new), `src/setup/options.ts` (`--package-manager` only), `src/setup/own-package.ts`, `src/setup/harness-score.ts`, `test/package-manager.test.ts` | `spawn` | [x] Resolution follows the R4.1 order and records `packageManager`. Several lockfiles without a TTY is an error naming the flag. Every printed command matches the manager × command-kind table. Proofs: `proof-install-experience-pm-detect`, `proof-install-experience-pm-commands` |
+| 10 | Templates call `wolven-harness` directly | 09 | `templates/WOLVEN.md`, `templates/.agents/skills/{wayfinder,code-execute,harness-init}/**` (command lines and `validate-wiring.md`), their `.agents/skills/` copies, `test/package-manager.test.ts` (template case) | `spawn` | [x] No `pnpm ` remains in `templates/**` outside the per-manager table in `validate-wiring.md`. That table has npm, yarn, pnpm and no-`package.json` branches. Proof: `proof-install-experience-pm-templates` |
+| 11 | Install manifest | 06 | `src/setup/manifest.ts` (new), `src/setup/apply.ts`, `src/setup/runtimes.ts` (route wiring writes through the recorder), `test/setup-apply.test.ts` | `spawn` | [x] After `setup`, the manifest keys equal the set of files it created, including generated rule files, and the hashes match. A re-run adds only new entries. Proof: `proof-install-experience-manifest` |
+| 12 | Setup outside a git top-level | 09, 11 | `src/setup/index.ts`, `src/setup/options.ts` (top-level check only), `test/setup-outside-root.test.ts` | `spawn` | [x] Outside a top-level, the written set equals exactly `CORE_SKILLS`, the runtime skills wiring, the config and the manifest. It exits 0, and the next step names `harness-init`. A non-global executable path gets the global-install hint. Existing `setup-*` and `contract` tests pass unchanged. Proofs: `proof-install-experience-outside-root`, `proof-install-experience-global-hint`, `proof-install-experience-root-unchanged` |
+| 13 | **Wave 2 gate** | 10, 12 | — | `inline` | [x] Proofs of units 07 to 12 pass. The five wave-1 commands pass. A manual `node dist/cli.js setup` in an empty temp dir writes only the R3.2 set. On failure, **abort** before wave 3 |
 | 14 | `doctor` command, output and read-only run | 13 | `src/cli.ts`, `src/doctor/index.ts` (new), `src/doctor/report.ts` (new), `test/doctor.test.ts` | `spawn` | [ ] `wolven-harness doctor [--dir]` prints findings and the summary line in the ADR-005 shape, exits 0 or 1, and rejects unknown args. A folder with no config yields only `doctor-config`. The fixture tree's hashes are unchanged after a run. Proofs: `proof-install-experience-doctor-output`, `proof-install-experience-doctor-readonly` |
 | 15 | Doctor runtime checks | 14 | `src/doctor/runtime-checks.ts` (new), `test/doctor-runtime.test.ts` | `spawn` | [ ] `doctor-entry`, `doctor-rules` and `doctor-skills` fire per wired runtime from the registry, and `linked` layouts are followed through `harnessHome`. Proof: `proof-install-experience-doctor-checks` (runtime half) |
 | 16 | Doctor environment checks | 14 | `src/doctor/env-checks.ts` (new), `test/doctor-env.test.ts` | `spawn` | [ ] `doctor-docs`, `doctor-qmd`, `doctor-code-repo` and `doctor-not-global` fire on their fixtures, with a stub `PATH`. The audited-shape fixture exits 1 with the expected codes, and the repaired one exits 0. Proofs: `proof-install-experience-doctor-checks` (environment half), `proof-install-experience-no-code-writes`, `proof-install-experience-pm-global` |
@@ -160,3 +160,99 @@ Units run in parallel only when their Owns are disjoint:
 | `git status` summary | dirty — units 01, 02 and 05 own the modified paths; this unit's Owns start clean |
 | Intended diff scope | `templates/.agents/skills/harness-init/SKILL.md`, `templates/.agents/skills/harness-init/references/entry-modes.md`, their `.agents/skills/harness-init/` copies, `templates/WOLVEN.md` (markers only), `test/harness-init-entry.test.ts`, plus the one re-run-skip assertion at `test/skill-harness-init.test.ts:79` |
 | Decision on every discrepancy | resolved — the two `step0-pending` fixtures in `test/harness-init-entry.test.ts` now warn after unit 05; this unit's marker rewrite is what clears them. `test/skill-harness-init.test.ts:79` pins the old mention-based skip condition, which R2.5 falsifies; that single assertion moves to the start marker |
+
+### Wave 2 prerequisite — runtime ids (parent, inline)
+
+| Field | Value |
+|-------|-------|
+| Unit identifier | Wave 2 prerequisite — `--runtimes` accepts every registry id (before unit 07) |
+| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Obligation / proof status | R1.2 / `proof-install-experience-detect` — prerequisite done, proof pending in unit 07 |
+| `HEAD` commit | `10a18b4` |
+| `git status` summary | dirty — this prerequisite's three files and the plan only |
+| Intended diff scope | `src/setup/runtimes.ts` (`isRuntimeId`), `src/setup/config.ts` (registry-backed `isRuntime` and error text), `src/skills/parse.ts` (`SKILL_RUNTIMES` keeps its three values) |
+| Decision on every discrepancy | resolved — the plan gave the config runtime list no owner in wave 2, and unit 07's proof runs through the real CLI. `skills --runtimes` stays at `claude`, `codex`, `cursor` per ADR-005. Verified: `setup --runtimes opencode` exits 0, writes and round-trips its config; `skills --runtimes opencode` is still rejected |
+
+### Unit 07 — Runtime detection and confirmation
+
+| Field | Value |
+|-------|-------|
+| Unit identifier | 07 — Runtime detection and confirmation (wave 2, frontier 1) |
+| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Obligation / proof status | R1.2, R1.3 / `proof-install-experience-detect`, `proof-install-experience-detect-none` — done |
+| `HEAD` commit | `10a18b4` |
+| `git status` summary | dirty — the parent prerequisite and this plan file; this unit's Owns start clean |
+| Intended diff scope | `src/setup/options.ts` (detection, prompt initial values, `--runtimes` values), `test/setup-runtimes.test.ts`, plus the prompt/detection assertions in `test/setup-ui.test.ts` |
+| Decision on every discrepancy | resolved — the registry makes the prompt list nine options, so `test/setup-ui.test.ts`'s `multiLabels` assertion widens; `detectRuntimes` keeps an optional env argument so its existing one-argument calls stay valid |
+
+### Unit 08 — Config accepts the new optional keys
+
+| Field | Value |
+|-------|-------|
+| Unit identifier | 08 — Config accepts the new optional keys (wave 2, frontier 1) |
+| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Obligation / proof status | R9.1 (config rows) / `proof-install-experience-contract` (config rows) — done |
+| `HEAD` commit | `10a18b4` |
+| `git status` summary | dirty — the parent prerequisite and this plan file; this unit's Owns start clean |
+| Intended diff scope | `src/setup/config.ts`, `test/config-keys.test.ts` (new) |
+| Decision on every discrepancy | none — the parent prerequisite already moved the runtime list onto the registry; this unit adds only the new optional keys and their rules |
+
+### Unit 11 — Install manifest
+
+| Field | Value |
+|-------|-------|
+| Unit identifier | 11 — Install manifest (wave 2, frontier 1) |
+| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Obligation / proof status | R7.3 / `proof-install-experience-manifest` — done |
+| `HEAD` commit | `10a18b4` |
+| `git status` summary | dirty — the parent prerequisite and this plan file; this unit's Owns start clean |
+| Intended diff scope | `src/setup/manifest.ts` (new), `src/setup/apply.ts`, `src/setup/runtimes.ts` (recorder), `test/setup-apply.test.ts`, the manifest wiring in `src/setup/index.ts`, plus the `.wolven-harness.manifest.json` entry in `test/setup-surfaces.test.ts`'s exact path set |
+| Decision on every discrepancy | resolved — the recorder must be created and the manifest written by `runSetup`, but `src/setup/index.ts` belonged to unit 12, which runs later; this unit takes only the manifest wiring there, and unit 12 keeps the rest. `package.json` script additions are not recorded: setup edits an existing consumer file rather than creating it, and recording it would make `doctor-drift-edited` fire on the consumer's own edits |
+
+### Unit 09 — Package-manager resolution and command forms
+
+| Field | Value |
+|-------|-------|
+| Unit identifier | 09 — Package-manager resolution and command forms (wave 2, frontier 2) |
+| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Obligation / proof status | R4.1, R4.2 / `proof-install-experience-pm-detect`, `proof-install-experience-pm-commands` — done |
+| `HEAD` commit | `10a18b4` |
+| `git status` summary | dirty — units 07, 08 and 11 own the modified paths; this unit's Owns start clean |
+| Intended diff scope | `src/setup/package-manager.ts` (new), `src/setup/options.ts` (`--package-manager` only), `src/setup/own-package.ts`, `src/setup/harness-score.ts`, `test/package-manager.test.ts` (new), plus the pnpm assertions in `test/install-devdep.test.ts` and the warning assertion in `test/setup-harness-score.test.ts`, the setup-flags test in `test/contract.test.ts` (reads ADR-005), and the setup usage lines in `src/cli.ts` |
+| Decision on every discrepancy | resolved — `--package-manager` is in ADR-005 but not ADR-004, so the flags contract test reads ADR-005 for that one case (unit 18 repoints the rest); the existing warning assertions name pnpm, which a `package.json` without a signal no longer resolves to |
+
+### Unit 10 — Templates call `wolven-harness` directly
+
+| Field | Value |
+|-------|-------|
+| Unit identifier | 10 — Templates call `wolven-harness` directly (wave 2, frontier 3) |
+| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Obligation / proof status | R4.3 / `proof-install-experience-pm-templates` — done |
+| `HEAD` commit | `10a18b4` |
+| `git status` summary | dirty — units 07, 08, 09 and 11 own the modified paths; this unit's Owns start clean |
+| Intended diff scope | `templates/WOLVEN.md`, `templates/.agents/skills/{wayfinder,code-execute,harness-init}/**`, their `.agents/skills/` copies, `test/package-manager.test.ts` (template case), plus the pnpm assertions in `test/skill-wayfinder.test.ts`, `test/skill-harness-init.test.ts` and `test/setup-surfaces.test.ts` that pin the old command lines, and (only if a literal cannot be kept) the final-check assertions in `test/skill-code-execute.test.ts` |
+| Decision on every discrepancy | resolved — the three test assertions name the exact command lines this unit replaces; they are assertion-level edits in files the plan did not list, and no other change touches them |
+
+### Unit 12 — Setup outside a git top-level
+
+| Field | Value |
+|-------|-------|
+| Unit identifier | 12 — Setup outside a git top-level (wave 2, frontier 3) |
+| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Obligation / proof status | R3.2, R3.3, R3.1 / `proof-install-experience-outside-root`, `proof-install-experience-global-hint`, `proof-install-experience-root-unchanged` — done |
+| `HEAD` commit | `10a18b4` |
+| `git status` summary | dirty — units 07, 08, 09 and 11 own the modified paths; this unit's Owns start clean |
+| Intended diff scope | `src/setup/index.ts`, `src/setup/options.ts` (top-level check only), `test/setup-outside-root.test.ts` (new), plus `src/setup/types.ts` (`Io.execPath`, and a mode on `Options` if needed), `src/cli.ts` (pass the executable path), `test/helpers/fixture.ts` (executable-path passthrough), `src/setup/apply.ts` (skills-only write path), `src/setup/runtimes.ts` (skills-only wiring), the next-steps assertions in `test/setup-ui.test.ts` and `test/setup-harness-score.test.ts`, the two `test/setup-options.test.ts` cases that pin the old subdir/non-git failure, and the empty-preselection case in `test/setup-runtimes.test.ts` whose fake prompt violates the required-prompt contract |
+| Decision on every discrepancy | resolved — the outside mode needs a narrower write path and an injectable executable path for the global-install hint, and `index.ts`'s next-step strings move to the resolved manager; all of those files are sequential to this unit, so it takes the minimal slice of each. R3.2 also supersedes the two `test/setup-options.test.ts` cases that assert the old exit 1 outside a top-level, so this unit rewrites them |
+
+### Unit 13 — Wave 2 gate
+
+| Field | Value |
+|-------|-------|
+| Unit identifier | 13 — Wave 2 gate (wave 2, frontier 4) |
+| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Obligation / proof status | Units 07–12 proofs — done; gate — pass |
+| `HEAD` commit | `10a18b4` |
+| `git status` summary | dirty — the wave-2 batch (units 07–12 plus the runtime-id prerequisite) is uncommitted |
+| Intended diff scope | the wave-2 batch, no new writes |
+| Decision on every discrepancy | none — `pnpm build && pnpm test && pnpm lint && pnpm validate && pnpm comments` passed at 872 tests, and a manual `node dist/cli.js setup` in an empty folder wrote exactly the R3.2 set |

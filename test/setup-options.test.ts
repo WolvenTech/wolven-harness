@@ -103,35 +103,38 @@ test('setup-prompts: no-tty missing only --runtimes names just that flag', async
   assert.doesNotMatch(result.stderr, /--git-host/);
 });
 
-test('setup-prompts: subdir exits 1 and creates nothing', async () => {
+test('setup-prompts: a subfolder of a repository runs the outside mode there', async () => {
   const dir = await makeRepo({ 'README.md': '# fixture\n' }, { git: true });
   const subdir = path.join(dir, 'sub');
   await mkdir(subdir);
 
-  const before = (await walkFiles(dir)).sort();
   const result = await run(['setup', '--git-host', 'gh', '--runtimes', 'claude'], {
     cwd: subdir,
     isTTY: false,
   });
-  const after = (await walkFiles(dir)).sort();
 
-  assert.equal(result.code, 1);
-  assert.deepEqual(after, before);
+  assert.equal(result.code, 0, result.stderr);
+  assert.equal(await configExists(subdir), true);
+  assert.equal(await configExists(dir), false, 'the repository top-level gets no config');
+  const files = (await walkFiles(subdir)).sort();
+  assert.ok(files.includes('.agents/skills/harness-init/SKILL.md'));
+  assert.equal(files.includes('WOLVEN.md'), false);
 });
 
-test('setup-prompts: non-git dir exits 1 and creates nothing', async () => {
+test('setup-prompts: a folder outside any repository runs the outside mode', async () => {
   const dir = await makeRepo({ 'README.md': '# fixture\n' });
 
-  const before = (await walkFiles(dir)).sort();
   const result = await run(['setup', '--git-host', 'gh', '--runtimes', 'claude'], {
     cwd: dir,
     isTTY: false,
   });
-  const after = (await walkFiles(dir)).sort();
 
-  assert.equal(result.code, 1);
-  assert.deepEqual(after, before);
-  assert.equal(await configExists(dir), false);
+  assert.equal(result.code, 0, result.stderr);
+  assert.equal(await configExists(dir), true);
+  assert.equal(await readFile(path.join(dir, 'README.md'), 'utf8'), '# fixture\n');
+  const files = (await walkFiles(dir)).sort();
+  assert.ok(files.includes('.agents/skills/harness-init/SKILL.md'));
+  assert.equal(files.includes('WOLVEN.md'), false);
 });
 
 test('setup-config: re-run reads .wolven-harness.json without prompting', {

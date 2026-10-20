@@ -65,7 +65,6 @@ from `ADR-000` (see `docs/adrs/adr-000-record-architecture-decisions.md`).
 ## Validate
 
 ```
-pnpm harness:validate
 wolven-harness validate
 ```
 

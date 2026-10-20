@@ -49,7 +49,7 @@ test('proof-wayfinder-skill-work: claims first, resolves by kind, stops after on
   assert.match(body, /Work one ticket per session/);
   assert.match(body, /older\s+than 72 hours, say it is stale/);
   assert.match(body, /Never take it over or release it silently/);
-  assert.match(body, /pnpm exec wolven-harness skills --skills <name>/);
+  assert.match(body, /wolven-harness skills --skills <name>/);
   assert.match(body, /Leave the ticket\s+`open`/);
   assert.match(body, /says no skill was used/);
   assert.match(body, /\]\(references\/ticket-format\.md\)/);

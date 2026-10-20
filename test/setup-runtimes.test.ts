@@ -4,10 +4,66 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { PassThrough } from 'node:stream';
 import { test } from 'node:test';
+import { detectRuntimes } from '../src/setup/options.js';
 import { setSymlinkImpl, wireRuntimes } from '../src/setup/runtimes.js';
-import type { Context, Io, Options } from '../src/setup/types.js';
+import type { Context, Io, Options, Prompter, Runtime } from '../src/setup/types.js';
 import { SetupError } from '../src/setup/types.js';
 import { makeRepo, run } from './helpers/fixture.js';
+
+const IDS: readonly Runtime[] = [
+  'claude',
+  'codex',
+  'cursor',
+  'opencode',
+  'amp',
+  'copilot',
+  'gemini',
+  'kiro',
+  'antigravity',
+];
+
+const NAMES = [
+  'Claude Code',
+  'Codex',
+  'Cursor',
+  'OpenCode',
+  'Amp',
+  'GitHub Copilot',
+  'Gemini CLI',
+  'Kiro',
+  'Antigravity',
+];
+
+interface Asked {
+  initial: Runtime[];
+  values: Runtime[];
+  labels: string[];
+  hints: (string | undefined)[];
+}
+
+/**
+ * Records the runtimes question and answers with its preselection, or with
+ * `answer` when given; the skill-set question takes its defaults.
+ */
+function fakePrompter(asked: Asked, answer?: Runtime[]): Prompter {
+  return {
+    async select() {
+      throw new Error('the git-host prompt should not be asked');
+    },
+    async multiselect(o) {
+      if (o.options.some((choice) => choice.value === 'ship')) return o.initialValues as never;
+      asked.initial = o.initialValues;
+      asked.values = o.options.map((choice) => choice.value);
+      asked.labels = o.options.map((choice) => choice.label);
+      asked.hints = o.options.map((choice) => choice.hint);
+      return (answer ?? o.initialValues) as never;
+    },
+  };
+}
+
+function newAsked(): Asked {
+  return { initial: [], values: [], labels: [], hints: [] };
+}
 
 function makeCtx(root: string): Context {
   const io: Io = {
@@ -130,4 +186,70 @@ test('runtime-wiring: runtimes page cites three URLs; README install lines cite 
   assert.match(runtimes, /https:\/\/code\.claude\.com\/docs\/en\/skills/);
   assert.match(runtimes, /https:\/\/learn\.chatgpt\.com\/docs\/build-skills/);
   assert.match(runtimes, /https:\/\/cursor\.com\/docs\/context\/skills/);
+});
+
+test('runtime-detect: machine markers come from the supplied environment, in registry order', async () => {
+  const home = await makeRepo({});
+  await fs.mkdir(path.join(home, '.claude'), { recursive: true });
+  const repo = await makeRepo({ '.cursorrules': 'x\n' }, { git: true });
+
+  assert.deepEqual(await detectRuntimes(repo), ['cursor']);
+  assert.deepEqual(await detectRuntimes(repo, { HOME: home }), ['claude', 'cursor']);
+});
+
+test('runtime-detect: a fake home holding .codex and .cursor preselects exactly those', async () => {
+  const home = await makeRepo({});
+  await fs.mkdir(path.join(home, '.codex'), { recursive: true });
+  await fs.mkdir(path.join(home, '.cursor'), { recursive: true });
+  const dir = await makeRepo({}, { git: true });
+  const asked = newAsked();
+
+  const result = await run(['setup', '--git-host', 'gh'], {
+    cwd: dir,
+    isTTY: true,
+    prompts: fakePrompter(asked),
+    env: { HOME: home },
+  });
+
+  assert.equal(result.code, 0, result.stderr);
+  assert.deepEqual(asked.initial, ['codex', 'cursor']);
+});
+
+test('runtime-detect: an empty home and no repo markers preselect nothing but list every runtime', async () => {
+  const home = await makeRepo({});
+  const dir = await makeRepo({}, { git: true });
+  const asked = newAsked();
+
+  const result = await run(['setup', '--git-host', 'gh'], {
+    cwd: dir,
+    isTTY: true,
+    prompts: fakePrompter(asked, ['claude']),
+    env: { HOME: home },
+  });
+
+  assert.equal(result.code, 0, result.stderr);
+  assert.deepEqual(asked.initial, []);
+  assert.deepEqual(asked.values, [...IDS]);
+  assert.deepEqual(asked.labels, NAMES);
+  assert.ok(
+    asked.hints.every((hint) => hint === undefined),
+    'nothing is detected, so nothing carries a hint',
+  );
+});
+
+test('runtime-flag: --runtimes accepts every registry id', async () => {
+  for (const id of IDS) {
+    const dir = await makeRepo({}, { git: true });
+    const result = await run(['setup', '--git-host', 'gh', '--runtimes', id], { cwd: dir });
+
+    assert.equal(result.code, 0, `${id}: ${result.stderr}`);
+    const config = JSON.parse(await readFile(path.join(dir, '.wolven-harness.json'), 'utf8')) as {
+      runtimes: string[];
+    };
+    assert.deepEqual(config.runtimes, [id], id);
+  }
+
+  const opencode = await makeRepo({}, { git: true });
+  await run(['setup', '--git-host', 'gh', '--runtimes', 'opencode'], { cwd: opencode });
+  assert.ok((await fs.lstat(path.join(opencode, 'opencode.json'))).isFile(), 'opencode wiring was created');
 });

@@ -2,6 +2,7 @@ import type { Dirent } from 'node:fs';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { pathExists } from '../path-exists.js';
+import type { WriteRecorder } from './manifest.js';
 import type { Context, Options, Runtime, StepResult } from './types.js';
 import { SetupError } from './types.js';
 
@@ -150,6 +151,11 @@ export function runtimeRow(id: Runtime): RuntimeRegistryRow {
   return row;
 }
 
+/** True when `value` is one of the registry's runtime ids. */
+export function isRuntimeId(value: unknown): value is Runtime {
+  return typeof value === 'string' && RUNTIME_REGISTRY.some((row) => row.id === value);
+}
+
 /**
  * Injectable indirection over `fs.symlink`, so the forced-failure test can
  * simulate a platform that cannot create symlinks (e.g. EPERM on Windows)
@@ -219,6 +225,7 @@ async function createFile(
   content: string,
   created: string[],
   skipped: string[],
+  recorder?: WriteRecorder,
 ): Promise<void> {
   const full = path.join(ctx.root, ...rel.split('/'));
   if (await pathExists(full)) {
@@ -228,9 +235,14 @@ async function createFile(
 
   await fs.mkdir(path.dirname(full), { recursive: true });
   await fs.writeFile(full, content, 'utf8');
+  recorder?.record(rel, content);
   created.push(rel);
 }
 
+/**
+ * Creates a relative symlink. A symlink is not a regular file, so it is
+ * never recorded in the install manifest.
+ */
 async function createSymlink(
   ctx: Context,
   rel: string,
@@ -269,6 +281,7 @@ async function wireNativeRules(
   ctx: Context,
   created: string[],
   skipped: string[],
+  recorder?: WriteRecorder,
 ): Promise<void> {
   if (rules.length === 0) return;
 
@@ -284,11 +297,12 @@ async function wireNativeRules(
           wrapRule(rule, 'alwaysApply: true'),
           created,
           skipped,
+          recorder,
         );
       }
       return;
     case 'opencode':
-      await createFile(ctx, 'opencode.json', opencodeJson(rules), created, skipped);
+      await createFile(ctx, 'opencode.json', opencodeJson(rules), created, skipped, recorder);
       return;
     case 'copilot':
       for (const rule of rules) {
@@ -298,11 +312,12 @@ async function wireNativeRules(
           wrapRule(rule, 'applyTo: "**"'),
           created,
           skipped,
+          recorder,
         );
       }
       return;
     case 'gemini':
-      await createFile(ctx, 'GEMINI.md', geminiMd(rules), created, skipped);
+      await createFile(ctx, 'GEMINI.md', geminiMd(rules), created, skipped, recorder);
       return;
     case 'kiro':
       for (const rule of rules) {
@@ -312,6 +327,7 @@ async function wireNativeRules(
           wrapRule(rule, 'inclusion: always'),
           created,
           skipped,
+          recorder,
         );
       }
       return;
@@ -323,35 +339,63 @@ async function wireNativeRules(
 }
 
 /**
+ * Wires only the selected runtimes' skills paths, for the mode that runs
+ * outside a git top-level. Direct rows create nothing, and no entry file,
+ * rules wiring or config is written here.
+ */
+export async function wireRuntimeSkills(opts: Options, ctx: Context): Promise<StepResult> {
+  const created: string[] = [];
+  const skipped: string[] = [];
+  await wireSkillsPaths(opts.runtimes.map(runtimeRow), ctx, created, skipped);
+  return { created, skipped };
+}
+
+/** Creates the skills symlink each `symlink` row names, skipping any path that already exists. */
+async function wireSkillsPaths(
+  rows: readonly RuntimeRegistryRow[],
+  ctx: Context,
+  created: string[],
+  skipped: string[],
+): Promise<void> {
+  for (const row of rows) {
+    if (row.skills.kind === 'symlink') {
+      await createSymlink(ctx, row.skills.path, row.skills.target, row.name, created, skipped);
+    }
+  }
+}
+
+/**
  * Wires the selected runtimes: skills paths that are symlinks, the
  * `CLAUDE.md` stub, and each native row's rules wiring. When any selected
  * runtime is `inline`, the harness section carries the rules, so no native
- * rules wiring is created for any runtime.
+ * rules wiring is created for any runtime. With `recorder`, every regular
+ * file created here is handed over for the install manifest.
  */
-export async function wireRuntimes(opts: Options, ctx: Context): Promise<StepResult> {
+export async function wireRuntimes(opts: Options, ctx: Context, recorder?: WriteRecorder): Promise<StepResult> {
   const created: string[] = [];
   const skipped: string[] = [];
   const rows = opts.runtimes.map(runtimeRow);
   const inline = rows.some((row) => row.rules === 'inline');
 
-  for (const row of rows) {
-    if (row.skills.kind === 'symlink') {
-      await createSymlink(ctx, row.skills.path, row.skills.target, row.name, created, skipped);
-    }
-    if (row.id === 'claude') await wireClaudeMd(ctx, created, skipped);
-  }
+  await wireSkillsPaths(rows, ctx, created, skipped);
+  if (opts.runtimes.includes('claude')) await wireClaudeMd(ctx, created, skipped, recorder);
 
   if (!inline) {
     const rules = await readRules(ctx.root);
     for (const row of rows) {
-      if (row.rules === 'native') await wireNativeRules(row, rules, ctx, created, skipped);
+      if (row.rules === 'native') await wireNativeRules(row, rules, ctx, created, skipped, recorder);
     }
   }
 
   return { created, skipped };
 }
 
-async function wireClaudeMd(ctx: Context, created: string[], skipped: string[]): Promise<void> {
+async function wireClaudeMd(
+  ctx: Context,
+  created: string[],
+  skipped: string[],
+  recorder?: WriteRecorder,
+): Promise<void> {
   const claudeMdPath = path.join(ctx.root, 'CLAUDE.md');
 
   const exists = await pathExists(claudeMdPath);
@@ -360,6 +404,8 @@ async function wireClaudeMd(ctx: Context, created: string[], skipped: string[]):
     return;
   }
 
-  await fs.writeFile(claudeMdPath, '@AGENTS.md\n', 'utf8');
+  const content = '@AGENTS.md\n';
+  await fs.writeFile(claudeMdPath, content, 'utf8');
+  recorder?.record('CLAUDE.md', content);
   created.push('CLAUDE.md');
 }

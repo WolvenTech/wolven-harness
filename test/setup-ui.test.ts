@@ -97,7 +97,17 @@ test('setup-ui: prompts are preselected from the origin remote and existing file
   assert.ok(asked.selectHints.some((h) => h.startsWith('Bitbucket') && h.includes('(detected from origin)')));
   assert.ok(!asked.selectHints.some((h) => h.startsWith('GitHub') && h.includes('detected')));
   assert.deepEqual(asked.multiInitial, ['cursor']);
-  assert.deepEqual(asked.multiLabels, ['Claude Code', 'Codex', 'Cursor']);
+  assert.deepEqual(asked.multiLabels, [
+    'Claude Code',
+    'Codex',
+    'Cursor',
+    'OpenCode',
+    'Amp',
+    'GitHub Copilot',
+    'Gemini CLI',
+    'Kiro',
+    'Antigravity',
+  ]);
 
   const config = JSON.parse(await readFile(path.join(dirWithCursor, '.wolven-harness.json'), 'utf8'));
   assert.equal(config.gitHost, 'bit');
@@ -211,7 +221,7 @@ test('setup-ui: non-TTY output is plain text with the summary and next steps', a
   assert.match(result.stdout, /✔ package\.json scripts: harness:validate, harness:comments/);
   assert.match(result.stdout, /Next steps:\n\s+1\. Review and commit/);
   assert.match(result.stdout, /2\. Open a fresh Claude Code and Codex session/);
-  assert.match(result.stdout, /pnpm harness:validate/);
+  assert.match(result.stdout, /npm run harness:validate/);
   assert.match(result.stdout, /@wolven-tech\/harness/);
   assert.doesNotMatch(result.stdout, /\.agents\/skills\/adr\/SKILL\.md/);
 });

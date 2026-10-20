@@ -9,6 +9,7 @@ import { makeRepo, run } from './helpers/fixture.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const ADR = path.join(ROOT, 'docs', 'adrs', 'adr-004-standalone-skills-contract.md');
+const ADR_005 = path.join(ROOT, 'docs', 'adrs', 'adr-005-install-anywhere-contract.md');
 
 /** Text of ADR-004 from the line starting with `start` up to the next line starting with `end` (or the end of the file). */
 function adrSection(adr: string, start: string, end?: string): string {
@@ -83,8 +84,8 @@ test('contract: comments finding kinds match ADR-004', async () => {
   assertSameSet('comments finding kinds', await literalsFor('kind', files), documented);
 });
 
-test('contract: setup flags match ADR-004', async () => {
-  const adr = await readFile(ADR, 'utf8');
+test('contract: setup flags match ADR-005', async () => {
+  const adr = await readFile(ADR_005, 'utf8');
   const table = adrSection(adr, 'Flags. Each value flag', '- Any other argument');
   const documented = new Set(backticked(table, /^--[a-z-]+$/));
 
@@ -93,7 +94,12 @@ test('contract: setup flags match ADR-004', async () => {
   assert.ok(line, 'VALID_OPTIONS not found in src/setup/options.ts');
   const actual = new Set(line[1].match(/--[a-z-]+/g) ?? []);
 
-  assertSameSet('setup flags', actual, documented);
+  const undocumented = [...actual].filter((flag) => !documented.has(flag)).sort();
+  const stale = [...documented].filter((flag) => !actual.has(flag)).sort();
+  assert.ok(
+    undocumented.length === 0 && stale.length === 0,
+    `setup flags drifted from ADR-005:\n  in options.ts but missing from the ADR: ${undocumented.join(', ') || '(none)'}\n  in the ADR but not in options.ts: ${stale.join(', ') || '(none)'}`,
+  );
 });
 
 test('contract: --help lists the commands and --version', async () => {

@@ -63,6 +63,7 @@ test('setup-surfaces: creates exactly the expected paths', async () => {
     '.qmd/index.yml',
     '.qmd/.gitignore',
     '.wolven-harness.json',
+    '.wolven-harness.manifest.json',
     '.harness-score.json',
   ];
 
@@ -109,8 +110,8 @@ test('wolven-template: has router, QMD-first, standing rules, claim rule, valida
   assert.match(rendered, /stable/);
   assert.match(rendered, /harness-init/);
 
-  assert.ok(rendered.includes('pnpm harness:validate'));
   assert.ok(rendered.includes('wolven-harness validate'));
+  assert.ok(!rendered.includes('pnpm harness:validate'));
 });
 
 test('wolven-template: skills table lists every template skill', async () => {

@@ -10,6 +10,8 @@ export interface Io {
   env?: Record<string, string | undefined>;
   /** Replaces the interactive prompts; tests inject one, the real CLI leaves it unset. */
   prompts?: Prompter;
+  /** The running script's path (`process.argv[1]`); a non-global copy gets the global-install hint. */
+  execPath?: string;
 }
 
 /** One choice offered by a prompt. */
@@ -46,6 +48,9 @@ export type Runtime =
   | 'kiro'
   | 'antigravity';
 
+/** `root` scaffolds the harness at a git top-level; `outside` writes only what `harness-init` needs. */
+export type SetupMode = 'root' | 'outside';
+
 export interface Options {
   gitHost: GitHost;
   runtimes: Runtime[];
@@ -53,6 +58,8 @@ export interface Options {
   skillSets: SkillSet[];
   /** Sets already installed but not chosen this run; `setup` never removes them. */
   keptSets: SkillSet[];
+  /** Which write set this run uses, decided by whether the folder is a git top-level. */
+  mode: SetupMode;
 }
 
 export interface Context {

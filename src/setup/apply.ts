@@ -2,6 +2,7 @@ import type { Dirent } from 'node:fs';
 import { lstat, mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { pathExists } from '../path-exists.js';
+import type { WriteRecorder } from './manifest.js';
 import { applySetMarkers, renderWolven } from './render-wolven.js';
 import { SET_PATHS, SKILL_SETS, type SkillSet } from './skill-sets.js';
 import type { Context, StepResult } from './types.js';
@@ -81,12 +82,17 @@ async function walkFiles(dir: string): Promise<string[]> {
  * skill folders under `.agents/skills/` are considered; the rest are neither
  * created nor reported. When `sets` is given, a template under a set's
  * `SET_PATHS` is skipped unless that set is chosen, and set-marked lines in
- * `WOLVEN.md` and `.qmd/index.yml` follow the same choice.
+ * `WOLVEN.md` and `.qmd/index.yml` follow the same choice. When `recorder`
+ * is given, every file created here is handed to it with its exact bytes.
+ * With `options.skillsOnly`, every template outside `.agents/skills/` is
+ * left out, for the mode that runs outside a git top-level.
  */
 export async function applyTemplates(
   ctx: Context,
   skillFolders?: readonly string[],
   sets?: readonly SkillSet[],
+  recorder?: WriteRecorder,
+  options: { skillsOnly?: boolean } = {},
 ): Promise<StepResult> {
   const created: string[] = [];
   const skipped: string[] = [];
@@ -97,6 +103,7 @@ export async function applyTemplates(
     const sourceRel = toPosix(relFsPath);
     const rel = INSTALLED_AS[sourceRel] ?? sourceRel;
 
+    if (options.skillsOnly === true && !rel.startsWith('.agents/skills/')) continue;
     const skillName = /^\.agents\/skills\/([^/]+)\//.exec(rel)?.[1];
     if (skillFolders !== undefined && skillName !== undefined && !skillFolders.includes(skillName)) continue;
 
@@ -129,6 +136,7 @@ export async function applyTemplates(
           : await raw();
 
     await writeFile(targetPath, content, 'utf8');
+    recorder?.record(rel, content);
     created.push(rel);
   }
 
