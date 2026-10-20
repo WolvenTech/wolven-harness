@@ -5,9 +5,9 @@ description: "Creates Conventional Commits for repo work. Use when the Human exp
 
 # Code Commit
 
-Turns a validated, uncommitted change into one or more local
-[Conventional Commits 1.0.0](https://www.conventionalcommits.org/en/v1.0.0/#summary),
-through one of the two entry modes below.
+Turns a validated, uncommitted change into one or more local commits in the
+repository's recorded convention — [Conventional Commits 1.0.0](https://www.conventionalcommits.org/en/v1.0.0/#summary)
+by default — through one of the two entry modes below.
 
 **Consult:** `pragmatic-guard`. Loaded means the session skill list from the
 runtime. When that list includes `pragmatic-guard`, consult it when the scope
@@ -62,8 +62,10 @@ worktree and not yet committed — lands in the **same commit** as its work.
 1. **Non-empty** — real staged/unstaged diffs; never an empty commit.
 2. **No secrets** — refuse `.env` files, credentials, tokens, private keys;
    warn if asked to stage one.
-3. **Conventional Commits** — `type[(scope)]: summary`, with an optional
-   body and footers; the subject says why, not a restated file list.
+3. **The repository's convention** — `codeRepo` work uses its recorded
+   `commitConvention`; everything else, and every unrecorded case, is
+   Conventional Commits, `type[(scope)]: summary`, with an optional body and
+   footers; the subject says why, not a restated file list.
 4. **Validate first** — when invoked from `code-execute`, commit only once
    `harness:validate` (and `harness:comments` for code changes) has passed
    on the batch being committed; never commit on a red run.
@@ -104,7 +106,9 @@ message — except never split a unit's work from its plan-completion mark.
 
 1. Confirm validation passed on the batch (hard gate 4) and that its
    plan-completion marks are flipped in the worktree, uncommitted.
-2. `git status` / `git diff` / recent `git log` for message style.
+2. `git status` / `git diff` / recent `git log` for message style; for
+   `codeRepo` work, read the recorded `commitConvention` first (see Commit
+   convention).
 3. Stage only the batch's files plus its plan-completion marks; exclude
    secrets and unrelated changes.
 4. Commit with a HEREDOC message (shape in
@@ -123,6 +127,26 @@ message — except never split a unit's work from its plan-completion mark.
    unrelated groups into one message.
 4. When a plan-completion mark is intentionally included, keep it atomic
    with its work.
+
+## Commit convention
+
+The harness home — the repository holding `.agents/`, `docs/` and the
+harness config — always uses Conventional Commits, whatever else is
+recorded.
+
+When the change belongs to the one code repository the install serves,
+recorded as `codeRepo` in the harness config, read `commitConvention` there
+before choosing the subject:
+
+- `{ "style": "conventional" }` keeps the Conventional Commits shape below.
+- `{ "style": "pattern", "pattern": "<regex>", "example": "<subject>" }`
+  writes the subject in that pattern's shape, using `example` as the model:
+  an example like `PROJ-123: fix the parser` means
+  `PROJ-123: <summary>`.
+
+With no config, no `codeRepo`, or no `commitConvention`, keep Conventional
+Commits. The convention changes the subject line only: staging, grouping,
+validation and the atomic plan-completion mark do not change.
 
 ## Message shape
 
@@ -145,6 +169,9 @@ provider's idempotency id, so a replay is a no-op.
 
 Common types: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`, `ci`,
 `style`, `perf`.
+
+With a recorded `pattern` for `codeRepo` work, replace the first line with
+that shape; the body and footer rules still apply.
 
 ## Pragmatic-guard
 

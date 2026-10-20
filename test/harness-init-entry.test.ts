@@ -137,6 +137,21 @@ test('step0-rules: the entry text checks the wired runtimes and inserts the rule
   );
 });
 
+test('step0-rules: amp gets one rule import per rule, outside the codex block', async () => {
+  const content = await readEntryModes();
+  const amp = flatten(sectionBody(content, '## Rules for `amp`', '## Deletion rule'));
+
+  assert.match(amp, /Read `\.wolven-harness\.json` before writing either mode/);
+  assert.match(amp, /`runtimes` list includes `amp` and not `codex`/i);
+  assert.match(amp, /one `@\.agents\/rules\/<rule>\.md` import per installed rule/i);
+  assert.match(
+    amp,
+    /inside the section's start and end markers and outside any\s+`<!-- wolven-harness:rules:start -->` block/i,
+  );
+  assert.match(amp, /When `codex` is also wired, the inline rules block already\s+reaches Amp, so add no imports/i);
+  assert.match(amp, /@\.agents\/rules\/qmd-first\.md/);
+});
+
 test('step0-modes: an already-integrated AGENTS.md gets a refresh offer, never a second fold', async () => {
   const flat = flatten(await readEntryModes());
 
@@ -228,8 +243,10 @@ test('step0-fixture: the re-include block shares the harness paths and keeps the
 test('step0-fixture: the light block carries the markers, so validate clears step 0 with WOLVEN.md present and after it is gone', async () => {
   const content = await readEntryModes();
   const blocks = extractFencedBlocks(content);
-  assert.equal(blocks.length, 2, 'expected two fenced markdown blocks (light block, rules block)');
-  const [lightBlock] = blocks;
+  const lightBlock = blocks.find(
+    (block) => block.includes('## Wolven harness') && block.includes('<!-- wolven-harness:start -->'),
+  );
+  assert.ok(lightBlock, 'expected a fenced light block carrying the section markers');
   assert.match(lightBlock, /## Wolven harness/);
   assert.match(lightBlock, /<!-- wolven-harness:start -->/);
   assert.match(lightBlock, /<!-- wolven-harness:end -->/);

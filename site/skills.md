@@ -1,5 +1,5 @@
 ---
-description: The twenty skills available, which ones setup installs, and the three standing rules.
+description: The twenty-one skills available, which ones setup installs, and the three standing rules.
 ---
 
 # Skills
@@ -19,7 +19,7 @@ For a one-file change, you can ask for `code-execute` directly and skip the spec
 
 ## Full inventory
 
-Twenty skills are available under `.agents/skills/`. `setup` always installs the nine core skills (`harness-init`, `adr`, `grilling`, `pragmatic-guard`, `qmd`, `research`, `code-spec`, `code-plan`, `code-execute`). The `ship` set (`code-commit`, `code-pr`, `code-review`, `code-ci`) and the `discovery` set (`create-prd`, `prototype`, `journey-map`, `wayfinder`, `handoff`, `the-fool`, `the-jury`) are optional. A fresh interactive setup preselects `ship`; a fresh non-interactive setup defaults to `ship`. Select `--skills discovery` or `--skills ship,discovery` to add sets, or `--skills none` for core skills only. Re-runs never remove installed files or sets. The four marked **ask-only** require an explicit request. PR creation, review, and CI work never merge the PR.
+All 21 skills are available under `.agents/skills/`. `setup` always installs the ten core skills (`harness-init`, `adr`, `grilling`, `pragmatic-guard`, `qmd`, `research`, `code-spec`, `code-plan`, `code-execute`, `harness-doctor`). The `ship` set (`code-commit`, `code-pr`, `code-review`, `code-ci`) and the `discovery` set (`create-prd`, `prototype`, `journey-map`, `wayfinder`, `handoff`, `the-fool`, `the-jury`) are optional. A fresh interactive setup preselects `ship`; a fresh non-interactive setup defaults to `ship`. Select `--skills discovery` or `--skills ship,discovery` to add sets, or `--skills none` for core skills only. Re-runs never remove installed files or sets. The four marked **ask-only** require an explicit request. PR creation, review, and CI work never merge the PR.
 
 `grilling` (core) interviews toward a settled plan. `the-fool` challenges without forcing a decision. `the-jury` spawns five isolated juror agents, then deliberates with shared first-round opinions, and returns a dissent-preserving advisory verdict with confidence and a concrete test. Keep the three distinct.
 
@@ -36,6 +36,7 @@ Twenty skills are available under `.agents/skills/`. `setup` always installs the
 | `create-prd` | Clarify the problem, draft a lean PRD, and mark it stable only on approval. |
 | `grilling` | Interview one question at a time until every open branch of a plan, decision, or idea is settled. |
 | `handoff` (ask-only) | Save a handoff document to the OS temp directory for a fresh session. Ask-only; never automatic. |
+| `harness-doctor` | Check a wired install with `wolven-harness doctor` and apply approved fixes one at a time: refresh a stale template with its manifest entry, show edited files without changing them, and migrate a mention-only entry file through `harness-init`. |
 | `harness-init` | Fold WOLVEN.md into AGENTS.md, migrate legacy ADRs, discover, stub skills, and write a session note. |
 | `journey-map` | Draw a flow, a set of options, or a user journey as one interactive HTML page the Human can walk, answer, and send feedback from. |
 | `pragmatic-guard` | Challenge unnecessary scope and record deferred work with a trigger for revisiting it under `docs/deferrals/`. |

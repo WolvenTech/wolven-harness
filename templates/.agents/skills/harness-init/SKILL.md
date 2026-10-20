@@ -159,6 +159,17 @@ the right decision, until `harness:validate` exits 0 with `0 legacy-warn`. See
 
 ### 2. Discovery
 
+First settle the layout. When this folder is not a git repository, or the
+harness reaches it from above through an entry file, load
+[references/layout.md](references/layout.md) and follow it before reading
+anything else. It asks before `git init`, records `layout` and the harness
+paths in `.wolven-harness.json`, and moves no folder.
+
+Then settle the commit convention: read the code repository's last 30 commit
+subjects, propose a pattern only at 80% agreement or more, and record
+`commitConvention` in the harness home's `.wolven-harness.json` after the
+Human confirms. See [references/convention.md](references/convention.md).
+
 Read what the repo already shows — manifests, lockfiles, README, `AGENTS.md`, CI
 config, `docs/adrs/`, installed skills, top-level layout. When "Ask about the
 project's stage and plans" is covered, also ask the Human for what files
@@ -250,3 +261,4 @@ If the Human asks for it in the same session, say so and stop.
 - Picking the path for the Human from what the tree shows, instead of
   asking the path question.
 - Running a step the lean path leaves for later.
+- Moving or renaming a folder to make a layout fit instead of linking it.

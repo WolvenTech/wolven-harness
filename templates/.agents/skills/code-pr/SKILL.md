@@ -52,10 +52,14 @@ That run writes no deferral and no sentence claiming the guard ran.
    pull requests whose head is this branch; a named PR number or link
    overrides the search. Zero → create. One → amend it; never open a second.
    More than one → stop and ask.
-7. **Title** — always Conventional Commits shape, `type(scope): summary`, on
-   every host: a host that squash-merges takes the pull request title as the
-   resulting commit's subject. Make no other assumption about how a host
-   merges.
+7. **Title** — Conventional Commits shape by default, `type(scope): summary`,
+   on every host: a host that squash-merges takes the pull request title as
+   the resulting commit's subject. When the pull request is for `codeRepo`
+   work, read the harness config's `commitConvention` first: a recorded
+   `pattern` means write the title in that shape, using `example` as the
+   model; `conventional` or no record keeps Conventional Commits. Work in the
+   harness home always keeps Conventional Commits. Make no other assumption
+   about how a host merges.
 8. **Read before rewrite** — on amend, read the pull request's current
    title, body, and comments (read PR and diff) before replacing anything.
 9. **Fill the template** — [pr-body-template.md](references/pr-body-template.md)
@@ -90,8 +94,9 @@ That run writes no deferral and no sentence claiming the guard ran.
 6. **Draft** — on amend, rewrite from the current title, body, and comments
    (**Read before rewrite**) plus the latest diff and this session's
    evidence; on create, draft straight from the template and the latest
-   state. Fill per **Fill the template**, **Checkbox reset**, and **Real
-   evidence**.
+   state. Choose the title per **Title**, reading `commitConvention` for
+   `codeRepo` work. Fill per **Fill the template**, **Checkbox reset**, and
+   **Real evidence**.
 7. **Create or amend** — open PR (host operations): create a new pull
    request, or update title and body on the one found through the same
    operation's amend path. Print the PR found or created and the resolved

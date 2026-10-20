@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { test } from 'node:test';
+import { CORE_SKILLS, SET_SKILLS } from '../src/setup/skill-sets.js';
 import { assertSkillBasics, readSkill } from './helpers/skill-contract.js';
 
 test('proof-wayfinder-skill-basics: passes the shared contract, reads as "Use when", is not ask-only, and credits its origin', async () => {
@@ -155,18 +156,20 @@ test('proof-wayfinder-skill-missing-pieces: prints the exact lines and never edi
   assert.doesNotMatch(flat, /(?<!not )\b(edit|append to|modify|write to) `(\.qmd\/index\.yml|WOLVEN\.md|AGENTS\.md)`/i);
 });
 
-test('proof-wayfinder-listings: README, the guide and AGENTS.md list wayfinder and twenty skills', async () => {
+test('proof-wayfinder-listings: README, the guide and AGENTS.md list wayfinder and every skill', async () => {
   const [readme, guide, agents] = await Promise.all(
     ['README.md', 'site/skills.md', 'AGENTS.md'].map((file) =>
       readFile(new URL(`../${file}`, import.meta.url), 'utf8'),
     ),
   );
   const { frontmatter } = await readSkill('wayfinder');
+  const allSkills = [...CORE_SKILLS, ...Object.values(SET_SKILLS).flat()];
 
   assert.match(readme, /^- `discovery`:.*`wayfinder`/m);
-  assert.match(readme, /`wayfinder`.*need the discovery set/);
-  assert.match(readme, /All 20 skills/);
-  assert.match(guide, /Twenty skills are available/);
-  assert.match(guide, /^\| `wayfinder` \|/m);
+  assert.match(readme, /Every skill is listed on the \[skills page\]/);
+  assert.ok(guide.includes(`All ${allSkills.length} skills are available`), 'the guide counts every skill');
+  for (const name of allSkills) {
+    assert.match(guide, new RegExp(`^\\| \`${name}\`( \\(ask-only\\))? \\|`, 'm'), `the guide lists ${name}`);
+  }
   assert.ok(agents.includes(`| wayfinder | ${frontmatter.description} |`));
 });

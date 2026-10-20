@@ -8,7 +8,7 @@ Run `wolven-harness setup` to install the files, then ask your agent to run the 
 
 ## What happens
 
-1. Choose how to integrate `WOLVEN.md` into `AGENTS.md`: full, light, or mention-only. `setup` never creates or edits `AGENTS.md`.
+1. Choose how to integrate `WOLVEN.md` into `AGENTS.md`: full or light. Both write the harness section between `<!-- wolven-harness:start -->` and `<!-- wolven-harness:end -->`, so a later run finds and refreshes it instead of folding a second one. When `codex` is wired, the section also carries the four rule bodies between `<!-- wolven-harness:rules:start -->` and `<!-- wolven-harness:rules:end -->`, because Codex cannot import files. `setup` never creates or edits `AGENTS.md`.
 2. If validation reports legacy architecture decision records (ADRs), migrate them into `docs/adrs/`, keeping their numbers and resolving broken references.
 3. The agent reads the repository and suggests two to four skills based on its tools and decisions. Web research is optional and requires your agreement.
 4. It creates only the skill stubs you choose. They are unfinished, ask-only skills; validation reports a `skill-stub-open` warning until you complete them. The warning does not fail validation.
@@ -29,10 +29,10 @@ Both paths end by telling you what was installed, what was left for later and wh
 ## Check the setup
 
 ```sh
-pnpm exec wolven-harness validate
+wolven-harness validate
 ```
 
-`setup` adds `harness:validate` as a package script for `wolven-harness validate` when that script is missing. In that case, `pnpm harness:validate` runs the same check. Existing scripts are preserved; see the full [Commands](./commands) reference.
+`setup` adds `harness:validate` as a package script for `wolven-harness validate` when that script is missing. In that case the `harness:validate` script runs the same check, whatever package manager the install recorded. Existing scripts are preserved. To check more than validation, run `wolven-harness doctor` (see the [Commands](./commands) reference), or ask your agent to run the `harness-doctor` skill.
 
 Migration is complete when validation exits 0 with no legacy warnings left and no `adr-status-mismatch`. A superseded ADR is never kept `stable`: it gets a successor and is deprecated. References to decision records must resolve to a stable record in `docs/adrs/`; legacy records get migration warnings during the transition.
 

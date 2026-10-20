@@ -24,15 +24,53 @@ function section(doc: string, heading: string): string {
   return next === -1 ? rest : rest.slice(0, next);
 }
 
-test('readme-install: the add and setup commands appear, in that order', async () => {
+const GLOBAL_INSTALL_FORMS = [
+  'npm install -g @wolven-tech/harness',
+  'yarn global add @wolven-tech/harness',
+  'pnpm add -g @wolven-tech/harness',
+];
+
+test('readme-install: the global install appears in npm, yarn and pnpm forms before setup', async () => {
   const readme = await readReadme();
 
-  const addIndex = readme.indexOf('pnpm add -D @wolven-tech/harness');
-  const setupIndex = readme.indexOf('pnpm exec wolven-harness setup');
+  for (const form of GLOBAL_INSTALL_FORMS) assert.ok(readme.includes(form), `${form} not found`);
 
-  assert.ok(addIndex !== -1, 'pnpm add -D @wolven-tech/harness not found');
-  assert.ok(setupIndex !== -1, 'pnpm exec wolven-harness setup not found');
-  assert.ok(addIndex < setupIndex, 'install command must appear before the setup command');
+  const installIndex = readme.indexOf(GLOBAL_INSTALL_FORMS[0]);
+  const setupIndex = readme.indexOf('wolven-harness setup');
+
+  assert.ok(setupIndex !== -1, 'wolven-harness setup not found');
+  assert.ok(installIndex < setupIndex, 'the global install must appear before the setup command');
+  assert.match(readme, /from the folder you want your agent to work in/i);
+});
+
+test('readme-install: the README and the site install page cover setup from any folder and doctor', async () => {
+  for (const doc of [await readReadme(), await readDoc('site/index.md')]) {
+    for (const form of GLOBAL_INSTALL_FORMS) assert.ok(doc.includes(form), `${form} missing`);
+
+    assert.match(doc, /from any folder|anywhere else|any other folder/i);
+    assert.match(doc, /wolven-harness doctor/);
+    assert.match(doc, /harness-doctor/);
+  }
+});
+
+test('readme-install: the runtimes page lists the nine registry runtimes and their wiring', async () => {
+  const page = await readDoc('site/runtimes.md');
+
+  for (const id of ['claude', 'codex', 'cursor', 'opencode', 'amp', 'copilot', 'gemini', 'kiro', 'antigravity']) {
+    assert.match(page, new RegExp(`\`${id}\``), `missing runtime ${id}`);
+  }
+  assert.match(page, /\.claude\/rules/);
+  assert.match(page, /wolven-harness:rules:start/);
+  assert.match(page, /\.cursor\/rules/);
+});
+
+test('readme-install: the CLI reference documents doctor, its output and its config finding', async () => {
+  const page = await readDoc('site/commands.md');
+
+  assert.match(page, /## `doctor`/);
+  assert.match(page, /doctor: ok/);
+  assert.match(page, /doctor-config/);
+  assert.match(page, /exits 0 with no errors and 1 otherwise/i);
 });
 
 test('readme-install: the release page covers trusted publishing, its npm-side setup and the manual re-run', async () => {

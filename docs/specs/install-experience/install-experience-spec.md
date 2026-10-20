@@ -229,47 +229,47 @@ Traces to PRD US-6 (AC-6.1 to AC-6.4).
 
 ### Wave 1 — registry and rule loading
 
-- [ ] `proof-install-experience-registry` PASS — R1.1
-- [ ] `proof-install-experience-rule-frontmatter` PASS — R2.1
-- [ ] `proof-install-experience-native-wiring` PASS — R2.2
-- [ ] `proof-install-experience-inline-rules` PASS — R2.3
-- [ ] `proof-install-experience-entry-modes` PASS — R2.4
-- [ ] `proof-install-experience-step0-marker` PASS — R2.5
-- [ ] `proof-install-experience-tool-report` PASS — R2.6
+- [x] `proof-install-experience-registry` PASS — R1.1
+- [x] `proof-install-experience-rule-frontmatter` PASS — R2.1
+- [x] `proof-install-experience-native-wiring` PASS — R2.2
+- [x] `proof-install-experience-inline-rules` PASS — R2.3
+- [x] `proof-install-experience-entry-modes` PASS — R2.4
+- [x] `proof-install-experience-step0-marker` PASS — R2.5
+- [x] `proof-install-experience-tool-report` PASS — R2.6
 
 ### Wave 2 — setup anywhere, package managers, manifest
 
-- [ ] `proof-install-experience-detect` PASS — R1.2
-- [ ] `proof-install-experience-detect-none` PASS — R1.3
-- [ ] `proof-install-experience-root-unchanged` PASS — R3.1
-- [ ] `proof-install-experience-outside-root` PASS — R3.2
-- [ ] `proof-install-experience-global-hint` PASS — R3.3
-- [ ] `proof-install-experience-pm-detect` PASS — R4.1
-- [ ] `proof-install-experience-pm-commands` PASS — R4.2
-- [ ] `proof-install-experience-pm-templates` PASS — R4.3
-- [ ] `proof-install-experience-manifest` PASS — R7.3
+- [x] `proof-install-experience-detect` PASS — R1.2
+- [x] `proof-install-experience-detect-none` PASS — R1.3
+- [x] `proof-install-experience-root-unchanged` PASS — R3.1
+- [x] `proof-install-experience-outside-root` PASS — R3.2
+- [x] `proof-install-experience-global-hint` PASS — R3.3
+- [x] `proof-install-experience-pm-detect` PASS — R4.1
+- [x] `proof-install-experience-pm-commands` PASS — R4.2
+- [x] `proof-install-experience-pm-templates` PASS — R4.3
+- [x] `proof-install-experience-manifest` PASS — R7.3
 
 ### Wave 3 — doctor and contract
 
-- [ ] `proof-install-experience-pm-global` PASS — R4.4
-- [ ] `proof-install-experience-no-code-writes` PASS — R5.3
-- [ ] `proof-install-experience-doctor-checks` PASS — R7.1
-- [ ] `proof-install-experience-doctor-output` PASS — R7.2
-- [ ] `proof-install-experience-drift` PASS — R7.4
-- [ ] `proof-install-experience-doctor-readonly` PASS — R7.5
-- [ ] `proof-install-experience-contract` PASS — R9.1
-- [ ] `proof-install-experience-drift-deferral` PASS — R9.3
+- [x] `proof-install-experience-pm-global` PASS — R4.4
+- [x] `proof-install-experience-no-code-writes` PASS — R5.3
+- [x] `proof-install-experience-doctor-checks` PASS — R7.1
+- [x] `proof-install-experience-doctor-output` PASS — R7.2
+- [x] `proof-install-experience-drift` PASS — R7.4
+- [x] `proof-install-experience-doctor-readonly` PASS — R7.5
+- [x] `proof-install-experience-contract` PASS — R9.1
+- [x] `proof-install-experience-drift-deferral` PASS — R9.3
 
 ### Wave 4 — harness-init, harness-doctor, conventions, docs
 
-- [ ] `proof-install-experience-init-home` PASS — R5.1
-- [ ] `proof-install-experience-init-linked` PASS — R5.2
-- [ ] `proof-install-experience-convention-init` PASS — R6.1
-- [ ] `proof-install-experience-convention-skills` PASS — R6.2
-- [ ] `proof-install-experience-doctor-skill` PASS — R8.1
-- [ ] `proof-install-experience-doctor-refresh` PASS — R8.2
-- [ ] `proof-install-experience-doctor-migrate` PASS — R8.3
-- [ ] `proof-install-experience-docs` PASS — R9.2
+- [x] `proof-install-experience-init-home` PASS — R5.1
+- [x] `proof-install-experience-init-linked` PASS — R5.2
+- [x] `proof-install-experience-convention-init` PASS — R6.1
+- [x] `proof-install-experience-convention-skills` PASS — R6.2
+- [x] `proof-install-experience-doctor-skill` PASS — R8.1
+- [x] `proof-install-experience-doctor-refresh` PASS — R8.2
+- [x] `proof-install-experience-doctor-migrate` PASS — R8.3
+- [x] `proof-install-experience-docs` PASS — R9.2
 
 ## Eval / gates
 

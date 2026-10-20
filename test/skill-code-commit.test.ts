@@ -50,13 +50,12 @@ test('skill-code-commit: keeps hard gates for secrets, empty commits, and git sa
   assert.match(skill.body, /--no-verify/);
 });
 
-test('skill-code-commit: names its two entry paths without inventing a consumer commit-cadence config', async () => {
+test('skill-code-commit: names its two entry paths without inventing a commit-cadence opt', async () => {
   const skill = await readSkill('code-commit');
 
   assert.match(skill.body, /## Entry modes/);
   assert.match(skill.body, /wave gate/i);
   assert.match(skill.body, /[Ss]tandalone/);
-  assert.doesNotMatch(skill.body, /\.wolven-harness\.json/);
   assert.doesNotMatch(skill.body, /autocommit/i);
 });
 

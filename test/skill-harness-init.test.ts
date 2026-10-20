@@ -23,6 +23,8 @@ const REFERENCES = [
   'references/entry-modes.md',
   'references/adr-migration.md',
   'references/discovery.md',
+  'references/layout.md',
+  'references/convention.md',
   'references/stub-template.md',
   'references/session-note-template.md',
   'references/validate-wiring.md',

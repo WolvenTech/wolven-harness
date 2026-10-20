@@ -27,10 +27,14 @@ test('skill-set: the harness-init page covers integration, migration, discovery,
   }
 });
 
-test('skill-set: the harness-init page names the three entry modes', async () => {
+test('skill-set: the harness-init page names the two entry modes and the section markers', async () => {
   const section = flatten(extractSection(await readHarnessInit(), 'Setup'));
 
-  assert.match(section, /full, light, or mention-only/i);
+  assert.match(section, /full or light/i);
+  assert.doesNotMatch(section, /mention-only/i);
+  assert.match(section, /<!-- wolven-harness:start -->/);
+  assert.match(section, /<!-- wolven-harness:end -->/);
+  assert.match(section, /<!-- wolven-harness:rules:start -->/);
 });
 
 test('skill-set: the harness-init page says migration is done only at a clean validate with no legacy warnings', async () => {

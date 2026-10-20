@@ -12,7 +12,8 @@ later run can find the section and refresh it instead of folding a second
 one.
 
 **Contents:** [Full](#full) · [Light](#light) ·
-[Rules for `codex`](#rules-for-codex) · [Deletion rule](#deletion-rule) ·
+[Rules for `codex`](#rules-for-codex) · [Rules for `amp`](#rules-for-amp) ·
+[Deletion rule](#deletion-rule) ·
 [Already integrated](#already-integrated) ·
 [Recommending a mode](#recommending-a-mode) ·
 [Before writing](#before-writing) (the five checks) ·
@@ -133,6 +134,25 @@ The block holds all four named rules in one span:
 
 When `codex` is not wired, write no rules block: the wired runtimes read
 `.agents/rules/` through their own wiring.
+
+## Rules for `amp`
+
+Read `.wolven-harness.json` before writing either mode. When its `runtimes`
+list includes `amp` and not `codex`, the section's own start and end markers
+also carry one `@.agents/rules/<rule>.md` import per installed rule, so Amp
+includes each file:
+
+```markdown
+@.agents/rules/qmd-first.md
+@.agents/rules/yagni-strict.md
+@.agents/rules/comments.md
+@.agents/rules/project-skill-precedence.md
+```
+
+Write the imports inside the section's start and end markers and outside any
+`<!-- wolven-harness:rules:start -->` block, so a runtime never reads the
+same rule twice. When `codex` is also wired, the inline rules block already
+reaches Amp, so add no imports.
 
 ## Deletion rule
 

@@ -51,12 +51,12 @@ template owns both copies.
 | 17 | Doctor drift report | 14 | `src/doctor/drift.ts` (new), `test/doctor-drift.test.ts`, `docs/deferrals/setup-drift-check/` (deleted) | `spawn` | [x] Each drift class has a fixture that yields its warning, and a manifest-less fixture reports differing files as edited. `doctor-version-behind` fires on an older `packageVersion`. The deferral folder is gone. Proofs: `proof-install-experience-drift`, `proof-install-experience-drift-deferral` |
 | 18 | Supersede the previous contract ADR with ADR-005 | 15, 16, 17 | `test/contract.test.ts`, every live (non-archived) file outside `docs/adrs/` that claims the previous contract ADR, and that ADR's status and `superseded_by` | `inline` | [x] Contract tests read ADR-005, and cover the `doctor` codes, `--package-manager`, the runtime ids and the config keys. No live claim targets the previous contract ADR. That ADR is `deprecated` with `superseded_by: adr-005-install-anywhere-contract`. Proof: `proof-install-experience-contract` with `pnpm validate` at 0 claim failures |
 | 19 | **Wave 3 gate** | 18 | — | `inline` | [x] Proofs of units 14 to 18 pass. The five commands pass. `node dist/cli.js doctor --dir <fixture>` exits 1 on the audited-shape fixture and 0 on the repaired one. On failure, **abort** before wave 4 |
-| 20 | harness-init: harness home and linked layout | 19 | `templates/.agents/skills/harness-init/SKILL.md`, `templates/.agents/skills/harness-init/references/layout.md` (new), their `.agents/skills/harness-init/` copies, `test/harness-init-layout.test.ts` | `spawn` | [ ] The skill asks before `git init`, gitignores `codeRepo` and records `layout: "home"`. For a linked layout, it creates the three symlinks and replaces bootstrap copies only on matching manifest hashes. It forbids moves. Proofs: `proof-install-experience-init-home`, `proof-install-experience-init-linked` |
-| 21 | harness-init: commit convention | 20 | `templates/.agents/skills/harness-init/SKILL.md` (convention step), `templates/.agents/skills/harness-init/references/convention.md` (new), their `.agents/skills/harness-init/` copies, `test/harness-init-layout.test.ts` (convention case) | `spawn` | [ ] The step reads 30 subjects, proposes a pattern at 80% agreement, falls back to Conventional Commits, and records both config shapes after confirmation. Proof: `proof-install-experience-convention-init` |
-| 22 | code-commit and code-pr follow the recorded convention | 19 | `templates/.agents/skills/code-commit/SKILL.md`, `templates/.agents/skills/code-pr/SKILL.md`, their `.agents/skills/` copies, `test/convention-skills.test.ts` | `spawn` | [ ] Both skills read `commitConvention` for `codeRepo` work and keep Conventional Commits in the harness home. Proof: `proof-install-experience-convention-skills` |
-| 23 | harness-doctor core skill | 19 | `templates/.agents/skills/harness-doctor/**` (new), `.agents/skills/harness-doctor/**`, `src/setup/skill-sets.ts` (`CORE_SKILLS`), `AGENTS.md` (skills table row), `test/harness-doctor-skill.test.ts`, `test/skill-sets.test.ts` | `spawn` | [ ] `setup` installs `harness-doctor` with the core set. The skill runs `doctor`, makes one fix per OK and keeps the layout. It refreshes only stale files (updating the manifest entry), shows edited files without changing them, and routes mention-only installs to `harness-init` step 0. Proofs: `proof-install-experience-doctor-skill`, `proof-install-experience-doctor-refresh`, `proof-install-experience-doctor-migrate` |
-| 24 | README and site lead with global install and doctor | 19 | `README.md`, `site/index.md`, `site/commands.md`, `site/runtimes.md`, `test/readme-install.test.ts` | `spawn` | [ ] The install docs show the global install in npm, yarn and pnpm forms, `setup` from any folder, and `doctor`. `site/runtimes.md` lists the nine runtimes. Proof: `proof-install-experience-docs` |
-| 25 | **Ship gate** | 21, 22, 23, 24 | — | `inline` | [ ] Every acceptance box in the spec is ticked. The five commands pass, plus `pnpm docs:build`. On failure, **abort** before handoff |
+| 20 | harness-init: harness home and linked layout | 19 | `templates/.agents/skills/harness-init/SKILL.md`, `templates/.agents/skills/harness-init/references/layout.md` (new), their `.agents/skills/harness-init/` copies, `test/harness-init-layout.test.ts` | `spawn` | [x] The skill asks before `git init`, gitignores `codeRepo` and records `layout: "home"`. For a linked layout, it creates the three symlinks and replaces bootstrap copies only on matching manifest hashes. It forbids moves. Proofs: `proof-install-experience-init-home`, `proof-install-experience-init-linked` |
+| 21 | harness-init: commit convention | 20 | `templates/.agents/skills/harness-init/SKILL.md` (convention step), `templates/.agents/skills/harness-init/references/convention.md` (new), their `.agents/skills/harness-init/` copies, `test/harness-init-layout.test.ts` (convention case) | `spawn` | [x] The step reads 30 subjects, proposes a pattern at 80% agreement, falls back to Conventional Commits, and records both config shapes after confirmation. Proof: `proof-install-experience-convention-init` |
+| 22 | code-commit and code-pr follow the recorded convention | 19 | `templates/.agents/skills/code-commit/SKILL.md`, `templates/.agents/skills/code-pr/SKILL.md`, their `.agents/skills/` copies, `test/convention-skills.test.ts` | `spawn` | [x] Both skills read `commitConvention` for `codeRepo` work and keep Conventional Commits in the harness home. Proof: `proof-install-experience-convention-skills` |
+| 23 | harness-doctor core skill | 19 | `templates/.agents/skills/harness-doctor/**` (new), `.agents/skills/harness-doctor/**`, `src/setup/skill-sets.ts` (`CORE_SKILLS`), `AGENTS.md` (skills table row), `test/harness-doctor-skill.test.ts`, `test/skill-sets.test.ts` | `spawn` | [x] `setup` installs `harness-doctor` with the core set. The skill runs `doctor`, makes one fix per OK and keeps the layout. It refreshes only stale files (updating the manifest entry), shows edited files without changing them, and routes mention-only installs to `harness-init` step 0. Proofs: `proof-install-experience-doctor-skill`, `proof-install-experience-doctor-refresh`, `proof-install-experience-doctor-migrate` |
+| 24 | README and site lead with global install and doctor | 19 | `README.md`, `site/index.md`, `site/commands.md`, `site/runtimes.md`, `test/readme-install.test.ts` | `spawn` | [x] The install docs show the global install in npm, yarn and pnpm forms, `setup` from any folder, and `doctor`. `site/runtimes.md` lists the nine runtimes. Proof: `proof-install-experience-docs` |
+| 25 | **Ship gate** | 21, 22, 23, 24 | — | `inline` | [x] Every acceptance box in the spec is ticked. The five commands pass, plus `pnpm docs:build`. On failure, **abort** before handoff |
 
 ## Wave stops
 
@@ -304,3 +304,63 @@ Units run in parallel only when their Owns are disjoint:
 | `git status` summary | dirty — the wave-3 batch is uncommitted, with the deferral deletion staged |
 | Intended diff scope | the wave-3 batch, no new writes |
 | Decision on every discrepancy | none — `pnpm build && pnpm test && pnpm lint && pnpm validate && pnpm comments` passed at 915 tests, and the doctor smoke exited 1 on the audited-shape fixture and 0 on the repaired one |
+
+### Wave 4 prerequisite — `validate` skips deleted tracked files (parent, inline)
+
+| Field | Value |
+|-------|-------|
+| Unit identifier | Wave 4 prerequisite — `validate` tolerates an unstaged tracked deletion |
+| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Obligation / proof status | none directly; removes the crash R9.3's deletion exposed |
+| `HEAD` commit | `434e27c` |
+| `git status` summary | dirty — this prerequisite's two files and the plan |
+| Intended diff scope | `src/validate/repo.ts` (existence filter in `buildRepoContext`), `test/validate-repo.test.ts` (one case) |
+| Decision on every discrepancy | resolved — the spec freezes `src/validate/**` outside `spine.ts`, but `git ls-files` listing an unstaged deletion crashed every consumer who deletes a tracked file before committing; the filter is the smallest correct fix and has a regression case |
+
+### Unit 20 — harness-init: harness home and linked layout
+
+| Field | Value |
+|-------|-------|
+| Unit identifier | 20 — harness-init: harness home and linked layout (wave 4, frontier 1) |
+| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Obligation / proof status | R5.1, R5.2 / `proof-install-experience-init-home`, `proof-install-experience-init-linked` — done |
+| `HEAD` commit | `434e27c` |
+| `git status` summary | dirty — the parent prerequisite and the plan; this unit's Owns start clean |
+| Intended diff scope | `templates/.agents/skills/harness-init/SKILL.md`, `references/layout.md` (new), their `.agents/skills/harness-init/` copies, `test/harness-init-layout.test.ts` (new), plus the amp rules-delivery rule in `references/entry-modes.md`, its copy, and `test/harness-init-entry.test.ts` |
+| Decision on every discrepancy | resolved — the amp row's "harness section carries `@.agents/rules/*.md`" has no setup half (setup never edits AGENTS.md), so this unit adds the amp imports to the section-writing guidance and proves it in the entry test |
+
+### Units 22–24 — conventions, the doctor skill, and the install docs
+
+| Field | Value |
+|-------|-------|
+| Unit identifier | 22 code-commit/code-pr convention; 23 harness-doctor core skill; 24 README and site (wave 4, frontier 1) |
+| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Obligation / proof status | R6.2, R8.1–R8.3, R9.2 / `proof-install-experience-convention-skills`, `proof-install-experience-doctor-skill`, `proof-install-experience-doctor-refresh`, `proof-install-experience-doctor-migrate`, `proof-install-experience-docs` — done |
+| `HEAD` commit | `434e27c` |
+| `git status` summary | dirty — the parent prerequisite and the plan; each unit's Owns start clean |
+| Intended diff scope | 22: `templates/.agents/skills/{code-commit,code-pr}/SKILL.md` and copies, `test/convention-skills.test.ts`; 23: `templates/.agents/skills/harness-doctor/**` and copy, `src/setup/skill-sets.ts`, the `AGENTS.md` skills row, `test/harness-doctor-skill.test.ts`, `test/skill-sets.test.ts`, the hardcoded core/total counts in `test/setup-skill-sets.test.ts`, the `EXPECTED_SKILLS` list in `test/ask-only.test.ts`, the skill-count text and inventory row in `site/skills.md`, and the inventory assertions in `test/skill-wayfinder.test.ts`; 24: `README.md`, `site/{index,commands,runtimes}.md`, `test/readme-install.test.ts`, plus `site/harness-init.md` and `test/harness-init-set.test.ts` |
+| Decision on every discrepancy | resolved — the two stale-doc fixes (three entry modes on the site, "rules load unconditionally" in `AGENTS.md`) are folded into 24 and 23; `test/setup-runtimes.test.ts`'s README/runtimes assertion is 24's to update if its rewrite changes those literals |
+
+### Unit 21 — harness-init: commit convention
+
+| Field | Value |
+|-------|-------|
+| Unit identifier | 21 — harness-init: commit convention (wave 4, frontier 2) |
+| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Obligation / proof status | R6.1 / `proof-install-experience-convention-init` — done |
+| `HEAD` commit | `434e27c` |
+| `git status` summary | dirty — the wave-4 batch is uncommitted |
+| Intended diff scope | `templates/.agents/skills/harness-init/SKILL.md` (convention step), `references/convention.md` (new), their copies, `test/harness-init-layout.test.ts` (convention case) |
+| Decision on every discrepancy | none — the step reads the last 30 subjects, proposes at 80% (24 of 30), records both config shapes only on confirmation, and defaults to Conventional Commits |
+
+### Unit 25 — Ship gate
+
+| Field | Value |
+|-------|-------|
+| Unit identifier | 25 — Ship gate (wave 4, frontier 3, inline) |
+| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Obligation / proof status | every acceptance box in the spec — ticked; gate — pass |
+| `HEAD` commit | `434e27c` |
+| `git status` summary | dirty — the wave-4 batch is uncommitted |
+| Intended diff scope | no new files; the spec's 32 acceptance boxes and the plan's 20–25 marks are ticked |
+| Decision on every discrepancy | none — `pnpm build && pnpm test && pnpm lint && pnpm validate && pnpm comments` passed at 941 tests, and `pnpm docs:build` completed |
