@@ -26,16 +26,15 @@ qmd query "<question>"               # 2. widen only if ADRs miss
 | `deferrals` | deferred items with triggers | current |
 | `notes` | research for no effort | dated, may be stale; not the decision |
 
-`qmd get` returns the stored index body, not a live read of the file. Read
-that file before treating the indexed body as the decision. When they
-disagree, state neither number as the limit to use; never tell the reader to
-use the on-disk or indexed one.
-
 ## Then
 
 1. Prefer structured `qmd query` with `intent:` / `lex:` / `vec:` / `hyde:`
    over bare text.
-2. Only then use the web.
+2. `qmd get` / `multi-get` return the stored index body, not a live read of
+   the file: read that file before treating the indexed body as the decision,
+   and when they disagree name neither number as the limit to use — never
+   tell the reader to use the on-disk or the indexed one.
+3. Only then use the web.
 
 Setup: `.qmd/index.yml`. After `docs/` writes: `qmd update` (then `qmd embed`
 if content changed).
