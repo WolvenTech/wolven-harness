@@ -1,7 +1,7 @@
 # Session Note Template
 
-The session note is the run's own record: created first, and the one file
-every phase adds to.
+The session note is the run's own record. It is created first, and every
+phase adds to it.
 
 ## Path
 
@@ -92,8 +92,10 @@ status: <status>
 Every section heading above stays in the note even when its step was
 skipped — a skipped step fills its section with why, rather than leaving
 the heading empty or dropping it, so the note always shows the full shape
-of the run. **Left for later** is filled as step 0 creates the note, since
-the path and goal are agreed before step 0.
+of the run. **Left for later** holds the path, the goal, what was covered,
+and the steps that did not run (step number, name, remaining work), with
+`none` in place of the list when nothing was left. It is filled as step 0
+creates the note, since the path and goal are agreed before step 0.
 
 ## Naming ADRs in the note
 

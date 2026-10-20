@@ -5,19 +5,20 @@ description: <description>
 status: draft
 ---
 
-<!-- Copy into docs/specs/<slug>/<slug>-spec.md; fill every placeholder, delete these comments. -->
+<!-- Copy this file into docs/specs/<slug>/<slug>-spec.md, fill every
+placeholder, and delete these comments before presenting. -->
 
 # <title>
 
 **Source:** `docs/prds/<slug>/<slug>-prd.md` (status `stable`) — or the
 confirmed ask, quoted in one line, when there is no PRD.
-**Next:** After the Human approves → `code-plan` → `code-execute`; wave
-**1 → 2** for multi-batch work.
+**Next:** After the Human approves → `code-plan` → `code-execute`, wave
+**1 → 2** if the work spans more than one mutate batch.
 **Named proof (this spec's own structural gate):** `proof-<slug>-spec-obligations`
 
 ## Repository grounding
 
-<!-- Disk and prior ADRs only; never invent a surface. -->
+<!-- What already exists, from disk and prior ADRs only; never invent a surface. -->
 
 | Surface | Present today | Role for this initiative |
 |---------|----------------|----------------------------|
@@ -25,7 +26,7 @@ confirmed ask, quoted in one line, when there is no PRD.
 
 ## Surface walk
 
-<!-- Mutate scope vs. left untouched. -->
+<!-- What is in mutate scope and what is deliberately left untouched. -->
 
 - **In scope:** …
 - **Out of mutate scope (unchanged):** … — cite these again from any `n/a`
@@ -33,19 +34,20 @@ confirmed ask, quoted in one line, when there is no PRD.
 
 ## Waves
 
-<!-- Multi-batch only; omit for one wave. Name each wave and its gate; a
-failed gate stops the next. -->
+<!-- Required only when the work spans more than one mutate batch; omit it
+for one wave. Name each wave and its gate; a failed gate aborts before the
+next wave starts. -->
 
 ```mermaid
 flowchart TD
   A[Wave 1: ...] --> G1{gate PASS}
-  G1 -->|abort| X[Stop — fix first]
+  G1 -->|abort| X[Stop — fix before continuing]
   G1 -->|pass| B[Wave 2: ...]
 ```
 
 ## Requirements (obligation ↔ proof)
 
-<!-- One obligation, one named proof. -->
+<!-- Pair each frozen criterion's obligation with one named proof. -->
 
 ### R1 — ...
 
@@ -73,7 +75,7 @@ invented behavior. -->
 
 ## Unresolved
 
-<!-- Absent product or contract decisions; never invent behavior. -->
+<!-- Product or contract decisions that are absent land here; never invent behavior. -->
 
 | Identifier | Decision needed | Owner | Blocking effect | Disposition |
 |------------|-------------------|-------|-------------------|--------------|
@@ -91,7 +93,8 @@ invented behavior. -->
 
 ### Wave 1
 
-- [ ] A verifiable artifact or command (pairs with an obligation ID above)
+- [ ] A checkbox tied to a verifiable artifact or command (pairs with an
+      obligation ID above)
 
 ## Eval / gates
 
@@ -109,9 +112,9 @@ invented behavior. -->
 
 ## ADR
 
-<!-- A durable architecture decision goes through the `adr` skill — create,
-promote or supersede — which owns numbering. Placeholder tokens only:
-`ADR-NNN` / `adr-NNN-<slug>`, never a concrete number. -->
+<!-- A durable architecture decision goes through the `adr` skill, which
+creates, promotes or supersedes it and owns numbering. Use placeholder
+tokens only (`ADR-NNN` / `adr-NNN-<slug>`), never a concrete number. -->
 
 … — or "None needed this initiative."
 
@@ -122,13 +125,13 @@ promote or supersede — which owns numbering. Placeholder tokens only:
 | Source | Always |
 | Repository grounding | Always |
 | Surface walk | Always |
-| Waves | Multi-batch work |
+| Waves | The work spans more than one mutate batch |
 | Requirements with obligation ↔ proof | Always |
 | Nine-dimension landings | Always — all nine named |
-| Unresolved | Always — an empty table is fine |
+| Unresolved | Always — an empty table is fine when no product or contract decision is open |
 | Out of scope | Always |
 | Pragmatic-guard refuses | Always |
-| Acceptance | Always — tick only with evidence |
+| Acceptance | Always — tick a box only once its evidence exists |
 | Eval / gates | Always |
 | Cross-domain leak table | Always |
-| ADR | Always |
+| ADR | Always — even when the answer is "none needed this initiative" |

@@ -24,7 +24,10 @@ notifications into one digest email per run.
 | R1.1 | The digest job batches every unread notification since the last digest into one email, in chronological order | `proof-digest-job-batch` | Run it against a fixture inbox; check output order |
 | R1.2 | A user with zero unread notifications receives no digest email that run | `proof-digest-empty-skip` | A zero-unread fixture produces no send |
 
-Acceptance boxes:
+The table elides R1.3 and later, one obligation for each nine-dimension
+landing below that carries a named proof.
+
+The acceptance boxes pair with the obligations above:
 
 ```markdown
 - [ ] `proof-digest-job-batch` PASS — digest batches unread notifications in order
@@ -32,6 +35,8 @@ Acceptance boxes:
 ```
 
 ## Nine-dimension landings (mixed)
+
+This excerpt lists five of the nine dimensions.
 
 | Dimension | Landing kind | Landing |
 |-----------|---------------|---------|

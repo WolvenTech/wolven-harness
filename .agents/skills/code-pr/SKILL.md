@@ -59,8 +59,8 @@ That run writes no deferral and no sentence claiming the guard ran.
 8. **Read before rewrite** — on amend, read the pull request's current
    title, body, and comments (read PR and diff) before replacing anything.
 9. **Fill the template** — [pr-body-template.md](references/pr-body-template.md)
-   in full: Summary, Verification and Before merge for the actual diff, no
-   path dump.
+   in full, with Summary, Verification and Before merge describing the
+   actual diff and no path dump.
 10. **Checkbox reset** — write every Before merge checkbox as `[ ]` first,
     then tick only what this session's evidence supports. Never copy ticks
     forward from a prior body. The Pre-merge closure box stays unchecked
@@ -118,8 +118,8 @@ That run writes no deferral and no sentence claiming the guard ran.
 - [x] CI green
 ```
 
-Ticked boxes are **after** checkbox reset — start from `[ ]`, then retick
-only from this session's evidence.
+The ticked boxes show the result **after** checkbox reset: every box starts
+as `[ ]`, and a tick stays only where this session's evidence supports it.
 
 ## Pragmatic-guard
 
@@ -127,7 +127,7 @@ Refuse auto-merge, inventing a body shape other than the template, opening a
 pull request with no explicit ask, opening a second one when this head
 already has an open pull request, a path dump in Summary, Verification or
 Before merge, an empty Verification section when a gate actually ran, a
-merge-ready claim while pre-merge closure boxes are unticked, and replying
+merge-ready claim while the Pre-merge closure box is unticked, and replying
 on review threads.
 
 ## Anti-patterns

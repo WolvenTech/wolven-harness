@@ -86,14 +86,14 @@ checkbox outside the batch moves.
 
 ### One message for a multi-unit wave (wave batch)
 
-Wave A's two units — the lean PR body and the wave commit message — land as
-one commit:
+A wave of two units — the avatar upload endpoint and the image resize
+pipeline — lands as one commit:
 
 ```text
-docs(skills): trim the PR body and the wave commit message
+feat(avatar): accept avatar uploads and resize them to a fixed size
 
-The PR body now holds three short sections, and a multi-unit wave batch
-commits as one message instead of one subject per unit.
+The upload endpoint now stores an avatar, and the resize pipeline scales
+it to 256px so profile pages load the same small image every time.
 ```
 
 **Why good:** one subject states the batch's outcome; the body is two lines,
@@ -195,11 +195,12 @@ land in the **same** commit as the proven work, and only for that unit.
 
 ### Joined unit subjects (bad)
 
-A two-unit wave batch written as one subject per unit:
+A two-unit wave of the upload endpoint and the resize pipeline, written as
+one subject per unit:
 
 ```text
-feat(pr): cut the PR body to three sections
-docs(code-commit): add the wave commit rule
+feat(avatar-upload): add the avatar upload endpoint
+feat(avatar-resize): add the avatar image resize pipeline
 ```
 
 **Why bad:** two `type(scope):` subjects joined into one message — no single

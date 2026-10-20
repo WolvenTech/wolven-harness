@@ -5,12 +5,12 @@ alwaysApply: true
 
 # QMD before web
 
-For any question this repo might already answer, search before memory or the
-web.
+For any question this repo might already answer, search before you answer from
+memory or the web.
 
 ## Search ADRs first, then widen
 
-Collections are not interchangeable: which one a hit came from tells you how
+Collections are not interchangeable. Which one a hit came from tells you how
 far to trust it.
 
 ```bash
@@ -24,19 +24,19 @@ qmd query "<question>"               # 2. widen only if ADRs miss
 | `prds` | product requirements | current, but not settled |
 | `specs` | active work in flight | current, but not settled |
 | `deferrals` | deferred items with triggers | current |
-| `notes` | research for no effort | dated, may be stale; not the decision |
+| `notes` | research belonging to no effort | dated, may be stale; not the decision |
 
 ## Then
 
 1. Prefer structured `qmd query` with `intent:` / `lex:` / `vec:` / `hyde:`
    over bare text.
 2. `qmd get` / `multi-get` return the stored index body, not a live read of
-   the file: read that file before treating the indexed body as the decision,
-   and when they disagree name neither number as the limit to use — never
-   tell the reader to use the on-disk or the indexed one.
+   the file. Read that file before treating the indexed body as the decision.
+   When the index and the file disagree, name neither number as the limit to
+   use.
 3. Only then use the web.
 
-Setup: `.qmd/index.yml`. After `docs/` writes: `qmd update` (then `qmd embed`
-if content changed).
+Setup lives in `.qmd/index.yml`. After you write to `docs/`, run `qmd update`,
+then `qmd embed` if content changed.
 
 Skill: `qmd`.
