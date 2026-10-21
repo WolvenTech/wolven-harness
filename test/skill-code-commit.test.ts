@@ -1,6 +1,14 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
+import { section } from './helpers/markdown.js';
 import { assertSkillBasics, readSkill } from './helpers/skill-contract.js';
+
+/** Returns the content of the first ```` ```text ```` fence in `text`. */
+function textFence(text: string): string {
+  const match = text.match(/```text\n([\s\S]*?)```/);
+  assert.ok(match, 'expected a ```text fenced block');
+  return match[1];
+}
 
 test('skill-code-commit: passes the shared skill contract checks', async () => {
   await assertSkillBasics('code-commit', { requireHarnessValidate: true });
@@ -89,6 +97,81 @@ test('skill-code-commit: examples file has the Good, Bad, split, atomic-plan, an
   assert.match(examples, /### Atomic plan completion \(after a wave gate\)/);
   assert.match(examples, /### Failed commit leaves false green \(cleanup required\)/);
   assert.match(examples, /docs\/specs\/avatar-upload\/avatar-upload-plan\.md/);
+});
+
+test('proof-templates-trim-wave-message-rule: a multi-unit wave batch is one subject plus a body of at most three lines', async () => {
+  const skill = await readSkill('code-commit');
+  const rule = section(skill.body, '### Wave batch').replace(/\s+/g, ' ');
+
+  assert.match(rule, /wave batch of more than one unit gets \*\*one\*\* Conventional Commit/i);
+  assert.match(rule, /subject that states the batch's outcome/);
+  assert.match(rule, /body of \*\*at most three lines\*\*/);
+  assert.match(rule, /never join per-unit subjects into one message/i);
+});
+
+test('proof-templates-trim-wave-scope: one-unit waves and standalone commits keep the existing rules', async () => {
+  const skill = await readSkill('code-commit');
+  const rule = section(skill.body, '### Wave batch').replace(/\s+/g, ' ');
+
+  assert.match(rule, /wave batch/i);
+  assert.match(rule, /a one-unit wave and a standalone commit keep the message shape above/i);
+  assert.match(rule, /no invented batch summary/i);
+  assert.match(rule, /no three-line cap/i);
+  assert.match(rule, /split rule for unrelated contexts still applies/i);
+  assert.match(skill.body, /## Multi-commit heuristics/);
+  assert.match(skill.body, /Split/);
+  assert.doesNotMatch(skill.body, /autocommit/i);
+});
+
+// why: the atomic commit gate is the unchanged contract, so this test catches
+// a rewording that would silently edit it.
+const ATOMIC_COMMIT_GATE_BASELINE = [
+  'Create a Conventional Commit **only after validation has passed**. When a',
+  "plan unit is in scope, its **plan-completion mark** — the unit's Done-when",
+  'checkbox in `docs/specs/<slug>/<slug>-plan.md`, already flipped in the',
+  'worktree and not yet committed — lands in the **same commit** as its work.',
+  '',
+  "1. Stage the batch's proven work **and** only the batch's plan-completion",
+  '   marks.',
+  '2. One commit contains both; never leave the plan-completion mark for a',
+  '   later commit, and never flip the checkbox of a unit outside the batch.',
+  '3. With no plan unit in scope, skip plan staging.',
+  '',
+  '**If the commit fails** (hook reject, empty stage, conflict, abort):',
+  '',
+  '1. The unit remains **incomplete** — every unit in the batch.',
+  "2. Reverse the batch's plan-completion marks to `[ ]` — never leave a",
+  '   false-green checkbox on the plan; keep the rest of the uncommitted work.',
+  '3. Re-confirm validation before retrying; never claim the unit done from a',
+  '   failed commit.',
+].join('\n');
+
+test('proof-templates-trim-plan-mark-unchanged: the Atomic commit gate section equals the baseline', async () => {
+  const skill = await readSkill('code-commit');
+
+  assert.equal(section(skill.body, '## Atomic commit gate').trim(), ATOMIC_COMMIT_GATE_BASELINE);
+});
+
+test('proof-templates-trim-wave-examples: a good wave message and a bad concatenated one', async () => {
+  const skill = await readSkill('code-commit');
+  const examples = await skill.read('references/commit-examples.md');
+  const goodHeading = '### One message for a multi-unit wave (wave batch)';
+  const badHeading = '### Joined unit subjects (bad)';
+  const goodLines = textFence(section(examples, goodHeading)).replace(/\n$/, '').split('\n');
+  const badBlock = textFence(section(examples, badHeading));
+  const goodBody = goodLines.slice(1).filter((line) => line.trim().length > 0);
+  const badSubjects = badBlock.split('\n').filter((line) => /^[a-z]+\([a-z0-9-]+\): /.test(line));
+
+  assert.ok(examples.indexOf('## Good') < examples.indexOf(goodHeading));
+  assert.ok(examples.indexOf(goodHeading) < examples.indexOf('## Type quick reference'));
+  assert.ok(examples.indexOf('## Bad examples') < examples.indexOf(badHeading));
+  assert.match(goodLines[0], /^[a-z]+\([a-z0-9-]+\): \S/);
+  assert.equal(goodLines.slice(1).filter((line) => /^[a-z]+\([a-z0-9-]+\): /.test(line)).length, 0);
+  assert.ok(goodBody.length >= 1 && goodBody.length <= 3, `expected 1-3 body lines, got ${goodBody.length}`);
+  assert.ok(
+    badSubjects.length >= 2,
+    `expected at least two joined \`type(scope):\` subjects, got ${badSubjects.length}`,
+  );
 });
 
 test('proof-guard-consult-no-negative-commit: consults stay without mandatory negative boilerplate', async () => {

@@ -4,9 +4,10 @@ Why-focused subjects. Bodies are optional — use one when the context helps a
 reviewer.
 
 **Contents:** Good (outcome, small fix, docs-only, multi-commit split,
-atomic plan completion) · Type quick reference · HEREDOC (required shape) ·
-Bad examples (process ran, file-dump, vague feat, wrong type, secrets, split
-plan completion, failed commit leaves false green).
+atomic plan completion, wave batch) · Type quick reference · HEREDOC
+(required shape) · Bad examples (process ran, file-dump, vague feat, wrong
+type, secrets, split plan completion, joined unit subjects, failed commit
+leaves false green).
 
 ## Good
 
@@ -82,6 +83,21 @@ docs/specs/avatar-upload/avatar-upload-plan.md   # only this unit's row [ ] -> [
 **Why good:** the work and its matching plan-completion mark share one
 commit; the message says what the handler now does, not that a gate ran. No
 checkbox outside the batch moves.
+
+### One message for a multi-unit wave (wave batch)
+
+A wave of two units — the avatar upload endpoint and the image resize
+pipeline — lands as one commit:
+
+```text
+feat(avatar): accept avatar uploads and resize them to a fixed size
+
+The upload endpoint now stores an avatar, and the resize pipeline scales
+it to 256px so profile pages load the same small image every time.
+```
+
+**Why good:** one subject states the batch's outcome; the body is two lines,
+under the three-line cap, and joins no per-unit subjects.
 
 ## Type quick reference
 
@@ -176,6 +192,20 @@ docs(specs): mark the invoice-retry unit complete
 
 **Why bad:** violates the same-commit rule. The plan-completion mark must
 land in the **same** commit as the proven work, and only for that unit.
+
+### Joined unit subjects (bad)
+
+A two-unit wave of the upload endpoint and the resize pipeline, written as
+one subject per unit:
+
+```text
+feat(avatar-upload): add the avatar upload endpoint
+feat(avatar-resize): add the avatar image resize pipeline
+```
+
+**Why bad:** two `type(scope):` subjects joined into one message — no single
+subject states the batch's outcome, and a reader cannot tell what the batch
+delivers.
 
 ### Failed commit leaves false green (cleanup required)
 

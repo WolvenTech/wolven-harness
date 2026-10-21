@@ -5,8 +5,8 @@ description: <description>
 status: draft
 ---
 
-<!-- Copy this whole file into docs/specs/<slug>/<slug>-spec.md, fill every
-placeholder, and delete the instructional comments before presenting. -->
+<!-- Copy this file into docs/specs/<slug>/<slug>-spec.md, fill every
+placeholder, and delete these comments before presenting. -->
 
 # <title>
 
@@ -18,7 +18,7 @@ confirmed ask, quoted in one line, when there is no PRD.
 
 ## Repository grounding
 
-<!-- What already exists — disk and any prior ADRs. Do not invent a surface. -->
+<!-- What already exists, from disk and prior ADRs only; never invent a surface. -->
 
 | Surface | Present today | Role for this initiative |
 |---------|----------------|----------------------------|
@@ -26,7 +26,7 @@ confirmed ask, quoted in one line, when there is no PRD.
 
 ## Surface walk
 
-<!-- Paths and systems in mutate scope vs. deliberately left untouched. -->
+<!-- What is in mutate scope and what is deliberately left untouched. -->
 
 - **In scope:** …
 - **Out of mutate scope (unchanged):** … — cite these again from any `n/a`
@@ -34,9 +34,9 @@ confirmed ask, quoted in one line, when there is no PRD.
 
 ## Waves
 
-<!-- Required once the work spans more than one mutate batch; omit for
-single-wave work. Name each wave and its gate command; a failed gate aborts
-before the next wave. -->
+<!-- Required only when the work spans more than one mutate batch; omit it
+for one wave. Name each wave and its gate; a failed gate aborts before the
+next wave starts. -->
 
 ```mermaid
 flowchart TD
@@ -47,7 +47,7 @@ flowchart TD
 
 ## Requirements (obligation ↔ proof)
 
-<!-- Every frozen criterion pairs one obligation with one named proof. -->
+<!-- Pair each frozen criterion's obligation with one named proof. -->
 
 ### R1 — ...
 
@@ -75,7 +75,7 @@ invented behavior. -->
 
 ## Unresolved
 
-<!-- Absent product or contract decisions land here — never invent behavior. -->
+<!-- Product or contract decisions that are absent land here; never invent behavior. -->
 
 | Identifier | Decision needed | Owner | Blocking effect | Disposition |
 |------------|-------------------|-------|-------------------|--------------|
@@ -93,7 +93,7 @@ invented behavior. -->
 
 ### Wave 1
 
-- [ ] Checkbox tied to a verifiable artifact or command (pairs with an
+- [ ] A checkbox tied to a verifiable artifact or command (pairs with an
       obligation ID above)
 
 ## Eval / gates
@@ -112,10 +112,9 @@ invented behavior. -->
 
 ## ADR
 
-<!-- If this spec settles a durable architecture decision, use the
-`adr` skill — by name — to create, promote, or supersede it. Numbering and
-supersession live in `adr`, not here. Use placeholder tokens only: `ADR-NNN`
-/ `adr-NNN-<slug>` — never a concrete number until `adr` creates the file. -->
+<!-- A durable architecture decision goes through the `adr` skill, which
+creates, promotes or supersedes it and owns numbering. Use placeholder
+tokens only (`ADR-NNN` / `adr-NNN-<slug>`), never a concrete number. -->
 
 … — or "None needed this initiative."
 
