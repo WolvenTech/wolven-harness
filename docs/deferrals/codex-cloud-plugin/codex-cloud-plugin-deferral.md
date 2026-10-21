@@ -15,7 +15,7 @@ status: draft
 
 ## Contract impact
 
-None while deferred. A plugin manifest is outside ADR-005. Adding a command or a runtime would follow that ADR's change policy.
+None while deferred. A plugin manifest is outside ADR-006. Adding a command or a runtime would follow that ADR's change policy.
 
 ## Triggers
 

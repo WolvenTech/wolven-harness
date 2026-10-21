@@ -9,6 +9,8 @@ source_pr: https://github.com/WolvenTech/wolven-harness/pull/71
 
 # Install and use experience — iteration 1 spec
 
+**Current public contract:** [ADR-006](../../adrs/adr-006-install-check-and-repair-contract.md). Historical wiring-only references below describe the predecessor on the PR 1 branch.
+
 **Source:** `docs/prds/install-experience/install-experience-prd.md` (status `stable`, amended for AC-1.6, AC-4.4, AC-5.1, US-8 and Scope › Delivery), and the design findings 7, 8, 9, 10 and 12 of the [PR 71 review](https://github.com/WolvenTech/wolven-harness/pull/71#pullrequestreview-5591524011) at `149dde6`. This file holds only the delta. Every row of `install-experience-spec.md` stands as written unless a row below amends or replaces it.
 **Next:** After the Human approves → `code-plan` writes `install-experience-iteration-1-plan.md` in this folder → `code-execute`, wave **1 (PR 1) → 2 (PR 2)**.
 **Named proof (this spec's own structural gate):** `proof-install-experience-iteration-1-spec-obligations`
@@ -54,7 +56,7 @@ These settle how the delta works. The Human confirms them by approving this spec
 | D2 | **Antigravity reads the rules from the inline block.** Its registry row becomes `inline`, like Codex. The rule templates drop `trigger`, so Antigravity discards `.agents/rules/*.md` as its docs describe. | Generated copies under Antigravity's legacy `.agent/rules/` | Antigravity reads `AGENTS.md` natively. An `inline` row removes the double read with no new files and no dependence on a legacy path. The cost: wiring Antigravity puts the whole install in inline mode. |
 | D3 | **A stale rule copy is repaired by deleting it and re-running `setup`.** `setup` stays create-only, and one renderer per wiring kind writes every copy. | `setup` rewrites copies whose source rule changed; or `harness-doctor` writes the copy text itself | The first breaks `setup`'s create-only guarantee. The second gives a second copy of the rendering logic, which is the drift F12 and F13 describe. |
 | D4 | **`doctor` finds the qmd index the way `qmd` does.** It walks up from the open folder for `.qmd/index.yaml` or `.qmd/index.yml`, as `findLocalConfigPath` does in qmd 2.5.3 (`dist/collections.js`), and compares the folder it finds with the harness home's `.qmd`. | Running `qmd status` and parsing its output | `qmd status` prints human text only (`U-qmd-freshness` in the base spec). |
-| D5 | **PR 1 revises ADR-005 in place, and PR 2 supersedes it.** ADR-005 exists only on the PR 71 branch and never reached `main`, so revising it before it merges changes no released contract. | Merge ADR-005 as written and supersede it immediately; or amend it again in PR 2 | PR 1 must not record `doctor` (PRD Handoff). A released contract changes only through a successor. |
+| D5 | **PR 1 revises the wiring-only predecessor in place, and PR 2 supersedes it.** The wiring-only predecessor exists only on the PR 71 branch and never reached `main`, so revising it before it merges changes no released contract. | Merge the wiring-only predecessor as written and supersede it immediately; or amend it again in PR 2 | PR 1 must not record `doctor` (PRD Handoff). A released contract changes only through a successor. |
 
 ## Repository grounding
 
@@ -73,7 +75,7 @@ These settle how the delta works. The Human confirms them by approving this spec
 | `findLocalConfigPath` in qmd 2.5.3 (`@tobilu/qmd/dist/collections.js`) | yes, external | The index lookup `doctor` mirrors (D4) |
 | Release tags `v0.1.0`, `v0.1.1`, `v0.2.0`, `v0.3.0`, `v0.3.1`, `v0.3.2` | yes | Sources for the known forms table. None of them renders `.qmd/index.yml`; each copies it as is |
 | `renderer/sync.mjs` and `test/renderer-copies.test.ts` | yes | The precedent for a generated, committed file with a drift test (R13.1) |
-| `docs/adrs/adr-005-install-anywhere-contract.md` (`stable`, on this branch only) | yes | Revised for PR 1, superseded in PR 2 (D5, R9.1) |
+| the wiring-only predecessor under `docs/adrs/` (`stable`, on this branch only) | yes | Revised for PR 1, superseded in PR 2 (D5, R9.1) |
 
 ## Surface walk
 
@@ -122,7 +124,7 @@ Each row replaces the base row of the same ID. The proof name is the base row's 
 | R7.3 | `setup` writes no install manifest. `.wolven-harness.manifest.json` is not part of the contract (D1) | `proof-install-experience-no-manifest` (replaces `proof-install-experience-manifest`) | `test/setup-apply.test.ts`: a root run and an outside run create no `.wolven-harness.manifest.json` |
 | R7.4 | `doctor` warns `doctor-not-global` (R3.3, R4.4) and `doctor-version-behind` as in the base row. Drift is classified by R13.2, with no manifest | `proof-install-experience-drift` | `test/doctor-drift.test.ts`: one fixture per drift class, none holding a manifest |
 | R8.2 | For `doctor-drift-stale`, `harness-doctor` offers to replace the file with the current template, one file at a time, after a yes. It records nothing else. For `doctor-drift-edited` it shows the diff with the current template and changes nothing. It never merges | `proof-install-experience-doctor-refresh` | `test/harness-doctor-skill.test.ts`: both branches' text; no mention of a manifest |
-| R9.1 | The contract is recorded in two steps (D5). In PR 1, ADR-005 is revised to record only what PR 1 ships: `setup` outside any git repository as a supported mode; `setup` in a repository subfolder exiting 1 (R3.4); the `--package-manager` flag; the registry's runtime ids; and the optional config keys `packageManager`, `layout` (value `home` only), `codeRepo` and `commitConvention`. It names no `doctor` command, finding code, manifest, `harnessHome` key or `linked` value. The Human confirms the revised text. In PR 2, a successor ADR-NNN, created through the `adr` skill, carries ADR-005 forward and adds `doctor` with its flags, output, exits and codes (including `doctor-rules-stale`), the `layout` value `linked` and the `harnessHome` key. ADR-005 is then superseded, with every claim repointed | `proof-install-experience-contract` | PR 1: `test/contract.test.ts` targets the revised ADR-005; `pnpm validate` shows 0 claim failures. PR 2: `test/contract.test.ts` targets ADR-NNN and covers `doctor`; ADR-005 is `deprecated` with `superseded_by`; 0 claim failures |
+| R9.1 | The contract is recorded in two steps (D5). In PR 1, the wiring-only predecessor is revised to record only what PR 1 ships: `setup` outside any git repository as a supported mode; `setup` in a repository subfolder exiting 1 (R3.4); the `--package-manager` flag; the registry's runtime ids; and the optional config keys `packageManager`, `layout` (value `home` only), `codeRepo` and `commitConvention`. It names no `doctor` command, finding code, manifest, `harnessHome` key or `linked` value. The Human confirms the revised text. In PR 2, the successor ADR-006, created through the `adr` skill, carries the wiring-only predecessor forward and adds `doctor` with its flags, output, exits and codes (including `doctor-rules-stale`), the `layout` value `linked` and the `harnessHome` key. The wiring-only predecessor is then superseded, with every claim repointed | `proof-install-experience-contract` | PR 1: `test/contract.test.ts` targets the revised wiring-only predecessor; `pnpm validate` shows 0 claim failures. PR 2: `test/contract.test.ts` targets ADR-006 and covers `doctor`; the wiring-only predecessor is `deprecated` with `superseded_by`; 0 claim failures |
 | R9.2 | `README.md` and the site's install page lead with the global install and `setup` outside a repository, and show npm, yarn and pnpm forms (PR 1). PR 2 adds `doctor` to both | `proof-install-experience-docs` | `test/readme-install.test.ts`: PR 1 asserts no `doctor` text; PR 2 asserts it |
 
 R3.1, R3.3, R4.2, R4.4, R5.3, R7.2, R7.5, R8.1, R8.3 and R9.3 stand. Where they mention `doctor`, `harness-doctor` or the manifest, they ship in PR 2 (R14.2).
@@ -179,8 +181,8 @@ Traces to PRD Scope › Delivery.
 
 | ID | Obligation | Named proof | Evidence shape |
 |----|------------|--------------|------------------|
-| R14.1 | PR 1, **Wiring**, is cut from `149dde6`. It carries R1, R2 (as amended), R3.1, R3.2 (as amended), R3.3 for `setup`, R3.4, R4.1 to R4.3, R5.1, R6, R10, R11.3, the `validate` fix for tracked files deleted from disk (`50b8dea`), the revised ADR-005 (R9.1) and its half of R9.2. It ships no `src/doctor/`, no `doctor` command, no `harness-doctor` skill, no install manifest, no linked-layout section in `harness-init`, and no `linked` or `harnessHome` config value. `docs/deferrals/setup-drift-check/` stays | `proof-install-experience-pr1-surface` | On PR 1's head: `src/doctor/` and `templates/.agents/skills/harness-doctor/` are absent; `node dist/cli.js doctor` exits 1 as an unknown command; ADR-005 has no `doctor` command or finding code; a config with `layout: "linked"` is rejected; the gate in Waves passes |
-| R14.2 | PR 2, **Check and repair**, starts from PR 1's head. It carries R3.3 for `doctor`, R4.2's doctor fixes, R4.4, R5.2 (as amended), R5.3, R7 (as amended), R8 (as amended), R9.1's successor ADR, R9.2's `doctor` half, R9.3, R11.1, R11.2, R12 and R13, plus the plan-only findings F1, F2, F4, F6 and F13 | `proof-install-experience-pr2-surface` | On PR 2's head: the successor ADR is `stable` and ADR-005 `deprecated`; `node dist/cli.js doctor --dir <fixture>` exits 1 on the audited-shape fixture and 0 on the repaired one; `docs/deferrals/setup-drift-check/` is absent; the gate in Waves passes |
+| R14.1 | PR 1, **Wiring**, is cut from `149dde6`. It carries R1, R2 (as amended), R3.1, R3.2 (as amended), R3.3 for `setup`, R3.4, R4.1 to R4.3, R5.1, R6, R10, R11.3, the `validate` fix for tracked files deleted from disk (`50b8dea`), the revised wiring-only predecessor (R9.1) and its half of R9.2. It ships no `src/doctor/`, no `doctor` command, no `harness-doctor` skill, no install manifest, no linked-layout section in `harness-init`, and no `linked` or `harnessHome` config value. `docs/deferrals/setup-drift-check/` stays | `proof-install-experience-pr1-surface` | On PR 1's head: `src/doctor/` and `templates/.agents/skills/harness-doctor/` are absent; `node dist/cli.js doctor` exits 1 as an unknown command; the wiring-only predecessor has no `doctor` command or finding code; a config with `layout: "linked"` is rejected; the gate in Waves passes |
+| R14.2 | PR 2, **Check and repair**, starts from PR 1's head. It carries R3.3 for `doctor`, R4.2's doctor fixes, R4.4, R5.2 (as amended), R5.3, R7 (as amended), R8 (as amended), R9.1's successor ADR, R9.2's `doctor` half, R9.3, R11.1, R11.2, R12 and R13, plus the plan-only findings F1, F2, F4, F6 and F13 | `proof-install-experience-pr2-surface` | On PR 2's head: the successor ADR is `stable` and the wiring-only predecessor `deprecated`; `node dist/cli.js doctor --dir <fixture>` exits 1 on the audited-shape fixture and 0 on the repaired one; `docs/deferrals/setup-drift-check/` is absent; the gate in Waves passes |
 
 ## Nine-dimension landings
 
@@ -189,7 +191,7 @@ Traces to PRD Scope › Delivery.
 | validation | obligation ↔ proof | R3.4 / `proof-install-experience-subfolder-refused`: the subfolder case is decided before any prompt or write. R14.1 / `proof-install-experience-pr1-surface`: PR 1's config rejects the `linked` value it does not support |
 | failure modes | obligation ↔ proof | R11.1 / `proof-install-experience-rules-stale`: an unreadable rule or copy becomes that check's finding, not a crash, as the base R7.1 requires. R3.4: with `git` not on `PATH`, setup cannot run `git rev-parse`; it then looks for a `.git` entry in the folder and its ancestors, and refuses when it finds one above the current folder |
 | idempotency and retry | obligation ↔ proof | R11.3 / `proof-install-experience-rules-create-only`: re-running `setup` never rewrites a copy. R11.2: deleting a stale copy and re-running `setup` converges on the current rule, and a second pass finds nothing to do. `doctor` stays read-only (base R7.5) |
-| authorization | `n/a` | Unchanged surface: no credential or permission is added. The `.qmd` link (R5.2) points inside the harness home like the other linked-layout links, so the import approval in the `runtime-instruction-loading` note does not apply. `src/skills/**` keeps its global-path writes as ADR-005 records |
+| authorization | `n/a` | Unchanged surface: no credential or permission is added. The `.qmd` link (R5.2) points inside the harness home like the other linked-layout links, so the import approval in the `runtime-instruction-loading` note does not apply. `src/skills/**` keeps its global-path writes as the wiring-only predecessor records |
 | concurrency and ordering | `n/a` | Unchanged surface: one command per process, dispatched by `src/cli.ts`. The order of the two pull requests is set in Waves, not at run time |
 | data lifecycle | obligation ↔ proof | R7.3 / `proof-install-experience-no-manifest`: no install writes a manifest, and no released version ever did (R14.1). R13.1: the known forms table only grows. R11.2: a stale copy is deleted and recreated, never edited in place |
 | external-dependency failure | obligation ↔ proof | R12.1 / `proof-install-experience-qmd-reach`: `doctor` mirrors qmd 2.5.3's lookup (D4), and a missing `qmd` stays a `doctor-qmd` error. R13.2 / `proof-install-experience-drift-earlier`: drift uses only data shipped in the package. A change in qmd's lookup is tracked as `U-qmd-lookup` |
@@ -230,7 +232,7 @@ The base spec's Unresolved rows stand.
 - [x] `proof-install-experience-outside-root` PASS — R3.2
 - [x] `proof-install-experience-subfolder-refused` PASS — R3.4
 - [x] `proof-install-experience-no-manifest` PASS — R7.3
-- [x] `proof-install-experience-contract` PASS for ADR-005 — R9.1, PR 1 half
+- [x] `proof-install-experience-contract` PASS for the wiring-only predecessor — R9.1, PR 1 half
 - [x] `proof-install-experience-docs` PASS without `doctor` — R9.2, PR 1 half
 - [x] `proof-install-experience-registry-data` PASS — R10.1
 - [x] `proof-install-experience-rules-mode` PASS — R10.2
@@ -239,20 +241,20 @@ The base spec's Unresolved rows stand.
 
 ### Wave 2 — PR 2, Check and repair
 
-- [ ] `proof-install-experience-init-linked` PASS — R5.2
-- [ ] `proof-install-experience-doctor-checks` PASS — R7.1
-- [ ] `proof-install-experience-drift` PASS — R7.4
-- [ ] `proof-install-experience-doctor-refresh` PASS — R8.2
-- [ ] `proof-install-experience-contract` PASS for ADR-NNN — R9.1, PR 2 half
-- [ ] `proof-install-experience-docs` PASS with `doctor` — R9.2, PR 2 half
-- [ ] `proof-install-experience-rules-stale` PASS — R11.1
-- [ ] `proof-install-experience-rules-refresh` PASS — R11.2
-- [ ] `proof-install-experience-qmd-reach` PASS — R12.1
-- [ ] `proof-install-experience-doctor-open-folder` PASS — R12.2
-- [ ] `proof-install-experience-known-forms` PASS — R13.1
-- [ ] `proof-install-experience-drift-earlier` PASS — R13.2
-- [ ] `proof-install-experience-drift-after-refresh` PASS — R13.3
-- [ ] `proof-install-experience-pr2-surface` PASS — R14.2
+- [x] `proof-install-experience-init-linked` PASS — R5.2
+- [x] `proof-install-experience-doctor-checks` PASS — R7.1
+- [x] `proof-install-experience-drift` PASS — R7.4
+- [x] `proof-install-experience-doctor-refresh` PASS — R8.2
+- [x] `proof-install-experience-contract` PASS for ADR-006 — R9.1, PR 2 half
+- [x] `proof-install-experience-docs` PASS with `doctor` — R9.2, PR 2 half
+- [x] `proof-install-experience-rules-stale` PASS — R11.1
+- [x] `proof-install-experience-rules-refresh` PASS — R11.2
+- [x] `proof-install-experience-qmd-reach` PASS — R12.1
+- [x] `proof-install-experience-doctor-open-folder` PASS — R12.2
+- [x] `proof-install-experience-known-forms` PASS — R13.1
+- [x] `proof-install-experience-drift-earlier` PASS — R13.2
+- [x] `proof-install-experience-drift-after-refresh` PASS — R13.3
+- [x] `proof-install-experience-pr2-surface` PASS — R14.2
 
 ## Eval / gates
 
@@ -278,7 +280,7 @@ The base spec's Unresolved rows stand.
 
 ## ADR
 
-Two ADR steps, both through the `adr` skill. In PR 1, ADR-005 is revised as R9.1 says and the Human confirms the revised text (D5). In PR 2, a successor ADR is created as a draft, promoted once the Human confirms it, and supersedes ADR-005 with every claim repointed. Until it is `stable`, this spec and the plan refer to it only as ADR-NNN.
+Two ADR steps, both through the `adr` skill. In PR 1, the wiring-only predecessor is revised as R9.1 says and the Human confirms the revised text (D5). In PR 2, a successor ADR is created as a draft, promoted once the Human confirms it, and supersedes the wiring-only predecessor with every claim repointed. The confirmed successor is now stable; its current contract link appears above.
 
 ## Section checklist
 

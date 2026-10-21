@@ -1,10 +1,10 @@
 ---
-description: CLI reference for setup, skills, validate, comments, flags, configuration, output, and exit codes.
+description: CLI reference for setup, skills, doctor, validate, comments, flags, configuration, output, and exit codes.
 ---
 
 # Commands
 
-Install `@wolven-tech/harness` globally, then run `setup` from the top level of a Git repository or a folder outside every repository. This page starts with common examples and then gives the exact options and behavior for the four commands.
+Install `@wolven-tech/harness` globally, then run `setup` from the top level of a Git repository or a folder outside every repository. This page starts with common examples and then gives the exact options and behavior for the five commands.
 
 ## Install and run
 
@@ -29,6 +29,7 @@ Check the install at any time, and check the harness as you work:
 ```sh
 wolven-harness validate
 wolven-harness comments --base origin/main
+wolven-harness doctor
 ```
 
 `npx @wolven-tech/harness <command>` works without a global install; `setup` then names the global install command for the recorded package manager. From a source checkout, build first with `pnpm build`, then run `node /path/to/wolven-harness/dist/cli.js <command>`.
@@ -41,6 +42,7 @@ When `setup` adds the package scripts, the `harness:validate`, `harness:comments
 | --- | --- | --- |
 | `setup` | Installs missing harness files, wires selected runtimes, records setup choices and adds missing package scripts. | A Git top level, or a folder outside every repository for the minimal install. |
 | `skills` | Copies selected ship and discovery skills into runtime load paths without installing the harness. | Any directory; no Git repository required. |
+| `doctor` | Checks a wired install and reports findings with stable codes. | The open folder for the install; use `--dir <path>` to check another folder. |
 | `validate` | Checks documentation structure, ADR references, installed skills and rules, and harness paths. | Anywhere inside a Git repository. |
 | `comments` | Checks newly added comment blocks against the repository's comment rules. | Anywhere inside a Git repository. |
 
@@ -52,7 +54,33 @@ wolven-harness --version
 
 Use `wolven-harness --help` to see the commands and options, or `wolven-harness --version` to check which version is installed. Running the CLI without a command also displays help. If you mistype a command, the CLI shows an error and the command list.
 
-The commands, flags, exit codes, finding codes, summary lines, and configuration schema are public contract; see [ADR-005](https://github.com/WolvenTech/wolven-harness/blob/main/docs/adrs/adr-005-install-anywhere-contract.md).
+The commands, flags, exit codes, finding codes, summary lines, and configuration schema are public contract; see [ADR-006](https://github.com/WolvenTech/wolven-harness/blob/main/docs/adrs/adr-006-install-check-and-repair-contract.md).
+
+## `doctor`
+
+```text
+wolven-harness doctor [--dir <path>]
+```
+
+`doctor` is read-only. It checks the install from the current folder, or from the folder named by `--dir`, and prints each finding with its code. Error findings include a `fix:` line; warnings do not. It exits 1 when any error is present and 0 when only warnings or no findings remain. `doctor: ok` is the clean summary. The `harness-doctor` core skill explains the findings and proposes repairs one at a time, after asking.
+
+| Code | Level | Meaning |
+| --- | --- | --- |
+| `doctor-config` | error | The install configuration is missing or invalid. |
+| `doctor-entry` | error | A runtime cannot reach its harness entry instructions. |
+| `doctor-rules` | error | A runtime's rules wiring is missing or incomplete. |
+| `doctor-rules-stale` | error | A copied or inline rules block differs from the current rules. |
+| `doctor-skills` | error | A runtime cannot reach its installed skills. |
+| `doctor-docs` | error | The harness documentation is missing, uncommitted, or ignored. |
+| `doctor-qmd` | error | The local search tool or its reachable index is missing or invalid. |
+| `doctor-code-repo` | error | Harness files are inside the configured code repository. |
+| `doctor-not-global` | warning | `wolven-harness` is not available on `PATH`; the message gives the global install form when known. |
+| `doctor-version-behind` | warning | The recorded package version is older than the running CLI. |
+| `doctor-drift-edited` | warning | An installed file differs from every recognized template form. |
+| `doctor-drift-stale` | warning | An installed file matches an earlier recognized template form. |
+| `doctor-drift-missing` | warning | An expected installed file is missing. |
+
+For a linked layout, `.wolven-harness.json` in the open folder may set `"layout": "linked"` and `"harnessHome"` to the path of the harness home relative to that folder. The linked harness home holds the shared skills, rules, and search index; runtime links in the open folder make them reachable. The config also supports `"layout": "home"` when the harness lives in the open folder. `doctor` reads wiring from the open folder and follows its links.
 
 ## `setup`
 
@@ -137,7 +165,7 @@ wolven-harness validate [--verbose]
 Run validation from anywhere inside a Git repository. It scans tracked files, except paths excluded by valid `ignore` entries, and reports findings from four areas:
 
 1. **Document profile:** ADR naming and layout; required frontmatter; document type, slug folder, and status; required main documents; deprecated ADR successors.
-2. **ADR claims:** References such as `ADR-005` must resolve to one valid, stable ADR. A claim that points to a draft, deprecated, invalid, missing, duplicate, or slug-mismatched decision fails.
+2. **ADR claims:** References such as `ADR-006` must resolve to one valid, stable ADR. A claim that points to a draft, deprecated, invalid, missing, duplicate, or slug-mismatched decision fails.
 3. **Legacy decisions:** ADRs outside `docs/adrs/` and decision folders the harness cannot interpret are reported as warnings so they can be migrated.
 4. **Harness structure:** Skill frontmatter, cited rules, the `AGENTS.md` harness section marker, and whether required harness paths are hidden by Git ignore rules.
 

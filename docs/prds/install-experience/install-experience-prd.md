@@ -26,7 +26,7 @@ status: stable
     - `templates/WOLVEN.md` says `.agents/rules/` load unconditionally, but `src/setup/runtimes.ts` wires Claude only with the `.claude/skills` symlink and an `@AGENTS.md` stub.
     - `setup` never checks that `qmd` is installed.
     - Every command `setup` prints assumes pnpm: `pnpm harness:validate`, `pnpm exec`, `pnpm dlx` and `pnpm add -D` (`src/setup/index.ts`, `src/setup/own-package.ts`, `src/setup/harness-score.ts`). So do `WOLVEN.md`, `wayfinder` and the CI wiring `harness-init` writes (`templates/.agents/skills/harness-init/references/validate-wiring.md`). Only `code-execute` names npm and yarn.
-    - `setup` exits 1 when not run at a git top-level ([ADR-005](../../adrs/adr-005-install-anywhere-contract.md)), so a user who cannot commit harness files into the client repo has no supported place to install.
+    - `setup` exits 1 when not run at a git top-level ([ADR-006](../../adrs/adr-006-install-check-and-repair-contract.md)), so a user who cannot commit harness files into the client repo has no supported place to install.
   - The review of the first implementation (PR 71, 20–21 Oct 2026). Each of these was reproduced against that build:
     - `doctor` passed a linked install while every `qmd` call from the open folder searched an empty index.
     - An install made before the manifest existed never got manifest entries, so every file it held read as "edited" and none could be refreshed.

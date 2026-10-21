@@ -185,14 +185,14 @@ export function setSymlinkImpl(impl?: SymlinkImpl): void {
 const RULES_DIR = '.agents/rules';
 
 /** One rule file under `.agents/rules/`, with its YAML frontmatter removed. */
-interface RuleSource {
+export interface RuleSource {
   /** File name without the `.md` suffix, used in generated file names. */
   base: string;
   body: string;
 }
 
 /** Rule sources under `.agents/rules/`, sorted by name; empty when the folder is absent. */
-async function readRules(root: string): Promise<RuleSource[]> {
+export async function readRules(root: string): Promise<RuleSource[]> {
   const dir = path.join(root, ...RULES_DIR.split('/'));
 
   let entries: Dirent[];
@@ -212,12 +212,12 @@ async function readRules(root: string): Promise<RuleSource[]> {
   return rules;
 }
 
-function stripFrontmatter(raw: string): string {
+export function stripFrontmatter(raw: string): string {
   return raw.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n?/, '').replace(/^\r?\n/, '');
 }
 
 /** A generated runtime rule file: its runtime frontmatter plus the source rule body. */
-function wrapRule(rule: RuleSource, frontmatter: string): string {
+export function wrapRule(rule: RuleSource, frontmatter: string): string {
   const body = rule.body.endsWith('\n') ? rule.body : `${rule.body}\n`;
   return `---\n${frontmatter}\n---\n\n${body}`;
 }

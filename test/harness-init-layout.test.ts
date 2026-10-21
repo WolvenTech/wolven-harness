@@ -40,6 +40,36 @@ test('layout: the home layout asks before git init, gitignores codeRepo and reco
   assert.match(flat, /Run `harness:validate` after the write/);
 });
 
+test('layout: the linked layout names the four symlinks, the native wiring and both keys', async () => {
+  const flat = flatten(await readLayout());
+
+  assert.match(flat, /Create these symlinks in the open folder/);
+  assert.match(flat, /`AGENTS\.md` - `\.agents` - `\.claude\/skills` - `\.qmd`/);
+  assert.match(flat, /Then create each wired runtime's native wiring the same way/);
+  assert.match(
+    flat,
+    /directory symlink for `\.claude\/rules`, `\.cursor`, `\.kiro\/steering` or `\.github\/instructions`/,
+  );
+  assert.match(flat, /file symlink for `GEMINI\.md` or `opencode\.json`/);
+  assert.match(flat, /run `wolven-harness setup` when it has no `\.wolven-harness\.json`, and record `codeRepo` there/);
+  assert.match(flat, /record `layout: "linked"` and `harnessHome`/);
+  assert.match(flat, /Show the diff of the links before creating them/);
+});
+
+test('layout: bootstrap copies are replaced only without edited or added files', async () => {
+  const flat = flatten(await readLayout());
+
+  assert.match(
+    flat,
+    /Replace a copy with its symlink only when `doctor` reports no `doctor-drift-edited` file under it and no file was added there/,
+  );
+  assert.doesNotMatch(flat, /manifest/);
+  assert.match(flat, /Remove the copy and create the link in one shown diff/);
+  assert.match(flat, /Otherwise the Human has edited that folder: leave it in place/);
+  assert.match(flat, /ask before anything is deleted/);
+  assert.match(flat, /Never overwrite an edited copy/);
+});
+
 test('layout: the step forbids moves and writes nothing under codeRepo', async () => {
   const flat = flatten(await readLayout());
 

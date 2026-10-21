@@ -29,6 +29,8 @@ wolven-harness setup --git-host gh --runtimes claude
 
 At a Git top level, setup scaffolds the full harness. Outside any repository, it writes the core skills and their runtime links, records your choices, and tells you to run `harness-init` in that folder. A repository subfolder is not a setup location. Running `npx @wolven-tech/harness setup` works without a global install, but setup then recommends the global one.
 
+Run `wolven-harness doctor` to check a wired install. It reports findings and exits 1 when an error needs attention. The core `harness-doctor` skill explains each finding and how to repair it with your approval.
+
 ## Setup
 
 `setup` creates only paths that are missing. It never creates or edits `AGENTS.md`, and it never commits. It also:

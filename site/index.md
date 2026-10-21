@@ -26,6 +26,8 @@ At a Git top level, `setup` installs the core skills, the standing rules, the do
 
 `setup` preserves existing copies and leaves `AGENTS.md` alone. At a repository top level, it adds missing check scripts to an existing `package.json` and saves the setup choices in `.wolven-harness.json`. Outside a repository, it writes neither documentation nor package scripts. It does not install dependencies; setup prints the install command when `harness-score` is missing.
 
+Run `wolven-harness doctor` to check the install. It reports finding codes and exits 1 when an error needs attention; the core `harness-doctor` skill explains the findings and guides repairs one approved change at a time.
+
 For all commands, flags, configuration, and exit behavior, see the [CLI reference](./commands).
 
 ## Next
@@ -36,4 +38,4 @@ Follow the instructions and review the proposed diff before approving each write
 
 Then try a small change with the [Development workflow](./cycle) example.
 
-`setup`, `skills`, `validate`, and `comments` are terminal commands. `harness-init`, `code-spec`, `code-plan`, and `code-execute` are skills you ask the agent to run.
+`setup`, `skills`, `doctor`, `validate`, and `comments` are terminal commands. `harness-init`, `harness-doctor`, `code-spec`, `code-plan`, and `code-execute` are skills you ask the agent to run.
