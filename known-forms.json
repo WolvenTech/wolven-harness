@@ -12,7 +12,8 @@
     ".agents/rules/qmd-first.md": [
       "05424d2ecdd8145e7a4d81cd3bed88eb1237d7ac86996333b5784abae0de327b",
       "4dee583a761294d6aa236d14aaaa1efa39c41cc82b147bcbf45ab15b0e5ec552",
-      "828075b5737be5cc34b0c6bf218234d8bd419fd82a84d3c9124efb96fc22c56f"
+      "828075b5737be5cc34b0c6bf218234d8bd419fd82a84d3c9124efb96fc22c56f",
+      "966ba2743e44f46f5f929d2b43aaf34fa95e1fdd849e91d83f06a116928d7182"
     ],
     ".agents/rules/yagni-strict.md": [
       "6cf77cefb21c428f5da4d0c29f91ba24cfef721c1d5088f9408a45b8bbae8d1a"
@@ -33,6 +34,7 @@
       "d4880769af3464b427584e67cbe9712ac6e67ac1dee85d74b671cb3a4f4a9b21"
     ],
     ".agents/skills/code-commit/SKILL.md": [
+      "43e6d48833e0bf08ed9b35cd1151b7d33cdda6162245e681cd5aa38a30ee9c42",
       "453b96e5bd2e779ec0e99cf61bfaf35d0f3424f50d0e495d01cda71789eb448e",
       "83b924f46e9e479c81fe5be044ce34f99ace21edebf495261a9202329f56b93f",
       "b13f96cda6f01f242d595fe4d92774e30154357b1bdab40d7410a3c1ae3fb5e1",
@@ -40,6 +42,7 @@
     ],
     ".agents/skills/code-commit/references/commit-examples.md": [
       "0ae366f4ad93f3cf8fad82e557dd1402f903d3a1a2c6794f36df6714dad1b4b6",
+      "baeb2c4647e38df887db93cad27a429358fe4ea85a642a0dbde92af25fda628a",
       "bdfabcf4785e43d9ee8356306c724671166bb682ed531985564d6577414a4592"
     ],
     ".agents/skills/code-execute/SKILL.md": [
@@ -51,6 +54,7 @@
     ".agents/skills/code-execute/references/builder-brief.md": [
       "1e693d55466ebed4e4db86d6b73b38a06484509d783dcfa5a32bb7ae7353ec6d",
       "63c08173140ea03eacaf906e1041e260848116498b30f3d33303402b6a0e1e33",
+      "70f9b1f0b45ed53e1888c4e832e9ea6670800cbf6554ab80b2ad3dbab79b7a94",
       "85bb1c40180222c310af33d3b631c70bf552b56128d35d896025ad149432c118"
     ],
     ".agents/skills/code-plan/SKILL.md": [
@@ -60,7 +64,8 @@
     ".agents/skills/code-plan/references/EXAMPLE-units.md": [
       "1b09666f3f831478b2a587180a789e14afd36d0d1218fb2b1c0da75e2928f0e5",
       "1d4c2389c397d28fa3c73cfb9f7a8394dc44c3f79c79f88b4913fcae3616f992",
-      "2e4308ff7add79b603a34cf1878a89ca65b1f8f8918e0efac54ce571a079aab4"
+      "2e4308ff7add79b603a34cf1878a89ca65b1f8f8918e0efac54ce571a079aab4",
+      "60e86fe09336f02852f4f33e02a3e014232bf60240f5fbeed8afc59d76203cb2"
     ],
     ".agents/skills/code-plan/references/TEMPLATE-plan.md": [
       "004ffb916ce2e1b69b2d073ac265d24131736cebab94829a816cb180a9d3c5d7",
@@ -70,6 +75,7 @@
     ".agents/skills/code-pr/SKILL.md": [
       "2907af7f0e283ed3119b90a8060283a99fe703c14eb965c16a0784d619171f79",
       "c9de58d8f78bfd4be844fc0825db6177c5afac0d75dabe70eebfa8ded58f6d97",
+      "caf57faf933d5b06619f9606efb72df13cb758a74f1a15179f73f24559f94a7d",
       "df68827c2478253bc434229e164330283b6596baf02bfe0fbdaf0ff06cb8d999",
       "fec8e4d4c1fb029801e42f6844a9a611b169ef5f6c05920b4f6791f0971858cc"
     ],
@@ -82,7 +88,8 @@
     ],
     ".agents/skills/code-pr/references/pr-body-template.md": [
       "4abd6a5fcb7ca150df2730d4fb1dd0ceaa257858433cfa31b44973a04020e3ad",
-      "557c841fc3b7a371be36ba86ffca0a3e80a839f8bb683d7f556864dd0e74603c"
+      "557c841fc3b7a371be36ba86ffca0a3e80a839f8bb683d7f556864dd0e74603c",
+      "86cc2d9b3f7d1218a8f36b9fcf15f9d8a3545f80d3820fc384b46312bf268ed3"
     ],
     ".agents/skills/code-pr/references/pre-merge-closure.md": [
       "2e44431870e329268f52a6131ff7b136f798fa9bf63bec31ed9e3f34b8d1d964",
@@ -110,9 +117,11 @@
     ],
     ".agents/skills/code-spec/references/EXAMPLE.md": [
       "2679da012ac5d5178a656d2faf7854ab8c28f69ed8b3ad3b9361d360d2198aca",
-      "b4e7fa907126f0a9312bf92ae337420b291f94711790a29f3d35ba12bc0ed82f"
+      "b4e7fa907126f0a9312bf92ae337420b291f94711790a29f3d35ba12bc0ed82f",
+      "b535c3831c3f52064c420b22d9e7b7a69927137db1803d80d85c5f9fd7c6401e"
     ],
     ".agents/skills/code-spec/references/TEMPLATE.md": [
+      "1321e042074df736a178bfcf4deca467741a65cc981d4a3dc65c75f4834a8314",
       "2b931bf22e25bdf8f0e138d0b862736ffbacf03428c7fa08bf6ce5a20898d400",
       "9244fb3caf36baa2280665c8ecfd279e7ee3f741f44c296d675dafcc80e05d66"
     ],
@@ -184,11 +193,13 @@
     ],
     ".agents/skills/harness-init/references/session-note-template.md": [
       "3978a0129dba81ebaa83e3b5cb304259d1792c417ad2144d995c7ff2bc67c7a2",
+      "56b4483a34c26379d740bd2cf0534f4c87ea216a8ddadcde01d478af25aebbe8",
       "6f9cc49e00265155f23d295c6b7aae1e2763e600e6962058638fa1d61a856ab9",
       "7908ed2325d17d7eb4569824d3d43dc17b40eb6c9fe5f1cd0a4f664586bdeefe",
       "a95abf72e9777f20586adf2dcbcf1b3592958a1db7335508650cfdc49a55cd0b"
     ],
     ".agents/skills/harness-init/references/stub-template.md": [
+      "947f708964bbe62f3babba9c09fe029b1c1f03cc943342b251c93c27e3fc7288",
       "c6570b257b5e1094a02d244547ffbaea9695f8c2017d56cff0423804b8b7129d",
       "ce62e076472ad316723007e1fcdc7e354c6335b299c8b7df84bd97692b92af62"
     ],

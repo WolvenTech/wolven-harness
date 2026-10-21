@@ -19,7 +19,8 @@ jobs:
   release-please:
     name: Release PR
     if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.tag == '') }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
     permissions:
       contents: write
       pull-requests: write
@@ -39,7 +40,8 @@ jobs:
     name: Build
     needs: release-please
     if: ${{ !cancelled() && (needs.release-please.outputs.release_created == 'true' || (github.event_name == 'workflow_dispatch' && startsWith(inputs.tag, 'v'))) }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
     steps:
       - name: Verify manual retry targets a published release
         if: ${{ github.event_name == 'workflow_dispatch' && startsWith(inputs.tag, 'v') }}
@@ -85,7 +87,8 @@ jobs:
     name: Publish to npm
     needs: [release-please, build]
     if: ${{ !cancelled() && needs.build.result == 'success' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
     permissions:
       contents: read
       id-token: write
