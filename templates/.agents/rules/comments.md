@@ -1,7 +1,6 @@
 ---
 description: Comment style for added lines — why, not what; a better name over a comment; run the comments command before handing work back.
 alwaysApply: true
-trigger: always_on
 ---
 
 # Comment style

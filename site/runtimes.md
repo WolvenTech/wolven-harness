@@ -16,9 +16,9 @@ description: How setup wires each supported agent runtime.
 | GitHub Copilot | `copilot` | `.agents/skills` | `.github/instructions/wolven-<rule>.instructions.md` with `applyTo: "**"` |
 | Gemini CLI | `gemini` | `.agents/skills` | `GEMINI.md` imports `@AGENTS.md` and every rule |
 | Kiro | `kiro` | `.kiro/skills` → `../.agents/skills` (symlink) | `.kiro/steering/wolven-<rule>.md` with `inclusion: always` |
-| Antigravity | `antigravity` | `.agents/skills` | reads `.agents/rules/*.md` directly through each rule's `trigger: always_on` |
+| Antigravity | `antigravity` | `.agents/skills` | inline in the harness section, between `<!-- wolven-harness:rules:start -->` and `<!-- wolven-harness:rules:end -->` |
 
-`setup` creates only paths that are missing. An existing `opencode.json`, `GEMINI.md` or generated rule file is left byte-identical and reported so `harness-init` can add the rules by hand. When `codex` is among the selected runtimes, `setup` creates no per-runtime rule files for any runtime, because Codex needs the rule bodies inline in `AGENTS.md`.
+`setup` creates only paths that are missing. An existing `opencode.json`, `GEMINI.md` or generated rule file is left byte-identical and reported so `harness-init` can add the rules by hand. When `codex` or `antigravity` is among the selected runtimes, `setup` uses inline rules for the whole install, because those runtimes read the rule bodies in `AGENTS.md`.
 
 ## Claude Code
 
@@ -54,4 +54,4 @@ Kiro reads `.agents/skills/` natively. Setup creates `.kiro/skills` as a relativ
 
 ## Antigravity
 
-Antigravity is the one runtime that reads `.agents/rules/` itself. The rules carry `trigger: always_on`, so it applies them without extra wiring; a rule with missing or invalid frontmatter is silently discarded, which is why the trigger is part of every shipped rule. Docs: [Antigravity rules](https://www.antigravity.google/docs/rules?tab=ide).
+Antigravity reads the rule bodies from the inline block in `AGENTS.md`. When it is selected, `setup` uses inline mode for the whole install. Docs: [Antigravity rules](https://www.antigravity.google/docs/rules?tab=ide).

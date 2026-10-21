@@ -2,7 +2,6 @@
 import { realpathSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { runComments } from './comments/index.js';
-import { runDoctor } from './doctor/index.js';
 import { runSetup } from './setup/index.js';
 import { resolveOwnPackage } from './setup/own-package.js';
 import type { Io } from './setup/types.js';
@@ -22,7 +21,6 @@ function printUsage(io: Io): void {
       '             [--package-manager <npm|yarn|pnpm|none>]',
       '             [--verbose] list every file created or kept',
       '             [--debug]   trace each step on stderr (or WOLVEN_HARNESS_DEBUG=1)',
-      '  doctor     Check an installed harness and report what is broken [--dir <path>]',
       '  validate   Check the repo against the writing profile and claim gate',
       '  comments   Judge comment lines added since a base ref [--base <ref>]',
       '  skills     Copy chosen skills into the load paths claude, codex, and cursor already read',
@@ -52,8 +50,6 @@ export async function main(argv: string[], io: Io): Promise<number> {
   switch (command) {
     case 'setup':
       return runSetup(rest, io);
-    case 'doctor':
-      return runDoctor(rest, io);
     case 'validate':
       return runValidate(rest, io);
     case 'comments':

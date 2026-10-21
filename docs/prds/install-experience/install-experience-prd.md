@@ -27,6 +27,11 @@ status: stable
     - `setup` never checks that `qmd` is installed.
     - Every command `setup` prints assumes pnpm: `pnpm harness:validate`, `pnpm exec`, `pnpm dlx` and `pnpm add -D` (`src/setup/index.ts`, `src/setup/own-package.ts`, `src/setup/harness-score.ts`). So do `WOLVEN.md`, `wayfinder` and the CI wiring `harness-init` writes (`templates/.agents/skills/harness-init/references/validate-wiring.md`). Only `code-execute` names npm and yarn.
     - `setup` exits 1 when not run at a git top-level ([ADR-005](../../adrs/adr-005-install-anywhere-contract.md)), so a user who cannot commit harness files into the client repo has no supported place to install.
+  - The review of the first implementation (PR 71, 20–21 Oct 2026). Each of these was reproduced against that build:
+    - `doctor` passed a linked install while every `qmd` call from the open folder searched an empty index.
+    - An install made before the manifest existed never got manifest entries, so every file it held read as "edited" and none could be refreshed.
+    - The copies of the standing rules made for Cursor, Copilot and Kiro, and the inline block for Codex, stayed old after a rule changed, while `doctor` stayed green.
+    - `setup` run in a subfolder of a git repository wrote harness files into that repository.
   - Prior art: Compozy up to v0.2.9 installs its CLI globally, runs `compozy setup` to link skills into each detected agent, and has its run commands refuse missing skill installs and offer to refresh outdated ones ([README at v0.2.9](https://github.com/compozy/compozy/blob/v0.2.9/README.md)).
 
 ## Goals
@@ -62,7 +67,7 @@ Traces to goal: The harness can be installed from anywhere.
 
 #### AC-1.2: Setup outside a repo root
 
-**Given** the CLI is installed globally and the current folder is not a git top-level
+**Given** the CLI is installed globally and the current folder is not inside any git repository
 **When** the developer runs `wolven-harness setup`
 **Then** setup installs only the skills and the runtime wiring that let an agent run `harness-init` in that folder, exits 0, and tells the developer to open their agent runtime there and run `harness-init`
 
@@ -83,6 +88,12 @@ Traces to goal: The harness can be installed from anywhere.
 **Given** no supported runtime is detected
 **When** setup reaches the runtime choice
 **Then** it lists every supported runtime with none pre-selected, and wires only what the developer picks
+
+#### AC-1.6: Setup in a subfolder of a repository
+
+**Given** the current folder is inside a git repository but is not its top-level, such as a folder inside a client repository
+**When** the developer runs `wolven-harness setup`
+**Then** setup writes nothing, exits 1, names the repository's top-level, and tells the developer to run it at that top-level or in a folder outside the repository
 
 ### US-2: harness-init fits the folder it finds
 
@@ -148,7 +159,7 @@ Traces to goal: The agent sees what the harness offers from its first turn.
 
 **Given** setup and `harness-init` completed for a selected runtime, in any entry mode
 **When** a new session starts in that runtime where the harness is wired
-**Then** the router (skills, docs layout, validate guidance) and the four standing rules are in the agent's context without the agent reading a file
+**Then** the router (skills, docs layout, validate guidance) and the current text of the four standing rules are in the agent's context without the agent reading a file
 
 #### AC-4.2: A mention is not an install
 
@@ -161,6 +172,12 @@ Traces to goal: The agent sees what the harness offers from its first turn.
 **Given** a harness tool the agent depends on, such as `qmd`, is unavailable
 **When** the agent would use it
 **Then** the agent tells the developer which tool failed before using a fallback
+
+#### AC-4.4: A changed rule reaches every runtime
+
+**Given** a standing rule changes, because the developer edited it or `harness-doctor` refreshed it, and a wired runtime reads a copy of that rule
+**When** `doctor` runs before the copy is updated
+**Then** it reports each copy that differs from its rule as failing, naming the runtime, and `harness-doctor` updates the copy only after the developer agrees
 
 ### US-5: Doctor finds a half-working install
 
@@ -178,7 +195,7 @@ Traces to goal: The install reports its true state.
 - the router and rules load in each wired runtime
 - the skills resolve from the folder where the agent opens
 - `docs/` lives in a git repository the developer can commit to
-- `qmd` is installed and its index is built
+- `qmd` is installed, its index is built, and a `qmd` search run from the folder where the agent opens reaches that index
 
 `qmd` has no opt-out. An install without it fails this check.
 
@@ -270,12 +287,38 @@ Traces to goal: The harness fits the project instead of forcing it.
 **When** `doctor` checks for the global CLI
 **Then** it finds the binary on `PATH` whichever package manager installed it
 
+### US-8: Bring an earlier install under the doctor
+
+**As a** developer whose install was set up by an earlier version of the harness,
+**I want** `doctor` and `harness-doctor` to tell the files I edited from the ones I never touched,
+**so that** my install can be checked and refreshed like a new one, without my editing it by hand.
+
+Traces to goal: The install reports its true state.
+
+#### AC-8.1: An untouched file reads as stale
+
+**Given** an install set up by an earlier version, holding a harness file the developer never edited that differs from the current template
+**When** `doctor` runs
+**Then** that file is reported as a stale template, not as edited, and `doctor` needs no network to tell the two apart
+
+#### AC-8.2: An edited file reads as edited
+
+**Given** the same install holds a harness file the developer did edit
+**When** `doctor` runs
+**Then** that file is reported as edited, and `harness-doctor` only shows its difference from the current template
+
+#### AC-8.3: Tracked from then on
+
+**Given** `harness-doctor` has handled each drift finding, refreshing the stale files the developer agreed to
+**When** `doctor` runs again
+**Then** every harness file is classified the way a file in a new install is, with no "edited" report for a file the developer never touched
+
 ## Scope
 
 **In**
 
 - A global CLI install as the documented path, with `npx` still working.
-- `setup` in any folder: today's behaviour at a git top-level, and skills plus runtime wiring with a next-step message elsewhere.
+- `setup` in any folder outside a repository: today's behaviour at a git top-level, and skills plus runtime wiring with a next-step message in a folder that is in no repository. A subfolder of a repository is refused.
 - `harness-init` choosing or recognising the layout with the developer. The harness home as parent of the code repository is the default, and existing layouts are kept.
 - A recorded commit and PR convention for the code repository, which `code-commit` and `code-pr` follow.
 - Runtime selection that detects installed agents and asks the developer to confirm. It covers Claude Code and the runtimes that read `AGENTS.md` and `.agents/` natively.
@@ -283,6 +326,15 @@ Traces to goal: The harness fits the project instead of forcing it.
 - The `wolven-harness doctor` command, including the drift report that replaces `setup --check`, and the `harness-doctor` skill, including its refresh of unedited stale templates.
 - Agents reporting an unavailable harness tool instead of silently routing around it.
 - npm, yarn and pnpm as equal package managers, in every command the CLI prints and every command the skills and templates write. A folder with no `package.json` uses the global binary.
+- Installs made by earlier versions, checked and refreshed like new ones.
+- Copies of the standing rules kept in step with the rules they copy.
+
+**Delivery**
+
+The scope ships in two pull requests, and the second builds on the first:
+
+1. **Wiring.** US-1 (`setup`'s side of AC-1.3), US-2 (AC-2.1 and AC-2.3), US-3, US-4 (AC-4.1, AC-4.3, and `validate`'s side of AC-4.2), and US-7 (AC-7.1 to AC-7.3).
+2. **Check and repair.** US-5, US-6, US-8, AC-2.2, `doctor`'s side of AC-1.3, AC-4.2 and AC-4.4, and AC-7.4.
 
 **Out**
 
@@ -296,8 +348,8 @@ Traces to goal: The harness fits the project instead of forcing it.
 
 ## Open questions
 
-- Which runtimes make up the supported list, and how each one loads the router and the standing rules, needs research against each runtime's own documentation, starting from the agents Compozy supports. — owner: `code-spec`, through `research`.
+None. The supported runtimes and how each one loads the router and rules are answered in `docs/notes/runtime-instruction-loading/runtime-instruction-loading-note.md`.
 
 ## Handoff
 
-After approval → `code-spec`. The spec writes the next profile ADR as the full successor to the previous public-contract ADR. That ADR carries the contract forward, replaces `setup`'s exit rule outside a git top-level, and adds `doctor`. This PRD does not authorize implementation.
+After approval → `code-spec`, as `install-experience-iteration-1-spec.md`, then `code-plan`, as `install-experience-iteration-1-plan.md`. The iteration amends the spec for AC-1.6, AC-4.4, AC-5.1 and US-8, and for the delivery split. The successor contract ADR then covers what each pull request ships, so the first one does not record `doctor`. This PRD does not authorize implementation.

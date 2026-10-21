@@ -2,12 +2,18 @@ import type { Dirent } from 'node:fs';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { pathExists } from '../path-exists.js';
-import type { WriteRecorder } from './manifest.js';
 import type { Context, Options, Runtime, StepResult } from './types.js';
 import { SetupError } from './types.js';
 
 /** How a runtime gets the standing rules into context. */
 export type RulesStrategy = 'native' | 'inline';
+
+export type RulesWiring =
+  | { kind: 'link'; path: string; target: string }
+  | { kind: 'per-rule'; pattern: string; frontmatter: string }
+  | { kind: 'file'; path: string; render(rules: RuleSource[]): string }
+  | { kind: 'imports'; source: string }
+  | { kind: 'inline' };
 
 /**
  * Where a runtime reads project skills: the shared folder directly, or a
@@ -32,7 +38,8 @@ export interface RuntimeRegistryRow {
   /** Project-relative posix paths that mark the runtime in a repository. */
   folderMarkers: readonly string[];
   skills: ProjectSkills;
-  rules: RulesStrategy;
+  rules: RulesWiring;
+  entryFile?: { path: string; content: string };
 }
 
 function envDir(env: RuntimeEnv, key: string): string | undefined {
@@ -75,7 +82,8 @@ export const RUNTIME_REGISTRY: readonly RuntimeRegistryRow[] = [
     machineMarkers: (env) => markerUnder(homeDir(env), '.claude'),
     folderMarkers: ['CLAUDE.md', '.claude'],
     skills: { kind: 'symlink', path: '.claude/skills', target: '../.agents/skills' },
-    rules: 'native',
+    rules: { kind: 'link', path: '.claude/rules', target: '../.agents/rules' },
+    entryFile: { path: 'CLAUDE.md', content: '@AGENTS.md\n' },
   },
   {
     id: 'codex',
@@ -83,7 +91,7 @@ export const RUNTIME_REGISTRY: readonly RuntimeRegistryRow[] = [
     machineMarkers: (env) => markerUnder(codexDir(env)),
     folderMarkers: ['.codex'],
     skills: { kind: 'direct', path: '.agents/skills' },
-    rules: 'inline',
+    rules: { kind: 'inline' },
   },
   {
     id: 'cursor',
@@ -91,7 +99,7 @@ export const RUNTIME_REGISTRY: readonly RuntimeRegistryRow[] = [
     machineMarkers: (env) => markerUnder(homeDir(env), '.cursor'),
     folderMarkers: ['.cursor', '.cursorrules'],
     skills: { kind: 'direct', path: '.agents/skills' },
-    rules: 'native',
+    rules: { kind: 'per-rule', pattern: '.cursor/rules/wolven-{rule}.mdc', frontmatter: 'alwaysApply: true' },
   },
   {
     id: 'opencode',
@@ -99,7 +107,7 @@ export const RUNTIME_REGISTRY: readonly RuntimeRegistryRow[] = [
     machineMarkers: (env) => markerUnder(xdgConfigDir(env), 'opencode'),
     folderMarkers: ['opencode.json'],
     skills: { kind: 'direct', path: '.agents/skills' },
-    rules: 'native',
+    rules: { kind: 'file', path: 'opencode.json', render: opencodeJson },
   },
   {
     id: 'amp',
@@ -107,7 +115,7 @@ export const RUNTIME_REGISTRY: readonly RuntimeRegistryRow[] = [
     machineMarkers: (env) => markerUnder(xdgConfigDir(env), 'amp'),
     folderMarkers: [],
     skills: { kind: 'direct', path: '.agents/skills' },
-    rules: 'native',
+    rules: { kind: 'imports', source: '.agents/rules/*.md' },
   },
   {
     id: 'copilot',
@@ -115,7 +123,11 @@ export const RUNTIME_REGISTRY: readonly RuntimeRegistryRow[] = [
     machineMarkers: (env) => markerUnder(homeDir(env), '.copilot'),
     folderMarkers: ['.github/copilot-instructions.md'],
     skills: { kind: 'direct', path: '.agents/skills' },
-    rules: 'native',
+    rules: {
+      kind: 'per-rule',
+      pattern: '.github/instructions/wolven-{rule}.instructions.md',
+      frontmatter: 'applyTo: "**"',
+    },
   },
   {
     id: 'gemini',
@@ -123,7 +135,7 @@ export const RUNTIME_REGISTRY: readonly RuntimeRegistryRow[] = [
     machineMarkers: (env) => markerUnder(homeDir(env), '.gemini'),
     folderMarkers: ['GEMINI.md', '.gemini'],
     skills: { kind: 'direct', path: '.agents/skills' },
-    rules: 'native',
+    rules: { kind: 'file', path: 'GEMINI.md', render: geminiMd },
   },
   {
     id: 'kiro',
@@ -131,16 +143,16 @@ export const RUNTIME_REGISTRY: readonly RuntimeRegistryRow[] = [
     machineMarkers: (env) => markerUnder(homeDir(env), '.kiro'),
     folderMarkers: ['.kiro'],
     skills: { kind: 'symlink', path: '.kiro/skills', target: '../.agents/skills' },
-    rules: 'native',
+    rules: { kind: 'per-rule', pattern: '.kiro/steering/wolven-{rule}.md', frontmatter: 'inclusion: always' },
   },
   {
     id: 'antigravity',
     name: 'Antigravity',
     // hazard: Antigravity documents no home directory, so it reports no machine marker.
     machineMarkers: () => [],
-    folderMarkers: ['.agents/rules'],
+    folderMarkers: [],
     skills: { kind: 'direct', path: '.agents/skills' },
-    rules: 'native',
+    rules: { kind: 'inline' },
   },
 ];
 
@@ -225,7 +237,6 @@ async function createFile(
   content: string,
   created: string[],
   skipped: string[],
-  recorder?: WriteRecorder,
 ): Promise<void> {
   const full = path.join(ctx.root, ...rel.split('/'));
   if (await pathExists(full)) {
@@ -235,13 +246,11 @@ async function createFile(
 
   await fs.mkdir(path.dirname(full), { recursive: true });
   await fs.writeFile(full, content, 'utf8');
-  recorder?.record(rel, content);
   created.push(rel);
 }
 
 /**
- * Creates a relative symlink. A symlink is not a regular file, so it is
- * never recorded in the install manifest.
+ * Creates a relative directory symlink for runtime wiring.
  */
 async function createSymlink(
   ctx: Context,
@@ -281,60 +290,30 @@ async function wireNativeRules(
   ctx: Context,
   created: string[],
   skipped: string[],
-  recorder?: WriteRecorder,
 ): Promise<void> {
+  const wiring = row.rules;
   if (rules.length === 0) return;
-
-  switch (row.id) {
-    case 'claude':
-      await createSymlink(ctx, '.claude/rules', '../.agents/rules', row.name, created, skipped);
-      return;
-    case 'cursor':
+  switch (wiring.kind) {
+    case 'link':
+      await createSymlink(ctx, wiring.path, wiring.target, row.name, created, skipped);
+      break;
+    case 'per-rule':
       for (const rule of rules) {
         await createFile(
           ctx,
-          `.cursor/rules/wolven-${rule.base}.mdc`,
-          wrapRule(rule, 'alwaysApply: true'),
+          wiring.pattern.replace('{rule}', rule.base),
+          wrapRule(rule, wiring.frontmatter),
           created,
           skipped,
-          recorder,
         );
       }
-      return;
-    case 'opencode':
-      await createFile(ctx, 'opencode.json', opencodeJson(rules), created, skipped, recorder);
-      return;
-    case 'copilot':
-      for (const rule of rules) {
-        await createFile(
-          ctx,
-          `.github/instructions/wolven-${rule.base}.instructions.md`,
-          wrapRule(rule, 'applyTo: "**"'),
-          created,
-          skipped,
-          recorder,
-        );
-      }
-      return;
-    case 'gemini':
-      await createFile(ctx, 'GEMINI.md', geminiMd(rules), created, skipped, recorder);
-      return;
-    case 'kiro':
-      for (const rule of rules) {
-        await createFile(
-          ctx,
-          `.kiro/steering/wolven-${rule.base}.md`,
-          wrapRule(rule, 'inclusion: always'),
-          created,
-          skipped,
-          recorder,
-        );
-      }
-      return;
-    case 'amp':
-    case 'antigravity':
-    case 'codex':
-      return;
+      break;
+    case 'file':
+      await createFile(ctx, wiring.path, wiring.render(rules), created, skipped);
+      break;
+    case 'imports':
+    case 'inline':
+      break;
   }
 }
 
@@ -368,44 +347,32 @@ async function wireSkillsPaths(
  * Wires the selected runtimes: skills paths that are symlinks, the
  * `CLAUDE.md` stub, and each native row's rules wiring. When any selected
  * runtime is `inline`, the harness section carries the rules, so no native
- * rules wiring is created for any runtime. With `recorder`, every regular
- * file created here is handed over for the install manifest.
+ * rules wiring is created for any runtime.
  */
-export async function wireRuntimes(opts: Options, ctx: Context, recorder?: WriteRecorder): Promise<StepResult> {
+export async function wireRuntimes(opts: Options, ctx: Context): Promise<StepResult> {
   const created: string[] = [];
   const skipped: string[] = [];
   const rows = opts.runtimes.map(runtimeRow);
-  const inline = rows.some((row) => row.rules === 'inline');
+  const mode = rulesMode(opts.runtimes);
 
   await wireSkillsPaths(rows, ctx, created, skipped);
-  if (opts.runtimes.includes('claude')) await wireClaudeMd(ctx, created, skipped, recorder);
+  for (const row of rows) {
+    if (row.entryFile !== undefined) {
+      await createFile(ctx, row.entryFile.path, row.entryFile.content, created, skipped);
+    }
+  }
 
-  if (!inline) {
+  if (mode === 'native') {
     const rules = await readRules(ctx.root);
     for (const row of rows) {
-      if (row.rules === 'native') await wireNativeRules(row, rules, ctx, created, skipped, recorder);
+      await wireNativeRules(row, rules, ctx, created, skipped);
     }
   }
 
   return { created, skipped };
 }
 
-async function wireClaudeMd(
-  ctx: Context,
-  created: string[],
-  skipped: string[],
-  recorder?: WriteRecorder,
-): Promise<void> {
-  const claudeMdPath = path.join(ctx.root, 'CLAUDE.md');
-
-  const exists = await pathExists(claudeMdPath);
-  if (exists) {
-    skipped.push('CLAUDE.md');
-    return;
-  }
-
-  const content = '@AGENTS.md\n';
-  await fs.writeFile(claudeMdPath, content, 'utf8');
-  recorder?.record('CLAUDE.md', content);
-  created.push('CLAUDE.md');
+/** The one rules strategy for a selected runtime set. */
+export function rulesMode(runtimes: readonly Runtime[]): RulesStrategy {
+  return runtimes.some((runtime) => runtimeRow(runtime).rules.kind === 'inline') ? 'inline' : 'native';
 }

@@ -25,7 +25,7 @@ test('proof-install-experience-rule-frontmatter', async () => {
       const rel = `${dir}/${rule}`;
       const frontmatter = await frontmatterOf(rel);
 
-      assert.equal(frontmatter.trigger, 'always_on', `${rel} carries trigger: always_on`);
+      assert.equal('trigger' in frontmatter, false, `${rel} omits trigger`);
       assert.equal(frontmatter.alwaysApply, true, `${rel} keeps alwaysApply: true`);
       assert.equal(typeof frontmatter.description, 'string', `${rel} carries a description`);
       assert.ok(
@@ -42,6 +42,25 @@ test('proof-install-experience-rule-frontmatter', async () => {
     ]);
     assert.equal(installed, template, `${rule} copies stay byte-identical`);
   }
+
+  const entryModes = await readFile(
+    path.join(repoRoot, '.agents/skills/harness-init/references/entry-modes.md'),
+    'utf8',
+  );
+  const entryModesTemplate = await readFile(
+    path.join(repoRoot, 'templates/.agents/skills/harness-init/references/entry-modes.md'),
+    'utf8',
+  );
+  assert.equal(entryModes, entryModesTemplate, 'entry-modes copies stay byte-identical');
+  const entryModesFlat = flat(entryModes);
+  assert.match(entryModesFlat, /selected runtime reads rules inline \(`codex` or `antigravity`\)/);
+  assert.match(entryModesFlat, /selected runtimes use native rules mode/);
+  assert.match(entryModesFlat, /any selected runtime uses inline rules mode \(`codex` or `antigravity`\)/);
+  assert.equal((entryModesFlat.match(/runtime with inline rules mode \(`codex` or `antigravity`\)/g) ?? []).length, 3);
+  assert.match(
+    entryModesFlat,
+    /selected runtime with inline rules mode \(`codex` or `antigravity`\) reads the standing rules/,
+  );
 });
 
 test('proof-install-experience-tool-report', async () => {

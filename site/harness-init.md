@@ -4,7 +4,7 @@ description: Connect the harness files to your repo’s existing instructions wi
 
 # Setup
 
-Run `wolven-harness setup` to install the files, then ask your agent to run the `harness-init` skill. The command and the skill are separate: setup installs files, while the skill guides you through integrating them with your repository. It shows each diff and waits for your choice before writing.
+Install `@wolven-tech/harness` globally, then run `wolven-harness setup` at a Git repository's top level or in a folder outside every repository. In the latter case, setup installs the core skills and selected runtime links; ask your agent to run the `harness-init` skill there to finish. The command and the skill are separate: setup installs files, while the skill guides you through integrating them with your repository. It shows each diff and waits for your choice before writing.
 
 ## What happens
 
@@ -32,7 +32,7 @@ Both paths end by telling you what was installed, what was left for later and wh
 wolven-harness validate
 ```
 
-`setup` adds `harness:validate` as a package script for `wolven-harness validate` when that script is missing. In that case the `harness:validate` script runs the same check, whatever package manager the install recorded. Existing scripts are preserved. To check more than validation, run `wolven-harness doctor` (see the [Commands](./commands) reference), or ask your agent to run the `harness-doctor` skill.
+`setup` adds `harness:validate` as a package script for `wolven-harness validate` when that script is missing. In that case the `harness:validate` script runs the same check, whatever package manager the install recorded. Existing scripts are preserved.
 
 Migration is complete when validation exits 0 with no legacy warnings left and no `adr-status-mismatch`. A superseded ADR is never kept `stable`: it gets a successor and is deprecated. References to decision records must resolve to a stable record in `docs/adrs/`; legacy records get migration warnings during the transition.
 

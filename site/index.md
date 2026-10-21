@@ -16,25 +16,17 @@ yarn global add @wolven-tech/harness
 pnpm add -g @wolven-tech/harness
 ```
 
-You need Node.js 22 or later, Git, and macOS or Linux. Then run setup from the folder you want your agent to work in:
+You need Node.js 22 or later, Git, and macOS or Linux. Then run setup from the top level of a Git repository, or from a folder that is outside every repository:
 
 ```sh
 wolven-harness setup --git-host gh --runtimes claude
 ```
 
-At a Git top level, `setup` installs the core skills, the standing rules, the document templates, the local search index configuration, the `WOLVEN.md` entry file, and each selected runtime's wiring. Anywhere else, it writes the core skills and their runtime links so `harness-init` can finish the install in that folder. Optional sets add more skills (`ship`: four, `discovery`: five); `ship` is selected by default.
+At a Git top level, `setup` installs the core skills, the standing rules, the document templates, the local search index configuration, the `WOLVEN.md` entry file, and each selected runtime's wiring. Outside any repository, it writes the core skills and their runtime links so `harness-init` can finish the install in that folder. A repository subfolder is not a setup location. Optional sets add more skills (`ship`: four, `discovery`: five); `ship` is selected by default.
 
-`setup` preserves existing copies and leaves `AGENTS.md` alone. It adds missing check scripts to an existing `package.json`, records the resolved package manager and every file it wrote, and saves the setup choices in `.wolven-harness.json`. It does not install dependencies; setup prints the install command when `harness-score` is missing.
+`setup` preserves existing copies and leaves `AGENTS.md` alone. At a repository top level, it adds missing check scripts to an existing `package.json` and saves the setup choices in `.wolven-harness.json`. Outside a repository, it writes neither documentation nor package scripts. It does not install dependencies; setup prints the install command when `harness-score` is missing.
 
 For all commands, flags, configuration, and exit behavior, see the [CLI reference](./commands).
-
-## Check the install
-
-```sh
-wolven-harness doctor
-```
-
-`doctor` checks each wired runtime's entry, rules and skills wiring, the docs repository, `qmd` and its index, the code repository, and drift from the install manifest. It writes nothing, prints a `fix:` line after each error, and exits 1 when it finds one. Ask your agent to run the `harness-doctor` skill to apply the fixes one at a time.
 
 ## Next
 
@@ -44,4 +36,4 @@ Follow the instructions and review the proposed diff before approving each write
 
 Then try a small change with the [Development workflow](./cycle) example.
 
-`setup`, `doctor`, `skills`, `validate`, and `comments` are terminal commands. `harness-init`, `harness-doctor`, `code-spec`, `code-plan`, and `code-execute` are skills you ask the agent to run.
+`setup`, `skills`, `validate`, and `comments` are terminal commands. `harness-init`, `code-spec`, `code-plan`, and `code-execute` are skills you ask the agent to run.

@@ -40,17 +40,31 @@ test('readme-install: the global install appears in npm, yarn and pnpm forms bef
 
   assert.ok(setupIndex !== -1, 'wolven-harness setup not found');
   assert.ok(installIndex < setupIndex, 'the global install must appear before the setup command');
-  assert.match(readme, /from the folder you want your agent to work in/i);
+  assert.match(readme, /outside every repository/i);
 });
 
-test('readme-install: the README and the site install page cover setup from any folder and doctor', async () => {
+test('readme-install: README and site install page lead with global setup outside a repository', async () => {
   for (const doc of [await readReadme(), await readDoc('site/index.md')]) {
     for (const form of GLOBAL_INSTALL_FORMS) assert.ok(doc.includes(form), `${form} missing`);
 
-    assert.match(doc, /from any folder|anywhere else|any other folder/i);
-    assert.match(doc, /wolven-harness doctor/);
-    assert.match(doc, /harness-doctor/);
+    const installIndex = doc.indexOf(GLOBAL_INSTALL_FORMS[0]);
+    const setupIndex = doc.indexOf('wolven-harness setup');
+    assert.ok(setupIndex !== -1, 'wolven-harness setup not found');
+    assert.ok(installIndex < setupIndex, 'the global install must appear before the setup command');
+    assert.match(doc, /outside (?:any|every) (?:Git )?repository/i);
+    assert.doesNotMatch(doc, /doctor|harness-doctor/i);
   }
+});
+
+test('readme-install: PR 1 guide pages do not mention doctor', async () => {
+  const pages = [
+    await readReadme(),
+    ...(await Promise.all(
+      ['site/commands.md', 'site/index.md', 'site/runtimes.md', 'site/skills.md', 'site/harness-init.md'].map(readDoc),
+    )),
+  ];
+
+  for (const page of pages) assert.doesNotMatch(page, /doctor|harness-doctor/i);
 });
 
 test('readme-install: the runtimes page lists the nine registry runtimes and their wiring', async () => {
@@ -62,15 +76,6 @@ test('readme-install: the runtimes page lists the nine registry runtimes and the
   assert.match(page, /\.claude\/rules/);
   assert.match(page, /wolven-harness:rules:start/);
   assert.match(page, /\.cursor\/rules/);
-});
-
-test('readme-install: the CLI reference documents doctor, its output and its config finding', async () => {
-  const page = await readDoc('site/commands.md');
-
-  assert.match(page, /## `doctor`/);
-  assert.match(page, /doctor: ok/);
-  assert.match(page, /doctor-config/);
-  assert.match(page, /exits 0 with no errors and 1 otherwise/i);
 });
 
 test('readme-install: the release page covers trusted publishing, its npm-side setup and the manual re-run', async () => {

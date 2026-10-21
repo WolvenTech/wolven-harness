@@ -1,4 +1,4 @@
-import { realpath } from 'node:fs/promises';
+import { lstat, realpath } from 'node:fs/promises';
 import path from 'node:path';
 import { gitOriginUrl, gitTopLevel } from '../git.js';
 import { pathExists } from '../path-exists.js';
@@ -13,20 +13,31 @@ import type { Context, GitHost, Io, Options, Prompter, Runtime, SetupMode } from
 import { SetupCancelled, SetupError } from './types.js';
 import { clackPrompter } from './ui.js';
 
-/**
- * True when `io.cwd` is the git top-level of its work tree:
- * `git rev-parse --show-toplevel` must succeed and resolve (via `realpath`,
- * so symlinked temp dirs compare correctly) to the same directory as
- * `io.cwd`. A folder outside any repository, or a subfolder of one, is not.
- */
-async function isGitTopLevel(io: Io): Promise<boolean> {
-  let toplevel: string;
-  try {
-    toplevel = await gitTopLevel(io.cwd);
-  } catch {
-    return false;
+/** Finds a git top-level without the git executable, including linked worktrees. */
+async function gitTopLevelFromPath(cwd: string): Promise<string | undefined> {
+  let current = await realpath(cwd);
+  while (true) {
+    try {
+      await lstat(path.join(current, '.git'));
+      return current;
+    } catch {
+      const parent = path.dirname(current);
+      if (parent === current) return undefined;
+      current = parent;
+    }
   }
+}
 
+/** Returns the repository top-level, or `undefined` outside a repository. */
+async function gitTopLevelFor(io: Io): Promise<string | undefined> {
+  try {
+    return await gitTopLevel(io.cwd);
+  } catch {
+    return gitTopLevelFromPath(io.cwd);
+  }
+}
+
+async function isGitTopLevel(io: Io, toplevel: string): Promise<boolean> {
   const [realToplevel, realCwd] = await Promise.all([realpath(toplevel), realpath(io.cwd)]);
   return realToplevel === realCwd;
 }
@@ -373,7 +384,14 @@ export function canPrompt(io: Io): boolean {
  * forward untouched.
  */
 export async function resolveOptions(argv: string[], ctx: Context): Promise<Options> {
-  const mode: SetupMode = (await isGitTopLevel(ctx.io)) ? 'root' : 'outside';
+  const toplevel = await gitTopLevelFor(ctx.io);
+  const mode: SetupMode = toplevel === undefined ? 'outside' : 'root';
+  if (toplevel !== undefined && !(await isGitTopLevel(ctx.io, toplevel))) {
+    throw new SetupError(
+      `setup cannot run from a subfolder of a git repository (top-level: ${toplevel})`,
+      `Run setup at ${toplevel} or in a folder outside the repository.`,
+    );
+  }
 
   const flags = parseFlags(argv);
   const existing = await readConfig(ctx.root);

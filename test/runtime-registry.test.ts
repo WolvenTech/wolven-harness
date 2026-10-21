@@ -1,9 +1,12 @@
 import assert from 'node:assert/strict';
+import { promises as fs } from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
+import { fileURLToPath } from 'node:url';
 import type { RuntimeEnv } from '../src/setup/runtimes.js';
-import { RUNTIME_REGISTRY, runtimeRow } from '../src/setup/runtimes.js';
-import type { Runtime } from '../src/setup/types.js';
+import { RUNTIME_REGISTRY, rulesMode, runtimeRow, wireRuntimes } from '../src/setup/runtimes.js';
+import type { Context, Options, Runtime } from '../src/setup/types.js';
 
 const CONTRACT_IDS: readonly Runtime[] = [
   'claude',
@@ -56,13 +59,37 @@ const EXPECTED_FOLDER_MARKERS: Record<Runtime, string[]> = {
   copilot: ['.github/copilot-instructions.md'],
   gemini: ['GEMINI.md', '.gemini'],
   kiro: ['.kiro'],
-  antigravity: ['.agents/rules'],
+  antigravity: [],
 };
 
 const SYMLINKED_SKILLS: Partial<Record<Runtime, string>> = {
   claude: '.claude/skills',
   kiro: '.kiro/skills',
 };
+
+async function sourceFiles(dir: string): Promise<string[]> {
+  const files: string[] = [];
+  for (const entry of await fs.readdir(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) files.push(...(await sourceFiles(full)));
+    else if (entry.isFile() && entry.name.endsWith('.ts')) files.push(full);
+  }
+  return files;
+}
+
+function registryLiterals(): Set<string> {
+  const literals = new Set(RUNTIME_REGISTRY.map((row) => row.name));
+  for (const row of RUNTIME_REGISTRY) {
+    for (const marker of row.folderMarkers) literals.add(marker);
+    if (row.skills.path !== '.agents/skills') literals.add(row.skills.path);
+    if (row.entryFile !== undefined) literals.add(row.entryFile.path);
+    const wiring = row.rules;
+    if (wiring.kind === 'link' || wiring.kind === 'file') literals.add(wiring.path);
+    if (wiring.kind === 'per-rule') literals.add(wiring.pattern.slice(0, wiring.pattern.indexOf('{rule}')));
+    if (wiring.kind === 'imports') literals.add(wiring.source);
+  }
+  return literals;
+}
 
 test('runtime-registry: exports the nine rows in contract order', () => {
   assert.deepEqual(
@@ -98,15 +125,96 @@ test('runtime-registry: every row is complete', () => {
       assert.equal(row.skills.kind, 'direct', `${row.id} skills path is direct or a symlink`);
     }
 
-    assert.ok(row.rules === 'native' || row.rules === 'inline', `${row.id} has a native or inline rules strategy`);
+    assert.ok(
+      ['link', 'per-rule', 'file', 'imports', 'inline'].includes(row.rules.kind),
+      `${row.id} has rules wiring data`,
+    );
   }
 });
 
-test('runtime-registry: only codex is inline', () => {
+test('runtime-registry: rules wiring is data for every row', () => {
   assert.deepEqual(
-    RUNTIME_REGISTRY.filter((row) => row.rules === 'inline').map((row) => row.id),
-    ['codex'],
+    RUNTIME_REGISTRY.map(({ id, rules }) => [id, rules.kind]),
+    [
+      ['claude', 'link'],
+      ['codex', 'inline'],
+      ['cursor', 'per-rule'],
+      ['opencode', 'file'],
+      ['amp', 'imports'],
+      ['copilot', 'per-rule'],
+      ['gemini', 'file'],
+      ['kiro', 'per-rule'],
+      ['antigravity', 'inline'],
+    ],
   );
+});
+
+test('proof-install-experience-rules-mode', () => {
+  const cases: Array<[Runtime[], 'native' | 'inline']> = [
+    [['claude', 'cursor', 'kiro'], 'native'],
+    [['claude', 'antigravity'], 'inline'],
+    [['claude', 'codex'], 'inline'],
+    [[], 'native'],
+  ];
+  for (const [runtimes, expected] of cases) assert.equal(rulesMode(runtimes), expected);
+});
+
+test('proof-install-experience-rules-mode: no duplicated mode derivation', async () => {
+  const sourceRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../src');
+  const comparisons: string[] = [];
+  for (const file of await sourceFiles(sourceRoot)) {
+    const rel = path.relative(sourceRoot, file);
+    const lines = (await fs.readFile(file, 'utf8')).split(/\r?\n/);
+    lines.forEach((line, index) => {
+      if (/\.rules\s*===/.test(line)) comparisons.push(`${rel}:${index + 1}`);
+    });
+  }
+  assert.deepEqual(comparisons, [], 'rules mode comparisons belong in rulesMode() only');
+});
+
+test('proof-install-experience-registry-data', async () => {
+  const ruleNames = ['first', 'second'];
+  for (const row of RUNTIME_REGISTRY) {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), 'runtime-registry-'));
+    try {
+      await fs.mkdir(path.join(root, '.agents/rules'), { recursive: true });
+      for (const name of ruleNames) await fs.writeFile(path.join(root, `.agents/rules/${name}.md`), `# ${name}\n`);
+      const ctx = { root, templatesDir: '', io: {} } as Context;
+      const result = await wireRuntimes({ runtimes: [row.id] } as Options, ctx);
+      const expected = [
+        ...(row.skills.kind === 'symlink' ? [row.skills.path] : []),
+        ...(row.entryFile === undefined ? [] : [row.entryFile.path]),
+      ];
+      if (rulesMode([row.id]) === 'native') {
+        if (row.rules.kind === 'link') expected.push(row.rules.path);
+        if (row.rules.kind === 'per-rule') {
+          expected.push(...ruleNames.map((name) => row.rules.pattern.replace('{rule}', name)));
+        }
+        if (row.rules.kind === 'file') expected.push(row.rules.path);
+      }
+      assert.deepEqual([...result.created].sort(), expected.sort(), row.id);
+    } finally {
+      await fs.rm(root, { recursive: true, force: true });
+    }
+  }
+
+  const sourceRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../src');
+  const registryPath = path.join(sourceRoot, 'setup/runtimes.ts');
+  const literals = registryLiterals();
+  const violations: string[] = [];
+  for (const file of await sourceFiles(sourceRoot)) {
+    if (file === registryPath) continue;
+    const rel = path.relative(sourceRoot, file);
+    const lines = (await fs.readFile(file, 'utf8')).split(/\r?\n/);
+    lines.forEach((line, index) => {
+      const found = [...literals].filter((literal) => line.includes(literal));
+      for (const runtime of CONTRACT_IDS) {
+        if (new RegExp(`\\bcase\\s+['"]${runtime}['"]`).test(line)) found.push(`case ${runtime}`);
+      }
+      if (found.length > 0) violations.push(`${rel}:${index + 1}: ${[...new Set(found)].join(', ')}`);
+    });
+  }
+  assert.equal(violations.length, 0, `runtime knowledge outside the registry: ${violations.join('; ')}`);
 });
 
 test('runtime-registry: skills descriptors match the contract', () => {

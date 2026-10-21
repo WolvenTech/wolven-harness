@@ -32,8 +32,7 @@ test('config-keys: every optional key survives read -> write -> read', async () 
   const original = {
     ...BASE,
     packageManager: 'yarn',
-    layout: 'linked',
-    harnessHome: '..',
+    layout: 'home',
     codeRepo: '../app',
     commitConvention: { style: 'pattern', pattern: '^[A-Z]+-\\d+: ', example: 'ABC-1: add a check' },
   };
@@ -42,8 +41,7 @@ test('config-keys: every optional key survives read -> write -> read', async () 
   const config = await readConfig(dir);
   assert.ok(config);
   assert.equal(config.packageManager, 'yarn');
-  assert.equal(config.layout, 'linked');
-  assert.equal(config.harnessHome, '..');
+  assert.equal(config.layout, 'home');
   assert.equal(config.codeRepo, '../app');
   assert.deepEqual(config.commitConvention, original.commitConvention);
 
@@ -88,23 +86,11 @@ test('config-keys: an unknown packageManager names the key', async () => {
   await rejectsNamingKey({ packageManager: 'cargo' }, 'packageManager');
 });
 
-test('config-keys: layout accepts home and linked, and rejects anything else', async () => {
-  const home = await readConfig(await writeConfigFile({ layout: 'home' }));
-  assert.equal(home?.layout, 'home');
-
-  const linked = await readConfig(await writeConfigFile({ layout: 'linked', harnessHome: '..' }));
-  assert.equal(linked?.layout, 'linked');
-
-  await rejectsNamingKey({ layout: 'remote' }, 'layout');
-});
-
-test('config-keys: harnessHome is required for linked and rejected otherwise', async () => {
-  await rejectsNamingKey({ layout: 'linked' }, 'harnessHome');
-  await rejectsNamingKey({ layout: 'home', harnessHome: '..' }, 'harnessHome');
+test('config-keys: only the home layout is accepted', async () => {
+  assert.equal((await readConfig(await writeConfigFile({ layout: 'home' })))?.layout, 'home');
+  await rejectsNamingKey({ layout: 'linked' }, 'layout');
+  await rejectsNamingKey({ layout: 'elsewhere' }, 'layout');
   await rejectsNamingKey({ harnessHome: '..' }, 'harnessHome');
-  await rejectsNamingKey({ layout: 'linked', harnessHome: '/absolute/path' }, 'harnessHome');
-  await rejectsNamingKey({ layout: 'linked', harnessHome: '' }, 'harnessHome');
-  await rejectsNamingKey({ layout: 'linked', harnessHome: 3 }, 'harnessHome');
 });
 
 test('config-keys: codeRepo is a non-empty relative path', async () => {
@@ -145,7 +131,6 @@ test('config-keys: a config without the new keys still loads and rewrites unchan
   assert.equal(config.version, 1);
   assert.equal(config.packageManager, undefined);
   assert.equal(config.layout, undefined);
-  assert.equal(config.harnessHome, undefined);
   assert.equal(config.codeRepo, undefined);
   assert.equal(config.commitConvention, undefined);
 

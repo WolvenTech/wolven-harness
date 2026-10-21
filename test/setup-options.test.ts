@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { mkdir, readFile } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { test } from 'node:test';
 import { makeRepo, run } from './helpers/fixture.js';
@@ -101,24 +101,6 @@ test('setup-prompts: no-tty missing only --runtimes names just that flag', async
   assert.equal(result.code, 1);
   assert.match(result.stderr, /--runtimes/);
   assert.doesNotMatch(result.stderr, /--git-host/);
-});
-
-test('setup-prompts: a subfolder of a repository runs the outside mode there', async () => {
-  const dir = await makeRepo({ 'README.md': '# fixture\n' }, { git: true });
-  const subdir = path.join(dir, 'sub');
-  await mkdir(subdir);
-
-  const result = await run(['setup', '--git-host', 'gh', '--runtimes', 'claude'], {
-    cwd: subdir,
-    isTTY: false,
-  });
-
-  assert.equal(result.code, 0, result.stderr);
-  assert.equal(await configExists(subdir), true);
-  assert.equal(await configExists(dir), false, 'the repository top-level gets no config');
-  const files = (await walkFiles(subdir)).sort();
-  assert.ok(files.includes('.agents/skills/harness-init/SKILL.md'));
-  assert.equal(files.includes('WOLVEN.md'), false);
 });
 
 test('setup-prompts: a folder outside any repository runs the outside mode', async () => {

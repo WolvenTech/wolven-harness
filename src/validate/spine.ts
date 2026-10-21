@@ -3,6 +3,7 @@ import type { Dirent } from 'node:fs';
 import { lstat, readdir, readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { classifyFrontmatter, skillIdentity } from '../frontmatter.js';
+import { runtimeRow } from '../setup/runtimes.js';
 import type { RepoContext } from './repo.js';
 import type { Finding } from './report.js';
 
@@ -10,6 +11,8 @@ const RULE_CITATION_RE = /\.agents\/rules\/[A-Za-z0-9._-]+\.md/g;
 const CITING_FILES = ['WOLVEN.md', 'AGENTS.md'];
 const HARNESS_START_MARKER = '<!-- wolven-harness:start -->';
 
+const claude = runtimeRow('claude');
+if (claude.entryFile === undefined) throw new Error('The registered runtime must name its entry file');
 /** Harness paths every clone needs; `harness-ignored` checks the ones present on disk. */
 const HARNESS_PATHS = [
   '.agents/skills',
@@ -17,9 +20,9 @@ const HARNESS_PATHS = [
   '.agents/hooks',
   '.qmd',
   'docs',
-  '.claude/skills',
+  claude.skills.path,
   'AGENTS.md',
-  'CLAUDE.md',
+  claude.entryFile.path,
   '.wolven-harness.json',
 ];
 

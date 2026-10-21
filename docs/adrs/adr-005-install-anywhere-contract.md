@@ -1,35 +1,30 @@
 ---
 type: adr
-title: Extend the public contract with setup anywhere and doctor
-description: Carry the CLI contract forward, and add setup outside a git top-level, more runtimes, package-manager choice, an install manifest and a read-only doctor command, all as additive changes.
+title: Extend the public contract with setup outside repositories
+description: Carry the CLI contract forward with setup outside repositories, refusal inside repository subfolders, runtime registry ids, package-manager choice and home-layout configuration.
 status: stable
 ---
 
-# Extend the public contract with setup anywhere and doctor
+# Extend the public contract with setup outside repositories
 
 ## Context
 
 ADR-004 records the 0.3.x public contract for `setup`, `skills`, `validate`
 and `comments`. The install-experience PRD and its spec found an install
 that passed `validate` while the agent never received the router or the
-rules. The causes:
+rules. Setup supported only a git top-level, wired only Claude Code, and
+printed package-manager commands in pnpm form.
 
-- `setup` exits 1 outside a git top-level, so people with a client
-  repository they can't write to built their own layout.
-- `setup` wires only Claude Code, and wires no rules at all.
-- Every printed command assumes pnpm.
-- Nothing checks that an install works.
+The wiring release adds a runtime registry, setup outside any git
+repository, a `--package-manager` flag and optional configuration for the
+harness home and the code repository it serves. A repository subfolder is
+refused before prompting or writing, so setup does not put harness files
+inside a client repository by accident.
 
-The spec adds a runtime registry, `setup` outside a git top-level, a
-`--package-manager` flag, new optional config keys, an install manifest and
-a `doctor` command. This record carries ADR-004's contract forward in full
-and records those changes, so consumers can read the whole contract in one
-decision record.
-
-The one existing guarantee that changes is `setup`'s exit 1 outside a git
-top-level. The maintainer ruled this additive. That run used to fail before
-writing anything, so no working install or CI job depends on the failure,
-and the new mode writes only to the folder it runs in.
+This record carries ADR-004's contract forward in full. The maintainer
+ruled the outside-repository mode additive: it writes only in the current
+folder, and that run formerly failed before writing. No working install or
+CI job depended on that failure.
 
 ## Decision
 
@@ -37,8 +32,8 @@ The items in this section are the public contract. Nothing else is.
 
 ### Commands
 
-`wolven-harness <command> [options]`. The commands are `setup`, `doctor`,
-`validate`, `comments`, and `skills`.
+`wolven-harness <command> [options]`. The commands are `setup`, `validate`,
+`comments`, and `skills`.
 
 - No command, `--help` or `-h` as the first argument prints usage to stdout
   and exits 0.
@@ -88,13 +83,17 @@ Flags. Each value flag takes `--flag value` or `--flag=value`.
 Modes:
 
 - **At a git top-level,** it scaffolds the harness as below.
-- **Anywhere else,** including outside any git repository, it writes only:
+- **Outside any git repository,** it writes only:
   - the core skills under `.agents/skills/`;
   - each selected runtime's skills wiring;
-  - `.wolven-harness.json`;
-  - `.wolven-harness.manifest.json`.
+  - `.wolven-harness.json`.
 
-  It then exits 0.
+  It then exits 0 and directs the developer to run `harness-init` in that
+  folder.
+- **Inside a repository subfolder,** it exits 1 before prompting or
+  writing. The diagnostic names the repository top-level. When git is not
+  available, setup checks the current folder and its ancestors for a `.git`
+  entry to distinguish a repository subfolder from an outside folder.
 
 Guarantees, in both modes:
 
@@ -111,48 +110,12 @@ Guarantees, in both modes:
 - It never commits.
 - It rewrites `.wolven-harness.json` on every run, and keeps the value of
   every key it does not resolve.
-- It records in `.wolven-harness.manifest.json` every file it creates in
-  that run, and never changes an existing entry.
 - Some paths depend on the chosen skill sets. With `discovery` it creates
   `docs/maps/.gitkeep`, a `docs/maps/.gitignore` that ignores built
   canvases, a `maps` collection in `.qmd/index.yml` and a `docs/maps/`
   row in `WOLVEN.md`. Without `discovery` it creates none of them. The
   create-only guarantee still holds, so a re-run never adds the collection
   or the row to a file that already exists.
-
-### `doctor`
-
-Checks that an install works for each runtime it wires, and writes nothing.
-
-- Flag: `--dir <path>`, default the current directory. A missing value or
-  any other argument exits 1.
-- It reads `.wolven-harness.json` in that folder. When `layout` is `linked`,
-  it checks the harness home that `harnessHome` names as well.
-- Findings print one per line as `<level> [<code>] <message>`. Each error is
-  followed by a line `fix: <text>`. The level and code are contract; the
-  message and fix text are not.
-- The last line is `doctor: ok` when there are no errors, else
-  `doctor: <X> error(s), <Y> warning(s)`.
-- Exit 0 when there are no error-level findings, 1 otherwise. Warnings never
-  change the exit code.
-- It never writes a file, installs a tool or uses the network.
-
-Finding codes:
-
-| Code | Level | Meaning |
-| --- | --- | --- |
-| `doctor-config` | error | `.wolven-harness.json` is missing or invalid; no other check runs |
-| `doctor-entry` | error | A wired runtime's instruction files don't reach the harness section of `AGENTS.md` |
-| `doctor-rules` | error | A wired runtime doesn't receive the standing rules |
-| `doctor-skills` | error | A wired runtime's skills folder doesn't hold the installed skills |
-| `doctor-docs` | error | `docs/` is not in a git repository with a commit, or is ignored |
-| `doctor-qmd` | error | `qmd` is not on `PATH`, or the harness home has no `.qmd/index.sqlite` |
-| `doctor-code-repo` | error | A harness path exists inside `codeRepo` |
-| `doctor-not-global` | warn | `wolven-harness` is not on `PATH` |
-| `doctor-version-behind` | warn | The recorded `packageVersion` is older than the running CLI |
-| `doctor-drift-edited` | warn | A file differs from its manifest entry, or there is no manifest and it differs from its template |
-| `doctor-drift-stale` | warn | A file matches its manifest entry but not the current template |
-| `doctor-drift-missing` | warn | A current template file is absent |
 
 ### `skills`
 
@@ -305,31 +268,17 @@ top-level, otherwise that folder.
 | `ignore` | array of strings | Optional. Each entry `<dir>/**`, with no glob characters in `<dir>`, no `..`, and `<dir>` not `docs` or `.agents` or under either. |
 | `packageVersion` | string | Optional. Rewritten by `setup` on every run. |
 | `packageManager` | string | Optional. `npm`, `yarn`, `pnpm` or `none`. |
-| `layout` | string | Optional. `home` or `linked`. |
-| `harnessHome` | string | Required when `layout` is `linked`, otherwise not allowed. A path relative to this file's folder. |
+| `layout` | string | Optional. `home` only; the open folder is the harness home. |
 | `codeRepo` | string | Optional. A path relative to this file's folder. |
 | `commitConvention` | object | Optional. `{ "style": "conventional" }`, or `{ "style": "pattern", "pattern": "<regex>", "example": "<subject>" }` where `pattern` compiles as a JavaScript regular expression. |
 | `comments.paths` | non-empty array of strings | Optional. Directory prefixes. When set, it replaces the default scope, `ignore` included. |
 | `comments.languages` | object | Optional. Extension to `{ "line": "<non-empty string>", "block": ["<open>", "<close>"] }`. `block` is optional. |
 
-- Any other top-level key is preserved untouched on rewrite.
+- Unknown extension keys are preserved untouched on rewrite. Unsupported
+  installation-layout keys are rejected.
 - Existing keys keep their order. New keys are appended.
 - A file that is invalid JSON, not an object, or breaks a rule above makes
-  the command that reads it exit 1. `doctor` reports it as `doctor-config`
-  before exiting 1.
-
-### `.wolven-harness.manifest.json`, schema `version: 1`
-
-A JSON object beside `.wolven-harness.json`:
-`{ "version": 1, "packageVersion": "<v>", "files": { "<path>": "<sha256>" } }`.
-
-- Each `<path>` is relative to the manifest's folder, with `/` separators,
-  and names a regular file the harness wrote. Each `<sha256>` is the
-  lowercase hex digest of that file's bytes as written.
-- `setup` only adds entries. The `harness-doctor` skill updates an entry
-  only when it replaces a stale file with the current template.
-- A consumer may commit it, edit it or delete it. Without it, `doctor`
-  treats every file that differs from its template as edited.
+  the command that reads it exit 1.
 
 ### Not contract
 
@@ -362,8 +311,6 @@ These are additive and allowed in a minor release:
 - A new runtime id.
 - A new warning-level finding code or comment kind that does not fail the
   run.
-- A new `doctor` finding code at any level, since `doctor` is not part of a
-  repository's CI gate.
 - A new optional config key.
 
 A new error-level finding code in `validate` counts as breaking, because it
@@ -378,23 +325,21 @@ number is not the guarantee. This policy is.
 
 ## Consequences
 
-- `doctor`, `--package-manager`, the new runtime ids, the new config keys
-  and the manifest are additive. Existing configs stay valid without edits,
-  and `version` stays `1`.
-- `setup` outside a git top-level now succeeds instead of exiting 1. The
-  maintainer ruled it additive, as Context explains, so it ships without a
-  deprecation release or a `feat!` commit.
-- `step0-pending` now looks for a marker instead of a mention, so an
-  existing install that only mentions `WOLVEN.md` starts to warn. It is a
-  warning, so CI stays green, and the `harness-doctor` skill migrates it.
-- `skills --runtimes` keeps its three values. Widening it is a separate,
+- `--package-manager`, the registry runtime ids and the optional config keys
+  are additive. Existing supported configs remain valid, and `version`
+  stays `1`.
+- Setup outside any repository succeeds with core skills and skills wiring.
+  A repository subfolder exits 1 without prompting or writing.
+- `step0-pending` checks for the harness section marker. An install that
+  only mentions `WOLVEN.md` warns until `harness-init` folds the router into
+  `AGENTS.md`; the warning does not fail CI.
+- `skills --runtimes` keeps its three values. Widening it remains a separate
   additive change.
-- This record supersedes ADR-004, which stays unedited as the 0.3.x
-  history. Claims and contract tests target this record.
-- Consumers can pin CI to exit codes, finding codes and the config file, and
-  upgrade minor versions without a surprise.
-- Adding a rule that fails builds still costs a superseding ADR and a
-  deprecation release. New `validate` checks start as warnings.
-- Message and prompt text can improve freely, so scripts must not parse them.
+- This record supersedes ADR-004. Claims and contract tests target this
+  record; the older record remains as history.
+- Consumers can pin CI to exit codes, finding codes and the config file.
+  New error-level validation checks still require a superseding decision
+  and a deprecation release. New `validate` checks start as warnings.
+- Message and prompt text can improve freely, so scripts must not parse it.
 - Every contract item needs a test that fails when it changes.
-- The contract is only binding once this ADR is `stable`. A human promotes it.
+- The contract binds once the Human confirms this record as `stable`.

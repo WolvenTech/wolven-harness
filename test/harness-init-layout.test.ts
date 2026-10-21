@@ -40,33 +40,6 @@ test('layout: the home layout asks before git init, gitignores codeRepo and reco
   assert.match(flat, /Run `harness:validate` after the write/);
 });
 
-test('layout: the linked layout names the three symlinks, the native wiring and both keys', async () => {
-  const flat = flatten(await readLayout());
-
-  assert.match(flat, /Create these symlinks in the open folder/);
-  assert.match(flat, /`AGENTS\.md` - `\.agents` - `\.claude\/skills`/);
-  assert.match(flat, /Then create each wired runtime's native wiring the same way/);
-  assert.match(
-    flat,
-    /directory symlink for `\.claude\/rules`, `\.cursor`, `\.kiro\/steering` or `\.github\/instructions`/,
-  );
-  assert.match(flat, /file symlink for `GEMINI\.md` or `opencode\.json`/);
-  assert.match(flat, /run `wolven-harness setup` when it has no `\.wolven-harness\.json`, and record `codeRepo` there/);
-  assert.match(flat, /record `layout: "linked"` and `harnessHome`/);
-  assert.match(flat, /Show the diff of the links before creating them/);
-});
-
-test('layout: bootstrap copies are replaced only when every file matches its manifest hash', async () => {
-  const flat = flatten(await readLayout());
-
-  assert.match(flat, /Replace a copy with its symlink only when every file under it still matches its entry/);
-  assert.match(flat, /`\.wolven-harness\.manifest\.json`/);
-  assert.match(flat, /every recorded file's SHA-256 equals its manifest entry, and no file was added or removed/);
-  assert.match(flat, /Otherwise the Human has edited that folder: leave it in place/);
-  assert.match(flat, /ask before anything is deleted/);
-  assert.match(flat, /Never overwrite an edited copy/);
-});
-
 test('layout: the step forbids moves and writes nothing under codeRepo', async () => {
   const flat = flatten(await readLayout());
 

@@ -21,7 +21,6 @@ const EXPECTED_SKILLS = [
   'create-prd',
   'grilling',
   'handoff',
-  'harness-doctor',
   'harness-init',
   'journey-map',
   'pragmatic-guard',

@@ -1,4 +1,4 @@
-import { runtimeRow } from './runtimes.js';
+import { rulesMode, runtimeRow } from './runtimes.js';
 import type { SkillSet } from './skill-sets.js';
 import { setsOf } from './skill-sets.js';
 import type { Runtime, StepResult } from './types.js';
@@ -14,27 +14,15 @@ export interface Summary {
   notes: string[];
 }
 
-const RUNTIME_NAMES: Record<Runtime, string> = {
-  claude: 'Claude Code',
-  codex: 'Codex',
-  cursor: 'Cursor',
-  opencode: 'OpenCode',
-  amp: 'Amp',
-  copilot: 'GitHub Copilot',
-  gemini: 'Gemini CLI',
-  kiro: 'Kiro',
-  antigravity: 'Antigravity',
-};
-
-/** The runtime whose wiring produced `entry`, or `undefined` for a path no runtime owns. */
-function wiringOwner(entry: string): Runtime | undefined {
-  if (entry === 'CLAUDE.md' || entry.startsWith('.claude/')) return 'claude';
-  if (entry.startsWith('.kiro/')) return 'kiro';
-  if (entry.startsWith('.cursor/')) return 'cursor';
-  if (entry.startsWith('.github/instructions/')) return 'copilot';
-  if (entry === 'opencode.json') return 'opencode';
-  if (entry === 'GEMINI.md') return 'gemini';
-  return undefined;
+function matchesRulePath(row: ReturnType<typeof runtimeRow>, entry: string): boolean {
+  const wiring = row.rules;
+  if (wiring.kind === 'link' || wiring.kind === 'file') return wiring.path === entry;
+  if (wiring.kind !== 'per-rule') return false;
+  const marker = '{rule}';
+  const split = wiring.pattern.indexOf(marker);
+  const prefix = wiring.pattern.slice(0, split);
+  const suffix = wiring.pattern.slice(split + marker.length);
+  return entry.startsWith(prefix) && entry.endsWith(suffix) && entry.length > prefix.length + suffix.length;
 }
 
 /** Groups wiring entries by the runtime that owns each path. */
@@ -42,10 +30,11 @@ function entriesByRuntime(runtimes: Runtime[], entries: string[]): Map<Runtime, 
   const grouped = new Map<Runtime, string[]>();
   for (const runtime of runtimes) grouped.set(runtime, []);
   for (const entry of entries) {
-    const owner = wiringOwner(entry);
-    if (owner === undefined) continue;
-    const owned = grouped.get(owner);
-    if (owned !== undefined) owned.push(entry);
+    for (const runtime of runtimes) {
+      const row = runtimeRow(runtime);
+      const ownsEntry = row.entryFile?.path === entry || row.skills.path === entry || matchesRulePath(row, entry);
+      if (ownsEntry) grouped.get(runtime)?.push(entry);
+    }
   }
   return grouped;
 }
@@ -60,7 +49,7 @@ function describeWiring(paths: string[]): string {
 
 /** Display name for a runtime, as used in prompts and messages. */
 export function runtimeName(runtime: Runtime): string {
-  return RUNTIME_NAMES[runtime];
+  return runtimeRow(runtime).name;
 }
 
 /** Joins names as "a, b and c". */
@@ -147,19 +136,21 @@ export function buildSummary(
 
   kept.push(...describeTree(apply.skipped));
 
-  const claudeMdFirst = (a: string, b: string): number => Number(b === 'CLAUDE.md') - Number(a === 'CLAUDE.md');
   const createdByRuntime = entriesByRuntime(runtimes, wiring.created);
   const skippedByRuntime = entriesByRuntime(runtimes, wiring.skipped);
-  const inline = runtimes.some((runtime) => runtimeRow(runtime).rules === 'inline');
+  const mode = rulesMode(runtimes);
+  const inline = mode === 'inline';
   const direct: string[] = [];
 
   for (const runtime of runtimes) {
     const row = runtimeRow(runtime);
     const created = createdByRuntime.get(runtime) ?? [];
     const skipped = skippedByRuntime.get(runtime) ?? [];
-    const isSkills = (entry: string): boolean => entry === 'CLAUDE.md' || entry === row.skills.path;
-    const skillsCreated = created.filter(isSkills).sort(claudeMdFirst);
-    const skillsSkipped = skipped.filter(isSkills).sort(claudeMdFirst);
+    const entryPath = row.entryFile?.path;
+    const entryFirst = (a: string, b: string): number => Number(b === entryPath) - Number(a === entryPath);
+    const isSkills = (entry: string): boolean => entry === entryPath || entry === row.skills.path;
+    const skillsCreated = created.filter(isSkills).sort(entryFirst);
+    const skillsSkipped = skipped.filter(isSkills).sort(entryFirst);
     const rulesCreated = created.filter((entry) => !isSkills(entry));
     const rulesSkipped = skipped.filter((entry) => !isSkills(entry));
 
@@ -171,24 +162,20 @@ export function buildSummary(
     }
 
     if (inline) {
-      if (row.rules === 'inline') done.push(`${row.name} takes the rules inline from the harness section`);
+      if (row.rules.kind === 'inline') done.push(`${row.name} takes the rules inline from the harness section`);
       continue;
     }
 
-    if (row.id === 'amp') {
-      done.push('Amp gets the rules through the harness section (@.agents/rules/*.md)');
+    if (row.rules.kind === 'imports') {
+      done.push(`${row.name} gets the rules through the harness section (@${row.rules.source})`);
       continue;
     }
-    if (row.id === 'antigravity') {
-      done.push('Antigravity reads .agents/rules/ directly through its trigger frontmatter');
-      continue;
-    }
-    if (row.rules === 'inline') continue;
+    if (row.rules.kind === 'inline') continue;
 
     if (rulesCreated.length > 0) done.push(`${row.name} rules wired (${describeWiring(rulesCreated)})`);
     if (rulesSkipped.length > 0) {
       kept.push(rulesSkipped.join(', '));
-      const needsInit = rulesSkipped.filter((entry) => entry === 'opencode.json' || entry === 'GEMINI.md');
+      const needsInit = rulesSkipped.filter((entry) => row.rules.kind === 'file' && entry === row.rules.path);
       if (needsInit.length > 0) {
         notes.push(
           `Run the harness-init skill to point your existing ${joinNames(needsInit)} at .agents/rules/; setup left ${needsInit.length === 1 ? 'it' : 'them'} untouched.`,

@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { lstat, readdir, readFile, readlink } from 'node:fs/promises';
+import { lstat, readdir, readFile, readlink, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { PassThrough } from 'node:stream';
 import { test } from 'node:test';
@@ -207,7 +207,7 @@ test('native-wiring: an existing opencode.json stays byte-identical and the summ
   assert.ok(summary.notes.some((line) => line.includes('harness-init') && line.includes('opencode.json')));
 });
 
-test('native-wiring: codex suppresses native rules wiring for every runtime', async () => {
+test('proof-install-experience-inline-rules', async () => {
   const claudeDir = await makeRepo({}, { git: true });
   const claude = await run(['setup', '--git-host', 'gh', '--runtimes', 'claude,codex'], { cwd: claudeDir });
   assert.equal(claude.code, 0, claude.stderr);
@@ -217,10 +217,46 @@ test('native-wiring: codex suppresses native rules wiring for every runtime', as
   assert.equal(await readFile(path.join(claudeDir, 'CLAUDE.md'), 'utf8'), '@AGENTS.md\n');
   assert.match(claude.stdout, /Rules are inlined in the harness section/);
 
+  const antigravityDir = await makeRepo({}, { git: true });
+  const antigravity = await run(['setup', '--git-host', 'gh', '--runtimes', 'claude,antigravity'], {
+    cwd: antigravityDir,
+  });
+  assert.equal(antigravity.code, 0, antigravity.stderr);
+  await assertAbsent(antigravityDir, RULES_SURFACES);
+  assert.match(antigravity.stdout, /Rules are inlined in the harness section/);
+
   const cursorDir = await makeRepo({}, { git: true });
   const cursor = await run(['setup', '--git-host', 'gh', '--runtimes', 'codex,cursor'], { cwd: cursorDir });
   assert.equal(cursor.code, 0, cursor.stderr);
   await assertAbsent(cursorDir, ['.cursor']);
+});
+
+test('proof-install-experience-rules-create-only', async () => {
+  const dir = await makeRepo({}, { git: true });
+  const args = ['setup', '--git-host', 'gh', '--runtimes', 'claude,cursor'];
+  const first = await run(args, { cwd: dir });
+  assert.equal(first.code, 0, first.stderr);
+
+  const paths = [
+    ...(await readdir(path.join(dir, '.agents', 'rules'))).map((name) => `.agents/rules/${name}`),
+    ...(await readdir(path.join(dir, '.cursor', 'rules'))).map((name) => `.cursor/rules/${name}`),
+  ];
+  const before = await Promise.all(
+    paths.map(async (rel) => [rel, await readFile(path.join(dir, rel), 'utf8')] as const),
+  );
+  const source = path.join(dir, '.agents/rules/comments.md');
+  await writeFile(source, `${await readFile(source, 'utf8')}\nHuman edit.\n`, 'utf8');
+  const afterEdit = await Promise.all(
+    paths.map(async (rel) => [rel, await readFile(path.join(dir, rel), 'utf8')] as const),
+  );
+
+  const second = await run(args, { cwd: dir });
+  assert.equal(second.code, 0, second.stderr);
+  assert.deepEqual(
+    await Promise.all(paths.map(async (rel) => [rel, await readFile(path.join(dir, rel), 'utf8')] as const)),
+    afterEdit,
+  );
+  assert.notDeepEqual(afterEdit, before, 'the fixture edit changes an installed rule');
 });
 
 test('native-wiring: a second run creates no new wiring', async () => {

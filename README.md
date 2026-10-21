@@ -21,13 +21,13 @@ yarn global add @wolven-tech/harness
 pnpm add -g @wolven-tech/harness
 ```
 
-You need Node 22 or later, git, and macOS or Linux. Then run setup from the folder you want your agent to work in:
+You need Node 22 or later, git, and macOS or Linux. Then run setup from the top level of a Git repository, or from a folder that is outside every repository:
 
 ```sh
 wolven-harness setup --git-host gh --runtimes claude
 ```
 
-At a git top level, setup scaffolds the full harness. Outside one, it writes the core skills and their runtime links, records your choices, and tells you to run `harness-init` in that folder. Running `npx @wolven-tech/harness setup` works without a global install, but setup then recommends the global one.
+At a Git top level, setup scaffolds the full harness. Outside any repository, it writes the core skills and their runtime links, records your choices, and tells you to run `harness-init` in that folder. A repository subfolder is not a setup location. Running `npx @wolven-tech/harness setup` works without a global install, but setup then recommends the global one.
 
 ## Setup
 
@@ -35,7 +35,6 @@ At a git top level, setup scaffolds the full harness. Outside one, it writes the
 
 - wires each selected runtime's skills path, and its rules path where the runtime reads one natively;
 - adds missing `harness:validate`, `harness:comments` and `harness:score` scripts to an existing `package.json`, and writes a starter `.harness-score.json`;
-- records the resolved package manager and every file it wrote in `.wolven-harness.manifest.json`;
 - rewrites `.wolven-harness.json` on every run, with your setup choices and `packageVersion`.
 
 To be asked questions, stdin and stdout must both be a TTY. Otherwise pass `--git-host gh|bit` and `--runtimes` (a comma list of `claude`, `codex`, `cursor`, `opencode`, `amp`, `copilot`, `gemini`, `kiro`, `antigravity`), unless `.wolven-harness.json` already records them. `--package-manager` (`npm`, `yarn`, `pnpm`, `none`) overrides detection; otherwise setup uses the recorded value, `package.json`'s `packageManager` field, the one lockfile present, or `npm` for a project with no other signal.
@@ -46,16 +45,6 @@ Core skills are always installed. Two optional sets add more:
 - `discovery`: `create-prd`, `prototype`, `journey-map`, `wayfinder`, `handoff`, `the-fool`, `the-jury`.
 
 Interactive runs preselect `ship`. Non-interactive runs without `--skills` install core and `ship`. Use `--skills ship,discovery` to pick sets, or `--skills none` for core only. Re-runs never remove an installed set.
-
-## Doctor
-
-Check an install at any time:
-
-```sh
-wolven-harness doctor [--dir <path>]
-```
-
-`doctor` reads `.wolven-harness.json`, follows a linked layout, and checks that every wired runtime's entry chain, rules and skills resolve; that `docs/` is committed in a git repository; that `qmd` and its index exist; that no harness path sits under `codeRepo`; and that nothing has drifted from the install manifest. It prints one finding per line, a `fix:` line after each error, and `doctor: ok` or the error and warning counts. It exits 0 with no errors, 1 otherwise, and writes nothing. Ask your agent to run the `harness-doctor` skill to repair what it finds.
 
 ## What to do next
 

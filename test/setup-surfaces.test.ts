@@ -63,7 +63,6 @@ test('setup-surfaces: creates exactly the expected paths', async () => {
     '.qmd/index.yml',
     '.qmd/.gitignore',
     '.wolven-harness.json',
-    '.wolven-harness.manifest.json',
     '.harness-score.json',
   ];
 

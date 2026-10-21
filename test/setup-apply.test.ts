@@ -1,32 +1,12 @@
 import assert from 'node:assert/strict';
-import { createHash } from 'node:crypto';
-import { lstat, readdir, readFile, writeFile } from 'node:fs/promises';
+import { lstat, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { test } from 'node:test';
 import { applyTemplates } from '../src/setup/apply.js';
-import { MANIFEST_FILENAME } from '../src/setup/manifest.js';
 import { addValidateScript } from '../src/setup/package-script.js';
-import { setSymlinkImpl } from '../src/setup/runtimes.js';
 import type { Context } from '../src/setup/types.js';
 import { makeRepo, run } from './helpers/fixture.js';
 import { makeIo } from './helpers/io.js';
-import { walkFiles } from './helpers/walk.js';
-
-/** Shape of `.wolven-harness.manifest.json` as the tests read it. */
-interface ManifestShape {
-  version: number;
-  packageVersion: string;
-  files: Record<string, string>;
-}
-
-/** Lowercase hex sha-256 of file bytes, or of a string's UTF-8 bytes. */
-function sha256(bytes: Buffer | string): string {
-  return createHash('sha256').update(bytes).digest('hex');
-}
-
-async function readManifest(root: string): Promise<ManifestShape> {
-  return JSON.parse(await readFile(path.join(root, MANIFEST_FILENAME), 'utf8')) as ManifestShape;
-}
 
 async function fileExists(p: string): Promise<boolean> {
   try {
@@ -297,83 +277,11 @@ test('setup-script: no package.json means no change', async () => {
   assert.equal(await fileExists(path.join(root, 'package.json')), false);
 });
 
-test('setup-manifest: records every created regular file with the hash of its bytes', async () => {
-  const dir = await makeRepo({}, { git: true });
-
-  const result = await run(['setup', '--git-host', 'gh', '--runtimes', 'claude'], { cwd: dir });
-  assert.equal(result.code, 0, result.stderr);
-
-  const manifest = await readManifest(dir);
-  assert.equal(manifest.version, 1);
-  const own = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8')) as { version: string };
-  assert.equal(manifest.packageVersion, own.version);
-
-  const created = (await walkFiles(dir)).filter((rel) => rel !== '.wolven-harness.json' && rel !== MANIFEST_FILENAME);
-  assert.deepEqual(Object.keys(manifest.files).sort(), created.sort(), 'keys are exactly the created files');
-
-  for (const rel of created) {
-    assert.equal(manifest.files[rel], sha256(await readFile(path.join(dir, rel))), `${rel} hash`);
-  }
-
-  assert.ok(Object.hasOwn(manifest.files, 'CLAUDE.md'), 'the CLAUDE.md stub is a created file');
-  assert.equal(Object.hasOwn(manifest.files, '.claude/skills'), false, 'a skills symlink is not an entry');
-  assert.equal(Object.hasOwn(manifest.files, '.claude/rules'), false, 'a rules symlink is not an entry');
-  assert.equal(Object.hasOwn(manifest.files, '.wolven-harness.json'), false, 'the config rewrite is not an entry');
-  assert.equal((await lstat(path.join(dir, '.claude', 'rules'))).isSymbolicLink(), true);
-});
-
-test('setup-manifest: generated runtime rule files are recorded', async () => {
-  const dir = await makeRepo({}, { git: true });
-
-  const result = await run(['setup', '--git-host', 'gh', '--runtimes', 'cursor'], { cwd: dir });
-  assert.equal(result.code, 0, result.stderr);
-
-  const manifest = await readManifest(dir);
-  const ruleBases = (await readdir(path.join(dir, '.agents', 'rules')))
-    .filter((name) => name.endsWith('.md'))
-    .map((name) => name.slice(0, -'.md'.length));
-  assert.ok(ruleBases.length > 0);
-
-  for (const base of ruleBases) {
-    const rel = `.cursor/rules/wolven-${base}.mdc`;
-    assert.ok(Object.hasOwn(manifest.files, rel), `${rel} is recorded`);
-    assert.equal(manifest.files[rel], sha256(await readFile(path.join(dir, rel))), `${rel} hash`);
-  }
-});
-
-test('setup-manifest: a re-run keeps existing entries and never re-hashes an edited file', async () => {
-  const dir = await makeRepo({}, { git: true });
-  const args = ['setup', '--git-host', 'gh', '--runtimes', 'codex'];
-  assert.equal((await run(args, { cwd: dir })).code, 0);
-  const first = await readManifest(dir);
-
-  const edited = path.join(dir, '.agents', 'rules', 'qmd-first.md');
-  await writeFile(edited, 'edited locally\n', 'utf8');
-
-  assert.equal((await run(args, { cwd: dir })).code, 0);
-  const second = await readManifest(dir);
-
-  assert.deepEqual(second.files, first.files, 'entries and hashes are untouched');
-  assert.equal(second.packageVersion, first.packageVersion);
-  assert.notEqual(
-    second.files['.agents/rules/qmd-first.md'],
-    sha256('edited locally\n'),
-    'the re-run does not re-hash a file it did not write',
-  );
-});
-
-test('setup-manifest: a failed run writes no manifest', async () => {
-  const dir = await makeRepo({}, { git: true });
-
-  setSymlinkImpl(async () => {
-    throw new Error('EPERM: operation not permitted, symlink');
-  });
-  try {
+test('proof-install-experience-no-manifest: root and outside runs write no manifest', async () => {
+  for (const git of [true, false]) {
+    const dir = await makeRepo({}, { git });
     const result = await run(['setup', '--git-host', 'gh', '--runtimes', 'claude'], { cwd: dir });
-    assert.equal(result.code, 1);
-  } finally {
-    setSymlinkImpl();
+    assert.equal(result.code, 0, result.stderr);
+    await assert.rejects(lstat(path.join(dir, '.wolven-harness.manifest.json')), { code: 'ENOENT' });
   }
-
-  await assert.rejects(readFile(path.join(dir, MANIFEST_FILENAME)), 'no manifest after a failed run');
 });

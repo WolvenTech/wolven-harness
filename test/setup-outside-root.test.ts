@@ -1,11 +1,10 @@
 import assert from 'node:assert/strict';
-import { lstat, mkdir, readFile, readlink } from 'node:fs/promises';
+import { lstat, mkdir, readdir, readFile, readlink } from 'node:fs/promises';
 import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { MANIFEST_FILENAME } from '../src/setup/manifest.js';
 import { CORE_SKILLS } from '../src/setup/skill-sets.js';
-import { makeRepo, run } from './helpers/fixture.js';
+import { makeRepo, type RunResult, run } from './helpers/fixture.js';
 import { walkFiles } from './helpers/walk.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -20,12 +19,33 @@ async function coreSkillFiles(): Promise<string[]> {
     .filter((rel) => (CORE_SKILLS as readonly string[]).includes(rel.split('/')[2]));
 }
 
-/** The exact file set the outside mode writes: the core skills, the config and the manifest. */
+/** The exact file set the outside mode writes: the core skills, the config. */
 async function outsideFileSet(): Promise<string[]> {
-  return [...(await coreSkillFiles()), '.wolven-harness.json', MANIFEST_FILENAME].sort();
+  return [...(await coreSkillFiles()), '.wolven-harness.json'].sort();
 }
 
-test('proof-install-experience-outside-root: outside a repository setup writes only the core skills, the links, the config and the manifest', async () => {
+/** Captures files, symlinks, and directories so a refusal can prove no tree mutation. */
+async function treeSnapshot(root: string): Promise<string[]> {
+  const entries: string[] = [];
+  async function walk(dir: string, rel = ''): Promise<void> {
+    for (const entry of await readdir(dir, { withFileTypes: true })) {
+      const child = path.join(dir, entry.name);
+      const childRel = rel ? `${rel}/${entry.name}` : entry.name;
+      if (entry.isDirectory()) {
+        entries.push(`dir:${childRel}`);
+        await walk(child, childRel);
+      } else if (entry.isSymbolicLink()) {
+        entries.push(`link:${childRel}:${await readlink(child)}`);
+      } else if (entry.isFile()) {
+        entries.push(`file:${childRel}:${(await readFile(child)).toString('base64')}`);
+      }
+    }
+  }
+  await walk(root);
+  return entries.sort();
+}
+
+test('proof-install-experience-outside-root: outside a repository setup writes only the core skills, the links, the config', async () => {
   const dir = await makeRepo({});
 
   const result = await run(['setup', '--git-host', 'gh', '--runtimes', 'claude'], { cwd: dir });
@@ -40,11 +60,6 @@ test('proof-install-experience-outside-root: outside a repository setup writes o
   for (const absent of ['WOLVEN.md', '.agents/rules', '.qmd', '.harness-score.json', 'CLAUDE.md', 'docs']) {
     await assert.rejects(lstat(path.join(dir, absent)), `${absent} must not exist`);
   }
-
-  const manifest = JSON.parse(await readFile(path.join(dir, MANIFEST_FILENAME), 'utf8')) as {
-    files: Record<string, string>;
-  };
-  assert.deepEqual(Object.keys(manifest.files).sort(), (await coreSkillFiles()).sort());
 
   const output = result.stdout + result.stderr;
   assert.match(output, /"harness-init"/);
@@ -61,34 +76,79 @@ test('proof-install-experience-outside-root: a package.json beside the install k
   assert.equal(await readFile(path.join(dir, 'package.json'), 'utf8'), packageJson, 'package.json is untouched');
 });
 
-test('proof-install-experience-outside-root: a subfolder of a git repository uses the same minimal mode', async () => {
+test('proof-install-experience-subfolder-refused: a repository subfolder is refused without changing any bytes', async () => {
   const parent = await makeRepo({ 'README.md': '# parent\n' }, { git: true });
   const subdir = path.join(parent, 'client');
   await mkdir(subdir);
+  const before = await treeSnapshot(parent);
+  let promptCalls = 0;
 
-  const result = await run(['setup', '--git-host', 'gh', '--runtimes', 'claude'], { cwd: subdir });
-
-  assert.equal(result.code, 0, result.stderr);
-  assert.deepEqual((await walkFiles(subdir)).sort(), await outsideFileSet());
-  await assert.rejects(lstat(path.join(subdir, 'WOLVEN.md')), 'no WOLVEN.md in the subfolder');
-
-  const parentFiles = await walkFiles(parent);
-  assert.ok(
-    parentFiles.every((rel) => rel === 'README.md' || rel.startsWith('client/')),
-    `the repository top-level is untouched: ${parentFiles.join(', ')}`,
+  const result = await run(
+    ['setup', '--git-host', 'gh', '--runtimes', 'claude', '--skills', 'none', '--package-manager', 'none'],
+    {
+      cwd: subdir,
+      isTTY: true,
+      prompts: {
+        async select() {
+          promptCalls++;
+          return undefined;
+        },
+        async multiselect() {
+          promptCalls++;
+          return undefined;
+        },
+      },
+    },
   );
+
+  assert.equal(result.code, 1, result.stderr);
+  assert.equal(promptCalls, 0, 'refusal happens before prompts');
+  assert.match(result.stderr, new RegExp(parent.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+  assert.match(result.stderr, /run setup at .* or in a folder outside the repository/i);
+  assert.deepEqual(await treeSnapshot(parent), before);
+});
+
+test('proof-install-experience-subfolder-refused: ancestor .git detection works when git is not on PATH', async () => {
+  const parent = await makeRepo({}, { git: true });
+  const subdir = path.join(parent, 'nested', 'client');
+  await mkdir(subdir, { recursive: true });
+  const before = await treeSnapshot(parent);
+  const originalPath = process.env.PATH;
+  let result: RunResult;
+  try {
+    process.env.PATH = '';
+    result = await run(
+      ['setup', '--git-host', 'gh', '--runtimes', 'claude', '--skills', 'none', '--package-manager', 'none'],
+      { cwd: subdir },
+    );
+  } finally {
+    if (originalPath === undefined) delete process.env.PATH;
+    else process.env.PATH = originalPath;
+  }
+  assert.equal(result.code, 1, result.stderr);
+  assert.match(result.stderr, new RegExp(parent.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+  assert.deepEqual(await treeSnapshot(parent), before);
 });
 
 test('proof-install-experience-global-hint: a local or cached executable recommends the global install', async () => {
-  const localDir = await makeRepo({});
+  const localDir = await makeRepo({ 'pnpm-lock.yaml': 'lockfileVersion: 9.0\n' });
   const local = await run(['setup', '--git-host', 'gh', '--runtimes', 'claude'], {
     cwd: localDir,
-    execPath: '/work/client/node_modules/.bin/wolven-harness',
+    execPath:
+      '/work/client/node_modules/.pnpm/@wolven-tech+harness@1.2.3/node_modules/@wolven-tech/harness/dist/cli.js',
   });
   assert.equal(local.code, 0, local.stderr);
-  assert.match(local.stderr, /npm install -g @wolven-tech\/harness/);
+  assert.match(local.stderr, /pnpm add -g @wolven-tech\/harness/);
 
-  const cachedDir = await makeRepo({});
+  const dlxDir = await makeRepo({ 'pnpm-lock.yaml': 'lockfileVersion: 9.0\n' });
+  const dlx = await run(['setup', '--git-host', 'gh', '--runtimes', 'claude'], {
+    cwd: dlxDir,
+    execPath: '/home/client/.cache/pnpm/dlx/1a2b3c/node_modules/@wolven-tech/harness/dist/cli.js',
+  });
+  assert.equal(dlx.code, 0, dlx.stderr);
+  assert.match(dlx.stderr, /pnpm add -g @wolven-tech\/harness/);
+
+  const cachedDir = await makeRepo({ 'package-lock.json': '{}\n' });
   const cached = await run(['setup', '--git-host', 'gh', '--runtimes', 'claude'], {
     cwd: cachedDir,
     execPath: '/home/client/.npm/_npx/1a2b/node_modules/.bin/wolven-harness',

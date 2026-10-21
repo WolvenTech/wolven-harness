@@ -1,7 +1,6 @@
 ---
 description: Search docs/ with QMD before answering from memory or the web; ADRs first, then widen.
 alwaysApply: true
-trigger: always_on
 ---
 
 # QMD before web

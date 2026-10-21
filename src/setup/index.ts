@@ -3,7 +3,6 @@ import { fileURLToPath } from 'node:url';
 import { applyTemplates } from './apply.js';
 import type { PackageManager } from './config.js';
 import { HARNESS_SCORE_VERSION, harnessScoreWarning } from './harness-score.js';
-import { createWriteRecorder, writeManifest } from './manifest.js';
 import { resolveOptions } from './options.js';
 import { devDependencyWarning, resolveOwnPackage } from './own-package.js';
 import { execBinary, executePackage, globalAdd, recordedPackageManager, runScript } from './package-manager.js';
@@ -61,7 +60,13 @@ function outsideNextSteps(runtimes: Runtime[]): string[] {
 }
 
 /** Paths that place this run outside a global install: a project binary folder or a package-manager cache. */
-const NON_GLOBAL_EXEC = [/[/\\]node_modules[/\\]\.bin[/\\]/, /[/\\]_npx[/\\]/, /[/\\]_cacache[/\\]/];
+const NON_GLOBAL_EXEC = [
+  /[/\\]node_modules[/\\]\.bin[/\\]/,
+  /[/\\]node_modules[/\\]\.pnpm[/\\]/,
+  /[/\\]pnpm[/\\]dlx[/\\]/,
+  /[/\\]_npx[/\\]/,
+  /[/\\]_cacache[/\\]/,
+];
 
 /**
  * A hint naming the global install when the running script is a project
@@ -96,9 +101,8 @@ function outsideSummary(apply: StepResult, wiring: StepResult): Summary {
 /**
  * Runs `setup`'s steps in a fixed order: resolve options (prompting on a
  * TTY), then either the full scaffold at a git top-level or, outside one,
- * only the core skills, the runtime skills wiring, the config and the
- * manifest. The full scaffold applies the templates, wires the runtimes,
- * adds the harness scripts and records the manifest; both modes then report
+ * only the core skills, the runtime skills wiring and the config. The full scaffold applies the templates, wires the runtimes,
+ * adds the harness scripts; both modes then report
  * a grouped summary, any warnings, and the commands to run after setup.
  * `--verbose` also lists every file; `--debug` (or `WOLVEN_HARNESS_DEBUG=1`)
  * traces each step on stderr.
@@ -124,11 +128,10 @@ export async function runSetup(argv: string[], io: Io): Promise<number> {
     const outside = opts.mode === 'outside';
     const manager = await traced(io, debug, 'recordedPackageManager', () => recordedPackageManager(ctx.root));
     const wiredNames = opts.runtimes.map(runtimeName).join(' / ');
-    const recorder = createWriteRecorder();
 
     if (outside) {
       ui.warn(
-        'This folder is not a git top-level, so setup writes only the core skills, the runtime skills wiring, .wolven-harness.json and its manifest. Run the "harness-init" skill here to scaffold the rest.',
+        'This folder is not a git top-level, so setup writes only the core skills, the runtime skills wiring, .wolven-harness.json. Run the "harness-init" skill here to scaffold the rest.',
       );
     }
 
@@ -138,18 +141,15 @@ export async function runSetup(argv: string[], io: Io): Promise<number> {
       () =>
         traced(io, debug, 'applyTemplates', () =>
           outside
-            ? applyTemplates(ctx, CORE_SKILLS, undefined, recorder, { skillsOnly: true })
-            : applyTemplates(ctx, skillFolders(opts.skillSets), opts.skillSets, recorder),
+            ? applyTemplates(ctx, CORE_SKILLS, undefined, { skillsOnly: true })
+            : applyTemplates(ctx, skillFolders(opts.skillSets), opts.skillSets),
         ),
     );
     const runtimeResult = await ui.phase(`Wiring ${wiredNames}`, `Wired ${wiredNames}`, () =>
-      traced(io, debug, 'wireRuntimes', () =>
-        outside ? wireRuntimeSkills(opts, ctx) : wireRuntimes(opts, ctx, recorder),
-      ),
+      traced(io, debug, 'wireRuntimes', () => (outside ? wireRuntimeSkills(opts, ctx) : wireRuntimes(opts, ctx))),
     );
 
     if (outside) {
-      await traced(io, debug, 'writeManifest', () => writeManifest(ctx.root, recorder));
       ui.summary(outsideSummary(applyResult, runtimeResult));
       if (verbose)
         ui.files(
@@ -165,7 +165,6 @@ export async function runSetup(argv: string[], io: Io): Promise<number> {
     const scriptResult = await ui.phase('Adding package scripts', 'Checked package scripts', () =>
       traced(io, debug, 'addValidateScript', () => addValidateScript(ctx)),
     );
-    await traced(io, debug, 'writeManifest', () => writeManifest(ctx.root, recorder));
     const warning = await traced(io, debug, 'devDependencyWarning', () => devDependencyWarning(ctx, manager));
     const scoreWarning = await traced(io, debug, 'harnessScoreWarning', () => harnessScoreWarning(ctx, manager));
     ui.summary(buildSummary(applyResult, runtimeResult, scriptResult, opts.runtimes, opts.keptSets));

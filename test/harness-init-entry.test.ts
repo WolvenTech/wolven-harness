@@ -117,23 +117,23 @@ test('step0-rules: the entry text checks the wired runtimes and inserts the rule
   const flat = flatten(content);
 
   assert.match(flat, /Read `\.wolven-harness\.json` before writing either mode/);
-  assert.match(flat, /`runtimes` list includes `codex`/i);
-  assert.match(flat, /cannot import files/);
+  assert.match(flat, /A selected runtime with inline rules mode \(`codex` or `antigravity`\)/i);
+  assert.match(flat, /reads the standing rules only from `AGENTS\.md`/);
   assert.match(flat, /`<!-- wolven-harness:rules:start -->` and\s+`<!-- wolven-harness:rules:end -->`/i);
   assert.match(flat, /inside the section's own start and end markers/i);
   assert.match(flat, /Read every `\.agents\/rules\/\*\.md` and strip its YAML frontmatter/);
-  assert.match(flat, /When `codex` is not wired, write no rules block/);
+  assert.match(flat, /Otherwise, the wired runtimes read `\.agents\/rules\/` through their own wiring/);
 
   const full = flatten(sectionBody(content, '## Full', '## Light'));
   assert.match(
     full,
-    /lists `codex` under `runtimes`, append the \[rules block\]\(#rules-for-codex\) inside the section's markers/i,
+    /lists a runtime with inline rules mode \(`codex` or `antigravity`\), append the \[rules block\]\(#rules-for-codex\) inside the section's markers/i,
   );
 
   const light = flatten(sectionBody(content, '## Light', '## Rules for `codex`'));
   assert.match(
     light,
-    /lists `codex` under `runtimes`, insert the \[rules block\]\(#rules-for-codex\) before the closing/i,
+    /lists a runtime with inline rules mode \(`codex` or `antigravity`\), insert the \[rules block\]\(#rules-for-codex\) before the closing/i,
   );
 });
 
@@ -142,13 +142,16 @@ test('step0-rules: amp gets one rule import per rule, outside the codex block', 
   const amp = flatten(sectionBody(content, '## Rules for `amp`', '## Deletion rule'));
 
   assert.match(amp, /Read `\.wolven-harness\.json` before writing either mode/);
-  assert.match(amp, /`runtimes` list includes `amp` and not `codex`/i);
+  assert.match(amp, /`runtimes` list includes `amp` and the selected runtimes use native rules mode/i);
   assert.match(amp, /one `@\.agents\/rules\/<rule>\.md` import per installed rule/i);
   assert.match(
     amp,
     /inside the section's start and end markers and outside any\s+`<!-- wolven-harness:rules:start -->` block/i,
   );
-  assert.match(amp, /When `codex` is also wired, the inline rules block already\s+reaches Amp, so add no imports/i);
+  assert.match(
+    amp,
+    /When any selected runtime uses inline rules mode \(`codex` or `antigravity`\), the inline rules block already\s+reaches Amp, so add no imports/i,
+  );
   assert.match(amp, /@\.agents\/rules\/qmd-first\.md/);
 });
 

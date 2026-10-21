@@ -9,8 +9,8 @@ import { SetupError } from './types.js';
 /** The package manager a project resolves to; `none` when there is no `package.json`. */
 export type PackageManager = 'npm' | 'yarn' | 'pnpm' | 'none';
 
-/** Whether the harness home is the open folder (`home`) or one it reaches from above (`linked`). */
-export type HarnessLayout = 'home' | 'linked';
+/** The supported harness layout: the open folder is the harness home. */
+export type HarnessLayout = 'home';
 
 /** The subject shape `code-commit` and `code-pr` apply to `codeRepo` work. */
 export type CommitConvention = { style: 'conventional' } | { style: 'pattern'; pattern: string; example: string };
@@ -30,8 +30,6 @@ export interface Config {
   packageVersion?: string;
   packageManager?: PackageManager;
   layout?: HarnessLayout;
-  /** Required when `layout` is `linked`; a path relative to the config file's folder. */
-  harnessHome?: string;
   /** The one code repository this install serves; a path relative to the config file's folder. */
   codeRepo?: string;
   commitConvention?: CommitConvention;
@@ -52,7 +50,6 @@ const KNOWN_KEYS = new Set([
   'packageVersion',
   'packageManager',
   'layout',
-  'harnessHome',
   'codeRepo',
   'commitConvention',
 ]);
@@ -61,7 +58,7 @@ export const CONFIG_FILENAME = '.wolven-harness.json';
 
 const GIT_HOSTS: readonly GitHost[] = ['gh', 'bit'];
 const PACKAGE_MANAGERS: readonly PackageManager[] = ['npm', 'yarn', 'pnpm', 'none'];
-const LAYOUTS: readonly HarnessLayout[] = ['home', 'linked'];
+const LAYOUTS: readonly HarnessLayout[] = ['home'];
 const RUNTIME_ID_LIST = RUNTIME_REGISTRY.map((row) => row.id).join('", "');
 
 export function isGitHost(value: unknown): value is GitHost {
@@ -136,8 +133,7 @@ function readCommitConvention(value: unknown): CommitConvention {
  * exists but is not valid JSON, or its shape breaks the contract: `version`
  * is not `1`; `gitHost`/`runtimes` are missing or hold unknown values;
  * `ignore` is not an array of strings; `packageVersion` is not a string;
- * `packageManager`/`layout` hold an unknown value; `harnessHome` is missing
- * for `linked`, present otherwise, or not a relative path; `codeRepo` is not
+ * `packageManager`/`layout` hold an unknown value; `harnessHome` is present; `codeRepo` is not
  * a relative path; `commitConvention` is not one of its two shapes. Any
  * other top-level key is preserved in `extra`, untyped.
  */
@@ -213,18 +209,13 @@ export async function readConfig(root: string): Promise<Config | undefined> {
 
   if (obj.layout !== undefined) {
     if (!isHarnessLayout(obj.layout)) {
-      throw new SetupError(`${CONFIG_FILENAME} "layout" must be "home" or "linked"`);
+      throw new SetupError(`${CONFIG_FILENAME} "layout" must be "home"`);
     }
     config.layout = obj.layout;
   }
 
-  if (obj.harnessHome !== undefined) {
-    if (config.layout !== 'linked') {
-      throw new SetupError(`${CONFIG_FILENAME} "harnessHome" is only allowed when "layout" is "linked"`);
-    }
-    config.harnessHome = readRelativePath('harnessHome', obj.harnessHome);
-  } else if (config.layout === 'linked') {
-    throw new SetupError(`${CONFIG_FILENAME} "harnessHome" is required when "layout" is "linked"`);
+  if (Object.hasOwn(obj, 'harnessHome')) {
+    throw new SetupError(`${CONFIG_FILENAME} "harnessHome" is not supported`);
   }
 
   if (obj.codeRepo !== undefined) {
@@ -257,7 +248,7 @@ async function existingKeyOrder(file: string): Promise<string[]> {
 /**
  * Writes `.wolven-harness.json` at `root` as 2-space JSON with a trailing
  * newline: `{ "version", "gitHost", "runtimes" }`, plus `skillSets`,
- * `packageVersion`, `ignore`, `packageManager`, `layout`, `harnessHome`,
+ * `packageVersion`, `ignore`, `packageManager`, `layout`,
  * `codeRepo` and `commitConvention` when set, plus every key in
  * `config.extra` (e.g. `comments`). Keys already in the file keep their
  * order; new keys follow in the order above. Callers are responsible for
@@ -286,9 +277,6 @@ export async function writeConfig(root: string, config: Config): Promise<void> {
   }
   if (config.layout !== undefined) {
     fresh.layout = config.layout;
-  }
-  if (config.harnessHome !== undefined) {
-    fresh.harnessHome = config.harnessHome;
   }
   if (config.codeRepo !== undefined) {
     fresh.codeRepo = config.codeRepo;

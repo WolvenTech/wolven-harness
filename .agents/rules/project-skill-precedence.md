@@ -1,7 +1,6 @@
 ---
 description: Check project skills before using a skill and resolve references from the selected copy.
 alwaysApply: true
-trigger: always_on
 ---
 
 # Prefer project skills

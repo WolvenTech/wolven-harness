@@ -1,10 +1,10 @@
 ---
-description: Complete CLI reference for setup, doctor, skills, validate, comments, flags, configuration, output, and exit codes.
+description: CLI reference for setup, skills, validate, comments, flags, configuration, output, and exit codes.
 ---
 
 # Commands
 
-Use `wolven-harness` to set up the tools your coding agent needs, check the install, and check the harness as you work. Most people install it globally, run `setup` where their agent works, ask their agent to run `harness-init`, and then use `doctor`, `validate` and `comments` as they go. This page starts with common examples and then gives the exact options and behavior for all five commands.
+Install `@wolven-tech/harness` globally, then run `setup` from the top level of a Git repository or a folder outside every repository. This page starts with common examples and then gives the exact options and behavior for the four commands.
 
 ## Install and run
 
@@ -16,23 +16,22 @@ yarn global add @wolven-tech/harness
 pnpm add -g @wolven-tech/harness
 ```
 
-Then run setup where your agent works:
+Then run setup from the top level of a Git repository, or from a folder outside every repository:
 
 ```sh
 wolven-harness setup --git-host gh --runtimes claude
 ```
 
-`setup` runs at a Git top level or anywhere else. At a top level it scaffolds the harness; outside one it writes the core skills and their runtime links, then hands back so `harness-init` can finish the install there. Ask your coding agent to run the `harness-init` skill next; see [Setup](./harness-init).
+`setup` runs at a Git top level or outside any repository. At a top level it scaffolds the harness; outside one it writes the core skills and selected runtime links, then points to `harness-init` to finish the install there. A repository subfolder is not a setup location. Ask your coding agent to run the `harness-init` skill next; see [Setup](./harness-init).
 
 Check the install at any time, and check the harness as you work:
 
 ```sh
-wolven-harness doctor
 wolven-harness validate
 wolven-harness comments --base origin/main
 ```
 
-`npx @wolven-tech/harness <command>` works without a global install; `setup` then names the global install command for the recorded package manager, and `doctor` warns that `wolven-harness` is not on `PATH`. From a source checkout, build first with `pnpm build`, then run `node /path/to/wolven-harness/dist/cli.js <command>`.
+`npx @wolven-tech/harness <command>` works without a global install; `setup` then names the global install command for the recorded package manager. From a source checkout, build first with `pnpm build`, then run `node /path/to/wolven-harness/dist/cli.js <command>`.
 
 When `setup` adds the package scripts, the `harness:validate`, `harness:comments` and `harness:score` scripts run the same commands through the package manager the install recorded (`npm run harness:validate`, `yarn harness:validate`, `pnpm harness:validate`, or the bare binaries when there is no `package.json`).
 
@@ -40,8 +39,7 @@ When `setup` adds the package scripts, the `harness:validate`, `harness:comments
 
 | Command | What it does | Where to run it |
 | --- | --- | --- |
-| `setup` | Installs missing harness files, wires selected runtimes, records setup choices and an install manifest, and adds missing package scripts. | A Git top level, or any other folder for the minimal install. |
-| `doctor` | Checks that an install works for each wired runtime, and writes nothing. | The folder setup ran in, or its parent with `--dir`. |
+| `setup` | Installs missing harness files, wires selected runtimes, records setup choices and adds missing package scripts. | A Git top level, or a folder outside every repository for the minimal install. |
 | `skills` | Copies selected ship and discovery skills into runtime load paths without installing the harness. | Any directory; no Git repository required. |
 | `validate` | Checks documentation structure, ADR references, installed skills and rules, and harness paths. | Anywhere inside a Git repository. |
 | `comments` | Checks newly added comment blocks against the repository's comment rules. | Anywhere inside a Git repository. |
@@ -64,9 +62,9 @@ wolven-harness setup [options]
 
 `setup` adds the harness files that are missing, wires the runtimes you choose, and adds check scripts to an existing `package.json` when those scripts are absent.
 
-**Modes.** At a Git top level it scaffolds the full harness: the `.agents/` skills and rules tree, the document folders, `WOLVEN.md`, the local search index, `.harness-score.json`, each runtime's wiring, and the `harness:validate`, `harness:comments` and `harness:score` scripts in an existing `package.json`. Outside a Git top level, including from a subdirectory or a folder with no repository, it writes only the core skills under `.agents/skills/`, each selected runtime's skills wiring, `.wolven-harness.json` and `.wolven-harness.manifest.json`, then exits 0 and points at `harness-init`. A minimal install writes no `docs/`, `WOLVEN.md`, `.agents/rules/`, `.qmd/`, `.harness-score.json` or `package.json` scripts.
+**Modes.** At a Git top level it scaffolds the full harness: the `.agents/` skills and rules tree, the document folders, `WOLVEN.md`, the local search index, `.harness-score.json`, each runtime's wiring, and the `harness:validate`, `harness:comments` and `harness:score` scripts in an existing `package.json`. Outside a Git top level, from a folder outside any repository, it writes only the core skills under `.agents/skills/`, each selected runtime's skills wiring, and `.wolven-harness.json`, then exits 0 and points at `harness-init`. A repository subfolder exits 1 without writing files. A minimal install writes no `docs/`, `WOLVEN.md`, `.agents/rules/`, `.qmd/`, `.harness-score.json` or `package.json` scripts.
 
-You can safely run setup again: it leaves existing files and scripts in place. It never creates or edits `AGENTS.md`, installs dependencies, or commits changes. After a successful run, `.wolven-harness.json` records your choices and the installed package version, and `.wolven-harness.manifest.json` records the hash of every file setup created.
+You can safely run setup again: it leaves existing files and scripts in place. It never creates or edits `AGENTS.md`, installs dependencies, or commits changes. After a successful run, `.wolven-harness.json` records your choices and the installed package version.
 
 ### Options
 
@@ -105,50 +103,16 @@ At a Git top level:
 - `.qmd/index.yml` and the local index ignore file.
 - `.harness-score.json`, the starter configuration for harness scoring.
 - `.wolven-harness.json`, with the resolved Git host, runtimes, selected skill sets, package manager and package version.
-- `.wolven-harness.manifest.json`, with the hash of every file setup created; a re-run only adds entries.
 - Missing `harness:validate`, `harness:comments`, and `harness:score` scripts in an existing `package.json`.
 - Each selected runtime's skills wiring and native rules wiring, created only if missing. See [Agent runtimes](./runtimes) for the paths.
 
-Outside a Git top level:
+Outside any Git repository:
 
 - The core skills under `.agents/skills/`.
 - Each selected runtime's skills wiring.
-- `.wolven-harness.json` and `.wolven-harness.manifest.json`.
+- `.wolven-harness.json`.
 
 Existing files and scripts are preserved. Setup does not install `harness-score`; when it is needed but absent, setup prints the command to add it, using the recorded package manager. If there is no `package.json`, no scripts are added.
-
-## `doctor`
-
-```text
-wolven-harness doctor [--dir <path>]
-```
-
-Checks that an install works for each runtime it wires. It reads `.wolven-harness.json` in `--dir` (default: the current directory) and follows `harnessHome` when the layout is `linked`. It writes nothing, installs no tool and uses no network. Any argument other than `--dir <path>` exits 1.
-
-**Checks.** For each wired runtime: `doctor-entry` (the instruction chain reaches the harness section of `AGENTS.md`), `doctor-rules` (the runtime's rules strategy holds), and `doctor-skills` (the runtime's project skills path resolves to `.agents/skills` and holds every installed skill). Once: `doctor-docs` (`docs/` is in a Git repository with a commit and is not ignored), `doctor-qmd` (`qmd` is on `PATH` and the harness home has `.qmd/index.sqlite`), and `doctor-code-repo` (no harness path exists under `codeRepo`). It also warns `doctor-not-global` when `wolven-harness` is not on `PATH`, `doctor-version-behind` when the recorded `packageVersion` is older than the running CLI, and the drift warnings below.
-
-### Finding codes
-
-| Code | Level | Meaning |
-| --- | --- | --- |
-| `doctor-config` | Error | `.wolven-harness.json` is missing or invalid; no other check runs. |
-| `doctor-entry` | Error | A wired runtime's instruction files do not reach the harness section. |
-| `doctor-rules` | Error | A wired runtime does not receive the standing rules. |
-| `doctor-skills` | Error | A wired runtime's skills folder does not hold the installed skills. |
-| `doctor-docs` | Error | `docs/` is not in a Git repository with a commit, or is ignored. |
-| `doctor-qmd` | Error | `qmd` is not on `PATH`, or the harness home has no `.qmd/index.sqlite`. |
-| `doctor-code-repo` | Error | A harness path exists inside `codeRepo`. |
-| `doctor-not-global` | Warning | `wolven-harness` is not on `PATH`. |
-| `doctor-version-behind` | Warning | The recorded `packageVersion` is older than the running CLI. |
-| `doctor-drift-edited` | Warning | A file differs from its manifest entry, or there is no manifest and it differs from its template. |
-| `doctor-drift-stale` | Warning | A file matches its manifest entry but not the current template. |
-| `doctor-drift-missing` | Warning | A current template file is absent. |
-
-### Output and exit
-
-Findings print one per line as `<level> [<code>] <message>`, and each error is followed by `fix: <text>`. The last line is `doctor: ok` when there are no errors, else `doctor: <X> error(s), <Y> warning(s)`. `doctor` exits 0 with no errors and 1 otherwise; warnings never change the exit code. It never writes a file, so running it cannot repair an install.
-
-Repairs are the `harness-doctor` skill's job: it runs `doctor`, proposes one fix at a time, applies a fix only after you agree, reruns `doctor`, and closes by listing the checks you declined as still failing.
 
 ## `skills`
 
@@ -245,8 +209,6 @@ Setup stores its choices in `.wolven-harness.json` in the folder it ran in. The 
   "skillSets": ["ship"],
   "packageVersion": "0.4.0",
   "packageManager": "pnpm",
-  "layout": "linked",
-  "harnessHome": "../harness-home",
   "codeRepo": "../client",
   "commitConvention": { "style": "conventional" },
   "ignore": ["vendor/**"],
@@ -268,9 +230,7 @@ Setup stores its choices in `.wolven-harness.json` in the folder it ran in. The 
 | `skillSets` | No | Optional `ship` and/or `discovery` sets; core is always installed. |
 | `packageVersion` | No | Refreshed to the running package version by setup. |
 | `packageManager` | No | `npm`, `yarn`, `pnpm` or `none`; the manager whose command forms the CLI prints. `--package-manager` overrides it. |
-| `layout` | No | `home` or `linked`; `linked` means the open folder reaches the harness home through symlinks. |
-| `harnessHome` | Required for `linked` | A path relative to the config file's folder; not allowed for `home`. |
-| `codeRepo` | No | The one code repository the install serves, as a path relative to the config file's folder. `doctor` reports a harness path found there. |
+| `codeRepo` | No | The one code repository the install serves, as a path relative to the config file's folder. |
 | `commitConvention` | No | `{ "style": "conventional" }`, or `{ "style": "pattern", "pattern": "<regex>", "example": "<subject>" }` where the pattern compiles as a JavaScript regular expression. |
 | `ignore` | No | Validation scan exclusions and default comments exclusions. Each entry must be `<dir>/**`; `docs/` and `.agents/` cannot be excluded. |
 | `comments.paths` | No | Non-empty directory list replacing the default comments scope. When set, it takes precedence over `ignore` for comment selection. |
@@ -284,21 +244,14 @@ Any unknown top-level keys are retained when setup rewrites the file. Invalid JS
 
 | Exit code | Meaning |
 | --- | --- |
-| `0` | Help/version printed, setup completed, `doctor` found no errors, or a validation/comment scan found no errors. Warnings alone still succeed. |
-| `1` | Unknown command or option, invalid or missing required values, cancelled setup prompt, config or Git error, one or more error-level findings, or a `doctor` error finding. |
+| `0` | Help/version printed, setup completed, or a validation/comment scan found no errors. Warnings alone still succeed. |
+| `1` | Unknown command or option, invalid or missing required values, cancelled setup prompt, config or Git error, or one or more error-level findings. |
 
 Common setup problems:
 
 - **Missing `--git-host` or `--runtimes`** — add the missing values to the setup command in your script, for example `wolven-harness setup --git-host=gh --runtimes=claude,codex`, or run setup in a terminal to answer its questions.
 - **Several lockfiles and no terminal** — pass `--package-manager npm`, `--package-manager yarn` or `--package-manager pnpm`.
 - **`harness-score` is missing** — install the version-specific command printed by setup before using `harness:score`.
-
-Common doctor problems:
-
-- **`doctor-config`** — run `wolven-harness setup` in the folder first, or fix the key the message names in `.wolven-harness.json`.
-- **`doctor-entry` or `doctor-rules`** — ask your agent to run `harness-init` to fold `WOLVEN.md` into `AGENTS.md` and wire the rules.
-- **`doctor-qmd`** — install `qmd`, then run `qmd update` and `qmd embed` in the harness home.
-- **`doctor-drift-edited` / `doctor-drift-stale`** — ask your agent to run `harness-doctor`: it shows the diff, offers to refresh a stale file, and updates its manifest entry.
 
 Common check problems:
 

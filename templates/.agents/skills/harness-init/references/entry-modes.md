@@ -38,7 +38,8 @@ existing content to fold into, so nothing is appended, and the body's H1
 stays as the file's title with its headings unchanged. The markers stay
 intact around the harness body.
 
-When `.wolven-harness.json` lists `codex` under `runtimes`, append the
+When `.wolven-harness.json` lists a runtime with inline rules mode (`codex` or
+`antigravity`), append the
 [rules block](#rules-for-codex) inside the section's markers, after the
 folded body and before `<!-- wolven-harness:end -->`. Otherwise write no
 rules block.
@@ -87,7 +88,8 @@ Run `harness:validate` after any change to `.agents/**` or `docs/**`.
 <!-- wolven-harness:end -->
 ```
 
-When `.wolven-harness.json` lists `codex` under `runtimes`, insert the
+When `.wolven-harness.json` lists a runtime with inline rules mode (`codex` or
+`antigravity`), insert the
 [rules block](#rules-for-codex) before the closing
 `<!-- wolven-harness:end -->`. Otherwise write no rules block.
 
@@ -95,10 +97,10 @@ When `.wolven-harness.json` lists `codex` under `runtimes`, insert the
 
 ## Rules for `codex`
 
-Read `.wolven-harness.json` before writing either mode. When its `runtimes`
-list includes `codex`, that runtime cannot import files, so the standing
-rules reach it only from `AGENTS.md`. Both modes then put the four rule
-bodies inside the harness section, between exactly
+Read `.wolven-harness.json` before writing either mode. A selected runtime
+with inline rules mode (`codex` or `antigravity`) reads the standing rules
+only from `AGENTS.md`. Both modes then put the four rule bodies inside the
+harness section, between exactly
 `<!-- wolven-harness:rules:start -->` and
 `<!-- wolven-harness:rules:end -->`, and inside the section's own start and
 end markers.
@@ -132,15 +134,17 @@ The block holds all four named rules in one span:
 <!-- wolven-harness:rules:end -->
 ```
 
-When `codex` is not wired, write no rules block: the wired runtimes read
-`.agents/rules/` through their own wiring.
+When a selected runtime reads rules inline (`codex` or `antigravity`), write
+the rules block. Otherwise, the wired runtimes read `.agents/rules/` through
+their own wiring.
 
 ## Rules for `amp`
 
 Read `.wolven-harness.json` before writing either mode. When its `runtimes`
-list includes `amp` and not `codex`, the section's own start and end markers
-also carry one `@.agents/rules/<rule>.md` import per installed rule, so Amp
-includes each file:
+list includes `amp` and the selected runtimes use native rules mode, the
+section's own start and end markers also carry one
+`@.agents/rules/<rule>.md` import per installed rule, so Amp includes each
+file:
 
 ```markdown
 @.agents/rules/qmd-first.md
@@ -151,8 +155,8 @@ includes each file:
 
 Write the imports inside the section's start and end markers and outside any
 `<!-- wolven-harness:rules:start -->` block, so a runtime never reads the
-same rule twice. When `codex` is also wired, the inline rules block already
-reaches Amp, so add no imports.
+same rule twice. When any selected runtime uses inline rules mode (`codex` or
+`antigravity`), the inline rules block already reaches Amp, so add no imports.
 
 ## Deletion rule
 

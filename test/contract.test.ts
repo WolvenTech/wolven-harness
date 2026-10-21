@@ -112,27 +112,9 @@ test('contract: runtime ids match ADR-005', async () => {
   assertSameSet('runtime ids', actual, documented);
 });
 
-test('contract: doctor finding codes match ADR-005', async () => {
-  const adr = await readFile(ADR, 'utf8');
-  const table = adrSection(adr, '### `doctor`', '### `skills`');
-  const documented = new Set(backticked(table, /^doctor-[a-z-]+$/));
-  assert.ok(documented.size > 0, 'ADR-005 lists no doctor finding codes');
-
-  const files = (await tsFiles(path.join(ROOT, 'src', 'doctor'))).filter((file) => !file.endsWith('report.ts'));
-  const emitted = new Set<string>();
-  for (const file of files) {
-    for (const match of (await readFile(file, 'utf8')).matchAll(/'(doctor-[a-z-]+)'/g)) emitted.add(match[1]);
-  }
-  assertSameSet('doctor finding codes', emitted, documented);
-});
-
 test('contract: config keys match ADR-005', async () => {
   const adr = await readFile(ADR, 'utf8');
-  const table = adrSection(
-    adr,
-    '### `.wolven-harness.json`, schema `version: 1`',
-    '### `.wolven-harness.manifest.json`',
-  );
+  const table = adrSection(adr, '### `.wolven-harness.json`, schema `version: 1`', '### Not contract');
   const documented = new Set(
     [...table.matchAll(/^\| `([A-Za-z.]+)` \|/gm)].map((match) => match[1]).filter((key) => !key.includes('.')),
   );
@@ -150,7 +132,7 @@ test('contract: --help lists the commands and --version', async () => {
   const result = await run(['--help'], { cwd: dir });
 
   assert.equal(result.code, 0);
-  for (const word of ['setup', 'doctor', 'validate', 'comments', '--version']) {
+  for (const word of ['setup', 'validate', 'comments', '--version']) {
     assert.ok(result.stdout.includes(word), `--help output does not mention ${word}`);
   }
 });
@@ -192,4 +174,22 @@ test('contract: config schema v1 preserves unknown top-level keys and key order 
   const rewritten = JSON.parse(await readFile(path.join(dir, CONFIG_FILENAME), 'utf8')) as Record<string, unknown>;
   assert.deepEqual(rewritten.vendorKey, { nested: [1, 2] });
   assert.deepEqual(Object.keys(rewritten), ['version', 'gitHost', 'vendorKey', 'runtimes']);
+});
+
+test('proof-install-experience-contract: ADR-005 records the wiring release only', async () => {
+  const adr = await readFile(ADR, 'utf8');
+  assert.doesNotMatch(adr, /doctor|manifest|harnessHome|linked/);
+  assert.match(adr, /Outside any git repository/);
+  assert.match(adr, /Inside a repository subfolder/);
+  assert.match(adr, /before prompting or\s+writing/);
+  assert.match(adr, /diagnostic names the repository top-level/);
+  assert.match(adr, /`--package-manager`/);
+  assert.match(adr, /\| `layout` \| string \| Optional\. `home` only/);
+  for (const key of ['packageManager', 'codeRepo', 'commitConvention']) {
+    assert.ok(adr.includes(`| \`${key}\` |`), `config key ${key} is documented`);
+  }
+  const dir = await makeRepo({});
+  const result = await run(['doctor'], { cwd: dir });
+  assert.equal(result.code, 1);
+  assert.match(result.stderr, /unknown command "doctor"/);
 });
