@@ -65,25 +65,25 @@ Each skill or rule file a unit owns under `templates/.agents/` has a copy under 
 | 18 | Successor ADR records `doctor` | 11, 14, 16, 17 | `docs/adrs/adr-006-install-check-and-repair-contract.md`; the wiring-only predecessor under `docs/adrs/` (`deprecated`, `superseded_by`); every claim repointed; `test/contract.test.ts`; `docs/deferrals/setup-drift-check/` (delete) | `inline` | [x] Created through the `adr` skill as a draft and promoted on the Human's word. It carries the wiring-only predecessor forward and adds `doctor` (flags, output, exits, codes including `doctor-rules-stale`), `layout: "linked"` and `harnessHome`. The wiring-only predecessor is deprecated, and the deferral folder is gone. Proofs: `proof-install-experience-contract` PASS for ADR-006 with 0 claim failures (R9.1, PR 2 half), and `proof-install-experience-drift-deferral` PASS (R9.3) |
 | 19 | Install docs with `doctor` | 17 | `README.md`; `site/commands.md`; `site/index.md`; `site/skills.md`; `test/readme-install.test.ts` | `spawn` | [x] README and the site add `doctor` and `harness-doctor`, with its codes as unit 11 and unit 14 left them, in npm, yarn and pnpm forms. `pnpm docs:build` exits 0. Proof: `proof-install-experience-docs` PASS for its PR 2 half (R9.2) |
 | 20 | **Wave 2 gate** | 10–19 | — | `inline` | [x] `pnpm build && pnpm test && pnpm lint && pnpm validate && pnpm comments` exit 0. Each box under the spec's Acceptance › Wave 2 is ticked. The doctor smoke runs `node dist/cli.js doctor --dir` on four fixtures and exits 1 on the audited shape, 0 on the repaired one, 0 on the linked one and 0 on the claude-and-codex one. `proof-install-experience-pr2-surface` holds. On failure, **abort** |
-| 21 | **Ship gate:** re-report every finding | 20 | This plan's Finding map (Outcome column) | `inline` | [ ] Each finding F1–F14 is marked `fixed`, `skipped` or `no_change_needed`, with the unit and proof that closed it. Every `skipped` names a reason the Human accepted. `harness:validate` PASS |
+| 21 | **Ship gate:** re-report every finding | 20 | This plan's Finding map (Outcome column) | `inline` | [x] Each finding F1–F14 is marked `fixed`, `skipped` or `no_change_needed`, with the unit and proof that closed it. Every `skipped` names a reason the Human accepted. `harness:validate` PASS |
 
 ## Finding map
 
 | Finding | Unit | Proof that closes it | Outcome |
 |---|---|---|---|
-| F1 doctor fails claude+codex | 10 | `proof-install-experience-doctor-checks` (claude-and-codex fixture) | |
-| F2 `doctor-code-repo` false positive | 12 | `proof-install-experience-no-code-writes` | |
-| F3 hint misses pnpm | 05 | `proof-install-experience-global-hint` | |
-| F4 doctor never hints | 14 | `proof-install-experience-global-hint`, `proof-install-experience-pm-global` | |
-| F5 Antigravity folder marker | 02 | `proof-install-experience-registry-data` | |
-| F6 skill says setup writes the inline block | 17 | `proof-install-experience-doctor-refresh` | |
-| F7 linked layout qmd | 13 | `proof-install-experience-qmd-reach`, `proof-install-experience-init-linked` | |
-| F8 earlier installs never tracked | 15, 16 | `proof-install-experience-known-forms`, `proof-install-experience-drift-earlier` | |
-| F9 rule copies never refreshed | 03, 11, 17 | `proof-install-experience-rules-create-only`, `proof-install-experience-rules-stale`, `proof-install-experience-rules-refresh` | |
-| F10 rules mode per runtime | 02, 03 | `proof-install-experience-rules-mode`, `proof-install-experience-inline-rules` | |
-| F11 setup writes into a repo subfolder | 04 | `proof-install-experience-subfolder-refused` | |
-| F12 runtime knowledge in five places | 02, 10 | `proof-install-experience-registry-data` | |
-| F13 doctor re-implements setup helpers | 16 | unit 16's Done when (scan of `drift.ts`) | |
+| F1 doctor fails claude+codex | 10 | `proof-install-experience-doctor-checks` (claude-and-codex fixture) | `fixed` |
+| F2 `doctor-code-repo` false positive | 12 | `proof-install-experience-no-code-writes` | `fixed` |
+| F3 hint misses pnpm | 05 | `proof-install-experience-global-hint` | `fixed` |
+| F4 doctor never hints | 14 | `proof-install-experience-global-hint`, `proof-install-experience-pm-global` | `fixed` |
+| F5 Antigravity folder marker | 02 | `proof-install-experience-registry-data` | `fixed` |
+| F6 skill says setup writes the inline block | 17 | `proof-install-experience-doctor-refresh` | `fixed` |
+| F7 linked layout qmd | 13 | `proof-install-experience-qmd-reach`, `proof-install-experience-init-linked` | `fixed` |
+| F8 earlier installs never tracked | 15, 16 | `proof-install-experience-known-forms`, `proof-install-experience-drift-earlier` | `fixed` |
+| F9 rule copies never refreshed | 03, 11, 17 | `proof-install-experience-rules-create-only`, `proof-install-experience-rules-stale`, `proof-install-experience-rules-refresh` | `fixed` |
+| F10 rules mode per runtime | 02, 03 | `proof-install-experience-rules-mode`, `proof-install-experience-inline-rules` | `fixed` |
+| F11 setup writes into a repo subfolder | 04 | `proof-install-experience-subfolder-refused` | `fixed` |
+| F12 runtime knowledge in five places | 02, 10 | `proof-install-experience-registry-data` | `fixed` |
+| F13 doctor re-implements setup helpers | 16 | unit 16's Done when (scan of `drift.ts`) | `fixed` |
 | F14 committed map page | — | Withdrawn by the reviewer | `no_change_needed` |
 
 ## Wave stops
@@ -486,3 +486,15 @@ was performed by this wave 2 run.
 This commit supersedes the earlier pre-commit pause. Units 09–20 and their
 proofs land together; unit 21's finding map is still a separate post-gate
 step. No push, PR or merge is part of this commit request.
+
+### Unit 21 — Ship gate: re-report every finding
+
+| Field | Value |
+|-------|-------|
+| Unit identifier | 21 — last unit, inline, after the wave 2 commit `8c94b1d` |
+| Spec/plan paths | `docs/specs/install-experience/install-experience-iteration-1-spec.md` / `docs/specs/install-experience/install-experience-iteration-1-plan.md` |
+| Obligation / proof status | Done. The parent re-ran the full gate on `8c94b1d`: build, test (965 pass, 0 fail, 0 todo), lint, validate (99 claims, 0 fail) and comments (0 findings) PASS. Every finding's closing proof passed in that run: F1 "doctor: a claude-and-codex install with a complete inline block exits 0"; F2 `proof-install-experience-no-code-writes`; F3 and F4 `proof-install-experience-global-hint` and `-pm-global`; F5 and F12 `proof-install-experience-registry-data`; F6 `proof-install-experience-doctor-refresh`; F7 `proof-install-experience-qmd-reach` and "layout: the linked layout names the four symlinks"; F8 `proof-install-experience-known-forms` and `-drift-earlier`; F9 `-rules-create-only`, the three `doctor-rules-stale` cases and `-rules-refresh`; F10 `-rules-mode` and `-inline-rules`; F11 `-subfolder-refused`; F13 `drift.ts` imports setup's helpers. F14 was withdrawn. The `pr2-surface` items hold on inspection: ADR-006 `stable`, its wiring-only predecessor `deprecated` with `superseded_by`, `docs/deferrals/setup-drift-check/` absent. The four-fixture smoke is the wave 2 gate's record |
+| `HEAD` commit | `8c94b1d` |
+| `git status` summary | dirty — this plan file only (Outcome column, unit 21 mark, this record) |
+| Intended diff scope | `docs/specs/install-experience/install-experience-iteration-1-plan.md` |
+| Decision on every discrepancy | Resolved: five proofs carry descriptive test names instead of their proof ids (`init-linked`, `rules-stale`, `drift-after-refresh`, `doctor-open-folder`, `pr2-surface`); each was matched to its passing case above. Committing this record waits for the Human |
