@@ -1,8 +1,7 @@
 # Worked example — spec shapes
 
-A specimen, not a live spec: a small notification-digest feature — a
-scheduled job that batches a user's unread notifications into one email per
-run instead of sending one email per event.
+A specimen, not a live spec: a scheduled job batches a user's unread
+notifications into one digest email per run.
 
 ## Repository grounding (excerpt)
 
@@ -11,25 +10,24 @@ run instead of sending one email per event.
 | `src/jobs/digest/` | no | New — the digest job (this spec) |
 | `src/notify/email/` | yes | Reused — the existing email sender |
 | `harness:validate` | yes | Integrity gate reused |
-| Prior ADRs | yes (none on this surface) | Checked before offering a new one |
 
 ## Surface walk (excerpt)
 
 - **In scope:** `src/jobs/digest/**`, the digest template under
   `src/notify/email/templates/`
-- **Out of mutate scope:** the existing per-event email path — left
-  unchanged this initiative
+- **Out of mutate scope:** the existing per-event email path, unchanged
 
 ## Obligation ↔ proof
 
 | ID | Obligation | Named proof | Evidence shape |
 |----|------------|--------------|------------------|
-| R1.1 | The digest job batches every unread notification since the user's last digest into one email, in chronological order | `proof-digest-job-batch` | Inspect `src/jobs/digest/**` — run against a fixture inbox; output order checked |
-| R1.2 | A user with zero unread notifications receives no digest email that run | `proof-digest-empty-skip` | Inspect — a fixture with zero unread notifications produces no send |
+| R1.1 | The digest job batches every unread notification since the last digest into one email, in chronological order | `proof-digest-job-batch` | Run it against a fixture inbox; check output order |
+| R1.2 | A user with zero unread notifications receives no digest email that run | `proof-digest-empty-skip` | A zero-unread fixture produces no send |
 
-R1.3–R1.7, one per nine-dimension landing below, are elided here.
+The table elides R1.3 and later, one obligation for each nine-dimension
+landing below that carries a named proof.
 
-Acceptance boxes paired with the obligations above:
+The acceptance boxes pair with the obligations above:
 
 ```markdown
 - [ ] `proof-digest-job-batch` PASS — digest batches unread notifications in order
@@ -38,16 +36,14 @@ Acceptance boxes paired with the obligations above:
 
 ## Nine-dimension landings (mixed)
 
+This excerpt lists five of the nine dimensions.
+
 | Dimension | Landing kind | Landing |
 |-----------|---------------|---------|
-| validation | obligation ↔ proof | R1.3 / `proof-digest-drop-undated` — a notification missing its timestamp is dropped from the batch, not sent with a blank date |
-| failure modes | obligation ↔ proof | R1.4 / `proof-digest-send-failure` — an email-send failure marks that user's digest failed, not silently skipped |
-| idempotency and retry | Unresolved | See `U-example-retry` — fixed interval vs. exponential backoff still open |
+| validation | obligation ↔ proof | R1.3 / `proof-digest-drop-undated` — an undated notification is dropped, not sent blank |
+| idempotency and retry | Unresolved | See `U-example-retry` |
 | authorization | `n/a` | Unchanged surface: the digest job sends under the existing service account already used by `src/notify/email/**` |
 | concurrency and ordering | `n/a` | Unchanged surface: the existing per-user job lock in `src/jobs/**` already prevents two digests from running for the same user at once — reused as-is |
-| data lifecycle | obligation ↔ proof | R1.5 / `proof-digest-mark-delivered` — a notification included in a digest is marked delivered; it is never sent twice |
-| external-dependency failure | obligation ↔ proof | R1.6 / `proof-digest-provider-timeout` — the email provider's timeout retries per the existing sender's policy, then marks the digest failed |
-| state transitions | obligation ↔ proof | R1.7 / `proof-digest-run-states` — a digest run states `queued → sending → sent \| failed`, all enumerated and tested |
 | observability | `n/a` | Unchanged surface: the existing job-queue logging in `src/jobs/**` already emits state transitions; this initiative adds no new log surface |
 
 ## Unresolved (minimum form)
@@ -76,8 +72,6 @@ flowchart TD
 
 | Leak | Refuse |
 |------|--------|
-| A ticket-tracker slice for this feature | Not this lane |
-| A release or deploy step inside this spec | Belongs to a different initiative |
 | An executable plan from this skill | Handoff to `code-plan` only |
 
 ## Term challenge
@@ -85,20 +79,16 @@ flowchart TD
 | Term | Resolution |
 |------|--------------|
 | "Digest" | One batched email per user per run — not a per-event notification |
-| "Unread" | Not yet marked delivered in a prior digest or a per-event send |
 
 ## ADR note (as it would appear inside a frozen spec)
 
-This is **not** an ADR file. A real ADR lives under `docs/adrs/` as
-`adr-NNN-<slug>.md`. Inside the spec itself:
+This is **not** an ADR file; the spec's own section reads:
 
 ```markdown
 ## ADR
 
-- **Offer?** Only if the digest job introduces new queue or scheduling
-  wiring beyond feature code.
-- **Skip:** A template-only or copy-only change with no infrastructure
-  shift.
+- **Offer?** Only when the digest job adds queue or scheduling wiring.
+- **Skip:** A template-only or copy-only change.
 - **Read first:** Prior ADRs under `docs/adrs/` before proposing
   `adr-NNN-<slug>.md`.
 ```

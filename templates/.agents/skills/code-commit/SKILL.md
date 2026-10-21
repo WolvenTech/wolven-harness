@@ -156,6 +156,9 @@ type(optional-scope): short summary
 Optional body — why, not a file list.
 ```
 
+Common types: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`, `ci`,
+`style`, `perf`.
+
 Sample (full good/bad set in
 [commit-examples.md](references/commit-examples.md)):
 
@@ -167,8 +170,15 @@ resent an already-processed event. Retries are now keyed by the
 provider's idempotency id, so a replay is a no-op.
 ```
 
-Common types: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`, `ci`,
-`style`, `perf`.
+### Wave batch (more than one unit)
+
+A wave batch of more than one unit gets **one** Conventional Commit: a
+subject that states the batch's outcome and a body of **at most three
+lines**. Never join per-unit subjects into one message.
+
+A one-unit wave and a standalone commit keep the message shape above: no
+invented batch summary and no three-line cap. The split rule for unrelated
+contexts still applies (see Multi-commit heuristics).
 
 With a recorded `pattern` for `codeRepo` work, replace the first line with
 that shape; the body and footer rules still apply.

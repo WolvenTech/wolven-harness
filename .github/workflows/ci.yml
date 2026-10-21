@@ -19,7 +19,8 @@ concurrency:
 jobs:
   title:
     name: Title
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
     steps:
       - name: Check the PR title against Conventional Commits
         uses: amannn/action-semantic-pull-request@v6
@@ -29,7 +30,8 @@ jobs:
   lint:
     name: Lint
     if: ${{ github.event.action != 'edited' || github.event.changes.base }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
     steps:
       - name: Check out
         uses: actions/checkout@v7
@@ -71,7 +73,8 @@ jobs:
   test:
     name: Test (Node ${{ matrix.node }})
     if: ${{ github.event.action != 'edited' || github.event.changes.base }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
     strategy:
       fail-fast: false
       matrix:
@@ -100,7 +103,8 @@ jobs:
   package:
     name: Package
     if: ${{ github.event.action != 'edited' || github.event.changes.base }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
     steps:
       - name: Check out
         uses: actions/checkout@v7
@@ -158,7 +162,8 @@ jobs:
     name: ${{ github.event.action == 'edited' && !github.event.changes.base && 'PR metadata' || 'CI' }}
     needs: [title, lint, test, package]
     if: ${{ always() }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
     steps:
       - name: Require every job to pass
         env:

@@ -63,18 +63,18 @@ That run writes no deferral and no sentence claiming the guard ran.
 8. **Read before rewrite** — on amend, read the pull request's current
    title, body, and comments (read PR and diff) before replacing anything.
 9. **Fill the template** — [pr-body-template.md](references/pr-body-template.md)
-   in full; short Overview/What/Why/How describing the actual diff, no path
-   dump.
-10. **Checkbox reset** — write every template checkbox as `[ ]` first, then
-    tick only what this session's evidence supports. Never copy ticks
-    forward from a prior body. Pre-merge closure boxes stay unchecked
+   in full, with Summary, Verification and Before merge describing the
+   actual diff and no path dump.
+10. **Checkbox reset** — write every Before merge checkbox as `[ ]` first,
+    then tick only what this session's evidence supports. Never copy ticks
+    forward from a prior body. The Pre-merge closure box stays unchecked
     unless closure already ran on this branch.
 11. **Pre-merge closure is not a precondition** — it is not needed to
     **open** or **amend** a pull request; it is needed only to claim
     merge-ready or to tick a closure checkbox in the body.
-12. **Real evidence** — Verification & Testing and the Checklist cite
-    commands actually run this session on this diff; N/A, with a stated
-    reason, is valid only for a docs-only change with no gate to run.
+12. **Real evidence** — Verification and Before merge cite commands actually
+    run this session on this diff; N/A, with a stated reason, is valid only
+    for a docs-only change with no gate to run.
 13. **Never merge** — no merge, no enabling auto-merge, no marking the pull
     request ready to merge, no reading merge settings, and no reply on
     review threads — that belongs to a review or check-babysitting skill.
@@ -104,40 +104,36 @@ That run writes no deferral and no sentence claiming the guard ran.
 8. **Stop** — no review, no check-babysitting, no merge, no reply on
    review threads, and no pre-merge closure unless separately asked.
 
-## EXAMPLE — filled verification (a feature PR, current state)
+## EXAMPLE — filled body
 
 **Title:** `feat(auth): add passwordless email sign-in`
 
-**Verification & Testing (filled — do not leave blank):**
-
 ```markdown
-## Verification & Testing
-- **Tests Run:** `npm run harness:validate`; the project's test command
-  (e.g. `npm test`)
-- **Test Coverage:** New sign-in flow covered by its own test file
-- **How Verified:** `npm run harness:validate` → exit 0; the project's
-  test suite → all green; manually exercised the sign-in link in a local
-  build
+## Summary
+**What:** Add passwordless email sign-in with a one-time link and a session cookie.
+**Why:** Password resets are the top support driver, and passwords are the one credential still stored.
+**How:** A signed one-time token in the email is verified server-side before the session cookie is issued.
 
-## Checklist
-- [x] Tests pass locally (`npm test`)
-- [x] Documentation updated (README sign-in section)
-- [x] No unrelated changes included
+## Verification
+- `npm test` — all green, including the new sign-in test file
+- `npm run harness:validate` — exit 0
+
+## Before merge
+- [x] Manual test — signed in from a local build with a fresh link
+- [x] CI green
 ```
 
-**Risk & Reviewer Notes:** Medium — touches the session-cookie path; low
-risk everywhere else.
-
-Ticked boxes in this example are **after** checkbox reset — start from
-`[ ]`, then retick only from this session's evidence.
+The ticked boxes show the result **after** checkbox reset: every box starts
+as `[ ]`, and a tick stays only where this session's evidence supports it.
 
 ## Pragmatic-guard
 
 Refuse auto-merge, inventing a body shape other than the template, opening a
 pull request with no explicit ask, opening a second one when this head
-already has an open pull request, a path dump in Overview/What/Why/How, an
-empty Verification section when a gate actually ran, a merge-ready claim
-while pre-merge closure boxes are unticked, and replying on review threads.
+already has an open pull request, a path dump in Summary, Verification or
+Before merge, an empty Verification section when a gate actually ran, a
+merge-ready claim while the Pre-merge closure box is unticked, and replying
+on review threads.
 
 ## Anti-patterns
 

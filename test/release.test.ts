@@ -182,3 +182,12 @@ test('release-workflow: below 1.0 a feat bumps the patch and a breaking change b
   assert.deepEqual(Object.keys(manifest), ['.']);
   assert.match(manifest['.'], /^\d+\.\d+\.\d+$/);
 });
+
+test('release-workflow: every job sets explicit timeout-minutes to prevent stale hanging runs', async () => {
+  const workflow = await readWorkflow();
+
+  for (const [id, job] of Object.entries<Record<string, any>>(workflow.jobs)) {
+    assert.ok(typeof job['timeout-minutes'] === 'number', `${id} defines timeout-minutes`);
+    assert.ok(job['timeout-minutes'] <= 15, `${id} timeout is at most 15 minutes`);
+  }
+});
