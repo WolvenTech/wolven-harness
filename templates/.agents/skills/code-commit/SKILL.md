@@ -132,6 +132,9 @@ type(optional-scope): short summary
 Optional body — why, not a file list.
 ```
 
+Common types: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`, `ci`,
+`style`, `perf`.
+
 Sample (full good/bad set in
 [commit-examples.md](references/commit-examples.md)):
 
@@ -152,9 +155,6 @@ lines**. Never join per-unit subjects into one message.
 A one-unit wave and a standalone commit keep the message shape above: no
 invented batch summary and no three-line cap. The split rule for unrelated
 contexts still applies (see Multi-commit heuristics).
-
-Common types: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`, `ci`,
-`style`, `perf`.
 
 ## Pragmatic-guard
 
