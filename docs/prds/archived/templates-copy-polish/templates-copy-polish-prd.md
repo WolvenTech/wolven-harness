@@ -2,7 +2,7 @@
 type: prd
 title: Polish the copy PR #67's template trim left behind
 description: Fix the dangling references, stale counts, clipped and run-on sentences and self-referential example the templates trim left in its eleven shipped files, and bring its changed lines back into the voice of the prose around them.
-status: stable
+status: deprecated
 ---
 
 # Polish the copy PR #67's template trim left behind

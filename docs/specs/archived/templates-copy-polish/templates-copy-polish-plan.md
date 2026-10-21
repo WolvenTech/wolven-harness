@@ -2,12 +2,12 @@
 type: spec
 title: Polish the copy PR #67's template trim left behind — plan
 description: Ordered work units for the eleven copy-pair polishes, the Risk line render fix and the Human read-through, with spawned units run on Sonnet agents.
-status: stable
+status: deprecated
 ---
 
 # Polish the copy PR #67's template trim left behind — plan
 
-**Spec:** `docs/specs/templates-copy-polish/templates-copy-polish-spec.md` (status `stable`)
+**Spec:** `docs/specs/archived/templates-copy-polish/templates-copy-polish-spec.md` (status `deprecated`)
 **Baseline:** `b965ae9` (PR #67's head); **trim base:** `d7cb269`.
 **Agents:** every `spawn` unit runs as a Sonnet subagent (`model: "sonnet"`),
 briefed from `code-execute/references/builder-brief.md` plus the spec's
@@ -85,8 +85,8 @@ because both own `pr-body-template.md`. Amending PR #67 is a separate ask to
 ## Execution / resume section
 
 Spec/plan paths for every unit:
-`docs/specs/templates-copy-polish/templates-copy-polish-spec.md` /
-`docs/specs/templates-copy-polish/templates-copy-polish-plan.md`. Resolved
+`docs/specs/archived/templates-copy-polish/templates-copy-polish-spec.md` /
+`docs/specs/archived/templates-copy-polish/templates-copy-polish-plan.md`. Resolved
 opt: `autocommit: false`, `autocommit-rule: wave` (defaults; no
 `.agents/code-commit.config.yml`), so no commit follows and no Done-when
 mark flips.

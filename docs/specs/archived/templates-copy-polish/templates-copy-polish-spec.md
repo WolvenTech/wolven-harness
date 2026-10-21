@@ -2,12 +2,12 @@
 type: spec
 title: Polish the copy PR #67's template trim left behind
 description: Freezes the trim-fallout fixes, the one-voice rule for changed hunks and their neighbours, and the neutral wave examples across PR #67's eleven shipped files, with every pinned string held and the Human's read-through as the final gate.
-status: stable
+status: deprecated
 ---
 
 # Polish the copy PR #67's template trim left behind
 
-**Source:** `docs/prds/templates-copy-polish/templates-copy-polish-prd.md` (status `stable`)
+**Source:** `docs/prds/archived/templates-copy-polish/templates-copy-polish-prd.md` (status `deprecated`)
 **Next:** After the Human approves → `code-plan` → `code-execute`; wave
 **1 → 2**.
 **Named proof (this spec's own structural gate):** `proof-templates-copy-polish-spec-obligations`
