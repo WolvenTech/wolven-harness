@@ -50,7 +50,7 @@ flowchart TD
     JOB_TITLE["Job: Title\n- Semantic PR check\n- GITHUB_TOKEN only"]
     
     subgraph CodeJobs["Code Jobs (Skipped on edit-only runs)"]
-      JOB_LINT["Job: Lint & Quality\n- actions/checkout@v4 (fetch-depth: 0)\n- pnpm store cache\n- pnpm build & lint\n- harness validate & comments\n- harness score"]
+      JOB_LINT["Job: Lint & Quality\n- actions/checkout@v7 (fetch-depth: 0)\n- pnpm store cache\n- pnpm build & lint\n- harness validate & comments\n- harness score"]
       
       JOB_TEST["Job: Test Matrix\n- Node 22 & Node 24\n- pnpm store cache\n- pnpm test"]
       
@@ -94,11 +94,11 @@ flowchart TD
 
 ## Requirements (obligation ↔ proof)
 
-### R1 — Action Version Normalization and Pinned Baseline
+### R1 — Action Version Normalization, Node 24 Alignment, and Pinned Baseline
 
 | ID | Obligation | Named proof | Evidence shape |
 |----|------------|--------------|------------------|
-| R1.1 | All GitHub Actions referenced across `ci.yml`, `pages.yml`, and `release.yml` use valid, pinned major version tags matching official upstream releases (`actions/checkout@v4`, `actions/setup-node@v4`, `pnpm/action-setup@v4`, `actions/upload-artifact@v4`, `actions/download-artifact@v4`, `actions/configure-pages@v5`, `actions/upload-pages-artifact@v3`, `actions/deploy-pages@v4`, `amannn/action-semantic-pull-request@v6`, `googleapis/release-please-action@v5`), eliminating phantom or non-existent action versions. | `proof-gha-action-versions-pinned` | Inspect YAML files under `.github/workflows/`; verify zero `@v7`/`@v8` phantom versions exist. |
+| R1.1 | All GitHub Actions referenced across `ci.yml`, `pages.yml`, and `release.yml` use pinned major version tags matching official Node 24 upstream releases (`actions/checkout@v7`, `actions/setup-node@v7`, `pnpm/action-setup@v6`, `actions/upload-artifact@v7`, `actions/download-artifact@v8`, `actions/configure-pages@v6`, `actions/upload-pages-artifact@v5`, `actions/deploy-pages@v5`, `amannn/action-semantic-pull-request@v6`, `googleapis/release-please-action@v5`), eliminating deprecated Node 20 runtime warnings on GitHub Actions runners. Runners are pinned to `runs-on: ubuntu-24.04` across all jobs to ensure deterministic execution and eliminate runner migration notices. | `proof-gha-action-versions-pinned` | Inspect YAML files under `.github/workflows/`; verify verified Node 24 action versions and `ubuntu-24.04` runner pins are present. |
 
 ### R2 — Lean PR Gate Optimization (`ci.yml`)
 
