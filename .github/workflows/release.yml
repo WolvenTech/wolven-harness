@@ -20,6 +20,7 @@ jobs:
     name: Release PR
     if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.tag == '') }}
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
       contents: write
       pull-requests: write
@@ -40,6 +41,7 @@ jobs:
     needs: release-please
     if: ${{ !cancelled() && (needs.release-please.outputs.release_created == 'true' || (github.event_name == 'workflow_dispatch' && startsWith(inputs.tag, 'v'))) }}
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Verify manual retry targets a published release
         if: ${{ github.event_name == 'workflow_dispatch' && startsWith(inputs.tag, 'v') }}
@@ -51,15 +53,15 @@ jobs:
           actual=$(gh release view "$RELEASE_TAG" --json tagName,isDraft --jq 'select(.isDraft == false) | .tagName')
           test "$actual" = "$RELEASE_TAG"
 
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v4
         with:
           ref: ${{ needs.release-please.outputs.tag_name || inputs.tag }}
 
-      - uses: pnpm/action-setup@v6
+      - uses: pnpm/action-setup@v4
         with:
           version: 11.28.2
 
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: pnpm
@@ -73,7 +75,7 @@ jobs:
       - run: pnpm build
       - run: pnpm test
 
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@v4
         with:
           name: dist
           path: dist
@@ -86,20 +88,21 @@ jobs:
     needs: [release-please, build]
     if: ${{ !cancelled() && needs.build.result == 'success' }}
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
       contents: read
       id-token: write
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v4
         with:
           ref: ${{ needs.release-please.outputs.tag_name || inputs.tag }}
 
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@v4
         with:
           name: dist
           path: dist
 
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@v4
         with:
           node-version: 22
 

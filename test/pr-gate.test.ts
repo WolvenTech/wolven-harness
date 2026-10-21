@@ -159,3 +159,12 @@ test('pr-gate: the workflow names no secret beyond the built-in GITHUB_TOKEN', a
   const secrets = [...raw.matchAll(/secrets\.(\w+)/g)].map((m) => m[1]);
   assert.deepEqual([...new Set(secrets)], ['GITHUB_TOKEN']);
 });
+
+test('pr-gate: every job sets explicit timeout-minutes to prevent stale hanging runs', async () => {
+  const workflow = await readWorkflow();
+
+  for (const [id, job] of Object.entries<Record<string, any>>(workflow.jobs)) {
+    assert.ok(typeof job['timeout-minutes'] === 'number', `${id} defines timeout-minutes`);
+    assert.ok(job['timeout-minutes'] <= 15, `${id} timeout is at most 15 minutes`);
+  }
+});
