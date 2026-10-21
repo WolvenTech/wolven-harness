@@ -54,7 +54,7 @@ unit's changes listing only its copy pair.
 | 11 | Polish the stub template | — | `.agents/skills/harness-init/references/stub-template.md` | `spawn` | [x] The "Either way" paragraph and the warning paragraph read clearly in the file's voice, with no text a `harness-init-stub` test matches changed — `-pins-held`; `-sections-only`, `-terms`, `-copies` hold; per-unit gate exit 0 |
 | 12 | Risk line render fix | 07 | `.agents/skills/code-pr/references/pr-body-template.md` | `inline` | [x] A blank line sits before `**Risk:**` in the fenced body and no other line moves — `proof-templates-copy-polish-risk-line`; `proof-templates-trim-pr-caps` passes unchanged; `-copies` holds; per-unit gate exit 0 |
 | 13 | **Wave 1 gate** | 01–12 | — | `inline` | [x] Every wave 1 acceptance box in the spec PASS; `git diff --name-only b965ae9` lists only the eleven copy pairs and this initiative's PRD, spec and plan, nothing under `test/` or `src/`; `pnpm test` and `node dist/cli.js validate` PASS on the combined tree; failure → **abort before wave 2** |
-| 14 | **Wave 2 gate — Human read-through** | 13 | — | `inline` | [ ] The Human reads `git diff b965ae9` for the eleven pairs, with each unit's hunk headings, restored ideas and pin-blocked spots listed beside it, and explicitly approves — `proof-templates-copy-polish-read-through`; changes asked → back to the named unit, then units 13 and 14 again |
+| 14 | **Wave 2 gate — Human read-through** | 13 | — | `inline` | [x] The Human reads `git diff b965ae9` for the eleven pairs, with each unit's hunk headings, restored ideas and pin-blocked spots listed beside it, and explicitly approves — `proof-templates-copy-polish-read-through`; changes asked → back to the named unit, then units 13 and 14 again |
 
 ## Wave stops
 
@@ -108,4 +108,4 @@ mark flips.
 | 11 — Polish the stub template | R1.4, R2.3, R2.4, R4.1 — pass | `b965ae9` | as 01 | `.agents/skills/harness-init/references/stub-template.md` + twin | none |
 | 12 — Risk line render fix | R6.1, R4.1 — pass | `b965ae9` | dirty — units 01–11's copy pairs, this unit's file already polished by 07 | `.agents/skills/code-pr/references/pr-body-template.md` + twin | none |
 | 13 — Wave 1 gate | all wave 1 proofs — pass (`pnpm test` 810/810, build, validate, comments, lint exit 0; scope: nine changed copy pairs plus this initiative's docs, nothing under `test/` or `src/`) | `b965ae9` | dirty — the nine polished copy pairs and this initiative's docs | — | none |
-| 14 — Human read-through | R5.1 — pending | `b965ae9` | as 13 | — | awaiting the Human |
+| 14 — Human read-through | R5.1 — pass (the Human: "approved") | `a8f13b9` | clean | — | resolved: `Common types:` moved back under Message shape (`a8f13b9`) before approval |
