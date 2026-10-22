@@ -1,10 +1,12 @@
 import assert from 'node:assert/strict';
+import { execFile } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { existsSync } from 'node:fs';
-import { chmod, readdir, readFile, writeFile } from 'node:fs/promises';
+import { chmod, mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { PassThrough } from 'node:stream';
 import { test } from 'node:test';
+import { promisify } from 'node:util';
 import { DEFAULT_CHECKS, type DoctorCheck, type DoctorContext, runDoctor } from '../src/doctor/index.js';
 import type { Io } from '../src/setup/types.js';
 import { makeRepo, run } from './helpers/fixture.js';
@@ -17,6 +19,7 @@ const CONFIG = {
 };
 
 const CONFIG_TEXT = `${JSON.stringify(CONFIG, null, 2)}\n`;
+const execFileAsync = promisify(execFile);
 
 /** A captured `Io` for calling `runDoctor` directly. */
 function doctorIo(cwd: string): { io: Io; stdout: () => string; stderr: () => string } {
@@ -252,6 +255,58 @@ test('doctor: a claude-and-codex install with a complete inline block exits 0', 
 
   assert.equal(result.code, 0, result.stdout);
   assert.equal(result.stdout, 'doctor: ok\n');
+});
+
+test('proof-install-experience-doctor-gemini: a gemini-and-codex install passes until GEMINI.md is removed', async () => {
+  const dir = await makeRepo({}, { git: true });
+  const setup = await run(['setup', '--git-host', 'gh', '--runtimes', 'gemini,codex'], { cwd: dir });
+  assert.equal(setup.code, 0, setup.stderr);
+
+  const ruleNames = (await readdir(path.join(dir, '.agents', 'rules'))).filter((name) => name.endsWith('.md')).sort();
+  const bodies: string[] = [];
+  for (const name of ruleNames) {
+    const raw = await readFile(path.join(dir, '.agents', 'rules', name), 'utf8');
+    const body = raw.replace(/^---\n[\s\S]*?\n---\n?/, '');
+    bodies.push(
+      body.replace(
+        /^(#{1,6})([ \t]+.*)$/gm,
+        (_heading, hashes: string, rest: string) =>
+          `${hashes.length === 1 ? '###' : '#'.repeat(Math.min(hashes.length + 1, 6))}${rest}`,
+      ),
+    );
+  }
+  const block = `<!-- wolven-harness:rules:start -->\n\n${bodies.join('\n\n')}\n\n<!-- wolven-harness:rules:end -->`;
+  const agents = `<!-- wolven-harness:start -->\n\n# Agents\n\n${block}\n\n<!-- wolven-harness:end -->\n`;
+  await writeFile(path.join(dir, 'AGENTS.md'), agents, 'utf8');
+  await mkdir(path.join(dir, '.qmd'), { recursive: true });
+  await writeFile(path.join(dir, '.qmd', 'index.sqlite'), 'fixture index', 'utf8');
+
+  const gitEnv = {
+    ...process.env,
+    GIT_AUTHOR_NAME: 'Wolven Test',
+    GIT_AUTHOR_EMAIL: 'wolven-test@example.com',
+    GIT_COMMITTER_NAME: 'Wolven Test',
+    GIT_COMMITTER_EMAIL: 'wolven-test@example.com',
+  };
+  await execFileAsync('git', ['add', '-A'], { cwd: dir, env: gitEnv });
+  await execFileAsync('git', ['commit', '-q', '-m', 'install'], { cwd: dir, env: gitEnv });
+
+  const tools = await makeRepo({ qmd: '#!/bin/sh\nexit 0\n', 'wolven-harness': '#!/bin/sh\nexit 0\n' });
+  for (const name of ['qmd', 'wolven-harness']) await chmod(path.join(tools, name), 0o755);
+  const options = { cwd: dir, env: { PATH: `${tools}:${process.env.PATH ?? ''}` } };
+  const installed = await run(['doctor'], options);
+
+  assert.equal(installed.code, 0, installed.stdout);
+  assert.equal(installed.stdout, 'doctor: ok\n');
+
+  await rm(path.join(dir, 'GEMINI.md'));
+  await execFileAsync('git', ['add', '-A'], { cwd: dir, env: gitEnv });
+  await execFileAsync('git', ['commit', '-q', '-m', 'remove Gemini entry'], { cwd: dir, env: gitEnv });
+  const missing = await run(['doctor'], options);
+
+  assert.equal(missing.code, 1, missing.stdout);
+  assert.ok(printedCodes(missing.stdout).includes('doctor-entry'), missing.stdout);
+  assert.match(missing.stdout, /doctor-entry[^\n]*Gemini/i);
 });
 
 test('proof-install-experience-no-code-writes: doctor reports .agents inside codeRepo', async () => {

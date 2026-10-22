@@ -125,8 +125,8 @@ None. Each row above follows from a reproduced finding and a decision recorded h
 
 ### Wave 2 — PR 76's branch
 
-- [ ] `proof-install-experience-config-rerun-linked` PASS — R15.2
-- [ ] `proof-install-experience-doctor-gemini` PASS — R16.2
+- [x] `proof-install-experience-config-rerun-linked` PASS — R15.2
+- [x] `proof-install-experience-doctor-gemini` PASS — R16.2
 
 ## Eval / gates
 

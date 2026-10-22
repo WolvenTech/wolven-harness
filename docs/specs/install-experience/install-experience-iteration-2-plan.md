@@ -41,17 +41,17 @@ Gate passed.
 | # | Unit | Depends | Owns | Subagent | Done when |
 |---|------|---------|------|----------|-----------|
 | 05 | Merge PR 75's branch into PR 76's | 04 | The merge commit on `claude/install-check-and-repair`; `known-forms.json` only if the merge changes a template | `inline` | [x] `claude/install-wiring` is an ancestor of `claude/install-check-and-repair`. No conflict marker remains. If any template changed, `pnpm gen:known-forms` has run and no earlier form was dropped. `pnpm build` and `pnpm test` exit 0 |
-| 06 | A rerun keeps the linked layout's keys | 05 | A linked rerun case in `test/setup-options.test.ts` | `spawn` | [ ] A `setup` rerun over a config holding `layout: "linked"` and `harnessHome: ".."` exits 0, and both keys keep their values. No source change is needed if unit 01's copy covers it. If one is, report it rather than editing outside Owns. Proof: `proof-install-experience-config-rerun-linked` PASS (R15.2; F15) |
-| 07 | `doctor` passes a Gemini and Codex install | 05 | A Gemini case in `test/doctor.test.ts` | `spawn` | [ ] `setup --runtimes gemini,codex`, then a complete inline block in `AGENTS.md` and a commit: `doctor` exits 0. With `GEMINI.md` deleted, `doctor` exits 1 with `doctor-entry` naming Gemini. `src/doctor/**` is unchanged (D4). Proof: `proof-install-experience-doctor-gemini` PASS (R16.2; F16) |
-| 08 | **Wave 2 gate** | 05, 06, 07 | — | `inline` | [ ] `pnpm build && pnpm test && pnpm lint && pnpm validate && pnpm comments` exit 0, with 0 `todo`. Each box under the spec's Acceptance › Wave 2 is ticked. The wave's commit lands here. On failure, **abort** |
-| 09 | **Ship gate:** re-report every finding | 08 | This plan's Finding map (Outcome column) | `inline` | [ ] F15 and F16 are each marked `fixed`, `skipped` or `no_change_needed`, with the units and passing proofs that closed them. A `skipped` names a reason the Human accepted. `harness:validate` PASS |
+| 06 | A rerun keeps the linked layout's keys | 05 | A linked rerun case in `test/setup-options.test.ts` | `spawn` | [x] A `setup` rerun over a config holding `layout: "linked"` and `harnessHome: ".."` exits 0, and both keys keep their values. No source change is needed if unit 01's copy covers it. If one is, report it rather than editing outside Owns. Proof: `proof-install-experience-config-rerun-linked` PASS (R15.2; F15) |
+| 07 | `doctor` passes a Gemini and Codex install | 05 | A Gemini case in `test/doctor.test.ts` | `spawn` | [x] `setup --runtimes gemini,codex`, then a complete inline block in `AGENTS.md` and a commit: `doctor` exits 0. With `GEMINI.md` deleted, `doctor` exits 1 with `doctor-entry` naming Gemini. `src/doctor/**` is unchanged (D4). Proof: `proof-install-experience-doctor-gemini` PASS (R16.2; F16) |
+| 08 | **Wave 2 gate** | 05, 06, 07 | — | `inline` | [x] `pnpm build && pnpm test && pnpm lint && pnpm validate && pnpm comments` exit 0, with 0 `todo`. Each box under the spec's Acceptance › Wave 2 is ticked. The wave's commit lands here. On failure, **abort** |
+| 09 | **Ship gate:** re-report every finding | 08 | This plan's Finding map (Outcome column) | `inline` | [x] F15 and F16 are each marked `fixed`, `skipped` or `no_change_needed`, with the units and passing proofs that closed them. A `skipped` names a reason the Human accepted. `harness:validate` PASS |
 
 ## Finding map
 
 | Finding | Units | Proofs that close it | Outcome |
 |---|---|---|---|
-| F15 A setup rerun drops typed config keys | 01, 06 | `proof-install-experience-config-rerun`, `proof-install-experience-config-rerun-linked` | |
-| F16 Gemini gets no `GEMINI.md` in inline mode | 02, 03, 07 | `proof-install-experience-gemini-entry`, `proof-install-experience-shared-entry`, `proof-install-experience-gemini-docs`, `proof-install-experience-doctor-gemini` | |
+| F15 A setup rerun drops typed config keys | 01, 06 | `proof-install-experience-config-rerun`, `proof-install-experience-config-rerun-linked` | `fixed` — units 01 and 06; both proofs PASS in wave gates |
+| F16 Gemini gets no `GEMINI.md` in inline mode | 02, 03, 07 | `proof-install-experience-gemini-entry`, `proof-install-experience-shared-entry`, `proof-install-experience-gemini-docs`, `proof-install-experience-doctor-gemini` | `fixed` — units 02, 03 and 07; all four proofs PASS, docs build PASS |
 
 ## Wave stops
 
@@ -138,3 +138,51 @@ Each unit maps to a spec row. No unit adds a command, flag, dependency, config k
 | `git status` summary | Dirty — clean automatic merge of 62b30f5 staged; no conflicts, no unrelated paths |
 | Intended diff scope | Merge commit and this resume/completion record; no template changed |
 | Decision on every discrepancy | Resolved: plan first becomes available on this branch through the merge; reconciliation recorded before completion. No template difference, so known-forms generation is unnecessary. Imported release tags from origin to restore historical test fixtures; rerun passed. |
+
+### Unit 06 — Linked config rerun
+
+| Field | Value |
+|---|---|
+| Unit identifier | 06 — spawn; wave 2 parallel frontier after 05 |
+| Spec/plan paths | `docs/specs/install-experience/install-experience-iteration-2-spec.md` / `docs/specs/install-experience/install-experience-iteration-2-plan.md` |
+| Obligation / proof status | R15.2 — PASS; targeted proof and full wave gate |
+| `HEAD` commit | `4bb9b83` |
+| `git status` summary | Clean before resume entries; parallel units own disjoint test paths |
+| Intended diff scope | test/setup-options.test.ts; tests only |
+| Decision on every discrepancy | Resolved: clean merge contains wave 1 fixes; historical tags available; no doctor source changes authorized. |
+
+### Unit 07 — Gemini doctor proof
+
+| Field | Value |
+|---|---|
+| Unit identifier | 07 — spawn; wave 2 parallel frontier after 05 |
+| Spec/plan paths | `docs/specs/install-experience/install-experience-iteration-2-spec.md` / `docs/specs/install-experience/install-experience-iteration-2-plan.md` |
+| Obligation / proof status | R16.2 — PASS; targeted proof and full wave gate |
+| `HEAD` commit | `4bb9b83` |
+| `git status` summary | Clean before resume entries; parallel units own disjoint test paths |
+| Intended diff scope | test/doctor.test.ts; tests only |
+| Decision on every discrepancy | Resolved: clean merge contains wave 1 fixes; historical tags available; no doctor source changes authorized. |
+
+### Unit 08 — Wave 2 gate
+
+| Field | Value |
+|---|---|
+| Unit identifier | 08 — inline; after 05–07 |
+| Spec/plan paths | `docs/specs/install-experience/install-experience-iteration-2-spec.md` / `docs/specs/install-experience/install-experience-iteration-2-plan.md` |
+| Obligation / proof status | R15.2 and R16.2 — PASS; build, 983/983 tests (0 skipped/todo), lint, validate (111 claims) and comments |
+| `HEAD` commit | `4bb9b83` |
+| `git status` summary | Dirty — only units 06/07 test paths and plan resume entries |
+| Intended diff scope | Full gate; wave 2 acceptance and units 06–08 completion marks with tests |
+| Decision on every discrepancy | Resolved: source unchanged; same outside-sandbox test run and installed-dependency flag as wave 1. |
+
+### Unit 09 — Ship gate
+
+| Field | Value |
+|---|---|
+| Unit identifier | 09 — inline; final frontier after wave 2 checks |
+| Spec/plan paths | `docs/specs/install-experience/install-experience-iteration-2-spec.md` / `docs/specs/install-experience/install-experience-iteration-2-plan.md` |
+| Obligation / proof status | F15 and F16 — fixed; all six proofs PASS; final validation PASS before commit |
+| `HEAD` commit | `4bb9b83` |
+| `git status` summary | Dirty — only wave 2 tests, acceptance and execution record |
+| Intended diff scope | Finding map outcomes and final completion record |
+| Decision on every discrepancy | Resolved: include the ship report in the single final wave commit with units 06–08, preserving wave cadence and atomic completion. No push, PR edits, thread replies or resolution. |
