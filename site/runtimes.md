@@ -4,7 +4,7 @@ description: How setup wires each supported agent runtime.
 
 # Agent runtimes
 
-`setup` knows nine runtimes. Pass any comma-separated list to `--runtimes claude,codex`, or select them when interactive `setup` asks. Only macOS and Linux are supported; the symlinked rows need filesystem symlinks.
+`setup` knows nine runtimes. Pass any comma-separated list like `--runtimes claude,codex`, or select them when interactive `setup` asks. Only macOS and Linux are supported; the symlinked rows need filesystem symlinks.
 
 | Agent | id | Project skills | Rules wiring |
 | --- | --- | --- | --- |
@@ -22,7 +22,9 @@ description: How setup wires each supported agent runtime.
 
 ## Claude Code
 
-If `.claude/skills` is missing, setup creates a relative symlink to `.agents/skills`. If `.claude/rules` is missing, it creates a relative symlink to `.agents/rules`. If `CLAUDE.md` is missing, setup creates one that imports `AGENTS.md`. Existing paths are left in place. Docs: [Claude Code](https://code.claude.com/docs/en/skills).
+If `.claude/skills` is missing, setup creates a relative symlink to `.agents/skills`. If `.claude/rules` is missing, it creates a relative symlink to `.agents/rules`. 
+
+If `CLAUDE.md` is missing, setup creates one that imports `AGENTS.md`. Existing paths are left in place. Docs: [Claude Code](https://code.claude.com/docs/en/skills).
 
 ## Codex
 
