@@ -135,9 +135,10 @@ Put the mode to the Human as one question, the recommended mode first with
 the reason, and the other mode as the remaining option; never pick it
 silently. Both modes
 write the harness section between `<!-- wolven-harness:start -->` and
-`<!-- wolven-harness:end -->`; when `.wolven-harness.json` lists `codex`
-under `runtimes`, the section also carries the rule bodies between
-`<!-- wolven-harness:rules:start -->` and `<!-- wolven-harness:rules:end -->`.
+`<!-- wolven-harness:end -->`; when `.wolven-harness.json` lists `codex` or
+`antigravity` under `runtimes`, the section also carries the rule bodies
+between `<!-- wolven-harness:rules:start -->` and
+`<!-- wolven-harness:rules:end -->`.
 This step also checks for existing `AGENTS.md` content, an
 overlapping router or rule, a `CLAUDE.md` that should import `AGENTS.md`,
 any harness path an ignore rule keeps from other clones (proposing
