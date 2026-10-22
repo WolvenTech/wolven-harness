@@ -9,10 +9,6 @@ Turns a rough ask into one lean PRD: a single problem statement, goals, user sto
 
 **Entry.** Start from any ask, issue, or notes the Human points to. There is no required prior artifact — a plain description of the problem is enough to begin grilling it.
 
-**Docs retrieval:** Follow the [shared QMD routing contract](../qmd/SKILL.md#harness-stage-routing)
-for `create-prd`: read exact inputs directly, choose relevant collection scopes,
-and preserve this skill's permissions and docs-write handoff/resume boundaries.
-
 ## Workflow
 
 The session skill list is the list of skills the runtime provided for this session. A folder on disk does not count. A name remembered from an earlier summary does not count.

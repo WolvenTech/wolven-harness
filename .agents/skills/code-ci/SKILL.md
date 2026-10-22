@@ -21,10 +21,6 @@ guard as having run and does not claim the pull request is merge-ready.
 **Input:** an open pull request + an **explicit ask**.
 **Output:** a merge-ready report, or **blocked** with TRIED / NEED — **never** a merge.
 
-**Docs retrieval:** Follow the [shared QMD routing contract](../qmd/SKILL.md#harness-stage-routing)
-for `code-ci`: read exact inputs directly, choose relevant collection scopes,
-and preserve this skill's permissions and docs-write handoff/resume boundaries.
-
 ## Hard gates
 
 1. **Explicit ask** — never auto-chain into this loop from implementation, a

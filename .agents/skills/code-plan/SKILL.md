@@ -23,10 +23,6 @@ written next to `docs/specs/<slug>/<slug>-spec.md`.
 **In / out / handoff:** locked spec → ordered, revisable plan → units ready
 for `code-execute` once the plan is approved.
 
-**Docs retrieval:** Follow the [shared QMD routing contract](../qmd/SKILL.md#harness-stage-routing)
-for `code-plan`: read exact inputs directly, choose relevant collection scopes,
-and preserve this skill's permissions and docs-write handoff/resume boundaries.
-
 ## Structural gate
 
 Before slicing into units, confirm every obligation the spec names already

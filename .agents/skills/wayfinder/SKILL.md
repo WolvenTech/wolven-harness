@@ -17,10 +17,6 @@ kinds, comes from Matt Pocock's MIT-licensed `wayfinder` skill in
 out-of-scope status and the undermined mark. This skill's text and file
 format are written for this harness.
 
-**Docs retrieval:** Follow the [shared QMD routing contract](../qmd/SKILL.md#harness-stage-routing)
-for `wayfinder`: read exact inputs directly, choose relevant collection scopes,
-and preserve this skill's permissions and docs-write handoff/resume boundaries.
-
 ## When this runs
 
 - The Human asks to chart a large decision, or to continue a map.

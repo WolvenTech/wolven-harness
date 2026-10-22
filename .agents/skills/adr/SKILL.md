@@ -5,10 +5,6 @@ description: "Creates, promotes, and supersedes architecture decision records (A
 
 An ADR is a durable, checkable record of one architecture decision — not a meeting note or a spec appendix. `harness:validate` treats every `ADR-NNN` or `adr-NNN-<slug>` reference in a tracked file as a claim: it must resolve to exactly one `stable` ADR under `docs/adrs/`, or the check fails. Create, promote, and supersede ADRs only through this skill, and never hand-edit an ADR's `status` outside these three operations. Migrating an older, differently shaped decision record into this shape is out of scope; that belongs to `harness-init`.
 
-**Docs retrieval:** Follow the [shared QMD routing contract](../qmd/SKILL.md#harness-stage-routing)
-for `adr`: read exact inputs directly, choose relevant collection scopes,
-and preserve this skill's permissions and docs-write handoff/resume boundaries.
-
 ## Numbering and shape
 
 - Path: `docs/adrs/adr-NNN-<slug>.md` — flat, no folder per decision; `<slug>` is a short kebab-case name taken from the title.

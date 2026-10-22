@@ -28,12 +28,12 @@ disagree, state neither number as the limit to use. A disagreement table may
 show both numbers. Do not tell the reader to use the on-disk number or the
 indexed number. A note is not the decision.
 
-**Search ADRs first, then choose relevant collections.** Architecture decision records are the
-record you may depend on — search `-c adrs` first and then widen when the decision record leaves a relevant gap:
+**Search ADRs first, then widen.** Architecture decision records are the
+record you may depend on — search `-c adrs` first and widen only on a miss:
 
 ```bash
 qmd query -c adrs "<question>"    # 1. the decisions you may depend on
-qmd query -c specs -c notes "<question>"  # 2. choose only relevant work collections
+qmd query "<question>"            # 2. widen across all collections on a miss
 ```
 
 Typical loop:
@@ -105,60 +105,8 @@ qmd search "outbound retry policy" -c adrs -n 10
 qmd query "deferred scope on the retry work" -c deferrals -c specs -n 10
 ```
 
-Omit `-c` to search default local-work collections. `knowledge` is excluded by
-default and requires explicit `-c knowledge`. Collection names mirror real
-direct child directories of `docs/`; discover the live inventory rather than
-assuming optional `maps` or another directory exists. Multiple `-c` values
-combine scope; they do not rank authority. ADR lookup is a separate step.
-
-## Harness stage routing
-
-Read an exact named artifact directly before discovery. A missing index hit
-cannot replace the spec, plan, map ticket, PR refs, or current Git/host state.
-Use ADRs for settled decisions; inspect profile status and the live file.
-PRDs/specs describe approved or proposed work, not blanket standing policy;
-notes are dated research, deferrals carry revisit triggers, and knowledge is
-external advisory evidence. Search only scopes relevant to the open question.
-
-| Stage | Direct inputs | Discovery scope after relevant ADR lookup |
-| --- | --- | --- |
-| `adr` | proposed text and relevant decisions | `adrs`; relevant `specs`, `notes` rationale |
-| `create-prd`, `wayfinder` | named idea, map or ticket | `prds`, existing `maps`, `notes`, `deferrals`; opt-in `knowledge` for an external question |
-| `research`, `ai-patterns` | question and affected local surfaces | `notes`, opt-in `knowledge`; related `prds`/`specs` as needed; ai-patterns filters its topic paths |
-| `code-spec` | exact PRD/confirmed ask and affected code | `specs`, `prds`, `deferrals`; relevant existing `maps`/`notes`/`knowledge` for a stated gap |
-| `code-plan` | exact locked spec and refs | `specs`, `deferrals`; no automatic external pass |
-| `code-execute` | exact approved plan/spec, resume record, Git state | relevant `adrs`/`specs`; `notes`/`knowledge` only for implementation uncertainty, never to redefine obligations |
-| `code-review`, `code-ci` | current PR description, exact refs, fresh diff/checks/threads | relevant `adrs`/`specs`/`prds`; external patterns add no review obligations or fix authority |
-| `code-commit`, `code-pr` | intended diff, exact refs, Git/PR state | no mandatory search; relevant `adrs`/`specs` for a concrete claim/handoff gap |
-| `harness-init`, `harness-doctor` | docs directory inventory, QMD config/status | inspect coverage/reachability; content search only for a diagnostic question |
-| Other skills | named artifacts or conversation | use this contract only when retrieval is needed |
-
-When a stage writes docs, refresh once after that authorized transaction and
-before retrieval handoff; record consulted collections, exact artifact refs,
-and refresh outcome in its existing handback/evidence. No new execution log.
-A read-only review/CI retrieval path does not mutate index/config or authorize
-fixes; the lane's existing explicit-ask and never-merge rules remain intact.
-On resume, reconcile input refs, live files, Git state, and index freshness.
-If stale, report the gap before direct-file fallback; refresh only within an
-authorized write/maintenance scope. Never use stale snippets to change locked
-scope. Embedding success and keyword success are distinct; report failures
-before fallback and retry only after a concrete environment remedy.
-
-### Directory coverage
-
-One same-name collection per real direct child directory of `docs/`, rooted
-at that child; no catch-all duplicates and no separate topic collection.
-Read root files such as `docs/WRITING-PROFILE.md` directly. When an operation
-creates a child directory, and during init/doctor inspection, compare actual
-directories with parsed `.qmd/index.yml` roots and `qmd collection list`.
-Report missing directories/config entries, duplicate or overlapping roots,
-unsupported archive globs, and symlinks escaping docs before indexing. Treat
-optional collections as conditional on directory/config presence. Reconcile
-mismatches explicitly within authorized setup/write scope; do not silently
-rewrite a consumer config. Init/doctor's existing approval rules still apply.
-Preserve archive exclusions; retired cards must leave active globs before
-refresh. `knowledge` at `./docs/knowledge` stays opt-in with advisory context.
-These manual local-pilot checks add no watcher, daemon, or doctor CLI feature.
+Omit `-c` to search everything. Collections in this repo: `adrs`, `prds`,
+`specs`, `notes`, `deferrals`.
 
 ## MCP Tool: `query`
 
@@ -181,13 +129,11 @@ Query types: `lex` (BM25 keyword search), `vec` (vector semantic search),
 
 ## Setup and maintenance
 
-Searching and retrieving are read-only. An authorized docs-write transaction
-also includes its parent-owned freshness refresh before retrieval handoff:
-`qmd update`, then `qmd embed` for changed content (scope to changed collections
-when appropriate). Do not refresh before every read or in independent ingestion
-workers. Outside authorized docs writes, setup or maintenance is required for
-index mutation. Collections are declared in `.qmd/index.yml`, which `qmd` finds
-from any directory inside the repo:
+Only mutate the index when asked for setup or maintenance — searching and
+retrieving are safe, but `qmd collection add`, `qmd update`, and `qmd embed`
+change local state and are not a casual first step. The collections are
+already declared in `.qmd/index.yml`, which `qmd` finds from any directory
+inside the repo:
 
 ```bash
 npm install -g @tobilu/qmd
@@ -203,4 +149,4 @@ before changing configuration when a model-backed command fails.
 
 - Stopping at snippets: fetch the document before making a claim from it.
 - Slicing files with `sed`/`head`/`tail`: use `path:from:count` or `--from`/`-l`.
-- Changing config/index during a read-only consultation or outside authorized docs writes, setup, or maintenance.
+- Running `qmd collection add`, `update`, or `embed` outside a setup or maintenance ask.
