@@ -8,23 +8,29 @@ AI-assisted development harness to plan and implement changes, initialize an `AG
 
 ## Install
 
-Install the CLI globally, so `wolven-harness` works from any folder:
+Install the CLI globally using your package manager:
 
 ```sh
 npm install -g @wolven-tech/harness
+```
+```sh
 yarn global add @wolven-tech/harness
+```
+```sh
 pnpm add -g @wolven-tech/harness
 ```
 
-You need Node.js 22 or later, Git, and macOS or Linux. Then run setup from the top level of a Git repository, or from a folder that is outside every repository:
+You need Node 22 or later, git, and macOS or Linux. 
+
+Then run setup from the top level of a Git repository, or from any folder near your repo code:
 
 ```sh
-wolven-harness setup --git-host gh --runtimes claude
+wolven-harness setup
 ```
 
-At a Git top level, `setup` installs the core skills, the standing rules, the document templates, the local search index configuration, the `WOLVEN.md` entry file, and each selected runtime's wiring. Outside any repository, it writes the core skills and their runtime links so `harness-init` can finish the install in that folder. A repository subfolder is not a setup location. Optional sets add more skills (`ship`: four, `discovery`: five); `ship` is selected by default.
+The setup will guide you through the installation choices and then write the chosen skills, rules and commands, their runtime links, and record your choices. 
 
-`setup` preserves existing copies and leaves `AGENTS.md` alone. At a repository top level, it adds missing check scripts to an existing `package.json` and saves the setup choices in `.wolven-harness.json`. Outside a repository, it writes neither documentation nor package scripts. It does not install dependencies; setup prints the install command when `harness-score` is missing.
+Running `npx @wolven-tech/harness setup` works without a global install, but setup then recommends the global install so you can use other commands like `skill` and `doctor`.
 
 For all commands, flags, configuration, and exit behavior, see the [CLI reference](./commands).
 
