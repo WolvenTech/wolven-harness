@@ -26,6 +26,10 @@ ask (see When not to use).
 |------|--------------|
 | [commit-examples.md](references/commit-examples.md) | Drafting messages, splitting a multi-context change, or applying the atomic plan-mark / failed-commit cleanup |
 
+**Docs retrieval:** Follow the [shared QMD routing contract](../qmd/SKILL.md#harness-stage-routing)
+for `code-commit`: read exact inputs directly, choose relevant collection scopes,
+and preserve this skill's permissions and docs-write handoff/resume boundaries.
+
 ## Entry modes
 
 | Mode | When | Behavior |
