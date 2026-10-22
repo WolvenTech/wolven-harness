@@ -165,9 +165,9 @@ test('proof-wayfinder-listings: README, the guide and AGENTS.md list wayfinder a
   const { frontmatter } = await readSkill('wayfinder');
   const allSkills = [...CORE_SKILLS, ...Object.values(SET_SKILLS).flat()];
 
-  assert.match(readme, /^- `discovery`:.*`wayfinder`/m);
+  assert.match(readme, /^\| `discovery` \|.*`wayfinder`/m);
   assert.match(readme, /Every skill is listed on the \[skills page\]/);
-  assert.ok(guide.includes(`All ${allSkills.length} skills are available`), 'the guide counts every skill');
+  assert.ok(guide.includes('All skills are available'), 'the guide introduces every skill');
   for (const name of allSkills) {
     assert.match(guide, new RegExp(`^\\| \`${name}\`( \\(ask-only\\))? \\|`, 'm'), `the guide lists ${name}`);
   }

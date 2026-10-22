@@ -2,12 +2,12 @@
 type: spec
 title: Pragmatic-guard consult alignment spec
 description: Freeze design and requirements to eliminate mandatory negative pragmatic-guard boilerplate from ship skills and scope consults to pertinent work.
-status: stable
+status: deprecated
 ---
 
 # Pragmatic-guard consult alignment spec
 
-**Source:** `docs/prds/pragmatic-guard-consult/pragmatic-guard-consult-prd.md` (status `stable`)
+**Source:** `docs/prds/archived/pragmatic-guard-consult/pragmatic-guard-consult-prd.md` (status `deprecated`)
 **Next:** After the Human approves → `code-plan` → `code-execute`, wave **1**
 **Named proof (this spec's own structural gate):** `proof-pragmatic-guard-consult-spec-obligations`
 

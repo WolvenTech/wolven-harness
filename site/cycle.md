@@ -4,7 +4,7 @@ description: Specify, plan, and implement a small change with your coding agent.
 
 # Development workflow
 
-After [Setup](./harness-init), try a small change: add a retry limit to outbound calls.
+After [Installation](./install), try a small change: add a retry limit to outbound calls.
 
 ## Specify
 

@@ -22,7 +22,7 @@ Then run setup from the top level of a Git repository, or from a folder outside 
 wolven-harness setup --git-host gh --runtimes claude
 ```
 
-`setup` runs at a Git top level or outside any repository. At a top level it scaffolds the harness; outside one it writes the core skills and selected runtime links, then points to `harness-init` to finish the install there. A repository subfolder is not a setup location. Ask your coding agent to run the `harness-init` skill next; see [Setup](./harness-init).
+`setup` runs at a Git top level or outside any repository. At a top level it scaffolds the harness; outside one it writes the core skills and selected runtime links, then points to `harness-init` to finish the install there. A repository subfolder is not a setup location. Ask your coding agent to run the `harness-init` skill next; see [Installation](./install).
 
 Check the install at any time, and check the harness as you work:
 
@@ -52,7 +52,7 @@ wolven-harness --version
 
 Use `wolven-harness --help` to see the commands and options, or `wolven-harness --version` to check which version is installed. Running the CLI without a command also displays help. If you mistype a command, the CLI shows an error and the command list.
 
-The commands, flags, exit codes, finding codes, summary lines, and configuration schema are public contract; see [ADR-005](https://github.com/WolvenTech/wolven-harness/blob/main/docs/adrs/adr-005-install-anywhere-contract.md).
+The commands, flags, exit codes, finding codes, summary lines, and configuration schema documented on this page form the public CLI contract.
 
 ## `setup`
 
@@ -85,7 +85,7 @@ wolven-harness setup --git-host=gh --runtimes=claude,codex --package-manager=pnp
 
 ### Prompts, detection, and defaults
 
-Setup uses each value from its command-line flag first, then from `.wolven-harness.json`, and finally asks you when run in an interactive terminal. For missing repository settings, setup detects GitHub or Bitbucket from `origin`. It detects runtimes from the repository (`.claude`, `CLAUDE.md`, `.codex`, `.cursor`, `.cursorrules`, `opencode.json`, `.github/copilot-instructions.md`, `GEMINI.md`, `.gemini`, `.kiro`, `.agents/rules`) and from the machine's runtime folders under `HOME`, `XDG_CONFIG_HOME` and `CODEX_HOME`; detected values are preselected when it asks.
+Setup uses each value from its command-line flag first, then from `.wolven-harness.json`, and finally asks you when run in an interactive terminal. For missing repository settings, setup detects GitHub or Bitbucket from `origin`. It detects runtimes from the repository (`.claude`, `CLAUDE.md`, `.codex`, `.cursor`, `.cursorrules`, `opencode.json`, `.github/copilot-instructions.md`, `GEMINI.md`, `.gemini`, `.kiro`) and from the machine's runtime folders under `HOME`, `XDG_CONFIG_HOME` and `CODEX_HOME`; detected values are preselected when it asks.
 
 The package manager resolves in this order: `--package-manager`, the value recorded in `.wolven-harness.json`, `package.json`'s `packageManager` field, the single lockfile present (`pnpm-lock.yaml`, `yarn.lock`, `package-lock.json`), then `npm` when a `package.json` exists with no other signal, or `none` when there is no `package.json`. With several lockfiles, setup asks once in a terminal; without a terminal it exits 1 and names `--package-manager`.
 
@@ -122,7 +122,7 @@ wolven-harness skills [--runtimes <claude,codex,cursor>] [--scope <project|globa
 
 Copies chosen ship and discovery skill folders into the directories Claude, Codex, and Cursor already read. It does not run `setup`. Core skills are installed by `setup`, and `skills --runtimes` keeps its three runtimes even though `setup --runtimes` accepts nine.
 
-Asks for the runtimes (`claude`, `codex`, `cursor`), the scope (`project`, `global`, or `project,global`), and the skills, or takes `--runtimes`, `--scope`, and `--skills`. Those flags are required when stdout or stdin is not a TTY. `--skills` takes `ship`, `discovery`, or a skill in those sets, for example `--skills ship` or `--skills create-prd`.
+Asks for the runtimes (`claude`, `codex`, `cursor`), the scope (`project`, `global`, or `project,global`), and the skills, or takes `--runtimes`, `--scope`, and `--skills`. Those flags are required when running in a script or CI without an interactive terminal. `--skills` takes `ship`, `discovery`, or a skill in those sets, for example `--skills ship` or `--skills create-prd`.
 
 `project` writes under the current directory. `global` writes under your home directory. Cursor and Codex share `.agents/skills/<skill>/`. Claude uses `.claude/skills/<skill>/`. Choosing Cursor and Codex writes each skill once. It does not need a Git repository, and it does not write harness config, rules, or package scripts.
 
@@ -209,6 +209,7 @@ Setup stores its choices in `.wolven-harness.json` in the folder it ran in. The 
   "skillSets": ["ship"],
   "packageVersion": "0.4.0",
   "packageManager": "pnpm",
+  "layout": "home",
   "codeRepo": "../client",
   "commitConvention": { "style": "conventional" },
   "ignore": ["vendor/**"],
@@ -230,6 +231,7 @@ Setup stores its choices in `.wolven-harness.json` in the folder it ran in. The 
 | `skillSets` | No | Optional `ship` and/or `discovery` sets; core is always installed. |
 | `packageVersion` | No | Refreshed to the running package version by setup. |
 | `packageManager` | No | `npm`, `yarn`, `pnpm` or `none`; the manager whose command forms the CLI prints. `--package-manager` overrides it. |
+| `layout` | No | `"home"` when the harness lives in the open folder. |
 | `codeRepo` | No | The one code repository the install serves, as a path relative to the config file's folder. |
 | `commitConvention` | No | `{ "style": "conventional" }`, or `{ "style": "pattern", "pattern": "<regex>", "example": "<subject>" }` where the pattern compiles as a JavaScript regular expression. |
 | `ignore` | No | Validation scan exclusions and default comments exclusions. Each entry must be `<dir>/**`; `docs/` and `.agents/` cannot be excluded. |
@@ -260,4 +262,4 @@ Common check problems:
 - **A legacy ADR warning remains** — use the `harness-init` skill to migrate the decision while preserving its meaning.
 - **`step0-pending`** — `AGENTS.md` has no `<!-- wolven-harness:start -->` marker; ask your agent to run `harness-init` step 0.
 
-For setup workflow and first steps, see [Setup](./harness-init). For the installed skill choices, see [Skills](./skills).
+For setup workflow and first steps, see [Installation](./install). For the installed skill choices, see [Skills](./skills).

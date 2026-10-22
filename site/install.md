@@ -2,13 +2,29 @@
 description: Connect the harness files to your repo’s existing instructions with harness-init.
 ---
 
-# Setup
+# Installation
 
 Install `@wolven-tech/harness` globally, then run `wolven-harness setup` at a Git repository's top level or in a folder outside every repository. In the latter case, setup installs the core skills and selected runtime links; ask your agent to run the `harness-init` skill there to finish. The command and the skill are separate: setup installs files, while the skill guides you through integrating them with your repository. It shows each diff and waits for your choice before writing.
 
 ## What happens
 
-1. Choose how to integrate `WOLVEN.md` into `AGENTS.md`: full or light. Both write the harness section between `<!-- wolven-harness:start -->` and `<!-- wolven-harness:end -->`, so a later run finds and refreshes it instead of folding a second one. When `codex` is wired, the section also carries the four rule bodies between `<!-- wolven-harness:rules:start -->` and `<!-- wolven-harness:rules:end -->`, because Codex cannot import files. `setup` never creates or edits `AGENTS.md`.
+1. Choose how to integrate `WOLVEN.md` into `AGENTS.md`: full or light. Both wrap the harness section in markers so a later run finds and refreshes it instead of folding a second one:
+
+   ```markdown
+   <!-- wolven-harness:start -->
+   ...harness section...
+   <!-- wolven-harness:end -->
+   ```
+
+   When `codex` or `antigravity` is wired, the section also carries the four rule bodies between rules markers, because those runtimes read the rules from `AGENTS.md`:
+
+   ```markdown
+   <!-- wolven-harness:rules:start -->
+   ...standing rule bodies...
+   <!-- wolven-harness:rules:end -->
+   ```
+
+   `setup` never creates or edits `AGENTS.md`.
 2. If validation reports legacy architecture decision records (ADRs), migrate them into `docs/adrs/`, keeping their numbers and resolving broken references.
 3. The agent reads the repository and suggests two to four skills based on its tools and decisions. Web research is optional and requires your agreement.
 4. It creates only the skill stubs you choose. They are unfinished, ask-only skills; validation reports a `skill-stub-open` warning until you complete them. The warning does not fail validation.

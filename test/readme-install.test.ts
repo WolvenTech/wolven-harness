@@ -40,7 +40,7 @@ test('readme-install: the global install appears in npm, yarn and pnpm forms bef
 
   assert.ok(setupIndex !== -1, 'wolven-harness setup not found');
   assert.ok(installIndex < setupIndex, 'the global install must appear before the setup command');
-  assert.match(readme, /outside every repository/i);
+  assert.match(readme, /any folder near your repo code/i);
 });
 
 test('readme-install: README and site install page lead with global setup outside a repository', async () => {
@@ -51,7 +51,7 @@ test('readme-install: README and site install page lead with global setup outsid
     const setupIndex = doc.indexOf('wolven-harness setup');
     assert.ok(setupIndex !== -1, 'wolven-harness setup not found');
     assert.ok(installIndex < setupIndex, 'the global install must appear before the setup command');
-    assert.match(doc, /outside (?:any|every) (?:Git )?repository/i);
+    assert.match(doc, /any folder near your repo code/i);
     assert.doesNotMatch(doc, /doctor|harness-doctor/i);
   }
 });
@@ -60,7 +60,7 @@ test('readme-install: PR 1 guide pages do not mention doctor', async () => {
   const pages = [
     await readReadme(),
     ...(await Promise.all(
-      ['site/commands.md', 'site/index.md', 'site/runtimes.md', 'site/skills.md', 'site/harness-init.md'].map(readDoc),
+      ['site/commands.md', 'site/index.md', 'site/runtimes.md', 'site/skills.md', 'site/install.md'].map(readDoc),
     )),
   ];
 
@@ -110,7 +110,7 @@ test('readme-install: the release page says to close and reopen the release PR b
 
 test('proof-docs-basics-path: README and the harness-init page explain the basics path and the full tour', async () => {
   const readme = await readReadme();
-  const page = await readDoc('site/harness-init.md');
+  const page = await readDoc('site/install.md');
   const basics = section(page, 'Basics path');
 
   assert.match(readme, /basics path/i);
