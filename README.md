@@ -13,21 +13,29 @@ Docs: [wolventech.github.io/wolven-harness](https://wolventech.github.io/wolven-
 
 ## Install
 
-Install the CLI globally, so `wolven-harness` works from any folder:
+Install the CLI globally using your package manager:
 
 ```sh
 npm install -g @wolven-tech/harness
+```
+```sh
 yarn global add @wolven-tech/harness
+```
+```sh
 pnpm add -g @wolven-tech/harness
 ```
 
-You need Node 22 or later, git, and macOS or Linux. Then run setup from the top level of a Git repository, or from a folder that is outside every repository:
+You need Node 22 or later, git, and macOS or Linux. 
+
+Then run setup from the top level of a Git repository, or from any folder near your repo code:
 
 ```sh
-wolven-harness setup --git-host gh --runtimes claude
+wolven-harness setup
 ```
 
-At a Git top level, setup scaffolds the full harness. Outside any repository, it writes the core skills and their runtime links, records your choices, and tells you to run `harness-init` in that folder. A repository subfolder is not a setup location. Running `npx @wolven-tech/harness setup` works without a global install, but setup then recommends the global one.
+The setup will guide you through the installation choices and then write the chosen skills, rules and commands, their runtime links, and record your choices. Then you can run your agent in that folder and ask for `harness-init`.
+
+Running `npx @wolven-tech/harness setup` works without a global install, but setup then recommends the global install so you can use other commands like `skill` and `doctor`.
 
 ## Setup
 
