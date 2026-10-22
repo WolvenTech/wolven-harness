@@ -2,13 +2,29 @@
 description: Connect the harness files to your repo’s existing instructions with harness-init.
 ---
 
-# Setup
+# Installation
 
-Run `wolven-harness setup` to install the files, then ask your agent to run the `harness-init` skill. The command and the skill are separate: setup installs files, while the skill guides you through integrating them with your repository. It shows each diff and waits for your choice before writing.
+Install `@wolven-tech/harness` globally, then run `wolven-harness setup` at a Git repository's top level or in a folder outside every repository. In the latter case, setup installs the core skills and selected runtime links; ask your agent to run the `harness-init` skill there to finish. The command and the skill are separate: setup installs files, while the skill guides you through integrating them with your repository. It shows each diff and waits for your choice before writing.
 
 ## What happens
 
-1. Choose how to integrate `WOLVEN.md` into `AGENTS.md`: full, light, or mention-only. `setup` never creates or edits `AGENTS.md`.
+1. Choose how to integrate `WOLVEN.md` into `AGENTS.md`: full or light. Both wrap the harness section in markers so a later run finds and refreshes it instead of folding a second one:
+
+   ```markdown
+   <!-- wolven-harness:start -->
+   ...harness section...
+   <!-- wolven-harness:end -->
+   ```
+
+   When `codex` or `antigravity` is wired, the section also carries the four rule bodies between rules markers, because those runtimes read the rules from `AGENTS.md`:
+
+   ```markdown
+   <!-- wolven-harness:rules:start -->
+   ...standing rule bodies...
+   <!-- wolven-harness:rules:end -->
+   ```
+
+   `setup` never creates or edits `AGENTS.md`.
 2. If validation reports legacy architecture decision records (ADRs), migrate them into `docs/adrs/`, keeping their numbers and resolving broken references.
 3. The agent reads the repository and suggests two to four skills based on its tools and decisions. Web research is optional and requires your agreement.
 4. It creates only the skill stubs you choose. They are unfinished, ask-only skills; validation reports a `skill-stub-open` warning until you complete them. The warning does not fail validation.
@@ -29,10 +45,10 @@ Both paths end by telling you what was installed, what was left for later and wh
 ## Check the setup
 
 ```sh
-pnpm exec wolven-harness validate
+wolven-harness validate
 ```
 
-`setup` adds `harness:validate` as a package script for `wolven-harness validate` when that script is missing. In that case, `pnpm harness:validate` runs the same check. Existing scripts are preserved; see the full [Commands](./commands) reference.
+`setup` adds `harness:validate` as a package script for `wolven-harness validate` when that script is missing. In that case the `harness:validate` script runs the same check, whatever package manager the install recorded. Existing scripts are preserved.
 
 Migration is complete when validation exits 0 with no legacy warnings left and no `adr-status-mismatch`. A superseded ADR is never kept `stable`: it gets a successor and is deprecated. References to decision records must resolve to a stable record in `docs/adrs/`; legacy records get migration warnings during the transition.
 

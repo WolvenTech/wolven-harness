@@ -15,7 +15,7 @@ status: stable
 
 ## Contract impact
 
-A waiver is new syntax, and skipping URLs changes what `claim-missing` catches. [ADR-004](../../adrs/adr-004-standalone-skills-contract.md) freezes neither, but both change which lines fail a run. A new finding for a waiver without a reason must start as a warning.
+A waiver is new syntax, and skipping URLs changes what `claim-missing` catches. [ADR-005](../../adrs/adr-005-install-anywhere-contract.md) freezes neither, but both change which lines fail a run. A new finding for a waiver without a reason must start as a warning.
 
 ## Triggers
 

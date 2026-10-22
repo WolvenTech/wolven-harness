@@ -15,7 +15,7 @@ status: stable
 
 ## Contract impact
 
-A new `setup` flag is additive under [ADR-004](../../adrs/adr-004-standalone-skills-contract.md) and fits a minor release. `--check` must keep every `setup` guarantee: it reports only and writes nothing.
+A new `setup` flag is additive under [ADR-005](../../adrs/adr-005-install-anywhere-contract.md) and fits a minor release. `--check` must keep every `setup` guarantee: it reports only and writes nothing.
 
 ## Triggers
 

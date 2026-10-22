@@ -2,12 +2,12 @@
 type: spec
 title: Pragmatic-guard consult alignment spec
 description: Freeze design and requirements to eliminate mandatory negative pragmatic-guard boilerplate from ship skills and scope consults to pertinent work.
-status: stable
+status: deprecated
 ---
 
 # Pragmatic-guard consult alignment spec
 
-**Source:** `docs/prds/pragmatic-guard-consult/pragmatic-guard-consult-prd.md` (status `stable`)
+**Source:** `docs/prds/archived/pragmatic-guard-consult/pragmatic-guard-consult-prd.md` (status `deprecated`)
 **Next:** After the Human approves → `code-plan` → `code-execute`, wave **1**
 **Named proof (this spec's own structural gate):** `proof-pragmatic-guard-consult-spec-obligations`
 
@@ -87,7 +87,7 @@ flowchart TD
 - Adding automated skill install commands or package dependencies.
 - Adding a session tracking daemon, log analyzer, or database to track prior consults across processes.
 - Modifying `pragmatic-guard`'s own internal rules or evaluation scoring.
-- Changing CLI flags or contracts under ADR-004.
+- Changing CLI flags or contracts under ADR-005.
 
 ## Pragmatic-guard refuses
 
@@ -122,7 +122,7 @@ flowchart TD
 
 ## ADR
 
-None needed this initiative. This work refines prompt and template contract text within established ADR-004 guidelines and does not alter architecture decisions.
+None needed this initiative. This work refines prompt and template contract text within established ADR-005 guidelines and does not alter architecture decisions.
 
 ## Section checklist
 

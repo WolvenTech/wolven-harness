@@ -24,15 +24,70 @@ function section(doc: string, heading: string): string {
   return next === -1 ? rest : rest.slice(0, next);
 }
 
-test('readme-install: the add and setup commands appear, in that order', async () => {
+const GLOBAL_INSTALL_FORMS = [
+  'npm install -g @wolven-tech/harness',
+  'yarn global add @wolven-tech/harness',
+  'pnpm add -g @wolven-tech/harness',
+];
+
+test('readme-install: the global install appears in npm, yarn and pnpm forms before setup', async () => {
   const readme = await readReadme();
 
-  const addIndex = readme.indexOf('pnpm add -D @wolven-tech/harness');
-  const setupIndex = readme.indexOf('pnpm exec wolven-harness setup');
+  for (const form of GLOBAL_INSTALL_FORMS) assert.ok(readme.includes(form), `${form} not found`);
 
-  assert.ok(addIndex !== -1, 'pnpm add -D @wolven-tech/harness not found');
-  assert.ok(setupIndex !== -1, 'pnpm exec wolven-harness setup not found');
-  assert.ok(addIndex < setupIndex, 'install command must appear before the setup command');
+  const installIndex = readme.indexOf(GLOBAL_INSTALL_FORMS[0]);
+  const setupIndex = readme.indexOf('wolven-harness setup');
+
+  assert.ok(setupIndex !== -1, 'wolven-harness setup not found');
+  assert.ok(installIndex < setupIndex, 'the global install must appear before the setup command');
+  assert.match(readme, /any folder near your repo code/i);
+});
+
+test('readme-install: README and site install page lead with global setup outside a repository', async () => {
+  for (const doc of [await readReadme(), await readDoc('site/index.md')]) {
+    for (const form of GLOBAL_INSTALL_FORMS) assert.ok(doc.includes(form), `${form} missing`);
+
+    const installIndex = doc.indexOf(GLOBAL_INSTALL_FORMS[0]);
+    const setupIndex = doc.indexOf('wolven-harness setup');
+    assert.ok(setupIndex !== -1, 'wolven-harness setup not found');
+    assert.ok(installIndex < setupIndex, 'the global install must appear before the setup command');
+    assert.match(doc, /any folder near your repo code/i);
+    assert.doesNotMatch(doc, /doctor|harness-doctor/i);
+  }
+});
+
+test('readme-install: PR 1 guide pages do not mention doctor', async () => {
+  const pages = [
+    await readReadme(),
+    ...(await Promise.all(
+      ['site/commands.md', 'site/index.md', 'site/runtimes.md', 'site/skills.md', 'site/install.md'].map(readDoc),
+    )),
+  ];
+
+  for (const page of pages) assert.doesNotMatch(page, /doctor|harness-doctor/i);
+});
+
+test('readme-install: the runtimes page lists the nine registry runtimes and their wiring', async () => {
+  const page = await readDoc('site/runtimes.md');
+
+  for (const id of ['claude', 'codex', 'cursor', 'opencode', 'amp', 'copilot', 'gemini', 'kiro', 'antigravity']) {
+    assert.match(page, new RegExp(`\`${id}\``), `missing runtime ${id}`);
+  }
+  assert.match(page, /\.claude\/rules/);
+  assert.match(page, /wolven-harness:rules:start/);
+  assert.match(page, /\.cursor\/rules/);
+});
+
+test('proof-install-experience-gemini-docs: the runtimes page explains Gemini native and inline modes', async () => {
+  const page = await readDoc('site/runtimes.md');
+  const geminiRow = page.split('\n').find((line) => line.startsWith('| Gemini CLI |'));
+  const geminiSection = section(page, 'Gemini CLI');
+
+  assert.ok(geminiRow, 'missing Gemini runtime row');
+  assert.match(geminiRow, /Native mode:.*`@AGENTS\.md` and every rule/);
+  assert.match(geminiRow, /Inline mode:.*`@AGENTS\.md` only/);
+  assert.match(geminiSection, /In native mode,.*`@AGENTS\.md` and every `@\.agents\/rules\/<rule>\.md`/);
+  assert.match(geminiSection, /In inline mode,.*`codex` or `antigravity`.*imports `@AGENTS\.md` only/);
 });
 
 test('readme-install: the release page covers trusted publishing, its npm-side setup and the manual re-run', async () => {
@@ -55,7 +110,7 @@ test('readme-install: the release page says to close and reopen the release PR b
 
 test('proof-docs-basics-path: README and the harness-init page explain the basics path and the full tour', async () => {
   const readme = await readReadme();
-  const page = await readDoc('site/harness-init.md');
+  const page = await readDoc('site/install.md');
   const basics = section(page, 'Basics path');
 
   assert.match(readme, /basics path/i);

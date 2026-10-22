@@ -23,6 +23,8 @@ const REFERENCES = [
   'references/entry-modes.md',
   'references/adr-migration.md',
   'references/discovery.md',
+  'references/layout.md',
+  'references/convention.md',
   'references/stub-template.md',
   'references/session-note-template.md',
   'references/validate-wiring.md',
@@ -76,7 +78,10 @@ test('skill-shape: re-run skips step 0, step 1, and resumes a draft session note
   const skill = await readSkill('harness-init');
   const flat = flatten(skill.body);
 
-  assert.match(flat, /step 0 is skipped when `WOLVEN\.md` is already gone, or `AGENTS\.md` already mentions it/i);
+  assert.match(
+    flat,
+    /step 0 is skipped when `WOLVEN\.md` is already gone, or `AGENTS\.md` already holds the harness start marker/i,
+  );
   assert.match(flat, /step 1 is skipped when there are no legacy-adr warnings/i);
   assert.match(flat, /draft.*session note.*interrupted run.*is resumed/i);
   assert.match(flat, /resumed, not replaced/i);
@@ -184,13 +189,23 @@ test('skill-harness-init: asks how harness:validate is wired, with three options
   assert.match(ref, /ask in plain language how `harness:validate` should run/i);
   assert.match(ref, /`\.github\/workflows\/\*\.yml`/);
   assert.match(ref, /`bitbucket-pipelines\.yml`/);
-  assert.match(ref, /`pnpm install --frozen-lockfile`/);
-  assert.match(ref, /must set up\s+pnpm and Node ≥ 22 before it runs/);
-  assert.match(ref, /`pnpm\/action-setup`/);
+  assert.match(ref, /sets up Node ≥ 22 before the install and validate steps/);
   assert.match(ref, /`actions\/setup-node`/);
   assert.match(ref, /`corepack enable`/);
+  assert.match(ref, /recorded `packageManager`/);
+  for (const manager of ['npm', 'yarn', 'pnpm', 'none']) {
+    assert.match(ref, new RegExp(`\\| \`${manager}\` \\|`), `${manager} has a branch`);
+  }
+  assert.match(ref, /`npm ci`/);
+  assert.match(ref, /`npm run harness:validate`/);
+  assert.match(ref, /`yarn install --frozen-lockfile`/);
+  assert.match(ref, /`yarn harness:validate`/);
+  assert.match(ref, /`pnpm\/action-setup`/);
+  assert.match(ref, /`pnpm install --frozen-lockfile`/);
   assert.match(ref, /`pnpm harness:validate`/);
-  assert.match(ref, /`&& pnpm harness:validate`/);
+  assert.match(ref, /no install step/);
+  assert.match(ref, /globally installed `wolven-harness validate`/);
+  assert.match(ref, /Append `&& ` and the run-script form/);
   assert.match(ref, /Nothing is written without a yes: show the diff, wait for the Human's yes, then write/);
 
   const note = flatten(await skill.read('references/session-note-template.md'));

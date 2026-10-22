@@ -2,7 +2,7 @@
 type: prd
 title: Pragmatic-guard consult alignment
 description: Align pragmatic-guard consultation in ship skills by removing mandatory negative boilerplate and scoping consults to pertinent work.
-status: stable
+status: deprecated
 ---
 
 # Pragmatic-guard consult alignment

@@ -1,4 +1,3 @@
-import { isRuntime } from '../setup/config.js';
 import { canPrompt } from '../setup/options.js';
 import { CORE_SKILLS, isSkillSet, SET_SKILLS, SKILL_SETS } from '../setup/skill-sets.js';
 import type { Io, Prompter, Runtime } from '../setup/types.js';
@@ -39,12 +38,19 @@ function splitList(raw: string): string[] {
   return seen;
 }
 
+/** The only runtimes `skills` copies for; the harness config accepts the wider registry. */
+const SKILL_RUNTIMES: readonly Runtime[] = ['claude', 'codex', 'cursor'];
+
+function isSkillRuntime(value: unknown): value is Runtime {
+  return typeof value === 'string' && (SKILL_RUNTIMES as readonly string[]).includes(value);
+}
+
 function parseRuntimeList(raw: string): Runtime[] | undefined {
   const parts = splitList(raw);
   if (parts.length === 0) return undefined;
   const runtimes: Runtime[] = [];
   for (const part of parts) {
-    if (!isRuntime(part)) return undefined;
+    if (!isSkillRuntime(part)) return undefined;
     runtimes.push(part);
   }
   return runtimes;
@@ -138,7 +144,7 @@ async function resolveRuntimes(flags: SkillsFlagValues, io: Io, interactive: boo
   if (flags.runtimes !== undefined) {
     const parsed = parseRuntimeList(flags.runtimes);
     if (parsed !== undefined) return parsed;
-    const bad = unknownToken(flags.runtimes, ['claude', 'codex', 'cursor']);
+    const bad = unknownToken(flags.runtimes, SKILL_RUNTIMES);
     if (!interactive) return fail(io, bad ?? 'missing --runtimes');
   } else if (!interactive) {
     return fail(io, 'missing --runtimes');

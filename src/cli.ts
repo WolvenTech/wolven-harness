@@ -15,8 +15,10 @@ function printUsage(io: Io): void {
       '',
       'Commands:',
       '  setup      Scaffold WOLVEN.md, the .agents/ source tree, and wire runtimes',
-      '             [--git-host <gh|bit>] [--runtimes <claude,codex,cursor>]',
+      '             [--git-host <gh|bit>]',
+      '             [--runtimes <claude|codex|cursor|opencode|amp|copilot|gemini|kiro|antigravity>]',
       '             [--skills <ship,discovery|none>]  extra skill sets (core is always installed)',
+      '             [--package-manager <npm|yarn|pnpm|none>]',
       '             [--verbose] list every file created or kept',
       '             [--debug]   trace each step on stderr (or WOLVEN_HARNESS_DEBUG=1)',
       '  validate   Check the repo against the writing profile and claim gate',
@@ -84,6 +86,7 @@ if (isMain()) {
     stderr: process.stderr,
     isTTY: Boolean(process.stdout.isTTY),
     env: process.env,
+    execPath: process.argv[1],
   };
 
   main(process.argv.slice(2), io).then((code) => {

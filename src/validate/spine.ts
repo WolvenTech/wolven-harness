@@ -3,12 +3,16 @@ import type { Dirent } from 'node:fs';
 import { lstat, readdir, readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { classifyFrontmatter, skillIdentity } from '../frontmatter.js';
+import { runtimeRow } from '../setup/runtimes.js';
 import type { RepoContext } from './repo.js';
 import type { Finding } from './report.js';
 
 const RULE_CITATION_RE = /\.agents\/rules\/[A-Za-z0-9._-]+\.md/g;
 const CITING_FILES = ['WOLVEN.md', 'AGENTS.md'];
+const HARNESS_START_MARKER = '<!-- wolven-harness:start -->';
 
+const claude = runtimeRow('claude');
+if (claude.entryFile === undefined) throw new Error('The registered runtime must name its entry file');
 /** Harness paths every clone needs; `harness-ignored` checks the ones present on disk. */
 const HARNESS_PATHS = [
   '.agents/skills',
@@ -16,9 +20,9 @@ const HARNESS_PATHS = [
   '.agents/hooks',
   '.qmd',
   'docs',
-  '.claude/skills',
+  claude.skills.path,
   'AGENTS.md',
-  'CLAUDE.md',
+  claude.entryFile.path,
   '.wolven-harness.json',
 ];
 
@@ -169,16 +173,17 @@ async function checkRuleCitations(root: string): Promise<Finding[]> {
 }
 
 /**
- * Rule `step0-pending`: while `WOLVEN.md` exists and `AGENTS.md` is
- * absent or doesn't mention it, warn (exit 0) rather than fail.
+ * Rule `step0-pending`: while `WOLVEN.md` exists and `AGENTS.md` lacks the
+ * harness section start marker, warn (exit 0) rather than fail. A plain-text
+ * mention of `WOLVEN.md` does not count as having run step 0.
  */
 async function checkStep0Pending(root: string): Promise<Finding[]> {
   const wolvenExists = await followedPathExists(path.join(root, 'WOLVEN.md'));
   if (!wolvenExists) return [];
 
   const agentsContent = await readOptional(path.join(root, 'AGENTS.md'));
-  const mentioned = agentsContent?.includes('WOLVEN.md') ?? false;
-  if (mentioned) return [];
+  const hasHarnessSection = agentsContent?.includes(HARNESS_START_MARKER) ?? false;
+  if (hasHarnessSection) return [];
 
   return [{ level: 'warn', rule: 'step0-pending', file: 'WOLVEN.md', message: 'harness-init step 0 pending' }];
 }

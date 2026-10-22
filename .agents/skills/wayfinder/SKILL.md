@@ -37,7 +37,7 @@ Chart when the Human asks for a map, or accepts your one-line offer of one.
    in one paragraph. Keep going until the unknowns are named too. If
    `grilling` is not installed, ask the same questions yourself, one at a
    time, and name its install command,
-   `pnpm exec wolven-harness skills --skills grilling`.
+   `wolven-harness skills --skills grilling`.
 3. Write `docs/maps/<slug>/<slug>-map.md` with `title`, `description`,
    `type: map` and `status: draft` in its frontmatter and five sections, in
    this order:
@@ -87,7 +87,7 @@ Work one ticket per session.
 
 When the ticket needs `research`, `prototype` or `grilling` and that skill
 has no folder under `.agents/skills/`, name the skill and its install
-command, `pnpm exec wolven-harness skills --skills <name>`. Leave the ticket
+command, `wolven-harness skills --skills <name>`. Leave the ticket
 `open`. Release any claim you made. Work it in plain conversation only if
 the Human asks, and then the `## Resolution` says no skill was used.
 

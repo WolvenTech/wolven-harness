@@ -31,7 +31,7 @@ test('install-devdep: warns when package.json exists without the dep in devDepen
 
   assert.equal(result.code, 0, result.stderr);
   assert.match(result.stderr, /@wolven-tech\/harness/);
-  assert.match(result.stderr, /pnpm add -D @wolven-tech\/harness/);
+  assert.match(result.stderr, /npm install -D @wolven-tech\/harness/);
 
   // why: addValidateScript also touches package.json (adds scripts) — only
   // devDependencies must stay untouched by this step.
@@ -66,7 +66,7 @@ test('install-devdep: a dep listed under dependencies gets a move hint, not a se
   assert.equal(result.code, 0, result.stderr);
   assert.match(
     result.stderr,
-    /@wolven-tech\/harness is listed under dependencies.*Fix it with: pnpm remove @wolven-tech\/harness && pnpm add -D @wolven-tech\/harness/,
+    /@wolven-tech\/harness is listed under dependencies.*Fix it with: npm uninstall @wolven-tech\/harness && npm install -D @wolven-tech\/harness/,
   );
 });
 
@@ -106,10 +106,11 @@ test('setup-config: comments, ignore, and an unknown key survive a re-run unchan
   assert.equal(result.code, 0, result.stderr);
 
   const config = await readConfigFile(dir);
-  const { packageVersion, skillSets, ...rest } = config;
+  const { packageVersion, skillSets, packageManager, ...rest } = config;
   assert.deepEqual(skillSets, ['ship']);
 
   assert.equal(packageVersion, await ownPackageVersion());
+  assert.equal(packageManager, 'none');
   assert.deepEqual(rest, existing);
 });
 
@@ -129,5 +130,5 @@ test('setup-config: a re-run keeps the existing key order and adds skillSets and
   assert.equal(result.code, 0, result.stderr);
 
   const config = await readConfigFile(dir);
-  assert.deepEqual(Object.keys(config), [...Object.keys(existing), 'skillSets', 'packageVersion']);
+  assert.deepEqual(Object.keys(config), [...Object.keys(existing), 'skillSets', 'packageVersion', 'packageManager']);
 });

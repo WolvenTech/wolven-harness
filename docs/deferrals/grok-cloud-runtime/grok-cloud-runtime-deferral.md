@@ -9,13 +9,13 @@ status: draft
 
 **Deferred:** a `grok` runtime in setup and the skills command, and a `.grok/skills/` tree in this repository.
 
-**Why:** ADR-004 runtimes are `claude`, `codex`, and `cursor`. Issue 50 names Grokbot and does not name a product doc or a committed directory. Grok Bot's skills doc describes account plugins. Grok Build's skills doc describes `.grok/skills/` and Claude compatibility. Those are different products.
+**Why:** ADR-005 runtimes are `claude`, `codex`, and `cursor`. Issue 50 names Grokbot and does not name a product doc or a committed directory. Grok Bot's skills doc describes account plugins. Grok Build's skills doc describes `.grok/skills/` and Claude compatibility. Those are different products.
 
 **Today:** this repository has no `.grok/` tree. The Human left Grokbot out of the cloud-session-skills spec.
 
 ## Contract impact
 
-Adding an allowed `runtimes` entry is a contract change and goes through a successor to [ADR-004](../../adrs/adr-004-standalone-skills-contract.md). Nothing here edits that ADR.
+Adding an allowed `runtimes` entry is a contract change and goes through a successor to [ADR-005](../../adrs/adr-005-install-anywhere-contract.md). Nothing here edits that ADR.
 
 ## Triggers
 

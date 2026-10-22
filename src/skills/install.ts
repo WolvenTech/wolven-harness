@@ -5,6 +5,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { pathExists } from '../path-exists.js';
 import { canPrompt } from '../setup/options.js';
+import { runtimeRow } from '../setup/runtimes.js';
 import type { Io } from '../setup/types.js';
 import { clackPrompter } from '../setup/ui.js';
 import type { SkillChoices, SkillScope } from './parse.js';
@@ -29,20 +30,14 @@ function loadRoot(scope: SkillScope, projectRoot: string, home: string): string 
   return scope === 'project' ? projectRoot : home;
 }
 
-/**
- * Directories a runtime already reads for one skill. Claude uses
- * `.claude/skills/<skill>/`; Codex and Cursor share `.agents/skills/<skill>/`.
- * Project paths are under `projectRoot` and global paths under `home`.
- * The same directory is listed once.
- */
+/** Computes selected destination directories and removes paths shared by runtimes. */
 function destinationDirs(choices: SkillChoices, projectRoot: string, home: string): string[] {
   const dirs: string[] = [];
   for (const skill of choices.skills) {
     for (const scope of choices.scopes) {
       const root = loadRoot(scope, projectRoot, home);
       for (const runtime of choices.runtimes) {
-        const base = runtime === 'claude' ? '.claude' : '.agents';
-        const dir = path.join(root, base, 'skills', skill);
+        const dir = path.join(root, runtimeRow(runtime).skills.path, skill);
         if (!dirs.includes(dir)) dirs.push(dir);
       }
     }

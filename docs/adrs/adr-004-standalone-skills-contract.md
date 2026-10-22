@@ -2,7 +2,8 @@
 type: adr
 title: Extend the public contract with standalone skills installation
 description: Carry forward the existing CLI contract and add standalone skills installation as an additive command with explicit load paths, consent, and failure guarantees.
-status: stable
+status: deprecated
+superseded_by: adr-005-install-anywhere-contract
 ---
 
 # Extend the public contract with standalone skills installation

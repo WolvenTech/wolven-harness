@@ -1,6 +1,8 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import type { PackageManager } from './config.js';
+import { addDevDependency, readPackageJson, recordedPackageManager, removeDependency } from './package-manager.js';
 import type { Context } from './types.js';
 
 /** This running package's own `name` and `version`, from its `package.json`. */
@@ -29,30 +31,16 @@ export function resolveOwnPackage(): Promise<OwnPackage> {
   return ownPackage;
 }
 
-/** A consumer `package.json`, parsed; only the object-valued fields setup reads are typed. */
-export type PackageJson = Record<string, Record<string, unknown> | undefined>;
-
-/** Reads and parses `<root>/package.json`; a missing file gives `undefined`. */
-export async function readPackageJson(root: string): Promise<PackageJson | undefined> {
-  let raw: string;
-  try {
-    raw = await readFile(path.join(root, 'package.json'), 'utf8');
-  } catch (err) {
-    if ((err as NodeJS.ErrnoException).code === 'ENOENT') return undefined;
-    throw err;
-  }
-  return JSON.parse(raw) as PackageJson;
-}
-
 /**
  * Returns a kind, one-line warning (with the exact fix command) when the
  * target root has a `package.json` and this package is not in its
  * `devDependencies`: listed under `dependencies` or `optionalDependencies`
- * the fix is to move it, absent it is to add it. Writes nothing; a missing
- * `package.json`, or the dependency already in `devDependencies`, gives
- * `undefined`.
+ * the fix is to move it, absent it is to add it. The fix commands use
+ * `packageManager` when given, else the manager the install recorded.
+ * Writes nothing; a missing `package.json`, or the dependency already in
+ * `devDependencies`, gives `undefined`.
  */
-export async function devDependencyWarning(ctx: Context): Promise<string | undefined> {
+export async function devDependencyWarning(ctx: Context, packageManager?: PackageManager): Promise<string | undefined> {
   const pkg = await readPackageJson(ctx.root);
   if (pkg === undefined) return undefined;
 
@@ -61,10 +49,12 @@ export async function devDependencyWarning(ctx: Context): Promise<string | undef
 
   if (has('devDependencies')) return undefined;
 
+  const manager = packageManager ?? (await recordedPackageManager(ctx.root));
+
   const otherField = ['dependencies', 'optionalDependencies'].find(has);
   if (otherField !== undefined) {
-    return `${name} is listed under ${otherField}; it belongs in devDependencies. Fix it with: pnpm remove ${name} && pnpm add -D ${name}`;
+    return `${name} is listed under ${otherField}; it belongs in devDependencies. Fix it with: ${removeDependency(manager, name)} && ${addDevDependency(manager, name)}`;
   }
 
-  return `${name} is not in your devDependencies yet, so teammates and CI will not get it. Fix it with: pnpm add -D ${name}`;
+  return `${name} is not in your devDependencies yet, so teammates and CI will not get it. Fix it with: ${addDevDependency(manager, name)}`;
 }

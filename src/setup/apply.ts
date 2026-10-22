@@ -82,11 +82,14 @@ async function walkFiles(dir: string): Promise<string[]> {
  * created nor reported. When `sets` is given, a template under a set's
  * `SET_PATHS` is skipped unless that set is chosen, and set-marked lines in
  * `WOLVEN.md` and `.qmd/index.yml` follow the same choice.
+ * With `options.skillsOnly`, every template outside `.agents/skills/` is
+ * left out, for the mode that runs outside a git top-level.
  */
 export async function applyTemplates(
   ctx: Context,
   skillFolders?: readonly string[],
   sets?: readonly SkillSet[],
+  options: { skillsOnly?: boolean } = {},
 ): Promise<StepResult> {
   const created: string[] = [];
   const skipped: string[] = [];
@@ -97,6 +100,7 @@ export async function applyTemplates(
     const sourceRel = toPosix(relFsPath);
     const rel = INSTALLED_AS[sourceRel] ?? sourceRel;
 
+    if (options.skillsOnly === true && !rel.startsWith('.agents/skills/')) continue;
     const skillName = /^\.agents\/skills\/([^/]+)\//.exec(rel)?.[1];
     if (skillFolders !== undefined && skillName !== undefined && !skillFolders.includes(skillName)) continue;
 
