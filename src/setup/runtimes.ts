@@ -136,6 +136,7 @@ export const RUNTIME_REGISTRY: readonly RuntimeRegistryRow[] = [
     folderMarkers: ['GEMINI.md', '.gemini'],
     skills: { kind: 'direct', path: '.agents/skills' },
     rules: { kind: 'file', path: 'GEMINI.md', render: geminiMd },
+    entryFile: { path: 'GEMINI.md', content: '@AGENTS.md\n' },
   },
   {
     id: 'kiro',
@@ -228,6 +229,7 @@ function opencodeJson(rules: RuleSource[]): string {
 }
 
 function geminiMd(rules: RuleSource[]): string {
+  if (rules.length === 0) return '@AGENTS.md\n';
   return `${['@AGENTS.md', '', ...rules.map((rule) => `@${RULES_DIR}/${rule.base}.md`)].join('\n')}\n`;
 }
 
@@ -292,7 +294,7 @@ async function wireNativeRules(
   skipped: string[],
 ): Promise<void> {
   const wiring = row.rules;
-  if (rules.length === 0) return;
+  if (rules.length === 0 && !(wiring.kind === 'file' && row.entryFile?.path === wiring.path)) return;
   switch (wiring.kind) {
     case 'link':
       await createSymlink(ctx, wiring.path, wiring.target, row.name, created, skipped);
@@ -357,7 +359,8 @@ export async function wireRuntimes(opts: Options, ctx: Context): Promise<StepRes
 
   await wireSkillsPaths(rows, ctx, created, skipped);
   for (const row of rows) {
-    if (row.entryFile !== undefined) {
+    const sharedRulesFile = mode === 'native' && row.rules.kind === 'file' && row.entryFile?.path === row.rules.path;
+    if (row.entryFile !== undefined && !sharedRulesFile) {
       await createFile(ctx, row.entryFile.path, row.entryFile.content, created, skipped);
     }
   }
