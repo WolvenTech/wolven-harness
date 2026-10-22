@@ -21,6 +21,10 @@ iteration of `<slug>` after `code-review` writes
 | [TEMPLATE.md](references/TEMPLATE.md) | Before drafting — the spec skeleton |
 | [EXAMPLE.md](references/EXAMPLE.md) | Unsure how to fill an obligation ↔ proof row, a nine-dimension landing, a Waves diagram, or an Eval / gates row |
 
+**Docs retrieval:** Follow the [shared QMD routing contract](../qmd/SKILL.md#harness-stage-routing)
+for `code-spec`: read exact inputs directly, choose relevant collection scopes,
+and preserve this skill's permissions and docs-write handoff/resume boundaries.
+
 ## Where this sits
 
 A PRD is optional input: when the `create-prd` skill is installed it drafts and approves the problem and its user stories, and without it `code-spec` starts from the requirements the Human states. `code-spec` freezes the requirements and design that follow. `code-plan` slices the frozen spec into ordered units. `code-execute` implements those units. Any of them may be invoked directly when the Human asks for it out of order.

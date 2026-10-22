@@ -59,10 +59,10 @@ top-level docs child in the live index and leave it behind.
 
 | # | Unit | Depends | Owns | Subagent | Done when |
 | --- | --- | --- | --- | --- | --- |
-| 10 | Deliver bounded consultation and maintenance behavior | 09 | `.agents/skills/ai-patterns/SKILL.md`; parent-owned pilot evidence | `inline` | [ ] `/ai-patterns` consults only relevant knowledge-topic cards after local inputs/decisions, returns source-grounded tradeoffs and caveats, skips N1, and preserves N2's permission boundary. Missing/stale/inaccessible-source and embedding failures are visible; review/retirement behavior works without automatic overwrites. R7–R10 proofs pass in controlled transcripts, with temporary fixtures restored. |
-| 11 | Route local harness stages through the shared QMD contract | 09 | `.agents/skills/qmd/SKILL.md`, `.agents/rules/qmd-first.md`; local `adr`, `create-prd`, `wayfinder`, `research`, `code-spec`, `code-plan`, `code-execute`, `code-commit`, `code-pr`, `code-review`, `code-ci`, `harness-init`, and `harness-doctor` `SKILL.md` entry points; parent-owned pilot evidence and local QMD generated state | `inline` | [ ] Shared routing implements R13 with thin stage references, direct reads of exact inputs, explicit collection scopes, conditional optional collections, and index freshness at docs-write handoffs/resume. Representative research/spec/plan/execute transitions and review/CI read-only traces pass; other skills use the standing contract only when retrieval is needed. R13 evidence and a fresh R12 coverage check pass without changing existing authorization or consumer installation behavior. |
-| 12 | Compare three real decisions against the baseline | 10, 11 | Parent-owned pilot evidence; this plan's Unresolved table for actual case selection | `inline` | [ ] Three actual tasks have paired independent baseline/treatment runs under comparable model/effort and repository state; baseline has no corpus or treatment-answer access. R11 records useful additions, errors, contradictions, measured/unknown cost, per-case verdict, and retain/revise/remove recommendation. Missing real cases remain blocked, never replaced by synthetic completed tasks. |
-| 13 | **Wave 2 STOP / handback gate** | 10, 11, 12 | —; verification only | `inline` | [ ] R7–R11 and R13 evidence passes, Wave 1 proofs remain valid, all temporary state is restored, and `pnpm build`, `pnpm validate`, `pnpm comments`, and `git diff --check` pass. Handback reports local pilot results and open permanence/distribution decisions; no automatic adoption, publishing, PR, or merge. |
+| 10 | Deliver bounded consultation and maintenance behavior | 09 | `.agents/skills/ai-patterns/SKILL.md`; parent-owned pilot evidence | `inline` | [x] `/ai-patterns` consults only relevant knowledge-topic cards after local inputs/decisions, returns source-grounded tradeoffs and caveats, skips N1, and preserves N2's permission boundary. Missing/stale/inaccessible-source and embedding failures are visible; review/retirement behavior works without automatic overwrites. R7–R10 proofs pass in controlled transcripts, with temporary fixtures restored. |
+| 11 | Route local harness stages through the shared QMD contract | 09 | `.agents/skills/qmd/SKILL.md`, `.agents/rules/qmd-first.md`; local `adr`, `create-prd`, `wayfinder`, `research`, `code-spec`, `code-plan`, `code-execute`, `code-commit`, `code-pr`, `code-review`, `code-ci`, `harness-init`, and `harness-doctor` `SKILL.md` entry points; parent-owned pilot evidence and local QMD generated state | `inline` | [x] Shared routing implements R13 with thin stage references, direct reads of exact inputs, explicit collection scopes, conditional optional collections, and index freshness at docs-write handoffs/resume. Representative research/spec/plan/execute transitions and review/CI read-only traces pass; other skills use the standing contract only when retrieval is needed. R13 evidence and a fresh R12 coverage check pass without changing existing authorization or consumer installation behavior. |
+| 12 | Compare three real decisions against the baseline | 10, 11 | Parent-owned pilot evidence; this plan's Unresolved table for actual case selection | `inline` | [x] Three actual tasks have paired independent baseline/treatment runs under comparable model/effort and repository state; baseline has no corpus or treatment-answer access. R11 records useful additions, errors, contradictions, measured/unknown cost, per-case verdict, and retain/revise/remove recommendation. Missing real cases remain blocked, never replaced by synthetic completed tasks. |
+| 13 | **Wave 2 STOP / handback gate** | 10, 11, 12 | —; verification only | `inline` | [x] R7–R11 and R13 evidence passes, Wave 1 proofs remain valid, all temporary state is restored, and `pnpm build`, `pnpm validate`, `pnpm comments`, and `git diff --check` pass. Handback reports local pilot results and open permanence/distribution decisions; no automatic adoption, publishing, PR, or merge. |
 
 Units 10 and 11 are both `inline` and run sequentially because they share
 parent-owned evidence and QMD state. Their dependency notation does not
@@ -157,7 +157,7 @@ approved working environment remedy rather than silently claiming success.
 | `U-ai-patterns-routing-decision` | Required architecture-record follow-through for the approved directory-routing convention | Human and `adr` skill | Policy approval is recorded; permanent rollout still needs the architecture record. Local experiment and plan preparation may proceed | Policy approved with the spec on 2026-10-22. Use `adr` before permanent rollout; no ADR is promoted or cited by this plan | Permanent-rollout prerequisite, not an added `docs/adrs/**` write in units 01–13 |
 | `U-ai-patterns-permanence` | Retain locally, revise, or remove after evidence? | Human | Blocks permanent adoption and distribution; does not block evidence collection or handback | | After 12/13 |
 | `U-ai-patterns-owner` | Who owns recurring review if retained? | Human | Blocks permanent maintenance commitment; no scheduler or recurring obligation is created during this pilot | | After 12/13 |
-| `U-ai-patterns-real-cases` | Which three actual harness decisions supply paired runs? | Human and builder from actual work | Blocks 12 and gate 13 until real cases are selected and available; does not block earlier units | | 12, 13 |
+| `U-ai-patterns-real-cases` | Which three actual harness decisions supply paired runs? | Human and builder from actual work | Blocks 12 and gate 13 until paired evidence exists | Resolved: paired fresh-session replays completed for actual unit10 layout, unit11 scope and unit11 freshness choices; negative usefulness evidence retained in pilot record | 12, 13 |
 
 The spec deliberately leaves distribution unresolved and excludes
 `docs/adrs/**` from implementation mutate scope. This plan preserves both
@@ -231,3 +231,51 @@ recorded; the spec's explicit exclusions remain exclusions.
 | `git status` summary | Dirty: `.qmd/index.yml`, seven cards, existing research/spec/plan and new pilot evidence, all this initiative |
 | Intended diff scope | Verification only; completion marks for 01–09 after passing wave gate; commit only proven wave paths plus approved input artifacts |
 | Decision on every discrepancy | Resolved: initial Q2 lexical miss is disclosed with meaningful-term retry per spec; configured runtime requests are verified, provider identity is unknown; unit06 build deviation disclosed and parent gates rerun; no unrelated dirty changes; generated QMD state excluded from stage. |
+
+### Unit 10 — bounded consultation and maintenance
+
+| Field | Value |
+| --- | --- |
+| Unit identifier | 10 — first Wave 2 unit, inline after committed gate09 |
+| Spec/plan paths | `docs/specs/ai-patterns-corpus/ai-patterns-corpus-spec.md` / `docs/specs/ai-patterns-corpus/ai-patterns-corpus-plan.md` |
+| Obligation / proof status | R7–R10 pending skill and controlled walkthroughs; Wave 1 committed in `9f6057b` |
+| `HEAD` commit | `9f6057b` |
+| `git status` summary | Clean before this resume refresh; Wave 1 paths and marks committed together |
+| Intended diff scope | `.agents/skills/ai-patterns/SKILL.md`; parent-owned pilot evidence; this resume section |
+| Decision on every discrepancy | Resolved: initial sandbox index failure left no commit; marks were reverted, validation rerun, and authorized Git metadata retry succeeded. Unit10 runs inline, no delegated builder. New skill uses minimal single file; no template or runtime changes. |
+
+### Unit 11 — shared collection routing
+
+| Field | Value |
+| --- | --- |
+| Unit identifier | 11 — inline, serialized after unit10 |
+| Spec/plan paths | `docs/specs/ai-patterns-corpus/ai-patterns-corpus-spec.md` / `docs/specs/ai-patterns-corpus/ai-patterns-corpus-plan.md` |
+| Obligation / proof status | R7–R10 unit checks passed, unmarked until wave commit; R13 and repeat R12 pending |
+| `HEAD` commit | `9f6057b` |
+| `git status` summary | Dirty: unit10 ai-patterns skill, parent pilot evidence and plan; known Wave 2 ownership, no unrelated dirt |
+| Intended diff scope | Local qmd skill and qmd-first rule; thirteen named local skill entry points from unit11; pilot evidence; local generated QMD state; plan resume |
+| Decision on every discrepancy | Resolved: unit10/11 shared evidence writes serialized; .agents sandbox read-only requires approved edit access; no shipped templates or CLI diagnostics added. New standing routing is a local pilot pending ADR/permanence decision, not permanent rollout. |
+
+### Unit 12 — compare three real decisions
+
+| Field | Value |
+| --- | --- |
+| Unit identifier | 12 — inline parent-administered paired evaluation |
+| Spec/plan paths | `docs/specs/ai-patterns-corpus/ai-patterns-corpus-spec.md` / `docs/specs/ai-patterns-corpus/ai-patterns-corpus-plan.md` |
+| Obligation / proof status | R7–R10/R13 unit checks passed, unmarked until wave commit; R11 pending six fresh independent consultations |
+| `HEAD` commit | `9f6057b` |
+| `git status` summary | Dirty: known unit10/11 local skills/rule, pilot and plan; no unrelated source changes |
+| Intended diff scope | Parent-owned pilot evidence and this plan's actual-case selection/resume only |
+| Decision on every discrepancy | Resolved: use three actual bounded implementation choices from units10/11, replaying equal preimplementation local inputs. Parent implements unit12 inline; fresh model sessions are evaluation subjects only, never delegated builders. Baselines see only supplied local inputs, no tools, cards, or treatment answers; treatments get identical inputs plus relevant card. Preserve ties, errors and unknown model/token/cost metadata. |
+
+### Unit 13 — Wave 2 STOP / handback gate
+
+| Field | Value |
+| --- | --- |
+| Unit identifier | 13 — final Wave 2 verification only |
+| Spec/plan paths | `docs/specs/ai-patterns-corpus/ai-patterns-corpus-spec.md` / `docs/specs/ai-patterns-corpus/ai-patterns-corpus-plan.md` |
+| Obligation / proof status | R7–R11/R13 evidence passed; R11 recommends revise, not efficacy/adoption approval; Wave 1 proofs retained; final gate passed before mark/commit |
+| `HEAD` commit | `9f6057b` |
+| `git status` summary | Dirty only known Wave 2 local skills/rule, pilot and plan; all temporary fixture trees removed; corpus/config unchanged since Wave 1 |
+| Intended diff scope | Verification only; parent evidence and plan completion marks for 10–13 immediately before configured wave commit |
+| Decision on every discrepancy | Resolved: six fresh read-only evaluation subjects supplied paired evidence, no delegated builder for inline unit12; treatment errors preserved and excluded from implementation. Negative usefulness does not block honest R11 evidence, but blocks automatic adoption. No new ADR, consumer/template/CLI changes, PR, review, CI or merge. |

@@ -13,6 +13,10 @@ session note recording what happened. The Human steers every write.
 
 **Consult:** `adr`, `research`, `code-commit` (when installed), `qmd`, `grilling`.
 
+**Docs retrieval:** Follow the [shared QMD routing contract](../qmd/SKILL.md#harness-stage-routing)
+for `harness-init`: read exact inputs directly, choose relevant collection scopes,
+and preserve this skill's permissions and docs-write handoff/resume boundaries.
+
 ## Hard gates
 
 These rules hold across every step below.
