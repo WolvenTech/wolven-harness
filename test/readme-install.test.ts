@@ -78,6 +78,18 @@ test('readme-install: the runtimes page lists the nine registry runtimes and the
   assert.match(page, /\.cursor\/rules/);
 });
 
+test('proof-install-experience-gemini-docs: the runtimes page explains Gemini native and inline modes', async () => {
+  const page = await readDoc('site/runtimes.md');
+  const geminiRow = page.split('\n').find((line) => line.startsWith('| Gemini CLI |'));
+  const geminiSection = section(page, 'Gemini CLI');
+
+  assert.ok(geminiRow, 'missing Gemini runtime row');
+  assert.match(geminiRow, /Native mode:.*`@AGENTS\.md` and every rule/);
+  assert.match(geminiRow, /Inline mode:.*`@AGENTS\.md` only/);
+  assert.match(geminiSection, /In native mode,.*`@AGENTS\.md` and every `@\.agents\/rules\/<rule>\.md`/);
+  assert.match(geminiSection, /In inline mode,.*`codex` or `antigravity`.*imports `@AGENTS\.md` only/);
+});
+
 test('readme-install: the release page covers trusted publishing, its npm-side setup and the manual re-run', async () => {
   const releaseSection = await readDoc('site/release.md');
 

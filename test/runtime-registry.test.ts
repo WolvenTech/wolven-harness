@@ -192,7 +192,7 @@ test('proof-install-experience-registry-data', async () => {
         }
         if (row.rules.kind === 'file') expected.push(row.rules.path);
       }
-      assert.deepEqual([...result.created].sort(), expected.sort(), row.id);
+      assert.deepEqual([...result.created].sort(), [...new Set(expected)].sort(), row.id);
     } finally {
       await fs.rm(root, { recursive: true, force: true });
     }

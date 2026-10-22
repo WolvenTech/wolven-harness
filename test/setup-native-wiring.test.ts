@@ -141,6 +141,55 @@ test('native-wiring: gemini imports AGENTS.md and every rule', async () => {
   assert.deepEqual(result.created, ['GEMINI.md']);
 });
 
+test('proof-install-experience-gemini-entry', async () => {
+  for (const runtimes of ['gemini,codex', 'gemini,antigravity']) {
+    const dir = await makeRepo({}, { git: true });
+    const result = await run(['setup', '--git-host', 'gh', '--runtimes', runtimes], { cwd: dir });
+    assert.equal(result.code, 0, result.stderr);
+    assert.equal(await readFile(path.join(dir, 'GEMINI.md'), 'utf8'), '@AGENTS.md\n');
+    await assertAbsent(dir, ['.claude/rules']);
+    assert.equal((result.stdout.match(/GEMINI\.md/g) ?? []).length, 1, 'summary names GEMINI.md once');
+  }
+});
+
+test('proof-install-experience-shared-entry', async () => {
+  const emptyRulesDir = await makeRepo({});
+  const emptyRules = await wireRuntimes(opts(['gemini']), makeCtx(emptyRulesDir));
+  assert.deepEqual(emptyRules.created, ['GEMINI.md']);
+  assert.equal(await readFile(path.join(emptyRulesDir, 'GEMINI.md'), 'utf8'), '@AGENTS.md\n');
+
+  const dir = await makeRepo({}, { git: true });
+  const result = await run(['setup', '--git-host', 'gh', '--runtimes', 'gemini'], { cwd: dir });
+  assert.equal(result.code, 0, result.stderr);
+  const bases = await ruleBases(dir);
+  assert.equal(
+    await readFile(path.join(dir, 'GEMINI.md'), 'utf8'),
+    `@AGENTS.md\n\n${bases.map((base) => `@.agents/rules/${base}.md`).join('\n')}\n`,
+  );
+  const originalGeminiMd = await readFile(path.join(dir, 'GEMINI.md'));
+  assert.equal((result.stdout.match(/GEMINI\.md/g) ?? []).length, 1, 'summary names GEMINI.md once');
+
+  const second = await run(['setup', '--git-host', 'gh', '--runtimes', 'gemini'], { cwd: dir });
+  assert.equal(second.code, 0, second.stderr);
+  assert.deepEqual(await readFile(path.join(dir, 'GEMINI.md')), originalGeminiMd);
+  const secondWiring = await wireRuntimes(opts(['gemini']), makeCtx(dir));
+  assert.deepEqual(secondWiring.created, [], 'second run creates nothing');
+  assert.deepEqual(secondWiring.skipped, ['GEMINI.md']);
+  assert.match(second.stdout, /harness-init.*GEMINI\.md/);
+
+  const inlineDir = await makeRepo({ 'GEMINI.md': 'hand-written\n' });
+  const inlineWiring = await wireRuntimes(opts(['gemini', 'codex']), makeCtx(inlineDir));
+  const inlineSummary = buildSummary(EMPTY, inlineWiring, EMPTY, ['gemini', 'codex']);
+  assert.deepEqual(inlineWiring.created, []);
+  assert.deepEqual(inlineWiring.skipped, ['GEMINI.md']);
+  assert.ok(inlineSummary.kept.includes('GEMINI.md'));
+  assert.ok(
+    inlineSummary.notes.some(
+      (line) => line.includes('harness-init') && line.includes('GEMINI.md') && line.includes('AGENTS.md'),
+    ),
+  );
+});
+
 test('native-wiring: kiro generates steering files and the skills symlink', async () => {
   const dir = await makeRulesRepo();
 

@@ -31,10 +31,10 @@ Gate passed.
 
 | # | Unit | Depends | Owns | Subagent | Done when |
 |---|------|---------|------|----------|-----------|
-| 01 | A rerun keeps the config keys setup does not own | — | The config rebuild in `resolveOptions`, `src/setup/options.ts`; a rerun case in `test/setup-options.test.ts` | `spawn` | [ ] A `setup` rerun over a config holding `ignore`, `layout: "home"`, `codeRepo`, a `pattern` `commitConvention`, `comments.paths` and an unknown key exits 0, and every one of those keys keeps its value and relative order. Setup still sets its six owned keys. The rebuild copies the existing config rather than naming keys (D1). Proof: `proof-install-experience-config-rerun` PASS (R15.1; F15) |
-| 02 | Gemini gets its entry in both modes | — | The Gemini row and `wireRuntimes` in `src/setup/runtimes.ts`; `src/setup/summary.ts` only if `GEMINI.md` would be listed twice; `test/setup-native-wiring.test.ts`; `test/runtime-registry.test.ts` only if its path scan needs the new field | `spawn` | [ ] `--runtimes gemini,codex` and `--runtimes gemini,antigravity` create `GEMINI.md` equal to `@AGENTS.md` and a newline, with no rule import and no `.claude/rules`. `--runtimes gemini` still writes `@AGENTS.md` plus every rule import, and a second run creates nothing. The summary names `GEMINI.md` once. No runtime path appears outside the registry. Proofs: `proof-install-experience-gemini-entry` (R2.3) and `proof-install-experience-shared-entry` (R16.1) PASS; F16 |
-| 03 | The guide describes both Gemini modes | — | The Gemini row and section of `site/runtimes.md`; a Gemini case in `test/readme-install.test.ts` | `spawn` | [ ] `site/runtimes.md` says `GEMINI.md` imports `@AGENTS.md` and every rule in native mode, and `@AGENTS.md` only in inline mode. `pnpm docs:build` exits 0. Proof: `proof-install-experience-gemini-docs` PASS (R16.3) |
-| 04 | **Wave 1 gate** | 01, 02, 03 | — | `inline` | [ ] `pnpm build && pnpm test && pnpm lint && pnpm validate && pnpm comments` exit 0, with 0 `todo`. Each box under the spec's Acceptance › Wave 1 is ticked. The repro holds with the built CLI: in a fresh `git init` folder, `setup --runtimes gemini,codex` leaves `GEMINI.md` as `@AGENTS.md`, and a rerun over a config holding `codeRepo` keeps it. The wave's commit lands here. On failure, **abort** before wave 2 |
+| 01 | A rerun keeps the config keys setup does not own | — | The config rebuild in `resolveOptions`, `src/setup/options.ts`; a rerun case in `test/setup-options.test.ts` | `spawn` | [x] A `setup` rerun over a config holding `ignore`, `layout: "home"`, `codeRepo`, a `pattern` `commitConvention`, `comments.paths` and an unknown key exits 0, and every one of those keys keeps its value and relative order. Setup still sets its six owned keys. The rebuild copies the existing config rather than naming keys (D1). Proof: `proof-install-experience-config-rerun` PASS (R15.1; F15) |
+| 02 | Gemini gets its entry in both modes | — | The Gemini row and `wireRuntimes` in `src/setup/runtimes.ts`; `src/setup/summary.ts` only if `GEMINI.md` would be listed twice; `test/setup-native-wiring.test.ts`; `test/runtime-registry.test.ts` only if its path scan needs the new field | `spawn` | [x] `--runtimes gemini,codex` and `--runtimes gemini,antigravity` create `GEMINI.md` equal to `@AGENTS.md` and a newline, with no rule import and no `.claude/rules`. `--runtimes gemini` still writes `@AGENTS.md` plus every rule import, and a second run creates nothing. The summary names `GEMINI.md` once. No runtime path appears outside the registry. Proofs: `proof-install-experience-gemini-entry` (R2.3) and `proof-install-experience-shared-entry` (R16.1) PASS; F16 |
+| 03 | The guide describes both Gemini modes | — | The Gemini row and section of `site/runtimes.md`; a Gemini case in `test/readme-install.test.ts` | `spawn` | [x] `site/runtimes.md` says `GEMINI.md` imports `@AGENTS.md` and every rule in native mode, and `@AGENTS.md` only in inline mode. `pnpm docs:build` exits 0. Proof: `proof-install-experience-gemini-docs` PASS (R16.3) |
+| 04 | **Wave 1 gate** | 01, 02, 03 | — | `inline` | [x] `pnpm build && pnpm test && pnpm lint && pnpm validate && pnpm comments` exit 0, with 0 `todo`. Each box under the spec's Acceptance › Wave 1 is ticked. The repro holds with the built CLI: in a fresh `git init` folder, `setup --runtimes gemini,codex` leaves `GEMINI.md` as `@AGENTS.md`, and a rerun over a config holding `codeRepo` keeps it. The wave's commit lands here. On failure, **abort** before wave 2 |
 
 ### Wave 2 — PR 76's branch
 
@@ -76,3 +76,53 @@ Units in one parallel batch have disjoint Owns. Wave 2 never starts in wave 1's 
 ## Pragmatic-guard check
 
 Each unit maps to a spec row. No unit adds a command, flag, dependency, config key or runtime. Unit 06 adds a test only, since unit 01's copy should already keep `harnessHome`.
+
+## Execution / resume section
+
+### Unit 01 — Config rerun
+
+| Field | Value |
+|---|---|
+| Unit identifier | 01 — Config rerun; wave 1 parallel frontier, spawn |
+| Spec/plan paths | `docs/specs/install-experience/install-experience-iteration-2-spec.md` / `docs/specs/install-experience/install-experience-iteration-2-plan.md` |
+| Obligation / proof status | R15.1 — PASS; config rerun proof in full wave gate |
+| `HEAD` commit | `980ff21` |
+| `git status` summary | Clean before resume record; parallel units own disjoint paths |
+| Intended diff scope | src/setup/options.ts; test/setup-options.test.ts |
+| Decision on every discrepancy | Resolved: imported exact bundle branches; cloud workspace replaces Mac path. Other units remain isolated. |
+
+### Unit 02 — Gemini entry
+
+| Field | Value |
+|---|---|
+| Unit identifier | 02 — Gemini entry; wave 1 parallel frontier, spawn |
+| Spec/plan paths | `docs/specs/install-experience/install-experience-iteration-2-spec.md` / `docs/specs/install-experience/install-experience-iteration-2-plan.md` |
+| Obligation / proof status | R2.3, R16.1 — PASS; mixed/native Gemini proofs in full wave gate |
+| `HEAD` commit | `980ff21` |
+| `git status` summary | Clean before resume record; parallel units own disjoint paths |
+| Intended diff scope | src/setup/runtimes.ts; src/setup/summary.ts if needed; test/setup-native-wiring.test.ts; test/runtime-registry.test.ts if needed |
+| Decision on every discrepancy | Resolved: imported exact bundle branches; cloud workspace replaces Mac path. Other units remain isolated. |
+
+### Unit 03 — Gemini guide
+
+| Field | Value |
+|---|---|
+| Unit identifier | 03 — Gemini guide; wave 1 parallel frontier, spawn |
+| Spec/plan paths | `docs/specs/install-experience/install-experience-iteration-2-spec.md` / `docs/specs/install-experience/install-experience-iteration-2-plan.md` |
+| Obligation / proof status | R16.3 — PASS; guide proof and docs build |
+| `HEAD` commit | `980ff21` |
+| `git status` summary | Clean before resume record; parallel units own disjoint paths |
+| Intended diff scope | site/runtimes.md; test/readme-install.test.ts |
+| Decision on every discrepancy | Resolved: imported exact bundle branches; cloud workspace replaces Mac path. Other units remain isolated. |
+
+### Unit 04 — Wave 1 gate
+
+| Field | Value |
+|---|---|
+| Unit identifier | 04 — inline; wave 1 gate after 01–03 |
+| Spec/plan paths | `docs/specs/install-experience/install-experience-iteration-2-spec.md` / `docs/specs/install-experience/install-experience-iteration-2-plan.md` |
+| Obligation / proof status | R15.1, R2.3, R16.1, R16.3 — PASS; build, full tests (908/908, 0 todo), lint, validate (128 claims), comments and built CLI repro; docs build PASS |
+| `HEAD` commit | `980ff21` |
+| `git status` summary | Dirty — only wave 1 owned paths and this plan resume record |
+| Intended diff scope | Validate wave 1; spec acceptance and units 01–04 completion marks in the wave commit |
+| Decision on every discrepancy | Resolved: sandbox synthetic Git roots and blocked IPC require test execution outside sandbox; pnpm dependency auto-install disabled for installed dependencies. No product gate weakened. |

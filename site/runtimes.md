@@ -14,7 +14,7 @@ description: How setup wires each supported agent runtime.
 | OpenCode | `opencode` | `.agents/skills` | `opencode.json` `instructions` lists every `.agents/rules/*.md` |
 | Amp | `amp` | `.agents/skills` | the harness section carries `@.agents/rules/*.md` |
 | GitHub Copilot | `copilot` | `.agents/skills` | `.github/instructions/wolven-<rule>.instructions.md` with `applyTo: "**"` |
-| Gemini CLI | `gemini` | `.agents/skills` | `GEMINI.md` imports `@AGENTS.md` and every rule |
+| Gemini CLI | `gemini` | `.agents/skills` | Native mode: `GEMINI.md` imports `@AGENTS.md` and every rule. Inline mode: `GEMINI.md` imports `@AGENTS.md` only |
 | Kiro | `kiro` | `.kiro/skills` → `../.agents/skills` (symlink) | `.kiro/steering/wolven-<rule>.md` with `inclusion: always` |
 | Antigravity | `antigravity` | `.agents/skills` | inline in the harness section, between `<!-- wolven-harness:rules:start -->` and `<!-- wolven-harness:rules:end -->` |
 
@@ -46,7 +46,7 @@ Copilot reads `.agents/skills/` natively and `AGENTS.md` as repository instructi
 
 ## Gemini CLI
 
-Gemini CLI's default context file is `GEMINI.md`, not `AGENTS.md`. Setup writes `GEMINI.md` that imports `@AGENTS.md` and every `@.agents/rules/<rule>.md`, so one fold reaches Gemini with the router and the rules. An existing `GEMINI.md` is never edited; `harness-init` adds the imports. Docs: [Gemini CLI context files](https://geminicli.com/docs/cli/gemini-md).
+Gemini CLI's default context file is `GEMINI.md`, not `AGENTS.md`. In native mode, setup writes `GEMINI.md` with imports for `@AGENTS.md` and every `@.agents/rules/<rule>.md`. In inline mode, when `codex` or `antigravity` is also selected, it imports `@AGENTS.md` only; the rules are already in that file's inline harness section. An existing `GEMINI.md` is never edited; `harness-init` adds the imports. Docs: [Gemini CLI context files](https://geminicli.com/docs/cli/gemini-md).
 
 ## Kiro
 

@@ -486,14 +486,13 @@ export async function resolveOptions(argv: string[], ctx: Context): Promise<Opti
   const { version: packageVersion } = await resolveOwnPackage();
 
   const config: Config = {
+    ...existing,
     version: 1,
     gitHost: resolvedGitHost,
     runtimes: resolvedRuntimes,
     skillSets: recordedSets,
     packageVersion,
     packageManager,
-    ...(existing?.ignore !== undefined ? { ignore: existing.ignore } : {}),
-    ...(existing?.extra !== undefined ? { extra: existing.extra } : {}),
   };
 
   await writeConfig(ctx.root, config);

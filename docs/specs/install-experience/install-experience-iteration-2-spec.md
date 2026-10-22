@@ -118,10 +118,10 @@ None. Each row above follows from a reproduced finding and a decision recorded h
 
 ### Wave 1 — PR 75's branch
 
-- [ ] `proof-install-experience-gemini-entry` PASS — R2.3
-- [ ] `proof-install-experience-config-rerun` PASS — R15.1
-- [ ] `proof-install-experience-shared-entry` PASS — R16.1
-- [ ] `proof-install-experience-gemini-docs` PASS — R16.3
+- [x] `proof-install-experience-gemini-entry` PASS — R2.3
+- [x] `proof-install-experience-config-rerun` PASS — R15.1
+- [x] `proof-install-experience-shared-entry` PASS — R16.1
+- [x] `proof-install-experience-gemini-docs` PASS — R16.3
 
 ### Wave 2 — PR 76's branch
 

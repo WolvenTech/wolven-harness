@@ -179,6 +179,41 @@ test('setup-config: a hand-added ignore key survives the re-run', async () => {
   assert.deepEqual(config.ignore, ['templates/**', 'test/**']);
 });
 
+test('proof-install-experience-config-rerun', async () => {
+  const preserved = {
+    ignore: ['templates/**', 'test/**'],
+    layout: 'home',
+    codeRepo: '../client',
+    commitConvention: { style: 'pattern', pattern: '^TASK-[0-9]+:', example: 'TASK-42: add feature' },
+    comments: { paths: ['src/**', 'test/**'] },
+    custom: { enabled: true },
+  };
+  const initial = {
+    version: 1,
+    gitHost: 'bit',
+    runtimes: ['codex'],
+    ...preserved,
+  };
+  const dir = await makeRepo({ '.wolven-harness.json': `${JSON.stringify(initial)}\n` }, { git: true });
+
+  const result = await run(['setup', '--git-host', 'gh', '--runtimes', 'claude'], { cwd: dir, isTTY: false });
+
+  assert.equal(result.code, 0, result.stderr);
+  const config = await readConfigFile(dir);
+  for (const [key, value] of Object.entries(preserved)) assert.deepEqual(config[key], value, key);
+  assert.deepEqual(
+    Object.keys(config).filter((key) => Object.hasOwn(preserved, key)),
+    Object.keys(initial).filter((key) => Object.hasOwn(preserved, key)),
+  );
+  assert.equal(config.version, 1);
+  assert.equal(config.gitHost, 'gh');
+  assert.deepEqual(config.runtimes, ['claude']);
+  assert.deepEqual(config.skillSets, ['ship']);
+  assert.equal(typeof config.packageVersion, 'string');
+  assert.ok((config.packageVersion as string).length > 0);
+  assert.equal(config.packageManager, 'none');
+});
+
 test('setup-config: version is 1', async () => {
   const dir = await makeRepo({}, { git: true });
 

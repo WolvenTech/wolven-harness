@@ -148,7 +148,9 @@ export function buildSummary(
     const skipped = skippedByRuntime.get(runtime) ?? [];
     const entryPath = row.entryFile?.path;
     const entryFirst = (a: string, b: string): number => Number(b === entryPath) - Number(a === entryPath);
-    const isSkills = (entry: string): boolean => entry === entryPath || entry === row.skills.path;
+    const sharedEntryRulesFile = row.rules.kind === 'file' && entryPath === row.rules.path;
+    const isSkills = (entry: string): boolean =>
+      (entry === entryPath && !sharedEntryRulesFile) || entry === row.skills.path;
     const skillsCreated = created.filter(isSkills).sort(entryFirst);
     const skillsSkipped = skipped.filter(isSkills).sort(entryFirst);
     const rulesCreated = created.filter((entry) => !isSkills(entry));
@@ -162,6 +164,15 @@ export function buildSummary(
     }
 
     if (inline) {
+      if (sharedEntryRulesFile) {
+        if (entryPath !== undefined && created.includes(entryPath)) done.push(`${row.name} entry wired (${entryPath})`);
+        if (entryPath !== undefined && skipped.includes(entryPath)) {
+          kept.push(entryPath);
+          notes.push(
+            `Run the harness-init skill to point your existing ${entryPath} at AGENTS.md; setup left it untouched.`,
+          );
+        }
+      }
       if (row.rules.kind === 'inline') done.push(`${row.name} takes the rules inline from the harness section`);
       continue;
     }
