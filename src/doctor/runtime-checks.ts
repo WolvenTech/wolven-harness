@@ -35,15 +35,6 @@ async function readText(file: string): Promise<string | undefined> {
   }
 }
 
-/** True when `file` exists and is a directory once symlinks are followed. */
-async function isDirectory(file: string): Promise<boolean> {
-  try {
-    return (await stat(file)).isDirectory();
-  } catch {
-    return false;
-  }
-}
-
 /** True when `link` is a symlink (or a path) that resolves to `target`, both existing. */
 async function resolvesTo(link: string, target: string): Promise<boolean> {
   try {
@@ -74,8 +65,9 @@ async function entryProblem(row: RuntimeRegistryRow, ctx: DoctorContext, agents:
 
   if (row.entryFile !== undefined) {
     const entry = await readText(path.join(ctx.root, row.entryFile.path));
+    if (entry === undefined) return `${row.entryFile.path} is missing or unreadable`;
     const needle = row.entryFile.content.trim();
-    if (entry !== undefined && !entry.includes(needle)) {
+    if (!entry.includes(needle)) {
       return `${row.entryFile.path} exists but does not import ${AGENTS_IMPORT}`;
     }
   }
@@ -268,7 +260,7 @@ async function skillsProblem(row: RuntimeRegistryRow, ctx: DoctorContext): Promi
   const installed = skillFolders(ctx.config.skillSets ?? []);
   const missing: string[] = [];
   for (const skill of installed) {
-    if (!(await isDirectory(path.join(rowPath, skill)))) missing.push(skill);
+    if ((await readText(path.join(rowPath, skill, 'SKILL.md'))) === undefined) missing.push(skill);
   }
   return missing.length > 0 ? `${row.skills.path} is missing ${missing.join(', ')}` : undefined;
 }

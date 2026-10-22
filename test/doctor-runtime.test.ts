@@ -213,6 +213,25 @@ test('doctor-entry: a broken instruction chain fires for each affected runtime',
   }
 });
 
+test('doctor-entry: a missing or unreadable runtime entry is an error', async () => {
+  for (const runtime of ['claude', 'gemini'] as const) {
+    const dir = await install(runtime);
+    const entryFile = runtimeRow(runtime).entryFile;
+    assert.ok(entryFile);
+    const entry = path.join(dir, entryFile.path);
+    assert.deepEqual(await runRuntimeChecks(await contextFor(dir)), []);
+
+    await rm(entry);
+    const missing = await runRuntimeChecks(await contextFor(dir));
+    assertFinding(missing, 'doctor-entry', runtime);
+    assert.equal(missing.find((finding) => finding.code === 'doctor-entry')?.level, 'error');
+    assert.ok(missing.find((finding) => finding.code === 'doctor-entry')?.message.includes(entryFile.path));
+
+    await mkdir(entry);
+    assertFinding(await runRuntimeChecks(await contextFor(dir)), 'doctor-entry', runtime);
+  }
+});
+
 test('doctor-rules: a broken rules strategy fires for every registry row', async () => {
   const breaks = new Map<Runtime, (dir: string) => Promise<void>>([
     ['claude', (dir) => rm(path.join(dir, '.claude', 'rules'), { recursive: true })],
@@ -248,6 +267,28 @@ test('doctor-skills: a broken skills path fires for a symlinked and a direct run
   const findings = await runRuntimeChecks(await contextFor(direct));
   assertFinding(findings, 'doctor-skills', 'cursor');
   assert.match(findings.find((finding) => finding.code === 'doctor-skills')?.message ?? '', /qmd/);
+});
+
+test('doctor-skills: a skill needs a readable SKILL.md through the runtime path', async () => {
+  for (const runtime of ['claude', 'cursor'] as const) {
+    const dir = await install(runtime);
+    const entry = path.join(dir, runtimeRow(runtime).skills.path, 'harness-init', 'SKILL.md');
+    const original = await readFile(entry, 'utf8');
+    assert.deepEqual(await runRuntimeChecks(await contextFor(dir)), []);
+
+    await rm(entry);
+    const missing = await runRuntimeChecks(await contextFor(dir));
+    assertFinding(missing, 'doctor-skills', runtime);
+    assert.equal(missing.find((finding) => finding.code === 'doctor-skills')?.level, 'error');
+    assert.match(missing.find((finding) => finding.code === 'doctor-skills')?.message ?? '', /harness-init/);
+
+    await mkdir(entry);
+    assertFinding(await runRuntimeChecks(await contextFor(dir)), 'doctor-skills', runtime);
+
+    await rm(entry, { recursive: true });
+    await writeFile(entry, original, 'utf8');
+    assert.deepEqual(await runRuntimeChecks(await contextFor(dir)), []);
+  }
 });
 
 test('doctor-rules: a missing rules folder is a finding, not a throw', async () => {
@@ -316,6 +357,7 @@ test('doctor-linked: wiring under the open folder follows links into harnessHome
       2,
     )}\n`,
     'AGENTS.md': AGENTS_SECTION,
+    'CLAUDE.md': '@AGENTS.md\n',
     'harness/.agents/rules/qmd-first.md':
       '---\ndescription: Search first.\ntrigger: always_on\n---\n\n# QMD before web\n',
   };
