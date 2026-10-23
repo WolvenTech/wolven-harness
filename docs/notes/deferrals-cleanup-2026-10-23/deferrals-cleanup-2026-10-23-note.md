@@ -126,3 +126,48 @@ workflow rose to 7/10; that does not establish a need for the deferred
   **908 passed, zero failures, skips or TODOs**. Build, lint, validate,
   comments and score passed again; the retained PRD remains a deliberate
   draft for future work.
+
+## Pre-merge closure for PR #84
+
+The Human requested closure separately after the PR was opened. On
+`a63c3f6`, GitHub reported all six checks successful: CI, Title, Lint,
+Test (Node 22), Test (Node 24) and Package. Review threads and submitted
+reviews were empty, and the PR had no reported merge conflict. Closure
+adds this evidence in its own final documentation commit.
+
+- **Cleanup artifacts:** all eight retired deferrals and the cancelled
+  upgrade-guide PRD are archived with `status: deprecated`. Their moved
+  main documents have the required frontmatter; links resolve after the
+  moves. There is no cleanup-specific spec, plan or approved PRD left
+  active that needs another archive move.
+- **Deliberately open:** architectural-map remains a draft under the
+  procedure's "Anything the initiative deliberately left open" exception.
+  The six retained deferrals remain active. The install-experience and
+  workflow initiative documents are outside this cleanup's closure.
+- **ADRs:** this PR adds or amends no ADR and needs no promotion. The
+  current claim gate is checked with validation; archived historical
+  claims are not silently treated as new active decisions.
+- **Archive retention:** keep the historical archives in this PR. The
+  four archive trees hold 85 files totalling 1,280,366 bytes, including
+  retained research and the prototype. Fifteen live Markdown links point
+  into archives, and local test-sync instructions also cite a retired
+  record. QMD's active collections exclude `archived/`, and the npm
+  package ships only `dist` and `templates`. Bulk deletion would discard
+  referenced evidence and is not needed to close this initiative. Present
+  need for deletion is 1/10 with no measured storage or retrieval problem;
+  complexity is 4/10 for reference repairs and deciding which preserved
+  evidence can be lost. Verdict: retain the archives and keep the active
+  backlog small. No archive-purge initiative is opened.
+- **Verification boundary:** the final closure commit changes this note
+  only. Validation, comments, whitespace and link/integrity checks are
+  rerun for it; the preceding full suite passed all 908 tests. CI must
+  also pass on the pushed closure commit before its checkbox is marked.
+- **Local command evidence:** `pnpm harness:validate` could not find the
+  setup-installed `wolven-harness` executable. The repository's equivalent
+  `pnpm validate` ran the built CLI and passed with 98 claims OK and zero
+  failures; `pnpm comments` and `git diff --check` passed too. Both pnpm
+  checks used `--config.verify-deps-before-run=false` with the installed
+  dependencies. The unavailable alias is not reported as passing.
+
+No merge, auto-merge, new feature or archive-deletion policy is introduced
+by this closure.
