@@ -11,17 +11,11 @@ const TICKET_FILE = /^(\d+)-.+\.md$/;
 const LINE_SEPARATOR = String.fromCharCode(0x2028);
 const PARAGRAPH_SEPARATOR = String.fromCharCode(0x2029);
 
-/** Reads a renderer file from the nearest `renderer/` folder walking up from this script. */
+/** Reads `name` from this skill's `renderer/` folder, next to `scripts/`. */
 function readRenderer(name) {
-  let dir = path.dirname(fileURLToPath(import.meta.url));
-  for (let i = 0; i < 10; i++) {
-    const file = path.join(dir, 'renderer', name);
-    if (existsSync(file)) return readFileSync(file, 'utf8');
-    const parent = path.dirname(dir);
-    if (parent === dir) break;
-    dir = parent;
-  }
-  throw new Error(`renderer/${name} not found`);
+  const file = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'renderer', name);
+  if (!existsSync(file)) throw new Error(`missing renderer/${name}`);
+  return readFileSync(file, 'utf8');
 }
 
 /**

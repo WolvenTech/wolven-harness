@@ -252,6 +252,33 @@ test('proof-wayfinder-radial-ignored (R2.10): the radial page matches setup docs
   });
 });
 
+test('proof-wayfinder-build-renderer-local: a missing skill renderer file exits 1 and a parent renderer/ is not used', () => {
+  inRepo((repo) => {
+    const skillScripts = path.join(repo, 'nested', 'wayfinder', 'scripts');
+    const skillRenderer = path.join(repo, 'nested', 'wayfinder', 'renderer');
+    mkdirSync(skillScripts, { recursive: true });
+    cpSync(buildScript, path.join(skillScripts, 'build-canvas.mjs'));
+    cpSync(path.join(root, 'templates', '.agents', 'skills', 'wayfinder', 'renderer'), skillRenderer, {
+      recursive: true,
+    });
+    rmSync(path.join(skillRenderer, 'canvas.js'));
+    const marker = 'PARENT_RENDERER_CANVAS_MARKER';
+    mkdirSync(path.join(repo, 'renderer'));
+    writeFileSync(path.join(repo, 'renderer', 'canvas.js'), `/* ${marker} */\n`);
+    const { folder, input } = place(repo, path.join(fixtures, 'reference'), 'postgres-backups');
+    const before = readdirSync(folder).sort();
+    const result = spawnSync(process.execPath, [path.join(skillScripts, 'build-canvas.mjs'), input], {
+      encoding: 'utf8',
+    });
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /missing renderer\/canvas\.js/);
+    assert.equal(result.stdout, '');
+    assert.equal(existsSync(path.join(folder, 'postgres-backups-canvas.html')), false);
+    assert.deepEqual(readdirSync(folder).sort(), before);
+    assert.ok(readFileSync(path.join(repo, 'renderer', 'canvas.js'), 'utf8').includes(marker));
+  });
+});
+
 test('proof-wayfinder-reference-map: the map a fresh agent charted from the skill alone builds', () => {
   inRepo((repo) => {
     const { input } = place(repo, path.join(fixtures, 'reference'), 'postgres-backups');
