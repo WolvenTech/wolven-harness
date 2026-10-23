@@ -1,5 +1,5 @@
 // why: usage is `node build-canvas.mjs <dir>/<slug>-map.md`; the canvas JSON and page are written next to the input.
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -11,7 +11,18 @@ const TICKET_FILE = /^(\d+)-.+\.md$/;
 const LINE_SEPARATOR = String.fromCharCode(0x2028);
 const PARAGRAPH_SEPARATOR = String.fromCharCode(0x2029);
 
-const readRenderer = (name) => readFile(fileURLToPath(new URL(`../renderer/${name}`, import.meta.url)), 'utf8');
+/** Reads a renderer file from the nearest `renderer/` folder walking up from this script. */
+function readRenderer(name) {
+  let dir = path.dirname(fileURLToPath(import.meta.url));
+  for (let i = 0; i < 10; i++) {
+    const file = path.join(dir, 'renderer', name);
+    if (existsSync(file)) return readFileSync(file, 'utf8');
+    const parent = path.dirname(dir);
+    if (parent === dir) break;
+    dir = parent;
+  }
+  throw new Error(`renderer/${name} not found`);
+}
 
 /**
  * Serialises a value as JSON that is safe inside an inline script element:
@@ -177,7 +188,20 @@ function validateMap(logic, map) {
   return context.JourneyMapLogic.validate(map, { kinds: ['ticket'] });
 }
 
-async function build(inputPath) {
+/** Parses `process.argv` after the script name; only `--radial` is allowed besides the map path. */
+function parseArgv(argv) {
+  let radial = false;
+  const inputs = [];
+  for (const arg of argv) {
+    if (arg === '--radial') radial = true;
+    else if (arg.startsWith('-')) throw new Error(`unknown flag ${arg}`);
+    else inputs.push(arg);
+  }
+  if (inputs.length !== 1) throw new Error(`input must end in ${INPUT_SUFFIX}`);
+  return { radial, inputPath: inputs[0] };
+}
+
+async function build(inputPath, { radial = false } = {}) {
   if (!inputPath?.endsWith(INPUT_SUFFIX)) throw new Error(`input must end in ${INPUT_SUFFIX}`);
   const folder = path.dirname(inputPath);
   if (!hasMapsIgnore(folder)) {
@@ -201,24 +225,34 @@ async function build(inputPath) {
     trees: [{ id: 'tickets', nodes: tickets.map((ticket) => ticket.node) }],
   };
 
-  const [logic, canvas, radial, draw, shell] = await Promise.all([
-    readRenderer('logic.js'),
-    readRenderer('canvas.js'),
-    readRenderer('radial.js'),
-    readRenderer('radial-draw.js'),
-    readRenderer('radial.html'),
-  ]);
+  const base = inputPath.slice(0, -INPUT_SUFFIX.length);
+  const logic = await readRenderer('logic.js');
+  const canvas = await readRenderer('canvas.js');
+  const radialJs = await readRenderer('radial.js');
   const errors = [...tickets.flatMap((ticket) => ticket.errors), ...validateMap(logic, map)];
   if (!meta.title) errors.unshift(`${path.basename(inputPath)}: the map needs a title in its frontmatter`);
 
   // why: a map with errors writes only the page, whose data carries the errors so it shows the error panel.
   const data = errors.length ? { version: 1, title: map.title, errors } : map;
+  let shell;
+  let renderer;
+  let output;
+  if (radial) {
+    const draw = await readRenderer('radial-draw.js');
+    shell = await readRenderer('radial.html');
+    renderer = logic + canvas + radialJs + draw;
+    output = `${base}-radial-canvas.html`;
+  } else {
+    const lanes = await readRenderer('lanes.js');
+    const draw = await readRenderer('lanes-draw.js');
+    shell = await readRenderer('lanes.html');
+    renderer = logic + canvas + radialJs + lanes + draw;
+    output = `${base}-canvas.html`;
+  }
   // hazard: a replacer function keeps `$` sequences in the data from being read as replacement patterns.
   const html = shell.replace(/@@DATA@@|@@RENDERER@@/g, (slot) =>
-    slot === '@@DATA@@' ? escapeJson(data) : logic + canvas + radial + draw,
+    slot === '@@DATA@@' ? escapeJson(data) : renderer,
   );
-  const base = inputPath.slice(0, -INPUT_SUFFIX.length);
-  const output = `${base}-canvas.html`;
   await writeFile(output, html);
 
   if (errors.length) {
@@ -231,7 +265,8 @@ async function build(inputPath) {
 }
 
 try {
-  await build(process.argv[2]);
+  const { radial, inputPath } = parseArgv(process.argv.slice(2));
+  await build(inputPath, { radial });
 } catch (error) {
   console.error(`wayfinder: ${error.message}`);
   process.exitCode = 1;

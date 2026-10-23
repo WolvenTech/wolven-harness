@@ -136,6 +136,14 @@ test('proof-wayfinder-lanes-oos-blocker (R1.6): ticket 27 blocked by out-of-scop
   assert.ok(leaf.every((e: any) => e.track === 'dashed'));
 });
 
+test('proof-wayfinder-lanes-handoff-reuse (R2.6): lanes-draw uses RadialLayout text helpers only', () => {
+  const src = readFileSync(path.join(root, 'renderer', 'lanes-draw.js'), 'utf8');
+  assert.match(src, /\bR\.handoff\s*\(/);
+  assert.match(src, /\bR\.copyText\s*\(/);
+  assert.match(src, /\bR\.frontierList\s*\(/);
+  assert.ok(!src.includes('Use the wayfinder skill'));
+});
+
 test('proof-wayfinder-lanes-deterministic (R1.7): layout is stable and does not mutate the model', () => {
   for (const [, file] of FIXTURES) {
     const canvas = fixture(file);
