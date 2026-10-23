@@ -1,0 +1,171 @@
+{
+  "version": 1,
+  "title": "Team onboarding portal",
+  "destination": "New hires set up their laptop and ship a first PR on day one.",
+  "fog": [
+    {
+      "label": "Remote hardware shipping"
+    },
+    {
+      "label": "Buddy programme"
+    },
+    {
+      "label": "Compliance training"
+    }
+  ],
+  "dir": "docs/maps/onboarding-portal",
+  "trees": [
+    {
+      "id": "tickets",
+      "nodes": [
+        {
+          "id": "01",
+          "kind": "ticket",
+          "label": "Map the onboarding steps we run today",
+          "ticket": "research",
+          "status": "closed",
+          "blocked_by": [],
+          "undermined_by": [],
+          "file": "01-map-the-onboarding-steps-we-.md",
+          "question": "What should we settle for: map the onboarding steps we run today?",
+          "gist": "Fourteen manual steps across four teams, two weeks on average",
+          "resolution": "Fourteen manual steps across four teams, two weeks on average."
+        },
+        {
+          "id": "02",
+          "kind": "ticket",
+          "label": "Pick the identity provider",
+          "ticket": "grilling",
+          "status": "closed",
+          "blocked_by": [],
+          "undermined_by": [],
+          "file": "02-pick-the-identity-provider.md",
+          "question": "What should we settle for: pick the identity provider?",
+          "gist": "Keep the current SSO provider and add SCIM",
+          "resolution": "Keep the current SSO provider and add SCIM."
+        },
+        {
+          "id": "03",
+          "kind": "ticket",
+          "label": "Decide how laptops are provisioned",
+          "ticket": "grilling",
+          "status": "closed",
+          "blocked_by": ["01"],
+          "undermined_by": [],
+          "file": "03-decide-how-laptops-are-provi.md",
+          "question": "What should we settle for: decide how laptops are provisioned?",
+          "gist": "Zero-touch enrolment through the MDM",
+          "resolution": "Zero-touch enrolment through the MDM."
+        },
+        {
+          "id": "04",
+          "kind": "ticket",
+          "label": "Choose where the docs live",
+          "ticket": "grilling",
+          "status": "closed",
+          "blocked_by": ["01"],
+          "undermined_by": [],
+          "file": "04-choose-where-the-docs-live.md",
+          "question": "What should we settle for: choose where the docs live?",
+          "gist": "One docs site in the platform repo",
+          "resolution": "One docs site in the platform repo."
+        },
+        {
+          "id": "05",
+          "kind": "ticket",
+          "label": "Define the access request flow",
+          "ticket": "grilling",
+          "status": "closed",
+          "blocked_by": ["02"],
+          "undermined_by": ["07"],
+          "file": "05-define-the-access-request-fl.md",
+          "question": "What should we settle for: define the access request flow?",
+          "gist": "Requests by role bundle, approved by the team lead",
+          "resolution": "Requests by role bundle, approved by the team lead."
+        },
+        {
+          "id": "06",
+          "kind": "ticket",
+          "label": "Script the developer environment",
+          "ticket": "prototype",
+          "status": "claimed",
+          "blocked_by": ["03"],
+          "undermined_by": [],
+          "claimed_by": "claude-code-91a",
+          "claimed_at": "2026-10-22T10:00:00Z",
+          "file": "06-script-the-developer-environ.md",
+          "question": "What should we settle for: script the developer environment?"
+        },
+        {
+          "id": "07",
+          "kind": "ticket",
+          "label": "Audit the SaaS licences",
+          "ticket": "research",
+          "status": "closed",
+          "blocked_by": ["02"],
+          "undermined_by": [],
+          "file": "07-audit-the-saas-licences.md",
+          "question": "What should we settle for: audit the saas licences?",
+          "gist": "Six tools have no role mapping, so role bundles cannot cover them",
+          "resolution": "Six tools have no role mapping, so role bundles cannot cover them."
+        },
+        {
+          "id": "08",
+          "kind": "ticket",
+          "label": "Write the first-week checklist",
+          "ticket": "grilling",
+          "status": "open",
+          "blocked_by": ["04"],
+          "undermined_by": [],
+          "file": "08-write-the-first-week-checkli.md",
+          "question": "What should we settle for: write the first-week checklist?"
+        },
+        {
+          "id": "09",
+          "kind": "ticket",
+          "label": "Pick where starter tasks come from",
+          "ticket": "grilling",
+          "status": "open",
+          "blocked_by": ["04", "06"],
+          "undermined_by": [],
+          "file": "09-pick-where-starter-tasks-com.md",
+          "question": "What should we settle for: pick where starter tasks come from?"
+        },
+        {
+          "id": "10",
+          "kind": "ticket",
+          "label": "Design the welcome page",
+          "ticket": "grilling",
+          "status": "open",
+          "blocked_by": ["04", "05"],
+          "undermined_by": [],
+          "file": "10-design-the-welcome-page.md",
+          "question": "What should we settle for: design the welcome page?"
+        },
+        {
+          "id": "11",
+          "kind": "ticket",
+          "label": "Automate account creation",
+          "ticket": "grilling",
+          "status": "open",
+          "blocked_by": ["05", "07"],
+          "undermined_by": [],
+          "file": "11-automate-account-creation.md",
+          "question": "What should we settle for: automate account creation?"
+        },
+        {
+          "id": "12",
+          "kind": "ticket",
+          "label": "Provision hardware for contractors",
+          "ticket": "grilling",
+          "status": "out_of_scope",
+          "blocked_by": ["03"],
+          "undermined_by": [],
+          "file": "12-provision-hardware-for-contr.md",
+          "question": "What should we settle for: provision hardware for contractors?",
+          "resolution": "Contractors bring their own devices this year."
+        }
+      ]
+    }
+  ]
+}

@@ -136,7 +136,8 @@ the plan.
 
 ## The canvas
 
-The canvas is a page that draws every ticket at once. Build it only when the
+The canvas is a page that draws the map as lanes from Start to the
+destination. Build it only when the
 Human asks to see the map, or accepts a one-line offer of it. Make that offer
 once after you chart a map and once after you close a ticket. If the Human
 declines or moves on, build nothing and do not repeat the offer until the
@@ -150,6 +151,12 @@ next chart or close.
    error it exits 1 and names the ticket; fix the ticket file and build
    again.
 3. Tell the Human the page path.
+
+When the Human asks for the radial view, run the same script with `--radial`
+before the map path. It writes the same `<slug>-canvas.json` and
+`<slug>-radial-canvas.html` beside the map. Tell the Human that page path.
+Build `--radial` and `<slug>-radial-canvas.html` only when the Human asks.
+The radial view is never offered.
 
 The canvas and its JSON are derived and gitignored. Never edit either one.
 Feedback goes into the ticket files, then you build again if the Human wants

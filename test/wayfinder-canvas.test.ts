@@ -40,14 +40,16 @@ function place(repo: string, source: string, slug: string) {
   return { folder, input: path.join(folder, `${slug}-map.md`) };
 }
 
-function build(input: string) {
-  const result = spawnSync(process.execPath, [buildScript, input], { encoding: 'utf8' });
-  const base = input.replace(/-map\.md$/, '-canvas');
-  const read = (ext: string) => (existsSync(`${base}.${ext}`) ? readFileSync(`${base}.${ext}`, 'utf8') : null);
-  return { ...result, json: read('json'), html: read('html'), page: `${base}.html` };
+function build(input: string, { radial = false } = {}) {
+  const args = radial ? ['--radial', input] : [input];
+  const result = spawnSync(process.execPath, [buildScript, ...args], { encoding: 'utf8' });
+  const stem = input.replace(/-map\.md$/, '');
+  const page = radial ? `${stem}-radial-canvas.html` : `${stem}-canvas.html`;
+  const read = (file: string) => (existsSync(file) ? readFileSync(file, 'utf8') : null);
+  return { ...result, json: read(`${stem}-canvas.json`), html: read(page), page };
 }
 
-/** The errors the page's data carries, which `radial-draw.js` shows in the error panel. */
+/** The errors the page's data carries, which the drawing script shows in the error panel. */
 function pageErrors(html: string | null): string[] {
   const match = /<script id="map-data" type="application\/json">(.*?)<\/script>/s.exec(html ?? '');
   assert.ok(match, 'page has a map-data script');
@@ -83,19 +85,22 @@ const errorCases: Array<[string, string]> = [
 ];
 
 for (const [name, ticket] of errorCases) {
-  test(`proof-wayfinder-build-errors: ${name} exits 1 naming the ticket and the page shows the error panel`, () => {
-    inRepo((repo) => {
-      const { input } = place(repo, path.join(fixtures, 'errors', name, 'tiny'), 'tiny');
-      const result = build(input);
-      assert.equal(result.status, 1);
-      assert.match(result.stderr, new RegExp(`^${ticket}: `, 'm'));
-      assert.equal(result.stdout, '');
-      const errors = pageErrors(result.html);
-      assert.ok(errors.length > 0);
-      assert.ok(errors.some((error) => error.startsWith(`${ticket}: `)));
-      assert.equal(result.json, null);
+  for (const radial of [false, true]) {
+    const mode = radial ? 'radial' : 'default';
+    test(`proof-wayfinder-lanes-build-errors (R2.4): ${name} in ${mode} mode exits 1 naming the ticket and the page shows errors`, () => {
+      inRepo((repo) => {
+        const { input } = place(repo, path.join(fixtures, 'errors', name, 'tiny'), 'tiny');
+        const result = build(input, { radial });
+        assert.equal(result.status, 1);
+        assert.match(result.stderr, new RegExp(`^${ticket}: `, 'm'));
+        assert.equal(result.stdout, '');
+        const errors = pageErrors(result.html);
+        assert.ok(errors.length > 0);
+        assert.ok(errors.some((error) => error.startsWith(`${ticket}: `)));
+        assert.equal(result.json, null);
+      });
     });
-  });
+  }
 }
 
 test('proof-wayfinder-build-errors: a map without a title exits 1 naming the map file', () => {
@@ -148,16 +153,18 @@ test('proof-wayfinder-build-input-errors: a missing docs/maps/.gitignore exits 1
   );
 });
 
-test('proof-wayfinder-build-deterministic: two builds give the same bytes', () => {
-  inRepo((repo) => {
-    const { input } = place(repo, billing, 'billing-30');
-    const first = build(input);
-    const second = build(input);
-    assert.equal(first.status, 0, first.stderr);
-    assert.equal(second.status, 0, second.stderr);
-    assert.equal(second.json, first.json);
-    assert.equal(second.html, first.html);
-  });
+test('proof-wayfinder-lanes-build-deterministic (R2.11): two builds give the same bytes in default and radial modes', () => {
+  for (const radial of [false, true]) {
+    inRepo((repo) => {
+      const { input } = place(repo, billing, 'billing-30');
+      const first = build(input, { radial });
+      const second = build(input, { radial });
+      assert.equal(first.status, 0, first.stderr);
+      assert.equal(second.status, 0, second.stderr);
+      assert.equal(second.json, first.json);
+      assert.equal(second.html, first.html);
+    });
+  }
 });
 
 test('proof-wayfinder-no-html-injection: an injected ticket title stays escaped in the page', () => {
@@ -171,6 +178,104 @@ test('proof-wayfinder-no-html-injection: an injected ticket title stays escaped 
     const html = result.html ?? '';
     assert.ok(!html.includes(title));
     assert.ok(html.includes('\\u003c/script>\\u003cimg onerror=alert(1)>'));
+  });
+});
+
+test('proof-wayfinder-lanes-default-build (R2.1): default build inlines lanes shell and scripts, not radial-draw', () => {
+  const lanesDraw = readFileSync(path.join(root, 'renderer', 'lanes-draw.js'), 'utf8');
+  inRepo((repo) => {
+    const { input } = place(repo, billing, 'billing-30');
+    const result = build(input);
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(result.stdout, `wayfinder: wrote ${result.page} (30 tickets)\n`);
+    const html = result.html ?? '';
+    assert.ok(html.includes('Wayfinder map as lanes'));
+    assert.ok(html.includes('LanesLayout'));
+    assert.ok(html.includes(lanesDraw.trim().slice(0, 120)));
+    assert.ok(!html.includes('drawLabels'));
+    assert.ok(!html.includes('allLabels'));
+    assert.ok(!html.includes('MAX_FIT_K = 1.25'));
+  });
+});
+
+test('proof-wayfinder-lanes-shell (R2.9): built page has lane tokens, color-scheme, no remote script', () => {
+  inRepo((repo) => {
+    const { input } = place(repo, billing, 'billing-30');
+    const result = build(input);
+    assert.equal(result.status, 0, result.stderr);
+    const html = result.html ?? '';
+    assert.match(html, /color-scheme:\s*light dark/);
+    for (let i = 0; i < 12; i++) assert.match(html, new RegExp(`--lane-${i}:`));
+    assert.match(html, /@media \(prefers-color-scheme: dark\)[\s\S]*--lane-11:/);
+    assert.ok(!/<script[^>]+\ssrc=/.test(html));
+  });
+});
+
+test('proof-wayfinder-radial-on-ask (R2.2): --radial writes the radial page with radial-draw and the canvas JSON', () => {
+  const radialDraw = readFileSync(path.join(root, 'renderer', 'radial-draw.js'), 'utf8');
+  inRepo((repo) => {
+    const { input } = place(repo, billing, 'billing-30');
+    const result = build(input, { radial: true });
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(result.stdout, `wayfinder: wrote ${result.page} (30 tickets)\n`);
+    assert.equal(result.json, readFileSync(expectedCanvas, 'utf8'));
+    const html = result.html ?? '';
+    assert.ok(html.includes('MAX_FIT_K = 1.25'));
+    assert.ok(html.includes(radialDraw.trim().slice(0, 80)));
+    assert.ok(!html.includes('LanesLayout'));
+    assert.ok(!html.includes('Wayfinder map as lanes'));
+    assert.deepEqual(pageErrors(html), []);
+  });
+});
+
+test('proof-wayfinder-lanes-bad-flag (R2.5): an unknown flag exits 1 naming the flag and writes nothing', () => {
+  inRepo((repo) => {
+    const { folder, input } = place(repo, billing, 'billing-30');
+    const before = readdirSync(folder).sort();
+    const result = spawnSync(process.execPath, [buildScript, '--lanes', input], { encoding: 'utf8' });
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /unknown flag --lanes/);
+    assert.equal(result.stdout, '');
+    assert.deepEqual(readdirSync(folder).sort(), before);
+  });
+});
+
+test('proof-wayfinder-radial-ignored (R2.10): the radial page matches setup docs/maps/.gitignore', () => {
+  inRepo((repo) => {
+    spawnSync('git', ['init'], { cwd: repo, encoding: 'utf8' });
+    const { input } = place(repo, billing, 'billing-30');
+    const result = build(input, { radial: true });
+    assert.equal(result.status, 0, result.stderr);
+    const check = spawnSync('git', ['check-ignore', result.page], { cwd: repo, encoding: 'utf8' });
+    assert.equal(check.status, 0, check.stderr || check.stdout);
+    assert.equal(check.stdout.trim(), result.page);
+  });
+});
+
+test('proof-wayfinder-build-renderer-local: a missing skill renderer file exits 1 and a parent renderer/ is not used', () => {
+  inRepo((repo) => {
+    const skillScripts = path.join(repo, 'nested', 'wayfinder', 'scripts');
+    const skillRenderer = path.join(repo, 'nested', 'wayfinder', 'renderer');
+    mkdirSync(skillScripts, { recursive: true });
+    cpSync(buildScript, path.join(skillScripts, 'build-canvas.mjs'));
+    cpSync(path.join(root, 'templates', '.agents', 'skills', 'wayfinder', 'renderer'), skillRenderer, {
+      recursive: true,
+    });
+    rmSync(path.join(skillRenderer, 'canvas.js'));
+    const marker = 'PARENT_RENDERER_CANVAS_MARKER';
+    mkdirSync(path.join(repo, 'renderer'));
+    writeFileSync(path.join(repo, 'renderer', 'canvas.js'), `/* ${marker} */\n`);
+    const { folder, input } = place(repo, path.join(fixtures, 'reference'), 'postgres-backups');
+    const before = readdirSync(folder).sort();
+    const result = spawnSync(process.execPath, [path.join(skillScripts, 'build-canvas.mjs'), input], {
+      encoding: 'utf8',
+    });
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /missing renderer\/canvas\.js/);
+    assert.equal(result.stdout, '');
+    assert.equal(existsSync(path.join(folder, 'postgres-backups-canvas.html')), false);
+    assert.deepEqual(readdirSync(folder).sort(), before);
+    assert.ok(readFileSync(path.join(repo, 'renderer', 'canvas.js'), 'utf8').includes(marker));
   });
 });
 
