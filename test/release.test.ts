@@ -178,6 +178,9 @@ test('release-workflow: below 1.0 a feat bumps the patch and a breaking change b
   assert.equal(config['include-component-in-tag'], false);
   // why: main requires the release pull request to be current.
   assert.equal(config['always-update'], true);
+  // why: release-please applies package release-as before any bump and never clears it.
+  // hazard: 0.4.0 left in place after publish pins every later release to 0.4.0.
+  assert.equal(config.packages['.']['release-as'], '0.4.0');
   assert.equal(config.packages?.['.']?.['package-name'], '@wolven-tech/harness');
   assert.equal(config.packages['.']['initial-version'], undefined);
   // why: release-please rewrites the manifest on every release, so only its shape is stable.
