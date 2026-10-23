@@ -31,13 +31,20 @@ Check the key terms the problem statement introduces against the local docs and 
 
 Write the PRD from `references/prd-template.md` to `docs/prds/<slug>/<slug>-prd.md`, with `status: draft`. Fill every section; leave nothing as the template's placeholder text. Give each goal an observable success signal. Give each `US-<n>` story a goal it traces to and `AC-<n>.<m>` acceptance in Given / When / Then for its happy path and at least one edge or error case. Give each open question an owner, or write "None".
 
-### 4. Approve
+### 4. Normalized summary
+
+After the first draft and after every material revision, before asking the
+Human to approve, end the turn with the normalized summary from
+[artifact-approval-summary.md](references/artifact-approval-summary.md).
+Use the PRD-specific table rules in section 2 there.
+
+### 5. Approve
 
 Revise the draft in place until the Human approves it, then change `status` from `draft` to `stable`. Only the Human's explicit word moves the status — a quiet absence of objection is not approval.
 
 The approved PRD becomes `code-spec`'s input. Approval locks the requirements; it does not authorize writing code. At pre-merge closure, `code-pr` moves the whole PRD folder to `docs/prds/archived/<slug>/` with `status: deprecated`; that move is not this skill's job.
 
-### 5. ADR offer
+### 6. ADR offer
 
 If the PRD settles a decision that should outlive this one change — a durable choice about architecture, a dependency, or a convention — and the session skill list includes `adr`, offer to record it with the `adr` skill. When `adr` is absent from the session skill list, write no decision record and name `adr` in the reply. The PRD itself states requirements; it is not the decision record.
 
