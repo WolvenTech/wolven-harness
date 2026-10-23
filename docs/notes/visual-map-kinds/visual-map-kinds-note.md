@@ -196,7 +196,7 @@ validator and its own layout. This follows the split between model, view
 and layout that Structurizr uses
 ([Structurizr DSL](https://docs.structurizr.com/dsl/language)). It keeps
 one copy of the shared code, because each skill must install on its own
-(`docs/adrs/adr-005-install-anywhere-contract.md`).
+(`docs/adrs/adr-006-install-check-and-repair-contract.md`).
 
 Every file carries `version`, `kind`, `title`, `subtitle` and `walk`
 (`steps` or `whole`).
@@ -267,7 +267,7 @@ and plan are revised on the held branch (D12).
 | `templates/.agents/skills/journey-map/references/tree-format.md` | source code | Feedback text format |
 | `templates/.agents/skills/journey-map/SKILL.md` | source code | The anti-pattern the first test map broke |
 | `docs/prds/archived/journey-map/journey-map-prd.md` | repo doc | The "not the UX artifact" scope line |
-| `docs/adrs/adr-005-install-anywhere-contract.md` | ADR | Skills install on their own |
+| `docs/adrs/adr-006-install-check-and-repair-contract.md` | ADR | Skills install on their own |
 | `docs/notes/visual-map-kinds/cj-001-source.json`, [`cj-001-test-map.json` at `385d5fc`](https://github.com/WolvenTech/wolven-harness/blob/385d5fcc88a86d58f448b9f2db3a8199659be84e/docs/notes/visual-map-kinds/cj-001-test-map.json) | test data | The cj_001 test and its findings |
 | https://www.nngroup.com/articles/journey-mapping-101/ | method reference | Journey map parts, emotion line |
 | https://www.nngroup.com/articles/ux-mapping-cheat-sheet/ | method reference | Swim-lane structure of journey maps and blueprints |

@@ -26,10 +26,10 @@ test('package-name: publishes publicly to npmjs as @wolven-tech/harness from the
   assert.equal(releaseConfig.packages['.']['package-name'], pkg.name);
 });
 
-test('package-manifest: the tarball ships only dist and templates beside the default files', async () => {
+test('package-manifest: the tarball ships dist, templates and known forms beside the default files', async () => {
   const pkg = await readJson('package.json');
 
-  assert.deepEqual(pkg.files, ['dist', 'templates']);
+  assert.deepEqual(pkg.files, ['dist', 'templates', 'known-forms.json']);
 });
 
 test('release-workflow: a push to main only opens the release PR; a manual run creates the release', async () => {

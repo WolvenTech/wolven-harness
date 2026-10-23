@@ -2,7 +2,8 @@
 type: adr
 title: Extend the public contract with setup outside repositories
 description: Carry the CLI contract forward with setup outside repositories, refusal inside repository subfolders, runtime registry ids, package-manager choice and home-layout configuration.
-status: stable
+status: deprecated
+superseded_by: adr-006-install-check-and-repair-contract
 ---
 
 # Extend the public contract with setup outside repositories

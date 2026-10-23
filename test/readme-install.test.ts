@@ -52,19 +52,48 @@ test('readme-install: README and site install page lead with global setup outsid
     assert.ok(setupIndex !== -1, 'wolven-harness setup not found');
     assert.ok(installIndex < setupIndex, 'the global install must appear before the setup command');
     assert.match(doc, /any folder near your repo code/i);
-    assert.doesNotMatch(doc, /doctor|harness-doctor/i);
+    assert.match(doc, /wolven-harness doctor/);
+    assert.match(doc, /harness-doctor/);
   }
 });
 
-test('readme-install: PR 1 guide pages do not mention doctor', async () => {
-  const pages = [
-    await readReadme(),
-    ...(await Promise.all(
-      ['site/commands.md', 'site/index.md', 'site/runtimes.md', 'site/skills.md', 'site/install.md'].map(readDoc),
-    )),
+test('proof-install-experience-docs: doctor codes and linked layout are documented', async () => {
+  const commands = await readDoc('site/commands.md');
+  const codes = [
+    'doctor-config',
+    'doctor-entry',
+    'doctor-rules',
+    'doctor-rules-stale',
+    'doctor-skills',
+    'doctor-docs',
+    'doctor-qmd',
+    'doctor-code-repo',
+    'doctor-not-global',
+    'doctor-version-behind',
+    'doctor-drift-edited',
+    'doctor-drift-stale',
+    'doctor-drift-missing',
   ];
 
-  for (const page of pages) assert.doesNotMatch(page, /doctor|harness-doctor/i);
+  for (const code of codes) assert.ok(commands.includes(`\`${code}\``), `missing ${code}`);
+  assert.match(commands, /"layout": "linked"/);
+  assert.match(commands, /"harnessHome"/);
+  assert.doesNotMatch(commands, /manifest/i);
+});
+
+test('readme-install: install guide pages describe doctor and harness-doctor', async () => {
+  const pages = [
+    await readReadme(),
+    ...(await Promise.all(['site/commands.md', 'site/index.md', 'site/skills.md'].map(readDoc))),
+  ];
+
+  for (const page of pages) {
+    assert.match(page, /doctor/i);
+    assert.match(page, /harness-doctor/);
+  }
+  const skillPage = await readDoc('site/skills.md');
+  assert.equal(skillPage.match(/^\| `[^`]+`(?: \(ask-only\))? \|/gm)?.length, 21);
+  assert.match(skillPage, /ten core skills/);
 });
 
 test('readme-install: the runtimes page lists the nine registry runtimes and their wiring', async () => {

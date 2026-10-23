@@ -15,7 +15,7 @@ status: stable
 
 ## Contract impact
 
-None. [ADR-005](../../adrs/adr-005-install-anywhere-contract.md) leaves the set of skills, the skill sets' membership and prompt wording out of the contract. A new `--skills` value would be an additive change to a flag.
+None. [ADR-006](../../adrs/adr-006-install-check-and-repair-contract.md) leaves the set of skills, the skill sets' membership and prompt wording out of the contract. A new `--skills` value would be an additive change to a flag.
 
 ## Triggers
 

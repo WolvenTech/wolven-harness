@@ -9,13 +9,13 @@ status: draft
 
 **Deferred:** replacing the concrete project load path checks (`.agents/skills/<name>/SKILL.md` or `.claude/skills/<name>/SKILL.md`) with a generic "when the skill is available in repo" phrasing, and expanding discovery to user-global skill locations (`~/.agents/skills/`, `~/.claude/skills/`).
 
-**Why:** The cloud-session-skills spec intentionally grounded companion presence on ADR-005 project load paths (`.agents/skills/` and `.claude/skills/`). Explicit paths give agents a concrete, verifiable predicate to check before invoking companion actions (`code-pr` and `code-commit`). Relaxing the wording to generic availability risks agent ambiguity, and supporting global user installs is outside ADR-005 and the current repo scope.
+**Why:** The cloud-session-skills spec intentionally grounded companion presence on ADR-006 project load paths (`.agents/skills/` and `.claude/skills/`). Explicit paths give agents a concrete, verifiable predicate to check before invoking companion actions (`code-pr` and `code-commit`). Relaxing the wording to generic availability risks agent ambiguity, and supporting global user installs is outside ADR-006 and the current repo scope.
 
 **Today:** Companion presence checks verify `SKILL.md` on either project load path in the checkout. Ask-only companions stay off the implicit session catalog.
 
 ## Contract impact
 
-None while deferred. Expanding companion discovery to global directories or altering companion predicates across skills and templates would require amending the `cloud-session-skills` spec or ADR-005.
+None while deferred. Expanding companion discovery to global directories or altering companion predicates across skills and templates would require amending the `cloud-session-skills` spec or ADR-006.
 
 ## Triggers
 
