@@ -2,8 +2,8 @@
 type: spec
 title: Install and use experience — iteration 2 spec
 description: Delta obligations from the review of PR 75. A setup rerun keeps every config key it does not own, and Gemini gets its GEMINI.md entry in inline mode too. Fixes land on PR 75's branch, then merge into PR 76.
-status: stable
-source_spec: docs/specs/install-experience/install-experience-iteration-1-spec.md
+status: deprecated
+source_spec: docs/specs/archived/install-experience/install-experience-iteration-1-spec.md
 source_pr: https://github.com/WolvenTech/wolven-harness/pull/75
 ---
 

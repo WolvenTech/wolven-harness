@@ -2,12 +2,12 @@
 type: spec
 title: Install and use experience — iteration 2 plan
 description: Work units for the iteration-2 spec. Wave 1 fixes the config rerun and Gemini's entry on PR 75's branch. Wave 2 merges that branch into PR 76's and adds the linked-key and doctor proofs. A finding map and a closing unit re-report F15 and F16.
-status: stable
+status: deprecated
 ---
 
 # Install and use experience — iteration 2 plan
 
-**Spec:** `docs/specs/install-experience/install-experience-iteration-2-spec.md` (`stable`), which amends the iteration-1 spec.
+**Spec:** `docs/specs/archived/install-experience/install-experience-iteration-2-spec.md` (`deprecated`), which amends the iteration-1 spec.
 **Next:** after the Human approves → `code-execute` in Codex, wave 1, then wave 2.
 
 ## Structural gate
@@ -84,7 +84,7 @@ Each unit maps to a spec row. No unit adds a command, flag, dependency, config k
 | Field | Value |
 |---|---|
 | Unit identifier | 01 — Config rerun; wave 1 parallel frontier, spawn |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-iteration-2-spec.md` / `docs/specs/install-experience/install-experience-iteration-2-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-iteration-2-spec.md` / `docs/specs/archived/install-experience/install-experience-iteration-2-plan.md` |
 | Obligation / proof status | R15.1 — PASS; config rerun proof in full wave gate |
 | `HEAD` commit | `980ff21` |
 | `git status` summary | Clean before resume record; parallel units own disjoint paths |
@@ -96,7 +96,7 @@ Each unit maps to a spec row. No unit adds a command, flag, dependency, config k
 | Field | Value |
 |---|---|
 | Unit identifier | 02 — Gemini entry; wave 1 parallel frontier, spawn |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-iteration-2-spec.md` / `docs/specs/install-experience/install-experience-iteration-2-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-iteration-2-spec.md` / `docs/specs/archived/install-experience/install-experience-iteration-2-plan.md` |
 | Obligation / proof status | R2.3, R16.1 — PASS; mixed/native Gemini proofs in full wave gate |
 | `HEAD` commit | `980ff21` |
 | `git status` summary | Clean before resume record; parallel units own disjoint paths |
@@ -108,7 +108,7 @@ Each unit maps to a spec row. No unit adds a command, flag, dependency, config k
 | Field | Value |
 |---|---|
 | Unit identifier | 03 — Gemini guide; wave 1 parallel frontier, spawn |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-iteration-2-spec.md` / `docs/specs/install-experience/install-experience-iteration-2-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-iteration-2-spec.md` / `docs/specs/archived/install-experience/install-experience-iteration-2-plan.md` |
 | Obligation / proof status | R16.3 — PASS; guide proof and docs build |
 | `HEAD` commit | `980ff21` |
 | `git status` summary | Clean before resume record; parallel units own disjoint paths |
@@ -120,7 +120,7 @@ Each unit maps to a spec row. No unit adds a command, flag, dependency, config k
 | Field | Value |
 |---|---|
 | Unit identifier | 04 — inline; wave 1 gate after 01–03 |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-iteration-2-spec.md` / `docs/specs/install-experience/install-experience-iteration-2-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-iteration-2-spec.md` / `docs/specs/archived/install-experience/install-experience-iteration-2-plan.md` |
 | Obligation / proof status | R15.1, R2.3, R16.1, R16.3 — PASS; build, full tests (908/908, 0 todo), lint, validate (128 claims), comments and built CLI repro; docs build PASS |
 | `HEAD` commit | `980ff21` |
 | `git status` summary | Dirty — only wave 1 owned paths and this plan resume record |
@@ -132,7 +132,7 @@ Each unit maps to a spec row. No unit adds a command, flag, dependency, config k
 | Field | Value |
 |---|---|
 | Unit identifier | 05 — inline; wave 2 first frontier |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-iteration-2-spec.md` / `docs/specs/install-experience/install-experience-iteration-2-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-iteration-2-spec.md` / `docs/specs/archived/install-experience/install-experience-iteration-2-plan.md` |
 | Obligation / proof status | PASS — clean merge; build and 981 tests, 0 failures/todo; validate 111 claims, comments clean |
 | `HEAD` commit | `e1a58ca` |
 | `git status` summary | Dirty — clean automatic merge of 62b30f5 staged; no conflicts, no unrelated paths |
@@ -144,7 +144,7 @@ Each unit maps to a spec row. No unit adds a command, flag, dependency, config k
 | Field | Value |
 |---|---|
 | Unit identifier | 06 — spawn; wave 2 parallel frontier after 05 |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-iteration-2-spec.md` / `docs/specs/install-experience/install-experience-iteration-2-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-iteration-2-spec.md` / `docs/specs/archived/install-experience/install-experience-iteration-2-plan.md` |
 | Obligation / proof status | R15.2 — PASS; targeted proof and full wave gate |
 | `HEAD` commit | `4bb9b83` |
 | `git status` summary | Clean before resume entries; parallel units own disjoint test paths |
@@ -156,7 +156,7 @@ Each unit maps to a spec row. No unit adds a command, flag, dependency, config k
 | Field | Value |
 |---|---|
 | Unit identifier | 07 — spawn; wave 2 parallel frontier after 05 |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-iteration-2-spec.md` / `docs/specs/install-experience/install-experience-iteration-2-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-iteration-2-spec.md` / `docs/specs/archived/install-experience/install-experience-iteration-2-plan.md` |
 | Obligation / proof status | R16.2 — PASS; targeted proof and full wave gate |
 | `HEAD` commit | `4bb9b83` |
 | `git status` summary | Clean before resume entries; parallel units own disjoint test paths |
@@ -168,7 +168,7 @@ Each unit maps to a spec row. No unit adds a command, flag, dependency, config k
 | Field | Value |
 |---|---|
 | Unit identifier | 08 — inline; after 05–07 |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-iteration-2-spec.md` / `docs/specs/install-experience/install-experience-iteration-2-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-iteration-2-spec.md` / `docs/specs/archived/install-experience/install-experience-iteration-2-plan.md` |
 | Obligation / proof status | R15.2 and R16.2 — PASS; build, 983/983 tests (0 skipped/todo), lint, validate (111 claims) and comments |
 | `HEAD` commit | `4bb9b83` |
 | `git status` summary | Dirty — only units 06/07 test paths and plan resume entries |
@@ -180,7 +180,7 @@ Each unit maps to a spec row. No unit adds a command, flag, dependency, config k
 | Field | Value |
 |---|---|
 | Unit identifier | 09 — inline; final frontier after wave 2 checks |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-iteration-2-spec.md` / `docs/specs/install-experience/install-experience-iteration-2-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-iteration-2-spec.md` / `docs/specs/archived/install-experience/install-experience-iteration-2-plan.md` |
 | Obligation / proof status | F15 and F16 — fixed; all six proofs PASS; final validation PASS before commit |
 | `HEAD` commit | `4bb9b83` |
 | `git status` summary | Dirty — only wave 2 tests, acceptance and execution record |

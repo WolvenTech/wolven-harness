@@ -2,12 +2,12 @@
 type: spec
 title: Install and use experience
 description: A runtime registry that wires the router and rules natively in each agent runtime, setup from any folder, package-manager-neutral commands, a harness-init that adapts layout and commit convention, and a doctor command and skill backed by a hash manifest.
-status: stable
+status: deprecated
 ---
 
 # Install and use experience
 
-**Source:** `docs/prds/install-experience/install-experience-prd.md` (status `stable`).
+**Source:** `docs/prds/archived/install-experience/install-experience-prd.md` (status `deprecated`).
 **Research:** `docs/notes/runtime-instruction-loading/runtime-instruction-loading-note.md` and `docs/notes/skill-load-paths/skill-load-paths-note.md`.
 **Next:** After the Human approves → `code-plan` → `code-execute`, waves **1 → 2 → 3 → 4**.
 **Named proof (this spec's own structural gate):** `proof-install-experience-spec-obligations`

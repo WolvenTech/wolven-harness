@@ -2,12 +2,12 @@
 type: spec
 title: Install and use experience — plan
 description: Ordered work units for the install-experience spec, in four gated waves. Wave 1 loads rules in every runtime, wave 2 runs setup anywhere, wave 3 adds doctor and supersedes the contract, and wave 4 adds the harness-init layout steps, harness-doctor and docs.
-status: stable
+status: deprecated
 ---
 
 # Install and use experience — plan
 
-**Spec:** `docs/specs/install-experience/install-experience-spec.md` (status `stable`).
+**Spec:** `docs/specs/archived/install-experience/install-experience-spec.md` (status `deprecated`).
 **Contract:** ADR-006 (`docs/adrs/adr-006-install-check-and-repair-contract.md`, status `stable`).
 
 ## Structural gate
@@ -106,7 +106,7 @@ Units run in parallel only when their Owns are disjoint:
 | Field | Value |
 |-------|-------|
 | Unit identifier | 01 — Runtime registry (frontier 1) |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-spec.md` / `docs/specs/archived/install-experience/install-experience-plan.md` |
 | Obligation / proof status | R1.1 / `proof-install-experience-registry` — done |
 | `HEAD` commit | `3027dc3` |
 | `git status` summary | clean |
@@ -118,7 +118,7 @@ Units run in parallel only when their Owns are disjoint:
 | Field | Value |
 |-------|-------|
 | Unit identifier | 02 — Rule frontmatter and truthful router text (frontier 1) |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-spec.md` / `docs/specs/archived/install-experience/install-experience-plan.md` |
 | Obligation / proof status | R2.1, R2.6 / `proof-install-experience-rule-frontmatter`, `proof-install-experience-tool-report` — done |
 | `HEAD` commit | `3027dc3` |
 | `git status` summary | clean |
@@ -130,7 +130,7 @@ Units run in parallel only when their Owns are disjoint:
 | Field | Value |
 |-------|-------|
 | Unit identifier | 05 — `step0-pending` keys on the marker (frontier 1) |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-spec.md` / `docs/specs/archived/install-experience/install-experience-plan.md` |
 | Obligation / proof status | R2.5 / `proof-install-experience-step0-marker` — done |
 | `HEAD` commit | `3027dc3` |
 | `git status` summary | clean |
@@ -142,7 +142,7 @@ Units run in parallel only when their Owns are disjoint:
 | Field | Value |
 |-------|-------|
 | Unit identifier | 03 — Native rules wiring in setup (frontier 2) |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-spec.md` / `docs/specs/archived/install-experience/install-experience-plan.md` |
 | Obligation / proof status | R2.2, R2.3 (setup half) / `proof-install-experience-native-wiring`, `proof-install-experience-inline-rules` — done |
 | `HEAD` commit | `3027dc3` |
 | `git status` summary | dirty — units 01, 02 and 05 own the modified paths; this unit's Owns start clean |
@@ -154,7 +154,7 @@ Units run in parallel only when their Owns are disjoint:
 | Field | Value |
 |-------|-------|
 | Unit identifier | 04 — harness-init: Full and Light only, with markers (frontier 2) |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-spec.md` / `docs/specs/archived/install-experience/install-experience-plan.md` |
 | Obligation / proof status | R2.3 (harness-init half), R2.4 / `proof-install-experience-entry-modes`, `proof-install-experience-inline-rules` — done |
 | `HEAD` commit | `3027dc3` |
 | `git status` summary | dirty — units 01, 02 and 05 own the modified paths; this unit's Owns start clean |
@@ -166,7 +166,7 @@ Units run in parallel only when their Owns are disjoint:
 | Field | Value |
 |-------|-------|
 | Unit identifier | Wave 2 prerequisite — `--runtimes` accepts every registry id (before unit 07) |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-spec.md` / `docs/specs/archived/install-experience/install-experience-plan.md` |
 | Obligation / proof status | R1.2 / `proof-install-experience-detect` — prerequisite done, proof pending in unit 07 |
 | `HEAD` commit | `10a18b4` |
 | `git status` summary | dirty — this prerequisite's three files and the plan only |
@@ -178,7 +178,7 @@ Units run in parallel only when their Owns are disjoint:
 | Field | Value |
 |-------|-------|
 | Unit identifier | 07 — Runtime detection and confirmation (wave 2, frontier 1) |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-spec.md` / `docs/specs/archived/install-experience/install-experience-plan.md` |
 | Obligation / proof status | R1.2, R1.3 / `proof-install-experience-detect`, `proof-install-experience-detect-none` — done |
 | `HEAD` commit | `10a18b4` |
 | `git status` summary | dirty — the parent prerequisite and this plan file; this unit's Owns start clean |
@@ -190,7 +190,7 @@ Units run in parallel only when their Owns are disjoint:
 | Field | Value |
 |-------|-------|
 | Unit identifier | 08 — Config accepts the new optional keys (wave 2, frontier 1) |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-spec.md` / `docs/specs/archived/install-experience/install-experience-plan.md` |
 | Obligation / proof status | R9.1 (config rows) / `proof-install-experience-contract` (config rows) — done |
 | `HEAD` commit | `10a18b4` |
 | `git status` summary | dirty — the parent prerequisite and this plan file; this unit's Owns start clean |
@@ -202,7 +202,7 @@ Units run in parallel only when their Owns are disjoint:
 | Field | Value |
 |-------|-------|
 | Unit identifier | 11 — Install manifest (wave 2, frontier 1) |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-spec.md` / `docs/specs/archived/install-experience/install-experience-plan.md` |
 | Obligation / proof status | R7.3 / `proof-install-experience-manifest` — done |
 | `HEAD` commit | `10a18b4` |
 | `git status` summary | dirty — the parent prerequisite and this plan file; this unit's Owns start clean |
@@ -214,7 +214,7 @@ Units run in parallel only when their Owns are disjoint:
 | Field | Value |
 |-------|-------|
 | Unit identifier | 09 — Package-manager resolution and command forms (wave 2, frontier 2) |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-spec.md` / `docs/specs/archived/install-experience/install-experience-plan.md` |
 | Obligation / proof status | R4.1, R4.2 / `proof-install-experience-pm-detect`, `proof-install-experience-pm-commands` — done |
 | `HEAD` commit | `10a18b4` |
 | `git status` summary | dirty — units 07, 08 and 11 own the modified paths; this unit's Owns start clean |
@@ -226,7 +226,7 @@ Units run in parallel only when their Owns are disjoint:
 | Field | Value |
 |-------|-------|
 | Unit identifier | 10 — Templates call `wolven-harness` directly (wave 2, frontier 3) |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-spec.md` / `docs/specs/archived/install-experience/install-experience-plan.md` |
 | Obligation / proof status | R4.3 / `proof-install-experience-pm-templates` — done |
 | `HEAD` commit | `10a18b4` |
 | `git status` summary | dirty — units 07, 08, 09 and 11 own the modified paths; this unit's Owns start clean |
@@ -238,7 +238,7 @@ Units run in parallel only when their Owns are disjoint:
 | Field | Value |
 |-------|-------|
 | Unit identifier | 12 — Setup outside a git top-level (wave 2, frontier 3) |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-spec.md` / `docs/specs/archived/install-experience/install-experience-plan.md` |
 | Obligation / proof status | R3.2, R3.3, R3.1 / `proof-install-experience-outside-root`, `proof-install-experience-global-hint`, `proof-install-experience-root-unchanged` — done |
 | `HEAD` commit | `10a18b4` |
 | `git status` summary | dirty — units 07, 08, 09 and 11 own the modified paths; this unit's Owns start clean |
@@ -250,7 +250,7 @@ Units run in parallel only when their Owns are disjoint:
 | Field | Value |
 |-------|-------|
 | Unit identifier | 13 — Wave 2 gate (wave 2, frontier 4) |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-spec.md` / `docs/specs/archived/install-experience/install-experience-plan.md` |
 | Obligation / proof status | Units 07–12 proofs — done; gate — pass |
 | `HEAD` commit | `10a18b4` |
 | `git status` summary | dirty — the wave-2 batch (units 07–12 plus the runtime-id prerequisite) is uncommitted |
@@ -262,7 +262,7 @@ Units run in parallel only when their Owns are disjoint:
 | Field | Value |
 |-------|-------|
 | Unit identifier | 14 — `doctor` command, output and read-only run (wave 3, frontier 1) |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-spec.md` / `docs/specs/archived/install-experience/install-experience-plan.md` |
 | Obligation / proof status | R7.1 (output/config/read-only half), R7.2, R7.5 / `proof-install-experience-doctor-output`, `proof-install-experience-doctor-readonly` — done |
 | `HEAD` commit | `e4b91b1` |
 | `git status` summary | clean at dispatch |
@@ -274,7 +274,7 @@ Units run in parallel only when their Owns are disjoint:
 | Field | Value |
 |-------|-------|
 | Unit identifier | 15 runtime checks; 16 environment checks; 17 drift and version-behind (wave 3, frontier 2) |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-spec.md` / `docs/specs/archived/install-experience/install-experience-plan.md` |
 | Obligation / proof status | R7.1, R7.2, R4.4, R5.3, R7.4, R9.3 / `proof-install-experience-doctor-checks`, `proof-install-experience-no-code-writes`, `proof-install-experience-pm-global`, `proof-install-experience-drift`, `proof-install-experience-drift-deferral` — done |
 | `HEAD` commit | `e4b91b1` |
 | `git status` summary | dirty — units 14–17's own files; the three units run on disjoint paths |
@@ -286,7 +286,7 @@ Units run in parallel only when their Owns are disjoint:
 | Field | Value |
 |-------|-------|
 | Unit identifier | 18 — Supersede the previous contract ADR with ADR-006 (wave 3, frontier 3, inline) |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-spec.md` / `docs/specs/archived/install-experience/install-experience-plan.md` |
 | Obligation / proof status | R9.1 / `proof-install-experience-contract` — done |
 | `HEAD` commit | `e4b91b1` |
 | `git status` summary | dirty — the wave-3 batch; the deferral deletion is staged so `git ls-files` matches the worktree |
@@ -298,7 +298,7 @@ Units run in parallel only when their Owns are disjoint:
 | Field | Value |
 |-------|-------|
 | Unit identifier | 19 — Wave 3 gate (wave 3, frontier 4, inline) |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-spec.md` / `docs/specs/archived/install-experience/install-experience-plan.md` |
 | Obligation / proof status | Units 14–18 proofs — done; gate — pass |
 | `HEAD` commit | `e4b91b1` |
 | `git status` summary | dirty — the wave-3 batch is uncommitted, with the deferral deletion staged |
@@ -310,7 +310,7 @@ Units run in parallel only when their Owns are disjoint:
 | Field | Value |
 |-------|-------|
 | Unit identifier | Wave 4 prerequisite — `validate` tolerates an unstaged tracked deletion |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-spec.md` / `docs/specs/archived/install-experience/install-experience-plan.md` |
 | Obligation / proof status | none directly; removes the crash R9.3's deletion exposed |
 | `HEAD` commit | `434e27c` |
 | `git status` summary | dirty — this prerequisite's two files and the plan |
@@ -322,7 +322,7 @@ Units run in parallel only when their Owns are disjoint:
 | Field | Value |
 |-------|-------|
 | Unit identifier | 20 — harness-init: harness home and linked layout (wave 4, frontier 1) |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-spec.md` / `docs/specs/archived/install-experience/install-experience-plan.md` |
 | Obligation / proof status | R5.1, R5.2 / `proof-install-experience-init-home`, `proof-install-experience-init-linked` — done |
 | `HEAD` commit | `434e27c` |
 | `git status` summary | dirty — the parent prerequisite and the plan; this unit's Owns start clean |
@@ -334,7 +334,7 @@ Units run in parallel only when their Owns are disjoint:
 | Field | Value |
 |-------|-------|
 | Unit identifier | 22 code-commit/code-pr convention; 23 harness-doctor core skill; 24 README and site (wave 4, frontier 1) |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-spec.md` / `docs/specs/archived/install-experience/install-experience-plan.md` |
 | Obligation / proof status | R6.2, R8.1–R8.3, R9.2 / `proof-install-experience-convention-skills`, `proof-install-experience-doctor-skill`, `proof-install-experience-doctor-refresh`, `proof-install-experience-doctor-migrate`, `proof-install-experience-docs` — done |
 | `HEAD` commit | `434e27c` |
 | `git status` summary | dirty — the parent prerequisite and the plan; each unit's Owns start clean |
@@ -346,7 +346,7 @@ Units run in parallel only when their Owns are disjoint:
 | Field | Value |
 |-------|-------|
 | Unit identifier | 21 — harness-init: commit convention (wave 4, frontier 2) |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-spec.md` / `docs/specs/archived/install-experience/install-experience-plan.md` |
 | Obligation / proof status | R6.1 / `proof-install-experience-convention-init` — done |
 | `HEAD` commit | `434e27c` |
 | `git status` summary | dirty — the wave-4 batch is uncommitted |
@@ -358,7 +358,7 @@ Units run in parallel only when their Owns are disjoint:
 | Field | Value |
 |-------|-------|
 | Unit identifier | 25 — Ship gate (wave 4, frontier 3, inline) |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-spec.md` / `docs/specs/archived/install-experience/install-experience-plan.md` |
 | Obligation / proof status | every acceptance box in the spec — ticked; gate — pass |
 | `HEAD` commit | `434e27c` |
 | `git status` summary | dirty — the wave-4 batch is uncommitted |

@@ -2,14 +2,14 @@
 type: spec
 title: Install and use experience — iteration 1 plan
 description: Work units for the iteration-1 spec. Wave 1 builds PR 1 (wiring) from 149dde6 without check-and-repair. Wave 2 builds PR 2 (check and repair) on PR 1's head. A finding-to-unit map and a closing unit re-report every review finding.
-status: stable
+status: deprecated
 ---
 
 # Install and use experience — iteration 1 plan
 
-**Current public contract:** [ADR-006](../../adrs/adr-006-install-check-and-repair-contract.md). Historical wiring-only references below describe the predecessor on the PR 1 branch.
+**Current public contract:** [ADR-006](../../../adrs/adr-006-install-check-and-repair-contract.md). Historical wiring-only references below describe the predecessor on the PR 1 branch.
 
-**Spec:** `docs/specs/install-experience/install-experience-iteration-1-spec.md` (`stable`), which amends `install-experience-spec.md`.
+**Spec:** `docs/specs/archived/install-experience/install-experience-iteration-1-spec.md` (`deprecated`), which amends `install-experience-spec.md`.
 **Next:** after the Human approves → `code-execute`, wave 1, then wave 2.
 
 ## Structural gate
@@ -128,7 +128,7 @@ Each unit maps to a spec row or a review finding. No unit adds a command, flag, 
 | Field | Value |
 |-------|-------|
 | Unit identifier | 01 — first frontier unit, inline |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-iteration-1-spec.md` / `docs/specs/install-experience/install-experience-iteration-1-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-iteration-1-spec.md` / `docs/specs/archived/install-experience/install-experience-iteration-1-plan.md` |
 | Obligation / proof status | R7.3, R14.1 — build PASS; unknown doctor exit 1 PASS; no-manifest root/outside PASS; config rejection PASS; full suite, comments and validate PASS (887 tests) |
 | `HEAD` commit | `149dde6` |
 | `git status` summary | dirty — approved wave 1 implementation, recovered planning docs and restored deferral only; no unrelated files; all executors released |
@@ -140,7 +140,7 @@ Each unit maps to a spec row or a review finding. No unit adds a command, flag, 
 | Field | Value |
 |-------|-------|
 | Unit identifier | 02 — frontier after 01, spawn |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-iteration-1-spec.md` / `docs/specs/install-experience/install-experience-iteration-1-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-iteration-1-spec.md` / `docs/specs/archived/install-experience/install-experience-iteration-1-plan.md` |
 | Obligation / proof status | R10.1 and R10.2 PASS in parent full gate, including the approved equivalent registry lookups |
 | `HEAD` commit | `149dde6` |
 | `git status` summary | dirty — approved wave 1 implementation, recovered planning docs and restored deferral only; no unrelated files; all executors released |
@@ -152,7 +152,7 @@ Each unit maps to a spec row or a review finding. No unit adds a command, flag, 
 | Field | Value |
 |-------|-------|
 | Unit identifier | 04 — frontier after 01, spawn |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-iteration-1-spec.md` / `docs/specs/install-experience/install-experience-iteration-1-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-iteration-1-spec.md` / `docs/specs/archived/install-experience/install-experience-iteration-1-plan.md` |
 | Obligation / proof status | R3.4, R3.2 — PASS: parent reran all 6 outside-root tests, including no-git ancestor fallback; comments/validate PASS |
 | `HEAD` commit | `149dde6` |
 | `git status` summary | dirty — approved wave 1 implementation, recovered planning docs and restored deferral only; no unrelated files; all executors released |
@@ -164,7 +164,7 @@ Each unit maps to a spec row or a review finding. No unit adds a command, flag, 
 | Field | Value |
 |-------|-------|
 | Unit identifier | 06 — frontier after 01, spawn |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-iteration-1-spec.md` / `docs/specs/install-experience/install-experience-iteration-1-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-iteration-1-spec.md` / `docs/specs/archived/install-experience/install-experience-iteration-1-plan.md` |
 | Obligation / proof status | R9.2 — PASS: parent reran docs/listing tests (19/19) and pnpm docs:build (exit 0); comments/validate PASS |
 | `HEAD` commit | `149dde6` |
 | `git status` summary | dirty — approved wave 1 implementation, recovered planning docs and restored deferral only; no unrelated files; all executors released |
@@ -176,7 +176,7 @@ Each unit maps to a spec row or a review finding. No unit adds a command, flag, 
 | Field | Value |
 |-------|-------|
 | Unit identifier | 05 — after proven unit 04, spawn |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-iteration-1-spec.md` / `docs/specs/install-experience/install-experience-iteration-1-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-iteration-1-spec.md` / `docs/specs/archived/install-experience/install-experience-iteration-1-plan.md` |
 | Obligation / proof status | R3.3 — PASS: parent reran global-hint with all 6 outside-root cases; comments/validate PASS |
 | `HEAD` commit | `149dde6` |
 | `git status` summary | dirty — approved wave 1 implementation, recovered planning docs and restored deferral only; no unrelated files; all executors released |
@@ -188,7 +188,7 @@ Each unit maps to a spec row or a review finding. No unit adds a command, flag, 
 | Field | Value |
 |-------|-------|
 | Unit identifier | 03 — implementation frontier after unit 02 wiring, spawn |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-iteration-1-spec.md` / `docs/specs/install-experience/install-experience-iteration-1-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-iteration-1-spec.md` / `docs/specs/archived/install-experience/install-experience-iteration-1-plan.md` |
 | Obligation / proof status | R2.1, R2.3, R11.3 — PASS: parent reran 13 focused tests; comments/validate PASS |
 | `HEAD` commit | `149dde6` |
 | `git status` summary | dirty — approved wave 1 implementation, recovered planning docs and restored deferral only; no unrelated files; all executors released |
@@ -200,7 +200,7 @@ Each unit maps to a spec row or a review finding. No unit adds a command, flag, 
 | Field | Value |
 |-------|-------|
 | Unit identifier | 07 — inline after proven units 03, 04 and 05 |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-iteration-1-spec.md` / `docs/specs/install-experience/install-experience-iteration-1-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-iteration-1-spec.md` / `docs/specs/archived/install-experience/install-experience-iteration-1-plan.md` |
 | Obligation / proof status | R9.1 — confirmed by Human; contract/config proofs and full wave gate PASS |
 | `HEAD` commit | `149dde6` |
 | `git status` summary | dirty — approved wave 1 implementation, recovered planning docs and restored deferral only; no unrelated files; all executors released |
@@ -233,7 +233,7 @@ wave 1's commit.** Wave 2 remains unchecked and has not started.
 | Field | Value |
 |-------|-------|
 | Unit identifier | 02 — finish registry-data source proof, spawn |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-iteration-1-spec.md` / `docs/specs/install-experience/install-experience-iteration-1-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-iteration-1-spec.md` / `docs/specs/archived/install-experience/install-experience-iteration-1-plan.md` |
 | Obligation / proof status | R10.1 and R10.2 — PASS: executor 56/56 focused tests and parent full gate 892/892 |
 | `HEAD` commit | `149dde6` |
 | `git status` summary | dirty — approved wave 1 implementation, recovered planning docs and restored deferral only; no unrelated files; all executors released |
@@ -245,7 +245,7 @@ wave 1's commit.** Wave 2 remains unchecked and has not started.
 | Field | Value |
 |-------|-------|
 | Unit identifier | 08 — final wave 1 frontier, inline, STOP after commit |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-iteration-1-spec.md` / `docs/specs/install-experience/install-experience-iteration-1-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-iteration-1-spec.md` / `docs/specs/archived/install-experience/install-experience-iteration-1-plan.md` |
 | Obligation / proof status | R14.1 and all wave 1 acceptance proofs — PASS; 892 tests, build, lint, validate, comments and site build exit 0 |
 | `HEAD` commit | `149dde6` |
 | `git status` summary | dirty — approved wave 1 implementation, recovered planning docs and restored deferral only; no unrelated files; all executors released |
@@ -267,7 +267,7 @@ wave 2 gate before any commit.
 | Field | Value |
 |-------|-------|
 | Unit identifier | 09 — first wave 2 frontier unit, inline |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-iteration-1-spec.md` / `docs/specs/install-experience/install-experience-iteration-1-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-iteration-1-spec.md` / `docs/specs/archived/install-experience/install-experience-iteration-1-plan.md` |
 | Obligation / proof status | Restore precondition for R7, R8, R11.1, R11.2, R12, R13 — done: build PASS; `doctor` registered (`--help` prints its usage, as at `149dde6`); a `--skills none` setup installs `harness-doctor` and writes no manifest; no `src/` import of `manifest.ts`; test 935 pass, 0 fail, 7 todo; lint, comments (0 findings) and validate (117 ok) PASS |
 | `HEAD` commit | `3c73202` |
 | `git status` summary | clean before this unit |
@@ -279,7 +279,7 @@ wave 2 gate before any commit.
 | Field | Value |
 |-------|-------|
 | Unit identifier | 10, 12, 15 — frontier after 09, each `spawn`, Owns disjoint |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-iteration-1-spec.md` / `docs/specs/install-experience/install-experience-iteration-1-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-iteration-1-spec.md` / `docs/specs/archived/install-experience/install-experience-iteration-1-plan.md` |
 | Obligation / proof status | 10: R7.1, R12.2 — pending. 12: R5.3 — pending. 15: R13.1 — PASS: parent regenerated table after unit 13 layout edit and reran 6 known-forms tests; comments/validate PASS |
 | `HEAD` commit | `3c73202` |
 | `git status` summary | dirty — unit 09's restored and adapted paths only |
@@ -294,7 +294,7 @@ The Claude parent stopped and touches nothing more on this branch.
 | Field | Value |
 |-------|-------|
 | Unit identifier | 09 done; 12 done; 10 and 15 stopped mid-unit; 11, 13, 14 and 16–21 not started |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-iteration-1-spec.md` / `docs/specs/install-experience/install-experience-iteration-1-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-iteration-1-spec.md` / `docs/specs/archived/install-experience/install-experience-iteration-1-plan.md` |
 | Obligation / proof status | 09: done (see its row). 12: R5.3 — done, checked by the parent: `test/doctor-env.test.ts` 17 pass, 0 fail, including "a code repository holding its own .claude settings gives no finding" and "every harness-owned path under codeRepo gives a finding"; `env-checks.ts` gives 0 registry-data hits; comments and validate PASS. The base spec places the R5.3 proof in `test/doctor.test.ts`, which has no code-repo case yet; unit 10 owns that file, so add it there before the gate. 10 and 15: pending, partial edits unverified |
 | `HEAD` commit | `3c73202` |
 | `git status` summary | dirty, all wave 2: unit 09's paths; unit 12's `src/doctor/env-checks.ts` and `test/doctor-env.test.ts`; unit 10's partial edits to `src/doctor/runtime-checks.ts`, `test/doctor-runtime.test.ts` and `test/doctor.test.ts`; unit 15's partial `scripts/known-forms.mjs`, `known-forms.json`, `test/known-forms.test.ts` and `package.json` |
@@ -306,7 +306,7 @@ The Claude parent stopped and touches nothing more on this branch.
 | Field | Value |
 |-------|-------|
 | Unit identifier | 10 and 15 resumed; 13 follows proven 12; spawn |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-iteration-1-spec.md` / `docs/specs/install-experience/install-experience-iteration-1-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-iteration-1-spec.md` / `docs/specs/archived/install-experience/install-experience-iteration-1-plan.md` |
 | Obligation / proof status | 12 parent environment proof PASS (17 tests); 10 R7.1/R12.2, 15 R13.1 and 13 R12.1/R5.2 pending |
 | `HEAD` commit | `3c73202` |
 | `git status` summary | dirty — restored 09, completed 12, partial 10 and 15 exactly as handoff; no unrelated files |
@@ -318,7 +318,7 @@ The Claude parent stopped and touches nothing more on this branch.
 | Field | Value |
 |-------|-------|
 | Unit identifier | 10 — wave 2 Codex frontier, spawn |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-iteration-1-spec.md` / `docs/specs/install-experience/install-experience-iteration-1-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-iteration-1-spec.md` / `docs/specs/archived/install-experience/install-experience-iteration-1-plan.md` |
 | Obligation / proof status | R7.1, R12.2; R5.3 CLI integration — PASS: parent reran doctor runtime/CLI and un-todo registry proofs (34 tests), comments/validate PASS |
 | `HEAD` commit | `3c73202` |
 | `git status` summary | dirty — wave 2 restored and partial edits from handoff only; no unrelated changes |
@@ -330,7 +330,7 @@ The Claude parent stopped and touches nothing more on this branch.
 | Field | Value |
 |-------|-------|
 | Unit identifier | 15 — wave 2 Codex frontier, spawn |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-iteration-1-spec.md` / `docs/specs/install-experience/install-experience-iteration-1-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-iteration-1-spec.md` / `docs/specs/archived/install-experience/install-experience-iteration-1-plan.md` |
 | Obligation / proof status | R13.1 — PASS: parent regenerated table after unit 13 layout edit and reran 6 known-forms tests; comments/validate PASS |
 | `HEAD` commit | `3c73202` |
 | `git status` summary | dirty — wave 2 restored and partial edits from handoff only; no unrelated changes |
@@ -342,7 +342,7 @@ The Claude parent stopped and touches nothing more on this branch.
 | Field | Value |
 |-------|-------|
 | Unit identifier | 13 — wave 2 Codex frontier, spawn |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-iteration-1-spec.md` / `docs/specs/install-experience/install-experience-iteration-1-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-iteration-1-spec.md` / `docs/specs/archived/install-experience/install-experience-iteration-1-plan.md` |
 | Obligation / proof status | R12.1, R5.2 — PASS: parent reran 27 qmd/layout tests; comments/validate PASS |
 | `HEAD` commit | `3c73202` |
 | `git status` summary | dirty — wave 2 restored and partial edits from handoff only; no unrelated changes |
@@ -354,7 +354,7 @@ The Claude parent stopped and touches nothing more on this branch.
 | Field | Value |
 |-------|-------|
 | Unit identifier | 16 — after proven 15, spawn |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-iteration-1-spec.md` / `docs/specs/install-experience/install-experience-iteration-1-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-iteration-1-spec.md` / `docs/specs/archived/install-experience/install-experience-iteration-1-plan.md` |
 | Obligation / proof status | R7.4, R13.2, R13.3 — PASS: parent drift/setup integration rerun; 66 pass, 0 fail and only unit 18 deferral todo across 67 integration tests; comments/validate PASS |
 | `HEAD` commit | `3c73202` |
 | `git status` summary | dirty — wave 2 inherited/restored and proven 13/15 paths; 10 active on disjoint runtime-checks/tests |
@@ -366,7 +366,7 @@ The Claude parent stopped and touches nothing more on this branch.
 | Field | Value |
 |-------|-------|
 | Unit identifier | 11 — after released and proven dependencies, spawn |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-iteration-1-spec.md` / `docs/specs/install-experience/install-experience-iteration-1-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-iteration-1-spec.md` / `docs/specs/archived/install-experience/install-experience-iteration-1-plan.md` |
 | Obligation / proof status | R11.1 — PASS: parent integration rerun covers stale native/inline copies and orphans; comments/validate PASS |
 | `HEAD` commit | `3c73202` |
 | `git status` summary | dirty — wave 2 only, units 09/10/12/13/15 proven, 16 active on disjoint paths |
@@ -378,7 +378,7 @@ The Claude parent stopped and touches nothing more on this branch.
 | Field | Value |
 |-------|-------|
 | Unit identifier | 14 — after released and proven dependencies, spawn |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-iteration-1-spec.md` / `docs/specs/install-experience/install-experience-iteration-1-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-iteration-1-spec.md` / `docs/specs/archived/install-experience/install-experience-iteration-1-plan.md` |
 | Obligation / proof status | R3.3,R4.2,R4.4 — PASS: parent integration rerun covers hints and PATH suppression; comments/validate PASS |
 | `HEAD` commit | `3c73202` |
 | `git status` summary | dirty — wave 2 only, units 09/10/12/13/15 proven, 16 active on disjoint paths |
@@ -390,7 +390,7 @@ The Claude parent stopped and touches nothing more on this branch.
 | Field | Value |
 |-------|-------|
 | Unit identifier | 17 — after proven 11 and 16, spawn |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-iteration-1-spec.md` / `docs/specs/install-experience/install-experience-iteration-1-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-iteration-1-spec.md` / `docs/specs/archived/install-experience/install-experience-iteration-1-plan.md` |
 | Obligation / proof status | R8.2, R11.2 — PASS: parent reran 7 repair skill tests; comments/validate PASS |
 | `HEAD` commit | `3c73202` |
 | `git status` summary | dirty — wave 2 only; 09–16 implementation released, no active edits |
@@ -402,7 +402,7 @@ The Claude parent stopped and touches nothing more on this branch.
 | Field | Value |
 |-------|-------|
 | Unit identifier | 18 — wave 2 final implementation frontier, inline |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-iteration-1-spec.md` / `docs/specs/install-experience/install-experience-iteration-1-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-iteration-1-spec.md` / `docs/specs/archived/install-experience/install-experience-iteration-1-plan.md` |
 | Obligation / proof status | R9.1,R9.3 — PASS: Human confirmed successor; stable promotion, supersession, claim migration, contract tests and deferral removal verified |
 | `HEAD` commit | `3c73202` |
 | `git status` summary | dirty — wave 2 only; prior source executors released; source smoke exits 1/0/0/0 |
@@ -414,7 +414,7 @@ The Claude parent stopped and touches nothing more on this branch.
 | Field | Value |
 |-------|-------|
 | Unit identifier | 19 — wave 2 final implementation frontier, spawn |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-iteration-1-spec.md` / `docs/specs/install-experience/install-experience-iteration-1-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-iteration-1-spec.md` / `docs/specs/archived/install-experience/install-experience-iteration-1-plan.md` |
 | Obligation / proof status | R9.2 — PASS: parent reran 20 docs/listing tests and docs:build; comments/validate PASS |
 | `HEAD` commit | `3c73202` |
 | `git status` summary | dirty — wave 2 only; prior source executors released; source smoke exits 1/0/0/0 |
@@ -426,7 +426,7 @@ The Claude parent stopped and touches nothing more on this branch.
 | Field | Value |
 |-------|-------|
 | Unit identifier | 18 — inline, Human confirmed successor text |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-iteration-1-spec.md` / `docs/specs/install-experience/install-experience-iteration-1-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-iteration-1-spec.md` / `docs/specs/archived/install-experience/install-experience-iteration-1-plan.md` |
 | Obligation / proof status | R9.1 and R9.3 — PASS: 19 contract/drift proofs, no todo; source fixtures retained their own independent ADR IDs |
 | `HEAD` commit | `3c73202` |
 | `git status` summary | dirty — wave 2 implementation and successor draft only; all executors idle; no unrelated files |
@@ -438,7 +438,7 @@ The Claude parent stopped and touches nothing more on this branch.
 | Field | Value |
 |-------|-------|
 | Unit identifier | 20 — inline final wave 2 gate, STOP before commit |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-iteration-1-spec.md` / `docs/specs/install-experience/install-experience-iteration-1-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-iteration-1-spec.md` / `docs/specs/archived/install-experience/install-experience-iteration-1-plan.md` |
 | Obligation / proof status | Unit 18 PASS; full wave gate PASS: 965/965 tests, 0 fail/skip/todo; build/lint/validate/comments/site exit 0; smoke exits 1/0/0/0 |
 | `HEAD` commit | `3c73202` |
 | `git status` summary | dirty — wave 2 implementation and required contract migration only; no active executors |
@@ -450,7 +450,7 @@ The Claude parent stopped and touches nothing more on this branch.
 | Field | Value |
 |-------|-------|
 | Unit identifier | 09–20 implemented and proven; STOP before commit; 21 not started |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-iteration-1-spec.md` / `docs/specs/install-experience/install-experience-iteration-1-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-iteration-1-spec.md` / `docs/specs/archived/install-experience/install-experience-iteration-1-plan.md` |
 | Obligation / proof status | Every wave 2 acceptance proof PASS (14 boxes). `pnpm build`, `pnpm test` (965/965, 0 fail/skip/todo), `pnpm lint`, `pnpm validate` (97 claims, 0 failures), `pnpm comments` (0 findings), `pnpm docs:build` all PASS. Compiled doctor --dir smoke: audited1, repaired0, linked0, claude-and-codex0. PR2 static surface PASS. |
 | `HEAD` commit | `3c73202` — unchanged; wave 2 is uncommitted |
 | `git status` summary | dirty — approved wave 2 implementation, confirmed successor/claim migration and required test/doc updates only; nothing staged, no active executors |
@@ -476,7 +476,7 @@ was performed by this wave 2 run.
 | Field | Value |
 |-------|-------|
 | Unit identifier | 09–20 — proven wave 2 batch; 21 remains unchecked |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-iteration-1-spec.md` / `docs/specs/install-experience/install-experience-iteration-1-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-iteration-1-spec.md` / `docs/specs/archived/install-experience/install-experience-iteration-1-plan.md` |
 | Obligation / proof status | Full gate and smoke PASS as above; unchanged implementation; fresh pre-commit validate PASS (99 claims, 0 failures) and comments PASS (0 findings) |
 | `HEAD` commit | `3c73202` — validated parent of this atomic wave commit |
 | `git status` summary | dirty — exactly the completed wave 2 batch and its plan marks; no unrelated changes or active executors |
@@ -492,9 +492,9 @@ step. No push, PR or merge is part of this commit request.
 | Field | Value |
 |-------|-------|
 | Unit identifier | 21 — last unit, inline, after the wave 2 commit `8c94b1d` |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-iteration-1-spec.md` / `docs/specs/install-experience/install-experience-iteration-1-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-iteration-1-spec.md` / `docs/specs/archived/install-experience/install-experience-iteration-1-plan.md` |
 | Obligation / proof status | Done. The parent re-ran the full gate on `8c94b1d`: build, test (965 pass, 0 fail, 0 todo), lint, validate (99 claims, 0 fail) and comments (0 findings) PASS. Every finding's closing proof passed in that run: F1 "doctor: a claude-and-codex install with a complete inline block exits 0"; F2 `proof-install-experience-no-code-writes`; F3 and F4 `proof-install-experience-global-hint` and `-pm-global`; F5 and F12 `proof-install-experience-registry-data`; F6 `proof-install-experience-doctor-refresh`; F7 `proof-install-experience-qmd-reach` and "layout: the linked layout names the four symlinks"; F8 `proof-install-experience-known-forms` and `-drift-earlier`; F9 `-rules-create-only`, the three `doctor-rules-stale` cases and `-rules-refresh`; F10 `-rules-mode` and `-inline-rules`; F11 `-subfolder-refused`; F13 `drift.ts` imports setup's helpers. F14 was withdrawn. The `pr2-surface` items hold on inspection: ADR-006 `stable`, its wiring-only predecessor `deprecated` with `superseded_by`, `docs/deferrals/setup-drift-check/` absent. The four-fixture smoke is the wave 2 gate's record |
 | `HEAD` commit | `8c94b1d` |
 | `git status` summary | dirty — this plan file only (Outcome column, unit 21 mark, this record) |
-| Intended diff scope | `docs/specs/install-experience/install-experience-iteration-1-plan.md` |
+| Intended diff scope | `docs/specs/archived/install-experience/install-experience-iteration-1-plan.md` |
 | Decision on every discrepancy | Resolved: five proofs carry descriptive test names instead of their proof ids (`init-linked`, `rules-stale`, `drift-after-refresh`, `doctor-open-folder`, `pr2-surface`); each was matched to its passing case above. Committing this record waits for the Human |

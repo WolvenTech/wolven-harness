@@ -9,7 +9,7 @@ status: stable
 
 **Deferred:** a harness home that serves more than one code repository. That means `setup` and `harness-init` recording several child repositories, each with its own commit and PR convention, and `code-commit` and `code-pr` choosing the repository each change belongs to.
 
-**Why:** the evidence is one user at one client, who works in one code repository. The [install experience PRD](../../prds/install-experience/install-experience-prd.md) makes one install serve one code repository, with that repository's convention recorded. Designing a multi-repository layout and its per-repository config from a single case would guess at a shape nobody has run yet.
+**Why:** the evidence is one user at one client, who works in one code repository. The [install experience PRD](../../prds/archived/install-experience/install-experience-prd.md) makes one install serve one code repository, with that repository's convention recorded. Designing a multi-repository layout and its per-repository config from a single case would guess at a shape nobody has run yet.
 
 **Today:** a harness home holds one code repository, inside it and listed in its `.gitignore`. A team with several repositories can create one harness home per repository.
 

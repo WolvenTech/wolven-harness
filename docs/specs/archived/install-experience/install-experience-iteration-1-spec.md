@@ -2,16 +2,16 @@
 type: spec
 title: Install and use experience — iteration 1 spec
 description: Delta obligations from the amended PRD and the review of PR 71 at 149dde6. Setup refuses a repository subfolder; rule copies are checked against their rules; qmd is checked from the open folder; earlier installs are classified without a manifest; rules wiring becomes registry data with one install-wide switch; the work ships as a wiring PR and a check-and-repair PR.
-status: stable
-source_spec: docs/specs/install-experience/install-experience-spec.md
+status: deprecated
+source_spec: docs/specs/archived/install-experience/install-experience-spec.md
 source_pr: https://github.com/WolvenTech/wolven-harness/pull/71
 ---
 
 # Install and use experience — iteration 1 spec
 
-**Current public contract:** [ADR-006](../../adrs/adr-006-install-check-and-repair-contract.md). Historical wiring-only references below describe the predecessor on the PR 1 branch.
+**Current public contract:** [ADR-006](../../../adrs/adr-006-install-check-and-repair-contract.md). Historical wiring-only references below describe the predecessor on the PR 1 branch.
 
-**Source:** `docs/prds/install-experience/install-experience-prd.md` (status `stable`, amended for AC-1.6, AC-4.4, AC-5.1, US-8 and Scope › Delivery), and the design findings 7, 8, 9, 10 and 12 of the [PR 71 review](https://github.com/WolvenTech/wolven-harness/pull/71#pullrequestreview-5591524011) at `149dde6`. This file holds only the delta. Every row of `install-experience-spec.md` stands as written unless a row below amends or replaces it.
+**Source:** `docs/prds/archived/install-experience/install-experience-prd.md` (status `deprecated`, amended for AC-1.6, AC-4.4, AC-5.1, US-8 and Scope › Delivery), and the design findings 7, 8, 9, 10 and 12 of the [PR 71 review](https://github.com/WolvenTech/wolven-harness/pull/71#pullrequestreview-5591524011) at `149dde6`. This file holds only the delta. Every row of `install-experience-spec.md` stands as written unless a row below amends or replaces it.
 **Next:** After the Human approves → `code-plan` writes `install-experience-iteration-1-plan.md` in this folder → `code-execute`, wave **1 (PR 1) → 2 (PR 2)**.
 **Named proof (this spec's own structural gate):** `proof-install-experience-iteration-1-spec-obligations`
 
