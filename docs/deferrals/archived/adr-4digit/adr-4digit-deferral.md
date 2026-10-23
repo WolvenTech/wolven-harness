@@ -1,11 +1,19 @@
 ---
 type: deferral
 title: Full 4-digit ADR support in validate
-description: validate recognises only 3-digit ADRs; 4-digit layouts (adr-tools, MADR, ADR-0001 tokens) only raise an adr-unrecognized warning until a consumer actually uses one.
-status: stable
+description: Retired as not planned after the Human confirmed the deferral cleanup on 2026-10-23.
+status: deprecated
 ---
 
 # Full 4-digit ADR support in validate
+
+## Retirement — 2026-10-23
+
+Keep the adr-unrecognized warning and retire broader support tracking; reopen from a concrete consumer requirement.
+
+The Human confirmed this retirement during the deferral grilling. The
+original scope and triggers below are retained as history, not active work.
+
 
 **Deferred:** checking 4-digit ADR layouts, such as adr-tools `doc/adr/0001-*.md`, MADR, and `ADR-0001` tokens, the way 3-digit ones are checked.
 
@@ -21,7 +29,7 @@ status: stable
 
 ## Contract impact
 
-[ADR-005](../../adrs/adr-005-install-anywhere-contract.md) does not freeze which tokens count as claims. Still, accepting 4-digit tokens can raise new `claim-missing` errors in a repo that passes today, so it needs a deprecation release that warns first.
+[ADR-005](../../../adrs/adr-005-install-anywhere-contract.md) does not freeze which tokens count as claims. Still, accepting 4-digit tokens can raise new `claim-missing` errors in a repo that passes today, so it needs a deprecation release that warns first.
 
 ## Triggers
 

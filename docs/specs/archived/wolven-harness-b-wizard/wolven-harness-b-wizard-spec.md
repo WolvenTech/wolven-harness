@@ -32,7 +32,7 @@ Closes the stub's open items. Grilling decisions Q1–Q22 and spec D's D-Q decis
 | B-Q7 | Migration closure: recompute every relative link **into** a moved file and every relative link **out of** one (its depth changed). A non-ADR file in the legacy folder, such as an index, is never moved into `docs/adrs/` (the profile would fail it); the Human chooses to delete it or keep it with its links rewritten. Then run `harness:validate` and resolve each failing claim with the Human: repoint it, reword it, or record a new decision through `adr`. The step is done when validate exits 0 with `0 legacy-warn`, after which the agent points to the repo's own test and lint commands, since links in source files moved. The Human reviews the whole diff | Recommended; B-Q1 |
 | B-Q8 | Discovery reads what the repo shows (manifests, lockfiles, README, `AGENTS.md`, CI config, `docs/adrs/`, installed skills, top-level layout) and asks the Human only for what files cannot show: lifecycle stage (prototype, MVP, production, maintenance) and decisions not yet visible in code. It produces three lists: context, lifecycle, and decided tools | Recommended; PRD Q4=A |
 | B-Q9 | Research: repo and QMD first. Web research is optional, runs only on the Human's OK, is capped at 5 primary-source fetches, and covers decided tools only; every finding is cited in the session note. For depth on one tool the agent offers the `research` skill (D-Q19). If the web is unavailable, it continues repo-only and says so in the note | Recommended |
-| B-Q10 | Suggest 2–4 architectural skills, each named for a decided tool or field, citing the discovery evidence, and never duplicating an installed skill. If the evidence supports fewer than 2, the agent says so rather than padding. The Human picks any subset; there is no catalogue pick (deferral docs/deferrals/skills-catalogue/skills-catalogue-deferral.md) | PRD Q5=A, Q3 carve-out |
+| B-Q10 | Suggest 2–4 architectural skills, each named for a decided tool or field, citing the discovery evidence, and never duplicating an installed skill. If the evidence supports fewer than 2, the agent says so rather than padding. The Human picks any subset; there is no catalogue pick (deferral docs/deferrals/archived/skills-catalogue/skills-catalogue-deferral.md) | PRD Q5=A, Q3 carve-out |
 | B-Q11 | A stub is `.agents/skills/<name>/SKILL.md` plus `agents/openai.yaml`, rendered from `references/stub-template.md`. Its frontmatter has `name`, a `description` that says it is a stub, `metadata: { wolven-harness: stub }`, and `disable-model-invocation: true`; `openai.yaml` sets `policy.allow_implicit_invocation: false`. A half-written skill therefore never fires on its own. The body holds the discovery evidence and headed prompts for the Human's instructions. An existing folder is never overwritten. Defining the skill means writing the body and removing the marker (and the ask-only flags, if wanted) | Recommended (`metadata` is the Agent Skills spec's free map, so strict runtimes accept it) |
 | B-Q12 | `validate` gains the spine rule `skill-stub-open`: a warning (exit 0) for each `.agents/skills/*/SKILL.md` whose frontmatter has `metadata.wolven-harness: stub`. It is a warning, not an error; C's zero-warning bar covers legacy warnings only | Stub scope ("`validate` warns on open stubs") |
 | B-Q13 | The session note is `docs/notes/harness-init-<yyyy-mm-dd>/harness-init-<yyyy-mm-dd>-note.md` (D-Q21 layout; a second run on the same day adds `-2`), with `type: note`. It is created as `draft` at the start of step 0; each phase adds its section before that phase's commit offer, so each phase commit carries its part of the note, and it turns `stable` at hand-back in the setup phase. An interrupted run leaves a `draft` note that the next run resumes from. Sections: Entry integration, ADR migration, Discovery, Research, Suggestions, Stubs, and Next steps for the Human | Recommended |
@@ -194,7 +194,7 @@ Commands run in the package repo unless marked OMT. "Skill-contract test" means 
 
 - Consumer-specific handling of any kind (B-Q1); the agentic-mkt run itself (spec C)
 - A migration script, a CLI wizard, or code that edits `AGENTS.md` (Q2=B; spec A constraint)
-- Skills catalogue picker (docs/deferrals/skills-catalogue/skills-catalogue-deferral.md)
+- Skills catalogue picker (docs/deferrals/archived/skills-catalogue/skills-catalogue-deferral.md)
 - Changes to claim, legacy, profile, or ignore behavior in `validate`
 - Changes to `init`, `WOLVEN.md`, or spec D's skills
 - Vendoring kb, or depending on it
@@ -256,7 +256,7 @@ Closure for the initiative (archive specs, plans, and PRD; ADRs `stable`; `pnpm 
 | Running the wizard in agentic-mkt inside B | Spec C |
 | Release, versions, and publish inside B | Spec C |
 | Editing spec D skills "to fit" the wizard | Spec D is merged; file a follow-up |
-| Skills catalogue picker | docs/deferrals/skills-catalogue/skills-catalogue-deferral.md |
+| Skills catalogue picker | docs/deferrals/archived/skills-catalogue/skills-catalogue-deferral.md |
 | Executable plan from this skill | `code-plan` only |
 
 ## ADR

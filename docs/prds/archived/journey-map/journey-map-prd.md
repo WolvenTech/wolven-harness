@@ -30,8 +30,8 @@ A **journey map** here is a drawing of a path's branches, choices and steps on a
 - Maps that open with no network.
 - Any `validate` check on map files, a new governed doc folder, or a new doc `type`.
 - Planning tickets and the `wayfinder` map: ticket trees leave this skill for the wayfinder work on PR #57.
-- Architecture and system-design diagrams (C4 kinds, nested boundaries, an automatic legend), deferred to an `architectural-map` skill ([deferral](../../../deferrals/architectural-map/architectural-map-deferral.md)).
-- Swim-lane journey grids and service blueprints (stages by lanes, frontstage and backstage lanes, lines of visibility, a full-page mood spine), deferred to a `service-blueprint` skill ([deferral](../../../deferrals/service-blueprint/service-blueprint-deferral.md)).
+- Architecture and system-design diagrams (C4 kinds, nested boundaries, an automatic legend), tracked separately in the [architectural-map draft PRD](../../architectural-map/architectural-map-prd.md).
+- Swim-lane journey grids and service blueprints (stages by lanes, frontstage and backstage lanes, lines of visibility, a full-page mood spine), deferred to a `service-blueprint` skill ([deferral](../../../deferrals/archived/service-blueprint/service-blueprint-deferral.md)).
 - Mood on any scale other than −2 to +2.
 - Changes to `grilling` or to any other shipped skill.
 - Updating `harness-init` to match the redesign drawn on the map.
