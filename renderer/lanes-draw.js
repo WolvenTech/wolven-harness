@@ -13,8 +13,9 @@
     oos: 'Out of scope',
   };
   const WIDE = 900;
-  const ROW = 38;
+  const ROW = 40;
   const LW = 20;
+  const TX = 38;
 
   /** Builds an HTML element with a class and text (set through textContent), appended to `parent` when given. */
   function h(tag, cls, text, parent) {
@@ -99,9 +100,10 @@
     const lane = id === 'S' || id === 'D' ? laneOf[lineId] : laneOf[laid.lineOf[id]];
     return [LX(lane), Yr(id)];
   };
-  const textX = LX(lanes) + 14;
-  const rowW = textX + 560;
+  const textX = LX(lanes) + 16;
+  const rowW = textX + 580;
 
+  const ruleLayer = el('g', {}, world);
   const lineLayer = el('g', {}, world);
   const termLayer = el('g', {}, world);
   const nodeLayer = el('g', {}, world);
@@ -118,9 +120,9 @@
 
   /** Draws the state marker of a ticket at the origin of `g`. */
   function marker(g, t, lineColour, interchange) {
-    const r = 5.75;
+    const r = 6;
     if (t.state === 'now') {
-      el('circle', { class: 'pulse', r: r + 6, fill: 'var(--s-open-soft, #fde3b0)' }, g);
+      el('circle', { class: 'pulse', r: r + 1 }, g);
       el('circle', { r, fill: 'var(--card)', stroke: 'var(--s-open)', 'stroke-width': 3 }, g);
     } else if (t.state === 'claimed') {
       el('circle', { r, fill: 'var(--s-claimed)', stroke: t.stale ? 'var(--s-stale)' : 'var(--card)', 'stroke-width': t.stale ? 3 : 2 }, g);
@@ -171,9 +173,17 @@
     const xs = (lineList.length ? lineList : [{ id: -1 }]).map((l) => LX(laneOf[l.id] ?? 0));
     const y = Yr(id);
     el('rect', { class: cls, x: Math.min(...xs) - 8, y: y - 5, width: Math.max(...xs) - Math.min(...xs) + 16, height: 10, rx: 5 }, termLayer);
-    svgText('term-k', key, { x: textX, y: y + 4 }, termLayer);
-    if (text) svgText('term-t', text, { x: textX + key.length * 8.4 + 12, y: y + 4 }, termLayer);
+    const k = svgText('term-k', key, { x: textX, y: y + 4 }, termLayer);
+    if (text) svgText('term-t', text, { x: textX + keyWidth(k, key) + 14, y: y + 4 }, termLayer);
   };
+
+  // why: measured once at draw time; the web font only ever narrows the caps, so the gap can grow but never overlap.
+  const keyWidth = (node, key) => Math.max(node.getComputedTextLength?.() ?? 0, key.length * 8.4);
+
+  for (let i = 0; i < laid.rows.length - 1; i++) {
+    const y = (i + 0.5) * ROW;
+    el('line', { class: 'rule', x1: textX - 6, y1: y, x2: rowW + 4, y2: y }, ruleLayer);
+  }
 
   if (hasFog) {
     const leafLines = laid.lines.filter((l) => l.end === 'destination');
@@ -181,8 +191,9 @@
     const g = el('g', {}, lineLayer);
     el('rect', { class: 'fogband', x: Math.min(...xs) - 12, y: Yr('F') - 13, width: Math.max(...xs) - Math.min(...xs) + 24, height: 26, rx: 13 }, g);
     el('title', {}, g).textContent = `Not yet specified:\n${model.fog.map((f) => `• ${f.label}`).join('\n')}`;
-    svgText('term-k', `FOG ×${model.fog.length}`, { x: textX, y: Yr('F') + 4 }, termLayer);
-    svgText('lab patch', model.fog.map((f) => f.label).join(' · '), { x: textX + 70, y: Yr('F') + 4 }, termLayer);
+    const fogKey = `FOG ×${model.fog.length}`;
+    const k = svgText('term-k', fogKey, { x: textX, y: Yr('F') + 4 }, termLayer);
+    svgText('lab patch', model.fog.map((f) => f.label).join(' · '), { x: textX + keyWidth(k, fogKey) + 14, y: Yr('F') + 4 }, termLayer);
   }
   for (const e of laid.edges) lineEl(e, route(e));
   for (const line of laid.lines) {
@@ -203,10 +214,18 @@
     const extra =
       t.state === 'claimed' ? ` · ${t.claimed_by}` : t.state === 'blocked' ? ` · waits on ${t.waitsOn.join(', ')}` : '';
     const state = `${STATE_WORD[t.state]}${extra}`;
-    svgText('l-num', String(t.id), { x: textX, y: wide() ? 4.5 : 0 }, g);
-    svgText('l-title', t.label, { x: textX + 30, y: wide() ? 4.5 : 0 }, g);
-    if (wide()) svgText('l-state', state, { x: rowW - 8, y: 4.5, 'text-anchor': 'end' }, g);
-    else svgText('l-state narrow', state, { x: textX + 30, y: 16 }, g);
+    const line = lineById.get(laid.lineOf[t.id]);
+    el('rect', { class: 'l-box', x: textX, y: -8.5, width: 28, height: 17, rx: 3, stroke: laneColour(line) }, g);
+    svgText('l-num', String(t.id), { x: textX + 14, y: 4, 'text-anchor': 'middle' }, g);
+    if (wide()) {
+      // invariant: the leader is drawn before the text, whose --ground stroke masks it under the glyphs.
+      el('line', { class: 'l-lead', x1: textX + TX, y1: 4.5, x2: rowW - 10, y2: 4.5 }, g);
+      svgText('l-title', t.label, { x: textX + TX, y: 5 }, g);
+      svgText('l-state', state, { x: rowW - 10, y: 5, 'text-anchor': 'end' }, g);
+    } else {
+      svgText('l-title', t.label, { x: textX + TX, y: -2 }, g);
+      svgText('l-state narrow', state, { x: textX + TX, y: 13 }, g);
+    }
   }
 
   for (const id of laid.rows) {
@@ -474,7 +493,7 @@
   window.addEventListener('resize', () => {
     for (const id of nodeEls.keys()) {
       const g = nodeEls.get(id);
-      g.querySelectorAll('.l-num, .l-title, .l-state').forEach((n) => n.remove());
+      g.querySelectorAll('.l-box, .l-num, .l-lead, .l-title, .l-state').forEach((n) => n.remove());
       rowLabels(g, model.byId[id]);
     }
     place();
