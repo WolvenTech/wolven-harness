@@ -1,11 +1,19 @@
 ---
 type: deferral
 title: Service blueprint skill
-description: A service-blueprint skill that draws swim-lane journey grids and service blueprints waits until a real discovery engagement needs a lanes grid that journey-map's action paths can't carry.
-status: stable
+description: Retired as not planned after the Human confirmed the deferral cleanup on 2026-10-23.
+status: deprecated
 ---
 
 # Service blueprint skill
+
+## Retirement — 2026-10-23
+
+No current blueprint deliverable requires a new skill; preserve the prototype and reopen for a real engagement.
+
+The Human confirmed this retirement during the deferral grilling. The
+original scope and triggers below are retained as history, not active work.
+
 
 **Deferred:** a `service-blueprint` skill that draws research-style journey grids and service blueprints. The skill would cover:
 
@@ -14,12 +22,12 @@ status: stable
 - **Blueprint lines:** interaction, visibility and internal interaction.
 - **Mood:** curves per persona, including a full-page "mood spine" layout.
 
-**Why:** the Human wants a quick tool for exploring journeys and paths. So user journeys are drawn by `journey-map` as action paths, with optional mood, thoughts, touchpoints, pains and opportunities on each step ([PRD](../../prds/archived/journey-map/journey-map-prd.md)). A lanes grid is a heavier research deliverable, with its own layout and its own references:
+**Why:** the Human wants a quick tool for exploring journeys and paths. So user journeys are drawn by `journey-map` as action paths, with optional mood, thoughts, touchpoints, pains and opportunities on each step ([PRD](../../../prds/archived/journey-map/journey-map-prd.md)). A lanes grid is a heavier research deliverable, with its own layout and its own references:
 
 - [NN/g, UX Mapping Methods Compared](https://www.nngroup.com/articles/ux-mapping-cheat-sheet/)
 - [NN/g, Service Blueprints: Definition](https://www.nngroup.com/articles/service-blueprints-definition/)
 
-Building it now would widen `journey-map` past that need ([research note](../../notes/visual-map-kinds/visual-map-kinds-note.md)).
+Building it now would widen `journey-map` past that need ([research note](../../../notes/visual-map-kinds/visual-map-kinds-note.md)).
 
 **Today:** `journey-map` draws action paths only. A throwaway prototype of three grid layouts for the cj_001 journey is kept in [prototype/](prototype/README.md) as this deferral's primary source. Its run command still uses the paths from the branch it was built on.
 

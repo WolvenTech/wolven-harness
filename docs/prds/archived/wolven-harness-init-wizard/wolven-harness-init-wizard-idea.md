@@ -13,16 +13,16 @@ Adjacent (not replacement) Idea that will later **patch** the draft Wolven harne
 
 ## Notes
 
-- Sibling Idea: [Wolven AI Assisted Development Harness](../wolven-ai-assisted-dev-harness/wolven-ai-assisted-dev-harness.md)
+- Sibling Idea: [Wolven AI Assisted Development Harness](../wolven-ai-assisted-dev-harness/wolven-ai-assisted-dev-harness-idea.md)
 - Sibling Problem: docs/prds/archived/wolven-ai-assisted-dev-harness/wolven-ai-assisted-dev-harness-problem.md
 - Target PRD to patch later (do not rewrite now): docs/prds/archived/wolven-ai-assisted-dev-harness/wolven-ai-assisted-dev-harness-prd.md (status stable)
 - Area: Corporate — Tools & Processes enablement
-- Park: catalogue — Wolven-tailored skills catalogue picker deferred to docs/deferrals/skills-catalogue/skills-catalogue-deferral.md (not v0)
+- Park: catalogue — Wolven-tailored skills catalogue picker deferred to docs/deferrals/archived/skills-catalogue/skills-catalogue-deferral.md (not v0)
 - Benchmark candidate (Human 2026-09-23): https://github.com/compozy/kb — **capability benchmark for codebase discovery** (compare/aspirational bar for the wizard’s discovery/research step); not primarily a brownfield dogfood consumer
 - Discovery: Q0 — A: D (free-text) — composy/kb is a possible **capability benchmark for codebase discovery** (not primarily a dogfood consumer); compare its discovery capabilities when shaping the wizard’s discovery/research step
 - QMD: 2026-09-23 — no duplicate Idea for init-wizard PRD patch; nearest are sibling harness Idea/PRD and okf-qmd-kit (knowledge kit, not this wizard)
 - Problem: docs/prds/archived/wolven-harness-init-wizard/wolven-harness-init-wizard-problem.md
-- Session: 2026-09-23 — Captured via idea-factory ([Continue init wizard Idea](bc-e057a7a5-921c-5991-970d-0c5270335f93)); discovery ABCD Q0–Q5 pending; no create-prd / no PRD rewrite this session
+- Session: 2026-09-23 — Captured via idea-factory (Continue init wizard Idea, session `bc-e057a7a5-921c-5991-970d-0c5270335f93`); discovery ABCD Q0–Q5 pending; no create-prd / no PRD rewrite this session
 - Session: 2026-09-23 — Human supplied composy/kb as benchmark candidate; grill Q0 on its role alongside Q1–Q5
 - Session: 2026-09-23 — Q0 recorded: composy/kb = codebase-discovery capability benchmark; Q1–Q5 still open; no create-prd
 - Preference: discovery one Q at a time with full ABCD (A=recommended); no batch Q1–Q5 — Human 2026-09-23
@@ -32,7 +32,7 @@ Adjacent (not replacement) Idea that will later **patch** the draft Wolven harne
 - Session: 2026-09-23 — Capture confirmed + Q1=A recorded; STOP for Q2 only (where wizard runs)
 - Discovery: Q2 — A: B — Agent skill session after install (guided chat, not CLI)
 - Session: 2026-09-23 — Q2=B recorded (wizard = agent skill session after install); STOP for Q3 only (suggest architectural skills meaning); no create-prd / no PRD rewrite
-- Discovery: Q3 — A: B (carve-out) — Scaffold skill stubs after suggestion; until catalogue exists, wizard tells Human to define agentic instructions for that tool/field; catalogue picker stays deferred (docs/deferrals/skills-catalogue/skills-catalogue-deferral.md)
+- Discovery: Q3 — A: B (carve-out) — Scaffold skill stubs after suggestion; until catalogue exists, wizard tells Human to define agentic instructions for that tool/field; catalogue picker stays deferred (docs/deferrals/archived/skills-catalogue/skills-catalogue-deferral.md)
 - Session: 2026-09-23 — Human Q3: "b - until we have a catalogue of skills - the goal is to tell the user he should define the agentic instructions for that tool/field"; recorded as B with carve-out (scaffold stubs; v0 instructs Human to define agentic instructions; no catalogue pick); STOP for Q4 only (quick research may use?); no create-prd / no PRD rewrite
 - Discovery: Q4 — A: A — Repo/QMD first, optional short bounded web
 - Session: 2026-09-23 — Q4=A recorded (quick research = repo/QMD first, optional short bounded web); STOP for Q5 only (“a few” architectural skills count); discovery remains open until Q5 answered; no create-prd / no PRD rewrite
