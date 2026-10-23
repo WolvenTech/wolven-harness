@@ -41,8 +41,8 @@ The terms map, ticket, canvas, destination, frontier, fog, undermined and radial
 
 **Non-goals**
 
-- A toggle between lanes and radial inside one page. It is deferred to [canvas-view-toggle](../../deferrals/canvas-view-toggle/canvas-view-toggle-deferral.md).
-- The agent offering the radial view unprompted, for example for a large map. It is deferred to the same file.
+- A toggle between lanes and radial inside one page.
+- The agent offering the radial view unprompted, for example for a large map.
 - Any change to the radial layout, including dark mode for it.
 - Any change to `journey-map` maps.
 - New ticket fields or map sections. The lanes are drawn from `blocked_by` and `status` alone.

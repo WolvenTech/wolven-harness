@@ -40,7 +40,6 @@ The QMD index in this worktree held 0 files in every collection, so terms were c
 | `test/fixtures/wayfinder/billing-30-canvas.json`, `billing-30-reached-canvas.json`, `billing-30/`, `errors/`, `reference/` | yes | Reused as layout and build fixtures |
 | `test/fixtures/wayfinder/starter-canvas.json`, `medium-canvas.json` | no | New: the PRD's 5-ticket and 12-ticket maps, copied from the prototype's `maps/` output |
 | `docs/notes/wayfinder-smoke/wayfinder-smoke-note.md` | yes | Shape model for this spec's browser smoke note |
-| `docs/deferrals/canvas-view-toggle/canvas-view-toggle-deferral.md` | yes | Holds the refused toggle and the unprompted radial offer |
 | Prototype `prototypes/wayfinder-metro/lines.js` (untracked) | yes, untracked | Design source only; never copied in (prototype skill: rewrite on promotion) |
 
 ## Surface walk
@@ -202,7 +201,7 @@ A failed gate aborts before the next wave starts.
 
 ## Out of scope
 
-- An in-page toggle between lanes and radial, and any unprompted radial offer. Both are in `docs/deferrals/canvas-view-toggle/canvas-view-toggle-deferral.md`.
+- An in-page toggle between lanes and radial, and any unprompted radial offer.
 - Dark mode or any other change to the radial page.
 - Any journey-map change.
 - Ticket format, map sections, error rules, and `setup`'s `docs/maps/.gitignore`.
@@ -270,7 +269,7 @@ A failed gate aborts before the next wave starts.
 
 | Leak | Refuse |
 |------|--------|
-| Toggle between views in one page, or an unprompted radial offer | `docs/deferrals/canvas-view-toggle/canvas-view-toggle-deferral.md` |
+| Toggle between views in one page, or an unprompted radial offer | Out of scope for this spec |
 | Dark mode for the radial page | A new PRD if the Human asks; out of scope here |
 | Deleting or keeping the prototype files | The Human, via `U-prototype-disposal` |
 | Commits, pushes and the implementing PR | `code-commit` / `code-pr` on an explicit ask |

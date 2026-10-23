@@ -33,9 +33,7 @@ copies).
 `renderer/radial.html`, `renderer/logic.js`, `renderer/canvas.js`,
 `renderer/draw.js`, `renderer/page.html`, both `journey-map` skill folders,
 `src/`, `prototypes/`, `.claude/launch.json`. The in-page toggle and the
-unprompted radial offer stay in
-`docs/deferrals/canvas-view-toggle/canvas-view-toggle-deferral.md`. No unit
-deletes the prototype.
+unprompted radial offer stay out of scope. No unit deletes the prototype.
 
 **Pragmatic-guard:** This plan adds nothing beyond the locked spec — no
 shared panel module, layout options object, theme switcher, palette config,
