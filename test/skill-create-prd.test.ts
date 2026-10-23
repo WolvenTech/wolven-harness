@@ -15,8 +15,9 @@ test('skill-create-prd: has the five workflow steps in order', async () => {
     '1. Grill the problem',
     '2. Term challenge',
     '3. Draft',
-    '4. Approve',
-    '5. ADR offer',
+    '4. Normalized summary',
+    '5. Approve',
+    '6. ADR offer',
   ]);
 });
 

@@ -19,6 +19,7 @@ written next to `docs/specs/<slug>/<slug>-spec.md`.
 |------|--------------|
 | [EXAMPLE-units.md](references/EXAMPLE-units.md) | Drafting a units table, wave stops, or Unresolved rows |
 | [TEMPLATE-plan.md](references/TEMPLATE-plan.md) | Starting a new plan file from a blank skeleton |
+| [artifact-approval-summary.md](references/artifact-approval-summary.md) | Before each Human approval ask — the normalized summary shape |
 
 **In / out / handoff:** locked spec → ordered, revisable plan → units ready
 for `code-execute` once the plan is approved.
@@ -83,7 +84,8 @@ finding as `fixed`, `skipped` or `no_change_needed`.
    the wave stops.
 6. Write `docs/specs/<slug>/<slug>-plan.md`, next to the spec, from
    [TEMPLATE-plan.md](references/TEMPLATE-plan.md) or from scratch.
-7. Hand off to `code-execute` once the plan is approved.
+7. **Normalized summary.** After the first draft and after every material revision, before asking the Human to approve, end the turn with the summary from [artifact-approval-summary.md](references/artifact-approval-summary.md). Use the plan-specific table rules in section 2 there.
+8. Hand off to `code-execute` once the plan is approved.
 
 `code-execute` fills in its own inline execution/resume bookkeeping in this
 same plan file as work proceeds; this skill only produces the initial units

@@ -20,6 +20,7 @@ iteration of `<slug>` after `code-review` writes
 |------|--------------|
 | [TEMPLATE.md](references/TEMPLATE.md) | Before drafting — the spec skeleton |
 | [EXAMPLE.md](references/EXAMPLE.md) | Unsure how to fill an obligation ↔ proof row, a nine-dimension landing, a Waves diagram, or an Eval / gates row |
+| [artifact-approval-summary.md](references/artifact-approval-summary.md) | Before each Human approval ask — the normalized summary shape |
 
 ## Where this sits
 
@@ -74,11 +75,12 @@ A PRD is optional input: when the `create-prd` skill is installed it drafts and 
     `adr` skill, by name, to create, promote, or supersede it. Numbering
     and supersession live in `adr`; this section only decides whether one
     is owed.
-11. Present the draft for the Human to approve; revise in place, and
-    present again whenever a revision changes something material. Once the
-    Human explicitly approves, change `status` from `draft` to `stable` —
-    only the Human's explicit word moves it.
-12. Hand off to `code-plan` once approved.
+11. **Normalized summary.** After the first draft and after every material revision, before asking the Human to approve, end the turn with the summary from [artifact-approval-summary.md](references/artifact-approval-summary.md). Use the spec-specific table rules in section 2 there.
+12. Present the draft for the Human to approve; revise in place, and
+    present the summary again whenever a revision changes something
+    material. Once the Human explicitly approves, change `status` from
+    `draft` to `stable` — only the Human's explicit word moves it.
+13. Hand off to `code-plan` once approved.
 
 ## When not to use
 
