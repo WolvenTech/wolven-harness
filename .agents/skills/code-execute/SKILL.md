@@ -28,6 +28,10 @@ validated work with the plan's resume section refreshed → `code-commit`
 invoked only when the resolved commit-cadence opt says to; otherwise the
 work stops, uncommitted, ready to be asked for.
 
+**Docs retrieval:** Follow the [shared QMD routing contract](../qmd/SKILL.md#harness-stage-routing)
+for `code-execute`: read exact inputs directly, choose relevant collection scopes,
+and preserve this skill's permissions and docs-write handoff/resume boundaries.
+
 ## Hard gates
 
 1. Follow the plan frontier (or an explicit single-unit ask).

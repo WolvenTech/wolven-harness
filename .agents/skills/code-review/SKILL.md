@@ -39,6 +39,10 @@ skill list.
 | [review-criteria.md](references/review-criteria.md) | Before finding anything — citation rule, axes, severity, verdict |
 | [host operations](../code-pr/references/host-operations.md) | Before each host step above |
 
+**Docs retrieval:** Follow the [shared QMD routing contract](../qmd/SKILL.md#harness-stage-routing)
+for `code-review`: read exact inputs directly, choose relevant collection scopes,
+and preserve this skill's permissions and docs-write handoff/resume boundaries.
+
 ## Ask-only
 
 Runs only on an **explicit** ask for a review. Nothing else in this bundle
