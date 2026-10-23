@@ -176,6 +176,8 @@ test('release-workflow: below 1.0 a feat bumps the patch and a breaking change b
   // why: without this flag a feat still bumps the minor before 1.0, and the assertion above would stay green.
   assert.equal(config['bump-patch-for-minor-pre-major'], true);
   assert.equal(config['include-component-in-tag'], false);
+  // why: main requires the release pull request to be current.
+  assert.equal(config['always-update'], true);
   assert.equal(config.packages?.['.']?.['package-name'], '@wolven-tech/harness');
   assert.equal(config.packages['.']['initial-version'], undefined);
   // why: release-please rewrites the manifest on every release, so only its shape is stable.

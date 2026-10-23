@@ -9,7 +9,7 @@ Maintainer notes for getting a change from a merged PR to a published version of
 ## How a release flows
 
 1. **PRs land on `main`.** CI runs build, test, validate, and comments. PRs squash-merge, so the PR title becomes the commit on `main`.
-2. **release-please keeps a release PR open.** On every push to `main`, it updates that PR with the next version and the changelog.
+2. **release-please keeps a release PR open.** On every push to `main`, it updates that PR with the next version and the changelog. The release pull request is rebased onto `main` even when the changelog does not change, because `main` will not merge an out-of-date branch.
 3. **A maintainer merges the release PR**, then **runs the `release` workflow by hand**. That run creates the tag and the GitHub Release, and publishes to npm.
 
 **Stability.** From 0.3.0 the public contract is stable: commands, flags, exit codes, finding codes, and the `.wolven-harness.json` schema (see the [CLI reference](./commands)). Breaking changes require a minor version bump while below 1.0.

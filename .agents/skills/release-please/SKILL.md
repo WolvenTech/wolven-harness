@@ -49,6 +49,7 @@ pull request are cut.
 - `release-please-config.json` holds the version rule. `.release-please-manifest.json` holds the released version.
 - `include-component-in-tag` is false. The tag has no component name.
 - A push to `main` only updates the release pull request: `skip-github-release` is `${{ github.event_name == 'push' }}`.
+- `always-update` is true. The release pull request is rebased onto `main` even when the changelog does not change, because `main` will not merge an out-of-date branch.
 - After the release pull request merges, an empty manual run of `release.yml` creates the GitHub Release. Nothing reaches npm until that run; the publish path belongs to `npm-trusted-publishing`.
 - Below 1.0 a `feat` bumps the patch, and a minor bump is only for a breaking change marked `feat!` or `BREAKING CHANGE`. `bump-patch-for-minor-pre-major` is true, and `bump-minor-pre-major` stays true so that breaking change stays a minor rather than a major. ADR-005 (Change policy) and the bump table in `site/release.md` state the same rule.
 - Do not add a second release workflow. Do not turn release-on-merge on. Do not add `NPM_TOKEN`.
