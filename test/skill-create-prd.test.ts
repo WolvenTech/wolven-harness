@@ -7,7 +7,7 @@ test('skill-create-prd: passes the shared skill contract checks', async () => {
   await assertSkillBasics('create-prd');
 });
 
-test('skill-create-prd: has the five workflow steps in order', async () => {
+test('skill-create-prd: has the six workflow steps in order', async () => {
   const skill = await readSkill('create-prd');
 
   const stepHeadings = skill.headings.filter((h) => /^\d+\./.test(h));
