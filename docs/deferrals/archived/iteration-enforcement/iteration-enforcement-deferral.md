@@ -1,18 +1,26 @@
 ---
 type: deferral
 title: Iteration-doc gap check and error enforcement
-description: Validate warns on a malformed review-fix iteration doc but neither checks that N runs contiguously from 1 nor fails the run; both wait for a real case.
-status: stable
+description: Retired as not planned after the Human confirmed the deferral cleanup on 2026-10-23.
+status: deprecated
 ---
 
 # Iteration-doc gap check and error enforcement
+
+## Retirement — 2026-10-23
+
+Existing warnings are sufficient; reopen only for a concrete review-round problem or an explicit stricter-CI requirement.
+
+The Human confirmed this retirement during the deferral grilling. The
+original scope and triggers below are retained as history, not active work.
+
 
 **Deferred:** a check that `<slug>-iteration-<N>-{spec,plan}.md` numbers run
 from 1 with no gap, and promoting `profile-iteration-doc` from warn to error.
 
 **Why:** the agent picks the next free N, so a gap needs a hand-renamed file,
 and none exists yet. Per
-[ADR-005](../../adrs/adr-005-install-anywhere-contract.md), an error-level finding is
+[ADR-005](../../../adrs/adr-005-install-anywhere-contract.md), an error-level finding is
 a breaking change.
 
 ## Triggers

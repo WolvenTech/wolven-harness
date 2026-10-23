@@ -63,7 +63,7 @@ Unit 04 is off the frontier until the Human brings back the Codex, Cursor, and C
 | Spec/plan paths | `docs/specs/archived/cloud-session-skills/cloud-session-skills-spec.md` / `docs/specs/archived/cloud-session-skills/cloud-session-skills-plan.md` |
 | Obligation / proof status | R1.1 / `proof-cloud-session-skills-code-pr-installed` — done (subagent report, parent diff check); R1.2 / `proof-cloud-session-skills-code-commit-installed` — done (same). Plan Done-when boxes stay unchecked (`autocommit: false`) |
 | `HEAD` commit | `47e781c` from `git rev-parse --short HEAD` |
-| `git status` summary | dirty — unit 01 Owns modified, uncommitted. Unrelated untracked: `.pnpm-store/`, `docs/deferrals/codex-cloud-plugin/`, `docs/deferrals/grok-cloud-runtime/`, `docs/deferrals/skill-tree-copy/`. Untracked `docs/specs/cloud-session-skills/` holds this resume record |
+| `git status` summary | dirty — unit 01 Owns modified, uncommitted. Unrelated untracked: `.pnpm-store/`, `docs/deferrals/codex-cloud-plugin/`, `docs/deferrals/archived/grok-cloud-runtime/`, `docs/deferrals/skill-tree-copy/`. Untracked `docs/specs/cloud-session-skills/` holds this resume record |
 | Intended diff scope | `templates/.agents/skills/code-review/SKILL.md`, `.agents/skills/code-review/SKILL.md`, `templates/.agents/skills/code-ci/SKILL.md`, `.agents/skills/code-ci/SKILL.md`, `templates/.agents/skills/code-pr/SKILL.md`, `.agents/skills/code-pr/SKILL.md`, `templates/.agents/skills/code-pr/references/pre-merge-closure.md`, `.agents/skills/code-pr/references/pre-merge-closure.md`, `test/skill-code-review.test.ts`, `test/skill-code-ci.test.ts`, `test/skill-code-pr.test.ts` |
 | Decision on every discrepancy | resolved — isolate. Do not touch unrelated untracked deferrals or `.pnpm-store/`. Plan status `draft` → `stable` is the approval mark, not a requirements change. Spec file stays unread for mutation |
 
@@ -75,7 +75,7 @@ Unit 04 is off the frontier until the Human brings back the Codex, Cursor, and C
 | Spec/plan paths | `docs/specs/archived/cloud-session-skills/cloud-session-skills-spec.md` / `docs/specs/archived/cloud-session-skills/cloud-session-skills-plan.md` |
 | Obligation / proof status | R2.1 / `proof-cloud-session-skills-ask-only` — done (wave gate `pnpm test` 596 pass); R2.2 / `proof-cloud-session-skills-consults-stay` — done (same). Plan Done-when boxes stay unchecked (`autocommit: false`) |
 | `HEAD` commit | `47e781c` from `git rev-parse --short HEAD` |
-| `git status` summary | dirty — unit 01 skill markdown is outside this unit's Owns (do not touch). Three test files in Owns already hold unit 01 proofs. Unrelated untracked: `.pnpm-store/`, `docs/deferrals/codex-cloud-plugin/`, `docs/deferrals/grok-cloud-runtime/`, `docs/deferrals/skill-tree-copy/`, `docs/specs/cloud-session-skills/` |
+| `git status` summary | dirty — unit 01 skill markdown is outside this unit's Owns (do not touch). Three test files in Owns already hold unit 01 proofs. Unrelated untracked: `.pnpm-store/`, `docs/deferrals/codex-cloud-plugin/`, `docs/deferrals/archived/grok-cloud-runtime/`, `docs/deferrals/skill-tree-copy/`, `docs/specs/cloud-session-skills/` |
 | Intended diff scope | `test/skill-code-review.test.ts`, `test/skill-code-ci.test.ts`, `test/skill-code-pr.test.ts`, `test/skill-create-prd.test.ts` |
 | Decision on every discrepancy | resolved — extend the three dirty test files; do not revert unit 01 proofs; do not edit skill markdown. Unrelated untracked paths stay untouched |
 
@@ -87,7 +87,7 @@ Unit 04 is off the frontier until the Human brings back the Codex, Cursor, and C
 | Spec/plan paths | `docs/specs/archived/cloud-session-skills/cloud-session-skills-spec.md` / `docs/specs/archived/cloud-session-skills/cloud-session-skills-plan.md` |
 | Obligation / proof status | R1.1, R1.2, R2.1, R2.2 — done at the gate. R3.1 — not started |
 | `HEAD` commit | `47e781c` from `git rev-parse --short HEAD` |
-| `git status` summary | dirty — uncommitted wave 1 edits on the twelve unit 01/02 paths. Unrelated untracked: `.pnpm-store/`, `docs/deferrals/codex-cloud-plugin/`, `docs/deferrals/grok-cloud-runtime/`, `docs/deferrals/skill-tree-copy/`. Untracked `docs/specs/cloud-session-skills/` holds this resume record |
+| `git status` summary | dirty — uncommitted wave 1 edits on the twelve unit 01/02 paths. Unrelated untracked: `.pnpm-store/`, `docs/deferrals/codex-cloud-plugin/`, `docs/deferrals/archived/grok-cloud-runtime/`, `docs/deferrals/skill-tree-copy/`. Untracked `docs/specs/cloud-session-skills/` holds this resume record |
 | Intended diff scope | none — unit Owns is empty. Gate only |
 | Decision on every discrepancy | resolved — `autocommit: false` (config absent, default) so Done-when marks stay unchecked and no commit. Unrelated untracked paths stay untouched. Wave 2 waits for the Human smoke report |
 

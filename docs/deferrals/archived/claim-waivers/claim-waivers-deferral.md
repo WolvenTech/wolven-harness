@@ -1,11 +1,19 @@
 ---
 type: deferral
 title: Claim false positives and per-line waivers
-description: The claim scan treats every ADR token as a local claim, URLs and historical lines included; skipping URLs and a per-line waiver wait until a consumer hits a false positive it cannot reword.
-status: stable
+description: Retired as not planned after the Human confirmed the deferral cleanup on 2026-10-23.
+status: deprecated
 ---
 
 # Claim false positives and per-line waivers
+
+## Retirement — 2026-10-23
+
+Retire speculative waiver tracking; reopen from a concrete false-positive bug report. Existing validation behavior is unchanged.
+
+The Human confirmed this retirement during the deferral grilling. The
+original scope and triggers below are retained as history, not active work.
+
 
 **Deferred:** skipping ADR tokens inside `http(s)://` URLs, a per-line waiver with a stated reason, and guidance for historical files such as changelogs and release notes.
 
@@ -15,7 +23,7 @@ status: stable
 
 ## Contract impact
 
-A waiver is new syntax, and skipping URLs changes what `claim-missing` catches. [ADR-005](../../adrs/adr-005-install-anywhere-contract.md) freezes neither, but both change which lines fail a run. A new finding for a waiver without a reason must start as a warning.
+A waiver is new syntax, and skipping URLs changes what `claim-missing` catches. [ADR-005](../../../adrs/adr-005-install-anywhere-contract.md) freezes neither, but both change which lines fail a run. A new finding for a waiver without a reason must start as a warning.
 
 ## Triggers
 

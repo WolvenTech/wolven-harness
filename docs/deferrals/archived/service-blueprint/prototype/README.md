@@ -22,7 +22,7 @@ Question: what should the final `visual-map` journey page look like, end to end,
 **(c) Build.**
 
 ```
-node docs/deferrals/service-blueprint/prototype/build.mjs docs/deferrals/service-blueprint/prototype/cj-001-journey.json
+node docs/deferrals/archived/service-blueprint/prototype/build.mjs docs/deferrals/archived/service-blueprint/prototype/cj-001-journey.json
 ```
 
 Node built-ins only. Exits 0 on success. On errors it prints one line per error to stderr (for example `journey mood alex.a: 4 is outside scale -2..2`), still writes the page showing them, and exits 1. `bad-mood.json` is the failing fixture (an out-of-scale mood and a cell naming a missing lane).
