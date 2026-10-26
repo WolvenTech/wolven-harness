@@ -1,3 +1,13 @@
+---
+type: knowledge
+title: Verification and gates
+description: Verify changes against observable proof and enforce explicit gates before continuation.
+status: current
+aliases:
+  - Checkpoint
+checked: 2026-10-22
+---
+
 # Verification and gates
 
 **Retrieval question:** What proof permits an agent to continue to the next

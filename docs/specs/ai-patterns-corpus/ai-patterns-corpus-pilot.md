@@ -300,11 +300,13 @@ is a bounded manual check, not broad efficacy proof.
 
 ## Stage routing evidence — R13
 
-The shared routing matrix lives in the local QMD skill; qmd-first points to
-it, and each of the thirteen named stage entrypoints has a thin reference.
-The ai-patterns skill also uses that shared contract. No behavior was copied
-into templates, and `.claude/skills` continues to resolve the same source.
-Skills/rules are read live; they are not claimed indexed by the docs collections.
+The shared routing matrix lives in the local QMD skill and local AGENTS.md;
+qmd-first points to it, while harness-installed skills remain agnostic without
+local retrieval references per Human direction. The ai-patterns skill uses that
+shared contract. In test/skill-copies.test.ts, locally customized skills (qmd)
+are explicitly permitted to diverge from shipped templates, while shipped
+templates remain unmutated and agnostic. Skills/rules are read live; they are
+not claimed indexed by the docs collections.
 
 Freshness retrieval marker: `routinghandoffprobe20261022` identifies this
 newly written proof paragraph for the next authorized refresh/handoff check.

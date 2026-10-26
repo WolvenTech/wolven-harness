@@ -201,7 +201,7 @@ rerun, preserving the initial result rather than reporting only success.
 
 | Identifier | Decision needed | Owner | Blocking effect | Disposition |
 | --- | --- | --- | --- | --- |
-| `U-ai-patterns-distribution` | Local pilot wiring only or also shipped templates and consumer operation? | Human | Blocks distribution-specific surface lock and package implementation; local pilot remains in scope | No distribution decision recorded; approval covers this spec with its template exclusion intact |
+| `U-ai-patterns-distribution` | Local pilot wiring only or also shipped templates and consumer operation? | Human | Blocks distribution-specific surface lock and package implementation; local pilot remains in scope | Settled 2026-10-26: harness-installed skills stay agnostic; local skills may diverge from shipped templates (e.g. `qmd` in `test/skill-copies.test.ts`), while distribution to consumer templates remains excluded |
 | `U-ai-patterns-routing-decision` | Approve directory-based routing as a durable harness convention? | Human | Policy approved; required architecture-record follow-through remains a rollout prerequisite | Approved on 2026-10-22 with this spec; use the `adr` skill before permanent rollout |
 | `U-ai-patterns-permanence` | Retain locally, revise, or remove after pilot evidence? | Human | Blocks permanent adoption and distribution, not the bounded pilot | Decide after R11 evidence; no automatic promotion |
 | `U-ai-patterns-owner` | Who owns recurring review if retained? | Human | Blocks permanent maintenance commitment | Decide with permanence; quarterly cadence is proposed, not scheduled |

@@ -1,3 +1,15 @@
+---
+type: knowledge
+title: Progressive disclosure
+description: Load linked references on-demand while keeping essential constraints in the parent instructions.
+status: current
+aliases:
+  - on-demand references
+  - staged context
+  - progressive loading
+checked: 2026-10-22
+---
+
 # Progressive disclosure
 
 **Aliases:** on-demand references, staged context, progressive loading

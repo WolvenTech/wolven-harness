@@ -1,3 +1,13 @@
+---
+type: knowledge
+title: Evaluation design
+description: Distinguish search relevance from decision usefulness through bounded trials and observable proof.
+status: current
+aliases:
+  - Eval
+checked: 2026-10-22
+---
+
 # Evaluation design
 
 **Retrieval question:** Did a pattern card merely appear in search, or did consulting it improve a real harness decision? Search relevance and decision usefulness are separate outcomes.

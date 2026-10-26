@@ -1,6 +1,11 @@
 ---
+type: knowledge
 title: Context selection
-aliases: [Context Engineering, Context Rot]
+description: Select and curate relevant task context while avoiding unnecessary or ungrounded material.
+status: current
+aliases:
+  - Context Engineering
+  - Context Rot
 review: current
 checked: 2026-10-22
 upstream: Anthropic 2025-09-29; Chroma 2025-07-14; book Context Engineering updated 2026-06-25; book Context Rot date not independently verified
