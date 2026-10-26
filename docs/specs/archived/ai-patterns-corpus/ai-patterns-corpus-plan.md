@@ -2,12 +2,12 @@
 type: spec
 title: Docs collection routing and AI patterns pilot - plan
 description: Two gated waves with parallel Luna medium card ingestion, parent-owned indexing, local workflow routing, and paired decision evidence.
-status: stable
+status: deprecated
 ---
 
 # Docs collection routing and AI patterns pilot - plan
 
-**Input:** [Approved spec](./ai-patterns-corpus-spec.md), status `stable`.
+**Input:** [Approved spec](./ai-patterns-corpus-spec.md), status `deprecated`.
 The Human approved the spec and requested `code-plan` on 2026-10-22.
 The Human approved this plan, paused execution, then resumed with `code-execute` on 2026-10-22. No completion is inferred from approval.
 
