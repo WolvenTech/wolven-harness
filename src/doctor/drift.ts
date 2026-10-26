@@ -75,16 +75,30 @@ function isOlder(recorded: string, running: string): boolean {
   return false;
 }
 
+/** The shipped historical forms; an unreadable or malformed file holds none. */
+async function readKnownForms(file: string): Promise<KnownForms> {
+  try {
+    const parsed = JSON.parse(await readFile(file, 'utf8')) as Partial<KnownForms> | null;
+    return { forms: parsed?.forms ?? {} };
+  } catch {
+    return { forms: {} };
+  }
+}
+
 /**
  * Compares installed files with current templates and shipped historical
  * forms. All findings are warnings, so they never change the exit code.
+ * Without readable known forms, a changed file is reported as edited.
  */
-export async function runDriftChecks(ctx: DoctorContext): Promise<DoctorFinding[]> {
+export async function runDriftChecks(
+  ctx: DoctorContext,
+  knownFormsFile: string = knownFormsPath(),
+): Promise<DoctorFinding[]> {
   const findings: DoctorFinding[] = [];
   const linked = ctx.config.layout === 'linked' && ctx.harnessHome !== ctx.root;
   const baseDir = linked ? ctx.harnessHome : ctx.root;
   const sets = (ctx.config.skillSets ?? []) as readonly SkillSet[];
-  const known = JSON.parse(await readFile(knownFormsPath(), 'utf8')) as KnownForms;
+  const known = await readKnownForms(knownFormsFile);
 
   const recorded = ctx.config.packageVersion;
   if (recorded !== undefined && isOlder(recorded, ctx.packageVersion)) {

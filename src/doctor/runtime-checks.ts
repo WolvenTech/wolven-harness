@@ -81,7 +81,7 @@ async function entryProblem(row: RuntimeRegistryRow, ctx: DoctorContext, agents:
   return undefined;
 }
 
-/** The inline rules block problem, or `undefined` when the block holds every installed rule. */
+/** `text` with every whitespace run collapsed to one space, for a layout-blind comparison. */
 function normalizeRuleText(text: string): string {
   return text.replace(/\s+/g, ' ').trim();
 }
@@ -102,6 +102,7 @@ function expectedInlineRules(rules: Rule[]): string {
   return rules.map((rule) => inlineRuleBody(rule.body)).join('\n\n');
 }
 
+/** The inline rules block problem, or `undefined` when the block holds every installed rule. */
 function inlineProblem(rules: Rule[], agents: string | undefined): string | undefined {
   if (rules.length === 0) return 'no standing rules were found under .agents/rules/';
   const block = between(agents ?? '', RULES_START, RULES_END);
