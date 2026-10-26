@@ -96,6 +96,10 @@ Traces to goal: Give every runtime at least a standing rule.
 - Which runtimes lack hook surfaces and whether rule-only is acceptable there — owner: None (Codex/antigravity use inline rules for now; native hook wiring is a follow-up).
 - Pre-commit scan as built-in patterns vs a new dependency — owner: None (deferred per non-goals).
 
+## Notes
+
+**Pre-commit scan (pragmatic-guard):** Keep deferred for now. When picked up later, reuse the hook's built-in path patterns (`secret-paths.mjs`) rather than a new dependency. Need 2/10 — the #80 incident was an agent reading a key, not committing one. Complexity 5/10 built-in vs 8/10 with a new dependency. Owner: Rafael, 2026-10-26.
+
 ## Handoff
 
 After approval → `code-spec`. This PRD does not authorize implementation.
