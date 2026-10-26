@@ -84,7 +84,7 @@ test('setup-skill-sets: a TTY prompt is asked only when neither flag nor config 
 
   assert.equal(result.code, 0, result.stderr);
   assert.deepEqual(seen, [
-    ['Ship — commit, PR, review, CI', 'Discovery — PRD, prototype, handoff, fool, jury, journey map'],
+    ['Ship — commit, PR, review, CI', 'Discovery — PRD, prototype, handoff, fool, jury, journey map, wayfinder'],
   ]);
   assert.deepEqual(await installed(dir), [...CORE_SKILLS, ...SET_SKILLS.discovery].sort());
 });

@@ -268,7 +268,7 @@ A failed gate aborts before the next wave.
 | Leak | Refuse |
 |------|--------|
 | Ticket trees and the wayfinder map | PR #57 |
-| Swim-lane grids, blueprints and a full-page mood spine | `docs/deferrals/service-blueprint/service-blueprint-deferral.md` |
+| Swim-lane grids, blueprints and a full-page mood spine | `docs/deferrals/archived/service-blueprint/service-blueprint-deferral.md` |
 | C4 and architecture diagrams | `docs/deferrals/architectural-map/architectural-map-deferral.md` |
 | A release or version bump | release-please, after merge |
 | An executable plan from this skill | `code-plan` only |

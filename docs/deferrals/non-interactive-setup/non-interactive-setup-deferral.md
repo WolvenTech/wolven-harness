@@ -11,7 +11,7 @@ status: stable
 
 **Why:** the preinstalled machine is an idea with no date. The [install experience PRD](../../prds/archived/install-experience/install-experience-prd.md) moves the layout and convention decisions into `harness-init`, which runs inside an agent, so a script-only path would need a second way to make those decisions before anyone needs it.
 
-**Today:** `setup` already takes its own choices by flag when stdin or stdout is not a terminal. `wolven-harness doctor` exits 0 or 1, so a script can check an install that was finished by hand.
+**Today:** `setup` already takes its own choices by flag when stdin or stdout is not a terminal. [PR #75](https://github.com/WolvenTech/wolven-harness/pull/75) also supports setup outside a repository; neither behavior replaces the agent's layout and convention decisions in `harness-init`. Scriptable `doctor` checks belong to still-open [PR #76](https://github.com/WolvenTech/wolven-harness/pull/76), not the merged CLI.
 
 ## Contract impact
 
@@ -25,4 +25,4 @@ New `setup` flags are additive. A flag-driven `harness-init` path would be a new
 ## Non-goals while deferred
 
 - No flags that replace `harness-init`'s layout or convention questions.
-- No headless `harness-doctor` repair. `doctor` stays report-only.
+- No headless repair. The planned `doctor` stays report-only; its availability depends on PR #76 and a containing release.

@@ -93,7 +93,7 @@ Corporate Area owns shared tools, standards, automation, and AI enablement (docs
 
 - Adjacent Idea only — must **amend/patch** docs/prds/archived/wolven-ai-assisted-dev-harness/wolven-ai-assisted-dev-harness-prd.md; never author a second harness PRD (Q1=A)
 - Wizard form is an **agent skill session after install**, not a CLI (Q2=B)
-- Catalogue picker deferred to docs/deferrals/skills-catalogue/skills-catalogue-deferral.md; v0 scaffolds stubs and tells Human to define agentic instructions (Q3)
+- Catalogue picker deferred to docs/deferrals/archived/skills-catalogue/skills-catalogue-deferral.md; v0 scaffolds stubs and tells Human to define agentic instructions (Q3)
 - Quick research: repo/QMD first, optional short bounded web (Q4=A)
 - Cap suggestions at 2–4 architectural skills (Q5=A)
 - composy/kb = codebase-discovery capability benchmark — not primarily a brownfield dogfood consumer (Q0)

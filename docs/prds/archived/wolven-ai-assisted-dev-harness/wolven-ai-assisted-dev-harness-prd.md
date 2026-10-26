@@ -60,7 +60,7 @@ Ship a thin, portable agent-harness npm package (new dedicated repo, extract fro
 | Internal distribution | Package published for org use | Internal npm under Wolven/org scope; exact name later |
 | Post-install init wizard | Guided skill session after install | Discover context/lifecycle/tools → research → suggest 2–4 architectural skills + stubs; instruct Human to define agentic instructions (catalogue deferred) |
 
-**Non-goals:** ClickUp board skills; Area canon; full OKF-PROFILE port; okf-qmd-kit coupling; public OSS in v0; sales-charter Next.js app as dogfood bed; locking the exact npm package string in this PRD; Wolven-tailored skills **catalogue picker** (deferred — docs/deferrals/skills-catalogue/skills-catalogue-deferral.md); second harness PRD.
+**Non-goals:** ClickUp board skills; Area canon; full OKF-PROFILE port; okf-qmd-kit coupling; public OSS in v0; sales-charter Next.js app as dogfood bed; locking the exact npm package string in this PRD; Wolven-tailored skills **catalogue picker** (deferred — docs/deferrals/archived/skills-catalogue/skills-catalogue-deferral.md); second harness PRD.
 
 ## Scope
 
@@ -85,7 +85,7 @@ Ship a thin, portable agent-harness npm package (new dedicated repo, extract fro
 - Public OSS publication in v0 (G2, OQ5=A)
 - Sales-charter Next.js app (project charters + Gantt + prices) as v0 dogfood — deferred to docs/deferrals/wolven-harness-sales-charter-dogfood.md
 - Exact npm package identifier (choose at scaffold / code-spec)
-- Skills **catalogue picker** / marketplace — deferred to docs/deferrals/skills-catalogue/skills-catalogue-deferral.md
+- Skills **catalogue picker** / marketplace — deferred to docs/deferrals/archived/skills-catalogue/skills-catalogue-deferral.md
 - Second harness PRD (init wizard is an amend of this file only — Q1=A)
 - Init wizard as a standalone CLI (Q2=B locks agent skill session)
 
@@ -137,7 +137,7 @@ Ship a thin, portable agent-harness npm package (new dedicated repo, extract fro
 | Greenfield dogfood invents product work beside the harness | CC1=A — brownfield acceptance only; sales-charter deferred |
 | ADR gate too broad (blocks unrelated docs) | OQ2=A — claim-path only |
 | Writing template balloons into full OKF-PROFILE | OQ1=B — thin profile + small rule subset |
-| Init wizard expands into catalogue/marketplace | Q3 carve-out + deferral docs/deferrals/skills-catalogue/skills-catalogue-deferral.md |
+| Init wizard expands into catalogue/marketplace | Q3 carve-out + deferral docs/deferrals/archived/skills-catalogue/skills-catalogue-deferral.md |
 | Wizard becomes a CLI product | Q2=B — agent skill session only |
 | Worry/Woe DICE drift | Re-score if review cadence, team, commitment, or load slips |
 
