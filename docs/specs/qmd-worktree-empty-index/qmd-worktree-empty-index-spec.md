@@ -142,8 +142,8 @@ flowchart TD
 
 ### Wave 2
 
-- [ ] `proof-qmd-empty-index-site-search` PASS — worktree lifecycle documented (pairs with R3.1)
-- [ ] `proof-qmd-empty-index-contributing` PASS — Cloud Agent bootstrap text consistent (pairs with R3.2)
+- [x] `proof-qmd-empty-index-site-search` PASS — worktree lifecycle documented (pairs with R3.1)
+- [x] `proof-qmd-empty-index-contributing` PASS — Cloud Agent bootstrap text consistent (pairs with R3.2)
 
 ## Eval / gates
 
