@@ -133,12 +133,12 @@ flowchart TD
 
 ### Wave 1
 
-- [ ] `proof-qmd-empty-index-readiness-guidance` PASS — rule and skill authorize empty-index `qmd update` and readiness before “no decisions” (pairs with R1.1)
-- [ ] `proof-qmd-empty-index-populated-no-mutate` PASS — populated index stays query-only (pairs with R1.2)
-- [ ] `proof-qmd-empty-index-mirrors-match` PASS — `.agents/` matches `templates/.agents/` for changed files (pairs with R1.3)
-- [ ] `proof-qmd-empty-index-skill-antipattern-refine` PASS — anti-pattern scoped to populated-index mutation (pairs with R2.1)
-- [ ] `proof-qmd-empty-index-rule-procedure` PASS — qmd-first procedure includes readiness (pairs with R2.2)
-- [ ] `proof-qmd-empty-index-seed-extract-adrs-first` PASS — ADR-first ordering preserved (pairs with R3.3)
+- [x] `proof-qmd-empty-index-readiness-guidance` PASS — rule and skill authorize empty-index `qmd update` and readiness before “no decisions” (pairs with R1.1)
+- [x] `proof-qmd-empty-index-populated-no-mutate` PASS — populated index stays query-only (pairs with R1.2)
+- [x] `proof-qmd-empty-index-mirrors-match` PASS — `.agents/` matches `templates/.agents/` for changed files (pairs with R1.3)
+- [x] `proof-qmd-empty-index-skill-antipattern-refine` PASS — anti-pattern scoped to populated-index mutation (pairs with R2.1)
+- [x] `proof-qmd-empty-index-rule-procedure` PASS — qmd-first procedure includes readiness (pairs with R2.2)
+- [x] `proof-qmd-empty-index-seed-extract-adrs-first` PASS — ADR-first ordering preserved (pairs with R3.3)
 
 ### Wave 2
 
