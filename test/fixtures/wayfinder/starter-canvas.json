@@ -1,0 +1,78 @@
+{
+  "version": 1,
+  "title": "Postgres backups",
+  "destination": "Nightly Postgres backups we can restore in under an hour.",
+  "fog": [
+    {
+      "label": "Point-in-time recovery"
+    },
+    {
+      "label": "Cross-region copies"
+    }
+  ],
+  "dir": "docs/maps/postgres-backups",
+  "trees": [
+    {
+      "id": "tickets",
+      "nodes": [
+        {
+          "id": "01",
+          "kind": "ticket",
+          "label": "Inventory the databases to back up",
+          "ticket": "research",
+          "status": "closed",
+          "blocked_by": [],
+          "undermined_by": [],
+          "file": "01-inventory-the-databases-to-b.md",
+          "question": "What should we settle for: inventory the databases to back up?",
+          "gist": "Three clusters, 410 GB in total, the orders cluster is 80% of it",
+          "resolution": "Three clusters, 410 GB in total, the orders cluster is 80% of it."
+        },
+        {
+          "id": "02",
+          "kind": "ticket",
+          "label": "Pick the backup tool",
+          "ticket": "research",
+          "status": "open",
+          "blocked_by": ["01"],
+          "undermined_by": [],
+          "file": "02-pick-the-backup-tool.md",
+          "question": "What should we settle for: pick the backup tool?"
+        },
+        {
+          "id": "03",
+          "kind": "ticket",
+          "label": "Choose the storage target",
+          "ticket": "grilling",
+          "status": "open",
+          "blocked_by": [],
+          "undermined_by": [],
+          "file": "03-choose-the-storage-target.md",
+          "question": "What should we settle for: choose the storage target?"
+        },
+        {
+          "id": "04",
+          "kind": "ticket",
+          "label": "Write the restore drill",
+          "ticket": "grilling",
+          "status": "open",
+          "blocked_by": ["02", "03"],
+          "undermined_by": [],
+          "file": "04-write-the-restore-drill.md",
+          "question": "What should we settle for: write the restore drill?"
+        },
+        {
+          "id": "05",
+          "kind": "ticket",
+          "label": "Decide how backups are encrypted",
+          "ticket": "grilling",
+          "status": "open",
+          "blocked_by": ["03"],
+          "undermined_by": [],
+          "file": "05-decide-how-backups-are-encry.md",
+          "question": "What should we settle for: decide how backups are encrypted?"
+        }
+      ]
+    }
+  ]
+}

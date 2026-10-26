@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { rm } from 'node:fs/promises';
 import path from 'node:path';
 import { test } from 'node:test';
 import { buildRepoContext, resolveGitRoot } from '../src/validate/repo.js';
@@ -99,4 +100,16 @@ test('claim-no-git: a clean git fixture exits 0 with zero claim counts', async (
   assert.equal(result.code, 0);
   assert.match(result.stdout, /claims: 0 ok, 0 legacy-warn, 0 fail/);
   assert.match(result.stdout, /validate: ok/);
+});
+
+test('validate-repo: an unstaged deletion of a tracked file is skipped, not read', async () => {
+  const dir = await makeRepo({ 'README.md': '# hi\n', 'gone.md': '# bye\n' }, { git: true });
+  await rm(path.join(dir, 'gone.md'));
+
+  const root = await resolveGitRoot(dir);
+  const ctx = await buildRepoContext(root, { ignoreEntries: [] });
+  assert.equal(ctx.files.includes('gone.md'), false, 'a deleted file is not scanned');
+
+  const result = await run(['validate'], { cwd: dir });
+  assert.equal(result.code, 0, result.stdout + result.stderr);
 });

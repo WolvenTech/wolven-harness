@@ -13,6 +13,8 @@ Read what already exists before asking, and use it to frame the options:
   `bit` is Bitbucket Pipelines); mention any other CI file the repo has.
 - `package.json` scripts: an existing `validate` or `test` script, by name and
   current value.
+- The `packageManager` recorded in `.wolven-harness.json`. It picks one row in
+  each table below, so read it before writing anything.
 
 ## The question
 
@@ -39,18 +41,31 @@ headline of the question.
 Nothing is written without a yes: show the diff, wait for the Human's yes, then
 write, then run `harness:validate`.
 
-- **(a)** Add a minimal job or step that runs on pull requests. Hosted
-  runners have no pnpm and may have an older Node, so the job must set up
-  pnpm and Node ≥ 22 before it runs `pnpm install --frozen-lockfile` and then
-  `pnpm harness:validate`. When the repo already has a workflow or pipeline,
-  reuse its setup steps and extend the file rather than replacing it.
-  - GitHub Actions: a new workflow on `pull_request` with `contents: read`
-    permissions; `actions/checkout`, `pnpm/action-setup` (the version from
-    `packageManager` in `package.json` when it names pnpm), `actions/setup-node`
-    with Node ≥ 22 and `cache: pnpm`, then install and validate.
-  - Bitbucket Pipelines: a pull-request step in `bitbucket-pipelines.yml` on an
-    image with Node ≥ 22, running `corepack enable`, then install and validate.
-- **(b)** Append `&& pnpm harness:validate` to the named script's value.
+- **(a) A CI job on pull requests.** Add a minimal job or step that runs on
+  pull requests. Hosted runners may have an older Node, so the job sets up
+  Node ≥ 22 before the install and validate steps. When the repo already has a
+  workflow or pipeline, reuse its setup steps and extend the file rather than
+  replacing it. On GitHub Actions, give the job `contents: read` permissions
+  and run `actions/checkout` first. Write the row for the recorded
+  `packageManager`; the `none` row is the repo with no `package.json`:
+
+  | `packageManager` | GitHub Actions | Bitbucket Pipelines |
+  | --- | --- | --- |
+  | `npm` | `actions/setup-node` with Node ≥ 22, then `npm ci` and `npm run harness:validate` | image with Node ≥ 22, then `npm ci` and `npm run harness:validate` |
+  | `yarn` | `actions/setup-node` with Node ≥ 22, `corepack enable`, then `yarn install --frozen-lockfile` (or `yarn install --immutable` when the repo pins Yarn 2+) and `yarn harness:validate` | image with Node ≥ 22, `corepack enable`, then the same install and `yarn harness:validate` |
+  | `pnpm` | `pnpm/action-setup` with the version from `packageManager`, `actions/setup-node` with Node ≥ 22 and `cache: pnpm`, then `pnpm install --frozen-lockfile` and `pnpm harness:validate` | image with Node ≥ 22, `corepack enable`, then `pnpm install --frozen-lockfile` and `pnpm harness:validate` |
+  | `none` | `actions/setup-node` with Node ≥ 22 and no install step, then the globally installed `wolven-harness validate` | image with Node ≥ 22, no install step, then the globally installed `wolven-harness validate` |
+
+- **(b) Chained into the existing script.** Append `&& ` and the run-script
+  form for the recorded `packageManager` to the named script's value:
+
+  | `packageManager` | Run-script form |
+  | --- | --- |
+  | `npm` | `npm run harness:validate` |
+  | `yarn` | `yarn harness:validate` |
+  | `pnpm` | `pnpm harness:validate` |
+
+  With no `package.json` there is no script to chain, so (b) is not offered.
 - **(c)** Write nothing; record the choice.
 
 Record the answer under "Validate wiring" in the session note, with what was

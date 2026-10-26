@@ -8,15 +8,31 @@ AI-assisted development harness to plan and implement changes, initialize an `AG
 
 ## Install
 
-Run `setup` at your repository's Git top level. You need Node.js 22 or later, Git, pnpm, and macOS or Linux.
+Install the CLI globally using your package manager:
 
 ```sh
-pnpm add -D @wolven-tech/harness && pnpm exec wolven-harness setup
+npm install -g @wolven-tech/harness
+```
+```sh
+yarn global add @wolven-tech/harness
+```
+```sh
+pnpm add -g @wolven-tech/harness
 ```
 
-`setup` installs nine core skills, three standing rules, document templates, a local search index configuration, and the `WOLVEN.md` entry file. Optional sets add up to nine more skills (`ship`: four, `discovery`: five); `ship` is selected by default, so a default setup installs 13 skills. Setup preserves existing copies and leaves `AGENTS.md` alone.
+You need Node 22 or later, git, and macOS or Linux.
 
-It adds missing check scripts to an existing `package.json` and saves setup choices and the package version in `.wolven-harness.json`. It does not install dependencies; setup prints the install command when `harness-score` is missing.
+Then run setup from the top level of a Git repository, or from any folder near your repo code:
+
+```sh
+wolven-harness setup
+```
+
+The setup will guide you through the installation choices and then write the chosen skills, rules and commands, their runtime links, and record your choices.
+
+Running `npx @wolven-tech/harness setup` works without a global install, but setup then recommends the global install so you can use other commands like `skills` and `validate`.
+
+Run `wolven-harness doctor` to check the install. It reports finding codes and exits 1 when an error needs attention; the core `harness-doctor` skill explains the findings and guides repairs one approved change at a time.
 
 For all commands, flags, configuration, and exit behavior, see the [CLI reference](./commands).
 
@@ -24,8 +40,8 @@ For all commands, flags, configuration, and exit behavior, see the [CLI referenc
 
 Ask your coding agent to run `harness-init`. It proposes how to connect the harness files to your repo’s existing instructions in `AGENTS.md`.
 
-Follow the instructions and review the proposed diff before approving each write. [Setup](./harness-init) explains the steps.
+Follow the instructions and review the proposed diff before approving each write. [Installation](./install) explains the steps.
 
 Then try a small change with the [Development workflow](./cycle) example.
 
-`setup`, `skills`, `validate`, and `comments` are terminal commands. `harness-init`, `code-spec`, `code-plan`, and `code-execute` are skills you ask the agent to run.
+`setup`, `skills`, `doctor`, `validate`, and `comments` are terminal commands. `harness-init`, `harness-doctor`, `code-spec`, `code-plan`, and `code-execute` are skills you ask the agent to run.

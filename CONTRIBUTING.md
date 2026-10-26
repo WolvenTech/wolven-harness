@@ -54,6 +54,12 @@ Repo-managed bootstrap lives in `.cursor/environment.json` (runs
 `.cursor/install.sh`): `pnpm install`, global `@tobilu/qmd` into `~/.local`,
 then `qmd update` and `qmd embed` so `.qmd/index.yml` collections are
 queryable. That file overrides personal and team Cloud Agent environments.
+Project MCP for the same index is in `.cursor/mcp.json` (runs `.cursor/qmd-mcp.sh`:
+`~/.local/bin/qmd` when present, otherwise `qmd` on `PATH`, e.g. Homebrew on macOS).
+Standing rules for Cursor Cloud load from `.cursor/rules/wolven-*.mdc`
+(generated from `.agents/rules/` when you run `wolven-harness setup --runtimes cursor`).
+Skills are under `.agents/skills/` (`.claude/skills` is a symlink); Cursor reads
+that tree natively — no `.cursor/skills` copy is required.
 
 On a fresh agent, confirm QMD before relying on `qmd-first`:
 
@@ -62,6 +68,11 @@ which qmd
 qmd status
 qmd query -c adrs "architecture claim path"
 ```
+
+The same applies in a **new git worktree**: the gitignored SQLite index is not
+copied from other checkouts. When `qmd status` shows zero indexed files, run
+`qmd update` (or let an agent self-repair under `qmd-first`) before trusting
+empty search results.
 
 Some tests pin documentation copy. `test/readme-install.test.ts` asserts the
 install lines in `README.md` and the release and contributing pages under

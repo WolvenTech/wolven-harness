@@ -44,11 +44,12 @@ with other units, waves, and the parent running you.
 
 ## Final check (mandatory, paste both outputs)
 
-Before returning, run both package scripts from the repo root:
+Before returning, run the `harness:comments` and `harness:validate` checks
+from the repo root with the harness directly:
 
 ```sh
-npm run harness:comments   # or: pnpm harness:comments, yarn harness:comments
-npm run harness:validate   # or: pnpm harness:validate, yarn harness:validate
+wolven-harness comments
+wolven-harness validate
 ```
 
 Paste both outputs in full in your return, even when they pass cleanly.

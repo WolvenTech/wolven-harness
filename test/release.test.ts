@@ -26,10 +26,10 @@ test('package-name: publishes publicly to npmjs as @wolven-tech/harness from the
   assert.equal(releaseConfig.packages['.']['package-name'], pkg.name);
 });
 
-test('package-manifest: the tarball ships only dist and templates beside the default files', async () => {
+test('package-manifest: the tarball ships dist, templates and known forms beside the default files', async () => {
   const pkg = await readJson('package.json');
 
-  assert.deepEqual(pkg.files, ['dist', 'templates']);
+  assert.deepEqual(pkg.files, ['dist', 'templates', 'known-forms.json']);
 });
 
 test('release-workflow: a push to main only opens the release PR; a manual run creates the release', async () => {
@@ -176,9 +176,23 @@ test('release-workflow: below 1.0 a feat bumps the patch and a breaking change b
   // why: without this flag a feat still bumps the minor before 1.0, and the assertion above would stay green.
   assert.equal(config['bump-patch-for-minor-pre-major'], true);
   assert.equal(config['include-component-in-tag'], false);
+  // why: main requires the release pull request to be current.
+  assert.equal(config['always-update'], true);
+  // why: release-please applies package release-as before any bump and never clears it.
+  // hazard: 0.4.0 left in place after publish pins every later release to 0.4.0.
+  assert.equal(config.packages['.']['release-as'], '0.4.0');
   assert.equal(config.packages?.['.']?.['package-name'], '@wolven-tech/harness');
   assert.equal(config.packages['.']['initial-version'], undefined);
   // why: release-please rewrites the manifest on every release, so only its shape is stable.
   assert.deepEqual(Object.keys(manifest), ['.']);
   assert.match(manifest['.'], /^\d+\.\d+\.\d+$/);
+});
+
+test('release-workflow: every job sets explicit timeout-minutes to prevent stale hanging runs', async () => {
+  const workflow = await readWorkflow();
+
+  for (const [id, job] of Object.entries<Record<string, any>>(workflow.jobs)) {
+    assert.ok(typeof job['timeout-minutes'] === 'number', `${id} defines timeout-minutes`);
+    assert.ok(job['timeout-minutes'] <= 15, `${id} timeout is at most 15 minutes`);
+  }
 });

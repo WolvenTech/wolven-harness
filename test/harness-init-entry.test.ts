@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
-import { readFile } from 'node:fs/promises';
+import { readFile, rm } from 'node:fs/promises';
 import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
@@ -36,18 +36,29 @@ async function collectCitedRules(block: string): Promise<Record<string, string>>
   return files;
 }
 
-test('step0-modes: the three modes each sit under their own heading, in order', async () => {
+/** Slices one `## <heading>` section out of a markdown document. */
+function sectionBody(content: string, heading: string, next: string): string {
+  const start = content.indexOf(heading);
+  assert.ok(start >= 0, `missing heading "${heading}"`);
+  const end = content.indexOf(next, start);
+  assert.ok(end > start, `missing heading "${next}" after "${heading}"`);
+  return content.slice(start, end);
+}
+
+test('step0-modes: full and light sit under their own headings, in order, and mention-only is gone', async () => {
+  const skill = await readSkill('harness-init');
   const body = await readEntryModes();
 
-  const positions = ['## Full', '## Light', '## Mention-only'].map((heading) => {
+  const positions = ['## Full', '## Light'].map((heading) => {
     const index = body.indexOf(heading);
     assert.ok(index >= 0, `missing heading "${heading}"`);
     return index;
   });
 
-  for (let i = 1; i < positions.length; i++) {
-    assert.ok(positions[i] > positions[i - 1], 'headings are out of order');
-  }
+  assert.ok(positions[0] < positions[1], 'headings are out of order');
+  assert.doesNotMatch(body, /mention-only/i);
+  assert.doesNotMatch(skill.body, /mention-only/i);
+  assert.match(flatten(skill.body), /in one of two modes — full or light/i);
 });
 
 test('step0-modes: full and light write the WOLVEN.md fold and describe the no-AGENTS.md case', async () => {
@@ -73,6 +84,77 @@ test('step0-modes: full mode drops the body H1 and demotes its headings, except 
   assert.match(flat, /body's H1 stays as the file's title/i);
 });
 
+test('step0-modes: both modes write the section markers, and the WOLVEN.md body carries them', async () => {
+  const content = await readEntryModes();
+  const full = flatten(sectionBody(content, '## Full', '## Light'));
+
+  assert.match(
+    full,
+    /`<!-- wolven-harness:start -->` before the `## Wolven harness` heading, and\s+`<!-- wolven-harness:end -->` after its last line/i,
+  );
+  assert.match(full, /markers stay intact around the harness body/i);
+
+  const [lightBlock] = extractFencedBlocks(content);
+  assert.match(lightBlock, /## Wolven harness/);
+  assert.ok(lightBlock.indexOf('<!-- wolven-harness:start -->') >= 0, 'light block lacks the start marker');
+  assert.ok(
+    lightBlock.indexOf('<!-- wolven-harness:start -->') < lightBlock.indexOf('<!-- wolven-harness:end -->'),
+    'light block markers are out of order',
+  );
+
+  const wolven = await readFile(path.join(repoRoot, 'templates', 'WOLVEN.md'), 'utf8');
+  assert.match(
+    wolven,
+    /^Before anything else: [^\n]*\n\n<!-- wolven-harness:start -->\n\n# Wolven harness — entry router\n/,
+  );
+  assert.match(wolven, /\n<!-- wolven-harness:end -->\n$/);
+  assert.equal(wolven.match(/<!-- wolven-harness:start -->/g)?.length, 1);
+  assert.equal(wolven.match(/<!-- wolven-harness:end -->/g)?.length, 1);
+});
+
+test('step0-rules: the entry text checks the wired runtimes and inserts the rule bodies between the rules markers', async () => {
+  const content = await readEntryModes();
+  const flat = flatten(content);
+
+  assert.match(flat, /Read `\.wolven-harness\.json` before writing either mode/);
+  assert.match(flat, /A selected runtime with inline rules mode \(`codex` or `antigravity`\)/i);
+  assert.match(flat, /reads the standing rules only from `AGENTS\.md`/);
+  assert.match(flat, /`<!-- wolven-harness:rules:start -->` and\s+`<!-- wolven-harness:rules:end -->`/i);
+  assert.match(flat, /inside the section's own start and end markers/i);
+  assert.match(flat, /Read every `\.agents\/rules\/\*\.md` and strip its YAML frontmatter/);
+  assert.match(flat, /Otherwise, the wired runtimes read `\.agents\/rules\/` through their own wiring/);
+
+  const full = flatten(sectionBody(content, '## Full', '## Light'));
+  assert.match(
+    full,
+    /lists a runtime with inline rules mode \(`codex` or `antigravity`\), append the \[rules block\]\(#rules-for-codex\) inside the section's markers/i,
+  );
+
+  const light = flatten(sectionBody(content, '## Light', '## Rules for `codex`'));
+  assert.match(
+    light,
+    /lists a runtime with inline rules mode \(`codex` or `antigravity`\), insert the \[rules block\]\(#rules-for-codex\) before the closing/i,
+  );
+});
+
+test('step0-rules: amp gets one rule import per rule, outside the codex block', async () => {
+  const content = await readEntryModes();
+  const amp = flatten(sectionBody(content, '## Rules for `amp`', '## Deletion rule'));
+
+  assert.match(amp, /Read `\.wolven-harness\.json` before writing either mode/);
+  assert.match(amp, /`runtimes` list includes `amp` and the selected runtimes use native rules mode/i);
+  assert.match(amp, /one `@\.agents\/rules\/<rule>\.md` import per installed rule/i);
+  assert.match(
+    amp,
+    /inside the section's start and end markers and outside any\s+`<!-- wolven-harness:rules:start -->` block/i,
+  );
+  assert.match(
+    amp,
+    /When any selected runtime uses inline rules mode \(`codex` or `antigravity`\), the inline rules block already\s+reaches Amp, so add no imports/i,
+  );
+  assert.match(amp, /@\.agents\/rules\/qmd-first\.md/);
+});
+
 test('step0-modes: an already-integrated AGENTS.md gets a refresh offer, never a second fold', async () => {
   const flat = flatten(await readEntryModes());
 
@@ -83,11 +165,11 @@ test('step0-modes: an already-integrated AGENTS.md gets a refresh offer, never a
   assert.match(flat, /show the human the diff .* ask whether to refresh the section .* then delete `WOLVEN\.md`/i);
 });
 
-test('step0-modes: the deletion rule keeps WOLVEN.md only in mention-only, minus its first line', async () => {
+test('step0-modes: WOLVEN.md is deleted after either mode, once the markers and rules are in place', async () => {
   const flat = flatten(await readEntryModes());
 
-  assert.match(flat, /deleted in full and light/i);
-  assert.match(flat, /kept, minus its first line, in mention-only/i);
+  assert.match(flat, /`WOLVEN\.md` is deleted in both full and light/i);
+  assert.match(flat, /Deleting it is the last write of step 0, after the section markers and any rules block/i);
 });
 
 test('step0-modes: the recommendation rule names both signals and leaves the pick to the human', async () => {
@@ -161,12 +243,16 @@ test('step0-fixture: the re-include block shares the harness paths and keeps the
   assert.doesNotMatch(tracked, /\.agents\/private\/|settings\.local\.json/);
 });
 
-test('step0-fixture: an existing AGENTS.md plus the light block passes validate with no step0-pending or rule-missing', async () => {
+test('step0-fixture: the light block carries the markers, so validate clears step 0 with WOLVEN.md present and after it is gone', async () => {
   const content = await readEntryModes();
   const blocks = extractFencedBlocks(content);
-  assert.equal(blocks.length, 2, 'expected exactly two fenced markdown blocks (light block, mention-only line)');
-  const [lightBlock] = blocks;
+  const lightBlock = blocks.find(
+    (block) => block.includes('## Wolven harness') && block.includes('<!-- wolven-harness:start -->'),
+  );
+  assert.ok(lightBlock, 'expected a fenced light block carrying the section markers');
   assert.match(lightBlock, /## Wolven harness/);
+  assert.match(lightBlock, /<!-- wolven-harness:start -->/);
+  assert.match(lightBlock, /<!-- wolven-harness:end -->/);
   assert.match(lightBlock, /<standing-rules>/);
 
   const wolvenTemplate = await readFile(path.join(repoRoot, 'templates', 'WOLVEN.md'), 'utf8');
@@ -193,72 +279,31 @@ test('step0-fixture: an existing AGENTS.md plus the light block passes validate 
   const cwd = await makeRepo(
     {
       'AGENTS.md': `${priorAgents}\n${light}\n`,
+      'WOLVEN.md': '# Wolven harness — entry router\n',
       ...ruleFiles,
     },
     { git: true },
   );
 
   const result = await run(['validate'], { cwd });
-
   assert.equal(result.code, 0, result.stdout + result.stderr);
   assert.doesNotMatch(result.stdout, /step0-pending/);
   assert.doesNotMatch(result.stdout, /rule-missing/);
+
+  await rm(path.join(cwd, 'WOLVEN.md'));
+  const deleted = await run(['validate'], { cwd });
+  assert.equal(deleted.code, 0, deleted.stdout + deleted.stderr);
+  assert.doesNotMatch(deleted.stdout, /step0-pending/);
+  assert.doesNotMatch(deleted.stdout, /rule-missing/);
 });
 
-test('step0-fixture: an existing AGENTS.md plus the mention-only line, with WOLVEN.md kept, clears step0-pending', async () => {
-  const content = await readEntryModes();
-  const blocks = extractFencedBlocks(content);
-  assert.equal(blocks.length, 2, 'expected exactly two fenced markdown blocks (light block, mention-only line)');
-  const [, mentionLine] = blocks;
-  assert.match(mentionLine, /WOLVEN\.md/);
-
-  const wolvenTemplate = await readFile(path.join(repoRoot, 'templates', 'WOLVEN.md'), 'utf8');
-  // why: the first mode-agnostic line names step 0 itself; every mode drops
-  // it, so the fixture's kept WOLVEN.md starts from its second line on.
-  const wolvenBody = wolvenTemplate.split('\n').slice(1).join('\n').replace(/^\n+/, '');
-
-  const ruleFiles = await collectCitedRules(wolvenBody);
-  assert.ok(Object.keys(ruleFiles).length > 0, 'kept WOLVEN.md cites no rule files to copy');
-
-  const priorAgents = [
-    '# Agents',
-    '',
-    '## Deploy',
-    '',
-    'Run the deploy script after every release to staging.',
-    '',
-  ].join('\n');
-
-  // why: the shipped WOLVEN.md claims ADR-000 by name (its own
-  // architecture-claims example), so keeping the template body verbatim
-  // means the fixture needs that same profile ADR to resolve the claim.
-  const adr000 = await readFile(
-    path.join(repoRoot, 'templates', 'docs', 'adrs', 'adr-000-record-architecture-decisions.md'),
-    'utf8',
-  );
-
-  const cwd = await makeRepo(
-    {
-      'AGENTS.md': `${priorAgents}\n${mentionLine}\n`,
-      'WOLVEN.md': wolvenBody,
-      'docs/adrs/adr-000-record-architecture-decisions.md': adr000,
-      ...ruleFiles,
-    },
-    { git: true },
-  );
-
-  const result = await run(['validate'], { cwd });
-
-  assert.equal(result.code, 0, result.stdout + result.stderr);
-  assert.doesNotMatch(result.stdout, /step0-pending/);
-});
-
-test('proof-entry-plain-labels: step 0 asks how much to change AGENTS.md, with three labels tied to the modes', async () => {
+test('proof-entry-plain-labels: step 0 asks how much to change AGENTS.md, with two labels tied to the modes', async () => {
   const flat = flatten(await readEntryModes());
 
   assert.match(flat, /"How much should we change your current AGENTS\.md\?"/);
-  assert.match(flat, /\*\*Just one line\*\* \(mention-only\): adds a single line pointing to `WOLVEN\.md`/);
+  assert.match(flat, /with two answers named for what they do/i);
   assert.match(flat, /\*\*A short section\*\* \(light\): adds a brief summary of where skills and rules live/);
   assert.match(flat, /\*\*The whole guide\*\* \(full\): copies the full harness guide and skills list in/);
+  assert.doesNotMatch(flat, /Just one line/);
   assert.match(flat, /List the recommended answer first/);
 });

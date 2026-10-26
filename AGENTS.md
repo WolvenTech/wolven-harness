@@ -37,7 +37,7 @@ pnpm score      # harness-score --min-level 3, with drops in .harness-score.json
 | Where | What lives there |
 | --- | --- |
 | `.agents/skills/` | Agent skills, one folder per skill, each with a `SKILL.md` |
-| `.agents/rules/` | Standing rules agents load unconditionally |
+| `.agents/rules/` | Standing rules the harness wires into each runtime |
 | `.agents/hooks/` | Hook scripts and wiring (placeholder until the project needs one) |
 | `docs/adrs/` | Architecture decision records (profile ADRs), flat: `adr-NNN-<slug>.md` |
 | `docs/prds/<slug>/` | Product requirement docs: `docs/prds/<slug>/<slug>-prd.md` |
@@ -73,6 +73,7 @@ qmd query "<question>"
 | create-prd | Grills a problem to one confirmed statement, challenges its key terms against local docs, drafts a lean PRD with user stories and Given/When/Then acceptance, and moves it from draft to stable only on explicit approval. Use when a rough ask, issue, or notes need to become a PRD. |
 | grilling | Interviews relentlessly about a plan, decision, or idea, one question at a time, until every open branch is settled. Use when a plan still has open choices to settle with the Human before acting, or when the Human asks to be grilled. |
 | handoff | Save a handoff document to the OS temp directory so a fresh session can pick up the work — ask-only, never invoked automatically |
+| harness-doctor | Checks a wired harness install with `wolven-harness doctor`, then repairs it one Human-approved fix at a time: stale templates are refreshed one file at a time, rule copies are refreshed after review, and a mention-only entry file goes through harness-init. Use when an install seems half-working, after an upgrade, or when the Human asks to check the harness. |
 | harness-init | Guides a repo through initial harness setup: folds the entry file into AGENTS.md, offers legacy ADR migration, discovers the repo, researches its decided tools, suggests skills, writes stubs, scores the harness, and closes with a session note. Use when a repo has just run `wolven-harness setup`, or has only a bare `.agents/skills/` tree. |
 | journey-map | Draws a flow, a set of options, or a user journey as one interactive HTML page built from a JSON map tree, so the Human can walk it, answer it and send feedback back. Use when the Human asks for a journey map, a flow diagram to click through, or a decision map, or accepts a one-line offer of one. |
 | pragmatic-guard | Enforces strict YAGNI — challenges over-build, refuses additions without a present need, and records deferrals with revisit triggers under docs/deferrals/. Use when adding features, abstractions, dependencies, or "we might need" work. |

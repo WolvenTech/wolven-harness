@@ -19,7 +19,8 @@ concurrency:
 jobs:
   title:
     name: Title
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
     steps:
       - name: Check the PR title against Conventional Commits
         uses: amannn/action-semantic-pull-request@v6
@@ -29,7 +30,8 @@ jobs:
   lint:
     name: Lint
     if: ${{ github.event.action != 'edited' || github.event.changes.base }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
     steps:
       - name: Check out
         uses: actions/checkout@v7
@@ -69,16 +71,25 @@ jobs:
         run: pnpm score
 
   test:
-    name: Test (Node ${{ matrix.node }})
+    name: Test (Node ${{ matrix.line }})
     if: ${{ github.event.action != 'edited' || github.event.changes.base }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
     strategy:
       fail-fast: false
       matrix:
-        node: [22, 24]
+        # why: a bare major resolves from the runner's tool cache, which can lag a security patch.
+        include:
+          - line: 22
+            node: "22.23.4"
+          - line: 24
+            node: "24.22.1"
     steps:
       - name: Check out
         uses: actions/checkout@v7
+        with:
+          # why: doctor fixtures read release tags to exercise historical template drift.
+          fetch-depth: 0
 
       - name: Set up pnpm
         uses: pnpm/action-setup@v6
@@ -100,7 +111,8 @@ jobs:
   package:
     name: Package
     if: ${{ github.event.action != 'edited' || github.event.changes.base }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
     steps:
       - name: Check out
         uses: actions/checkout@v7
@@ -152,16 +164,22 @@ jobs:
           pnpm add --save-dev --save-exact "harness-score@$score_version"
           pnpm harness:score
 
-  # why: main requires CI for code runs. A metadata edit gets a distinct check
-  # name so it cannot replace the code-run status.
+  # why: branch protection reads the newest Actions suite for the check name CI.
+  # A title-only edit still has to report CI, and only once this head SHA's code
+  # jobs have passed — the merge ref is a different commit, and a title change
+  # must not pass a failed code run or leave CI unreported.
   ci:
-    name: ${{ github.event.action == 'edited' && !github.event.changes.base && 'PR metadata' || 'CI' }}
+    name: CI
     needs: [title, lint, test, package]
     if: ${{ always() }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
     steps:
       - name: Require every job to pass
         env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPOSITORY: ${{ github.repository }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           RESULTS: ${{ join(needs.*.result, ' ') }}
           TITLE_RESULT: ${{ needs.title.result }}
           EDIT_ONLY: ${{ github.event.action == 'edited' && !github.event.changes.base }}
@@ -170,6 +188,37 @@ jobs:
           echo "results: $RESULTS"
           if [[ "$EDIT_ONLY" == true ]]; then
             [[ "$TITLE_RESULT" == success ]] || { echo "Title: $TITLE_RESULT"; exit 1; }
-            exit 0
+            deadline=$((SECONDS + 840))
+            while true; do
+              state="$(
+                gh api --paginate "repos/${REPOSITORY}/commits/${HEAD_SHA}/check-runs?per_page=100" | jq -s -r '
+                  def names: ["Lint", "Test (Node 22)", "Test (Node 24)", "Package"];
+                  if length == 0 then error("no check-run pages") else . end
+                  | [.[].check_runs[]] as $runs
+                  | [names[] as $name
+                      | ($runs | map(select(.name == $name and .conclusion != "skipped"))) as $live
+                      | if ($live | length) == 0 then {name: $name, state: "wait"}
+                        else ($live | sort_by(.started_at) | last) as $latest
+                          | if $latest.status != "completed" then {name: $name, state: "wait"}
+                            elif $latest.conclusion != "success" then {name: $name, state: "fail"}
+                            else {name: $name, state: "pass"}
+                            end
+                        end
+                    ] as $rows
+                  | if any($rows[]; .state == "fail") then "fail"
+                    elif any($rows[]; .state == "wait") then "wait"
+                    else "pass"
+                    end
+                '
+              )"
+              echo "code checks: $state"
+              if [[ "$state" == pass ]]; then exit 0; fi
+              if [[ "$state" == fail ]]; then exit 1; fi
+              if (( SECONDS >= deadline )); then
+                echo "code checks still running"
+                exit 1
+              fi
+              sleep 15
+            done
           fi
           for result in $RESULTS; do [[ "$result" == success ]] || exit 1; done

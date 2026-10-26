@@ -129,11 +129,22 @@ Query types: `lex` (BM25 keyword search), `vec` (vector semantic search),
 
 ## Setup and maintenance
 
-Only mutate the index when asked for setup or maintenance — searching and
-retrieving are safe, but `qmd collection add`, `qmd update`, and `qmd embed`
-change local state and are not a casual first step. The collections are
-already declared in `.qmd/index.yml`, which `qmd` finds from any directory
-inside the repo:
+Searching and retrieving are safe. Mutating the index changes local state.
+
+**Empty index bootstrap.** Fresh worktrees start with a gitignored empty
+SQLite index. Run `qmd status`; when Documents → Total is `0 files indexed`,
+run `qmd update` before searching — even without a separate maintenance ask.
+Do not run `qmd embed` for this bootstrap unless you need vector search.
+
+**Populated index.** When Total is greater than zero, do not run unasked
+`qmd update` or `qmd embed` during routine queries. Run them only when asked
+for setup or maintenance, or after you change indexed content under `docs/`.
+
+**Configuration changes.** `qmd collection add` is never casual — only when
+asked to change collections.
+
+The collections are already declared in `.qmd/index.yml`, which `qmd` finds
+from any directory inside the repo:
 
 ```bash
 npm install -g @tobilu/qmd
@@ -149,4 +160,6 @@ before changing configuration when a model-backed command fails.
 
 - Stopping at snippets: fetch the document before making a claim from it.
 - Slicing files with `sed`/`head`/`tail`: use `path:from:count` or `--from`/`-l`.
-- Running `qmd collection add`, `update`, or `embed` outside a setup or maintenance ask.
+- Running `qmd collection add`, `qmd update`, or `qmd embed` on an
+  already-populated index during routine search without a setup or maintenance
+  ask.

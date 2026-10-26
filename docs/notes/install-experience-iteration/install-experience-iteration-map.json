@@ -1,0 +1,133 @@
+{
+  "version": 1,
+  "title": "PR 71: split it, and iterate the PRD?",
+  "subtitle": "Read the case, make the two calls, then press Copy for agent",
+  "trees": [
+    {
+      "id": "case",
+      "label": "The case",
+      "nodes": [
+        { "id": "case-start", "kind": "start", "label": "What the evidence says", "sub": "review, jury, split test", "next": "ev-jury" },
+        { "id": "ev-jury", "kind": "waypoint", "tag": "jury", "label": "5–0 for a split at medium confidence. Same model, one packet: one opinion, five times", "next": "ev-test" },
+        { "id": "ev-test", "kind": "waypoint", "tag": "split test", "label": "Without doctor and the manifest: build ok, validate ok, 866/875 pass. All 9 failures are inventory tests", "next": "ev-cost" },
+        { "id": "ev-cost", "kind": "waypoint", "tag": "split cost", "label": "Docs, not code: the contract ADR (29 refs) and site/commands.md (34) describe doctor", "next": "ev-gaps" },
+        { "id": "ev-gaps", "kind": "waypoint", "tag": "PRD gaps", "label": "Four requirement gaps the spec can't settle alone, plus which PR ships which story", "next": "case-card" },
+        {
+          "id": "case-card",
+          "kind": "card",
+          "label": "The case for an iteration PRD",
+          "sections": [
+            {
+              "head": "For",
+              "items": [
+                "No story covers an install made before the manifest, the audited one included (finding 8)",
+                "AC-1.2 and AC-2.3 conflict in a subfolder of a repo; the spec picked a side (finding 11)",
+                "AC-5.1 doesn't say where qmd is checked from (finding 7)",
+                "AC-4.1 promises the rules, not their current text (finding 9)",
+                "A split moves US-5 and US-6 to a later PR; the PRD should say so"
+              ]
+            },
+            {
+              "head": "Against",
+              "items": [
+                "The goals don't change, so it is extra process",
+                "A spec iteration can carry findings 7, 9 and 10 alone"
+              ]
+            },
+            {
+              "head": "Read",
+              "items": [
+                "Gaps 1 and 2 are missing or conflicting requirements, not mechanisms, so they belong in the PRD"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "decide",
+      "label": "Decide",
+      "nodes": [
+        { "id": "decide-start", "kind": "start", "label": "Two calls", "next": "split" },
+        {
+          "id": "split",
+          "kind": "choice",
+          "tag": "call 1",
+          "label": "Split PR 71 in two?",
+          "default": "split",
+          "options": [
+            { "key": "split", "label": "Split: setup slice now, check-and-repair later", "hint": "the split test held; the cost is the contract ADR and site docs", "next": "slice" },
+            { "key": "one", "label": "Keep one PR, revise the design inside it", "hint": "the jury's fallback; one ADR, a longer wait", "next": "held" }
+          ]
+        },
+        { "id": "slice", "kind": "waypoint", "tag": "slice PR", "label": "Registry, rule wiring, package-manager commands, step0, the validate fix; plus findings 3, 5, 10 (Antigravity) and 11", "next": "prd" },
+        { "id": "held", "kind": "waypoint", "tag": "one PR", "label": "PR 71 waits for iteration 1 to land on its branch", "next": "prd" },
+        {
+          "id": "prd",
+          "kind": "choice",
+          "tag": "call 2",
+          "label": "How does the doctor half get its iteration?",
+          "default": "prd",
+          "options": [
+            { "key": "prd", "label": "Iteration PRD, then code-spec", "hint": "settles gaps 1 and 2 at the requirement level", "next": "scope" },
+            { "key": "spec", "label": "code-spec iteration only", "hint": "keeps the PRD as it is", "next": "spec-only" }
+          ]
+        },
+        {
+          "id": "scope",
+          "kind": "checklist",
+          "label": "What the iteration PRD changes",
+          "sub": "untick anything to leave as it is",
+          "items": [
+            { "key": "adopt", "label": "New story: adopt an install made before the manifest", "hint": "finding 8" },
+            { "key": "subfolder", "label": "Settle AC-1.2 vs AC-2.3 in a repo's subfolder", "hint": "finding 11" },
+            { "key": "qmd", "label": "AC-5.1: qmd checked from where the agent opens", "hint": "finding 7" },
+            { "key": "current", "label": "AC-4.1: the rules in context are the current text", "hint": "finding 9" },
+            { "key": "delivery", "label": "Say which stories ship in which PR", "hint": "only if split" }
+          ],
+          "next": "prd-next"
+        },
+        {
+          "id": "prd-next",
+          "kind": "card",
+          "label": "Then",
+          "sections": [
+            {
+              "head": "Order",
+              "numbered": true,
+              "items": [
+                "create-prd: grill the ticked changes, draft, then stable on your word",
+                "code-spec: install-experience-iteration-1-spec.md, for findings 7–10 and 12",
+                "code-plan: install-experience-iteration-1-plan.md, adding the plan-only findings",
+                "If split, the slice PR lands first and the follow-up builds on it"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "spec-only",
+          "kind": "card",
+          "label": "Spec-only path",
+          "sections": [
+            {
+              "head": "What stays open",
+              "items": [
+                "AC-6.4 stays unreachable for 0.3.x installs unless the spec quietly adds a story",
+                "The AC-1.2 vs AC-2.3 conflict is decided in the spec, below the PRD"
+              ]
+            },
+            {
+              "head": "Next",
+              "items": ["code-spec: install-experience-iteration-1-spec.md, then code-plan"]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "links": [{ "from": "case-card", "to": "decide-start", "label": "then decide" }],
+  "annotations": [
+    { "id": "n-jury", "target": "ev-jury", "text": "treat 5–0 as strong against merging doctor as is, weak on split vs one PR" },
+    { "id": "n-test", "target": "ev-test", "text": "the jury's own deciding test; it came out for the split" }
+  ]
+}

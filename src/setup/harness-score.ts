@@ -1,4 +1,5 @@
-import { readPackageJson } from './own-package.js';
+import type { PackageManager } from './config.js';
+import { addDevDependencyExact, readPackageJson, recordedPackageManager } from './package-manager.js';
 import type { Context } from './types.js';
 
 /**
@@ -15,11 +16,12 @@ const HARNESS_SCORE = 'harness-score';
  * Returns a one-line warning with the exact fix command when the target
  * root has a `package.json` whose `harness:score` script calls
  * `harness-score` (or is absent) while `harness-score` is in neither
- * `devDependencies` nor `dependencies`. A kept `harness:score` script that
- * runs something else gets no warning. Writes nothing; a missing
- * `package.json` gives `undefined`.
+ * `devDependencies` nor `dependencies`. The fix command uses
+ * `packageManager` when given, else the manager the install recorded.
+ * A kept `harness:score` script that runs something else gets no warning.
+ * Writes nothing; a missing `package.json` gives `undefined`.
  */
-export async function harnessScoreWarning(ctx: Context): Promise<string | undefined> {
+export async function harnessScoreWarning(ctx: Context, packageManager?: PackageManager): Promise<string | undefined> {
   const pkg = await readPackageJson(ctx.root);
   if (pkg === undefined) return undefined;
 
@@ -29,5 +31,7 @@ export async function harnessScoreWarning(ctx: Context): Promise<string | undefi
   const listed = ['devDependencies', 'dependencies'].some((field) => Object.hasOwn(pkg[field] ?? {}, HARNESS_SCORE));
   if (listed) return undefined;
 
-  return `${HARNESS_SCORE} is not in your dependencies, so harness:score cannot run. Fix it with: pnpm add -D -E ${HARNESS_SCORE}@${HARNESS_SCORE_VERSION}`;
+  const manager = packageManager ?? (await recordedPackageManager(ctx.root));
+
+  return `${HARNESS_SCORE} is not in your dependencies, so harness:score cannot run. Fix it with: ${addDevDependencyExact(manager, `${HARNESS_SCORE}@${HARNESS_SCORE_VERSION}`)}`;
 }

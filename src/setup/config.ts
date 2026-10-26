@@ -1,9 +1,19 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import { isRuntimeId, RUNTIME_REGISTRY } from './runtimes.js';
 import type { SkillSet } from './skill-sets.js';
 import { isSkillSet } from './skill-sets.js';
 import type { GitHost, Runtime } from './types.js';
 import { SetupError } from './types.js';
+
+/** The package manager a project resolves to; `none` when there is no `package.json`. */
+export type PackageManager = 'npm' | 'yarn' | 'pnpm' | 'none';
+
+/** Whether the harness home is the open folder (`home`) or one it reaches from above (`linked`). */
+export type HarnessLayout = 'home' | 'linked';
+
+/** The subject shape `code-commit` and `code-pr` apply to `codeRepo` work. */
+export type CommitConvention = { style: 'conventional' } | { style: 'pattern'; pattern: string; example: string };
 
 /**
  * Shape of `.wolven-harness.json`. `version` is the config schema version
@@ -18,6 +28,13 @@ export interface Config {
   ignore?: string[];
   /** This package's own version, resolved and rewritten on every `setup` run. */
   packageVersion?: string;
+  packageManager?: PackageManager;
+  layout?: HarnessLayout;
+  /** Required when `layout` is `linked`; a path relative to the config file's folder. */
+  harnessHome?: string;
+  /** The one code repository this install serves; a path relative to the config file's folder. */
+  codeRepo?: string;
+  commitConvention?: CommitConvention;
   /**
    * Any other top-level keys present in the file (e.g. `comments`).
    * `readConfig`/`writeConfig` don't interpret these — they only round-trip
@@ -26,32 +43,103 @@ export interface Config {
   extra?: Record<string, unknown>;
 }
 
-const KNOWN_KEYS = new Set(['version', 'gitHost', 'runtimes', 'skillSets', 'ignore', 'packageVersion']);
+const KNOWN_KEYS = new Set([
+  'version',
+  'gitHost',
+  'runtimes',
+  'skillSets',
+  'ignore',
+  'packageVersion',
+  'packageManager',
+  'layout',
+  'harnessHome',
+  'codeRepo',
+  'commitConvention',
+]);
 
 export const CONFIG_FILENAME = '.wolven-harness.json';
 
 const GIT_HOSTS: readonly GitHost[] = ['gh', 'bit'];
-const RUNTIMES: readonly Runtime[] = ['claude', 'codex', 'cursor'];
+const PACKAGE_MANAGERS: readonly PackageManager[] = ['npm', 'yarn', 'pnpm', 'none'];
+const LAYOUTS: readonly HarnessLayout[] = ['home', 'linked'];
+const RUNTIME_ID_LIST = RUNTIME_REGISTRY.map((row) => row.id).join('", "');
 
 export function isGitHost(value: unknown): value is GitHost {
   return typeof value === 'string' && (GIT_HOSTS as readonly string[]).includes(value);
 }
 
 export function isRuntime(value: unknown): value is Runtime {
-  return typeof value === 'string' && (RUNTIMES as readonly string[]).includes(value);
+  return isRuntimeId(value);
+}
+
+/** True when `value` is a `packageManager` the contract allows. */
+export function isPackageManager(value: unknown): value is PackageManager {
+  return typeof value === 'string' && (PACKAGE_MANAGERS as readonly string[]).includes(value);
+}
+
+/** True when `value` is a `layout` the contract allows. */
+export function isHarnessLayout(value: unknown): value is HarnessLayout {
+  return typeof value === 'string' && (LAYOUTS as readonly string[]).includes(value);
 }
 
 function isRuntimeArray(value: unknown): value is Runtime[] {
   return Array.isArray(value) && value.length > 0 && value.every((v) => isRuntime(v));
 }
 
+/** A non-empty path relative to the config file's folder. */
+function readRelativePath(key: string, value: unknown): string {
+  if (typeof value !== 'string' || value.length === 0 || path.isAbsolute(value)) {
+    throw new SetupError(`${CONFIG_FILENAME} "${key}" must be a non-empty relative path`);
+  }
+  return value;
+}
+
+/**
+ * Reads `commitConvention`: `{ "style": "conventional" }`, or a `pattern`
+ * shape whose `pattern` compiles as a JavaScript regular expression and whose
+ * `example` is a subject string.
+ */
+function readCommitConvention(value: unknown): CommitConvention {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+    throw new SetupError(`${CONFIG_FILENAME} "commitConvention" must be an object`);
+  }
+
+  const obj = value as Record<string, unknown>;
+  if (obj.style === 'conventional') return { style: 'conventional' };
+  if (obj.style !== 'pattern') {
+    throw new SetupError(`${CONFIG_FILENAME} "commitConvention" "style" must be "conventional" or "pattern"`);
+  }
+
+  if (typeof obj.pattern !== 'string') {
+    throw new SetupError(
+      `${CONFIG_FILENAME} "commitConvention" "pattern" must be a string that compiles as a regular expression`,
+    );
+  }
+  try {
+    RegExp(obj.pattern);
+  } catch {
+    throw new SetupError(
+      `${CONFIG_FILENAME} "commitConvention" "pattern" must be a string that compiles as a regular expression`,
+    );
+  }
+
+  if (typeof obj.example !== 'string') {
+    throw new SetupError(`${CONFIG_FILENAME} "commitConvention" "example" must be a string`);
+  }
+
+  return { style: 'pattern', pattern: obj.pattern, example: obj.example };
+}
+
 /**
  * Reads and validates `.wolven-harness.json` from `root`. Returns
  * `undefined` when the file is absent. Throws `SetupError` when the file
- * exists but is not valid JSON, or its shape is invalid (`version` is not
- * `1`, `gitHost`/`runtimes` are missing or hold unknown values, `ignore` is
- * present but not an array of strings, or `packageVersion` is present but
- * not a string). Any other top-level key is preserved in `extra`, untyped.
+ * exists but is not valid JSON, or its shape breaks the contract: `version`
+ * is not `1`; `gitHost`/`runtimes` are missing or hold unknown values;
+ * `ignore` is not an array of strings; `packageVersion` is not a string;
+ * `packageManager`/`layout` hold an unknown value; `harnessHome` is missing
+ * for `linked`, present otherwise, or not a relative path; `codeRepo` is not
+ * a relative path; `commitConvention` is not one of its two shapes. Any
+ * other top-level key is preserved in `extra`, untyped.
  */
 export async function readConfig(root: string): Promise<Config | undefined> {
   const file = path.join(root, CONFIG_FILENAME);
@@ -86,7 +174,7 @@ export async function readConfig(root: string): Promise<Config | undefined> {
     throw new SetupError(`${CONFIG_FILENAME} "gitHost" must be "gh" or "bit"`);
   }
   if (!isRuntimeArray(obj.runtimes)) {
-    throw new SetupError(`${CONFIG_FILENAME} "runtimes" must be a non-empty array of "claude", "codex", "cursor"`);
+    throw new SetupError(`${CONFIG_FILENAME} "runtimes" must be a non-empty array of "${RUNTIME_ID_LIST}"`);
   }
 
   const config: Config = {
@@ -116,6 +204,37 @@ export async function readConfig(root: string): Promise<Config | undefined> {
     config.packageVersion = obj.packageVersion;
   }
 
+  if (obj.packageManager !== undefined) {
+    if (!isPackageManager(obj.packageManager)) {
+      throw new SetupError(`${CONFIG_FILENAME} "packageManager" must be "npm", "yarn", "pnpm" or "none"`);
+    }
+    config.packageManager = obj.packageManager;
+  }
+
+  if (obj.layout !== undefined) {
+    if (!isHarnessLayout(obj.layout)) {
+      throw new SetupError(`${CONFIG_FILENAME} "layout" must be "home" or "linked"`);
+    }
+    config.layout = obj.layout;
+  }
+
+  if (obj.harnessHome !== undefined) {
+    if (config.layout !== 'linked') {
+      throw new SetupError(`${CONFIG_FILENAME} "harnessHome" is only allowed when "layout" is "linked"`);
+    }
+    config.harnessHome = readRelativePath('harnessHome', obj.harnessHome);
+  } else if (config.layout === 'linked') {
+    throw new SetupError(`${CONFIG_FILENAME} "harnessHome" is required when "layout" is "linked"`);
+  }
+
+  if (obj.codeRepo !== undefined) {
+    config.codeRepo = readRelativePath('codeRepo', obj.codeRepo);
+  }
+
+  if (obj.commitConvention !== undefined) {
+    config.commitConvention = readCommitConvention(obj.commitConvention);
+  }
+
   const extraEntries = Object.entries(obj).filter(([key]) => !KNOWN_KEYS.has(key));
   if (extraEntries.length > 0) {
     config.extra = Object.fromEntries(extraEntries);
@@ -137,12 +256,13 @@ async function existingKeyOrder(file: string): Promise<string[]> {
 
 /**
  * Writes `.wolven-harness.json` at `root` as 2-space JSON with a trailing
- * newline: `{ "version", "gitHost", "runtimes" }`, plus `skillSets`, `packageVersion` and
- * `ignore` when set, plus every key in `config.extra` (e.g. `comments`).
- * Keys already in the file keep their order; new keys follow in the order
- * above. Callers are responsible for carrying an existing `ignore`/`extra`
- * value forward — `writeConfig` never invents or drops them itself, it only
- * writes what it is given.
+ * newline: `{ "version", "gitHost", "runtimes" }`, plus `skillSets`,
+ * `packageVersion`, `ignore`, `packageManager`, `layout`, `harnessHome`,
+ * `codeRepo` and `commitConvention` when set, plus every key in
+ * `config.extra` (e.g. `comments`). Keys already in the file keep their
+ * order; new keys follow in the order above. Callers are responsible for
+ * carrying an existing `ignore`/`extra` value forward — `writeConfig` never
+ * invents or drops them itself, it only writes what it is given.
  */
 export async function writeConfig(root: string, config: Config): Promise<void> {
   const file = path.join(root, CONFIG_FILENAME);
@@ -160,6 +280,21 @@ export async function writeConfig(root: string, config: Config): Promise<void> {
   }
   if (config.ignore !== undefined) {
     fresh.ignore = config.ignore;
+  }
+  if (config.packageManager !== undefined) {
+    fresh.packageManager = config.packageManager;
+  }
+  if (config.layout !== undefined) {
+    fresh.layout = config.layout;
+  }
+  if (config.harnessHome !== undefined) {
+    fresh.harnessHome = config.harnessHome;
+  }
+  if (config.codeRepo !== undefined) {
+    fresh.codeRepo = config.codeRepo;
+  }
+  if (config.commitConvention !== undefined) {
+    fresh.commitConvention = config.commitConvention;
   }
   if (config.extra !== undefined) {
     for (const [key, value] of Object.entries(config.extra)) {

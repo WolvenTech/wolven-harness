@@ -39,4 +39,6 @@ For example, search for the npm publishing decision, exclude release troubleshoo
 
 ## Index lifecycle
 
-The `.qmd/index.yml` file defines the local collections. QMD builds and updates the actual index on the developer's machine; setup keeps the QMD local index out of Git. Setup does not install QMD or build the index: install QMD yourself, then run `qmd update` and `qmd embed`, including in any cloud agent environment that should search the repository.
+The `.qmd/index.yml` file defines the local collections. QMD builds and updates the actual index on the developer's machine; setup keeps the QMD local index out of Git (`.qmd/index.sqlite*` is not shared across clones or worktrees). Setup does not install QMD or build the index: install QMD yourself, then run `qmd update` and `qmd embed`, including in any cloud agent environment that should search the repository.
+
+A fresh **git worktree** starts with an empty local index even when the main checkout already built one. Run `qmd status` and check Documents → Total; when it shows `0 files indexed`, run `qmd update` before searching. Agents following the `qmd-first` rule perform the same self-repair automatically.

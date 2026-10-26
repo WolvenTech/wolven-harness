@@ -6,6 +6,8 @@ import { CORE_SKILLS, SET_SKILLS } from '../src/setup/skill-sets.js';
 import { makeRepo, run } from './helpers/fixture.js';
 
 const BASE = ['setup', '--git-host', 'gh', '--runtimes', 'codex'];
+const CORE_AND_SHIP = CORE_SKILLS.length + SET_SKILLS.ship.length;
+const ALL_SKILLS = CORE_AND_SHIP + SET_SKILLS.discovery.length;
 
 async function installed(dir: string): Promise<string[]> {
   return (await readdir(path.join(dir, '.agents/skills'))).sort();
@@ -23,7 +25,7 @@ test('setup-skill-sets: default without a terminal installs core and ship', asyn
   assert.equal(result.code, 0, result.stderr);
   assert.deepEqual(await installed(dir), [...CORE_SKILLS, ...SET_SKILLS.ship].sort());
   assert.deepEqual((await config(dir)).skillSets, ['ship']);
-  assert.match(result.stdout, /✔ 13 skills \(core, ship\) and 4 rules in \.agents\//);
+  assert.match(result.stdout, new RegExp(`✔ ${CORE_AND_SHIP} skills \\(core, ship\\) and 4 rules in \\.agents/`));
 });
 
 test('setup-skill-sets: --skills none installs core only', async () => {
@@ -35,16 +37,16 @@ test('setup-skill-sets: --skills none installs core only', async () => {
   assert.deepEqual(await installed(dir), [...CORE_SKILLS].sort());
   assert.ok(!(await installed(dir)).includes('code-commit'));
   assert.deepEqual((await config(dir)).skillSets, []);
-  assert.match(result.stdout, /✔ 9 skills \(core\) and 4 rules/);
+  assert.match(result.stdout, new RegExp(`✔ ${CORE_SKILLS.length} skills \\(core\\) and 4 rules`));
 });
 
-test('setup-skill-sets: --skills ship,discovery installs all twenty', async () => {
+test('setup-skill-sets: --skills ship,discovery installs every template skill', async () => {
   const dir = await makeRepo({}, { git: true });
 
   const result = await run([...BASE, '--skills=ship,discovery'], { cwd: dir });
 
   assert.equal(result.code, 0, result.stderr);
-  assert.equal((await installed(dir)).length, 20);
+  assert.equal((await installed(dir)).length, ALL_SKILLS);
   assert.deepEqual((await config(dir)).skillSets, ['ship', 'discovery']);
 });
 
@@ -82,7 +84,7 @@ test('setup-skill-sets: a TTY prompt is asked only when neither flag nor config 
 
   assert.equal(result.code, 0, result.stderr);
   assert.deepEqual(seen, [
-    ['Ship — commit, PR, review, CI', 'Discovery — PRD, prototype, handoff, fool, jury, journey map'],
+    ['Ship — commit, PR, review, CI', 'Discovery — PRD, prototype, handoff, fool, jury, journey map, wayfinder'],
   ]);
   assert.deepEqual(await installed(dir), [...CORE_SKILLS, ...SET_SKILLS.discovery].sort());
 });
@@ -94,7 +96,7 @@ test('setup-skill-sets: re-running with discovery keeps ship and adds discovery'
   const again = await run([...BASE, '--skills', 'discovery'], { cwd: dir });
 
   assert.equal(again.code, 0, again.stderr);
-  assert.equal((await installed(dir)).length, 20);
+  assert.equal((await installed(dir)).length, ALL_SKILLS);
   assert.deepEqual((await config(dir)).skillSets, ['ship', 'discovery']);
   assert.match(again.stdout, /✔ 7 skills \(discovery\) in \.agents\//);
   assert.match(again.stdout, /Left the ship skills in place/);
