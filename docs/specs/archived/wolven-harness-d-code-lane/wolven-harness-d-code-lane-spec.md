@@ -381,7 +381,7 @@ Closure for the initiative (archive the specs, plans, and PRD; ADRs `stable`; `p
 | Wizard or legacy migration inside D | Spec B |
 | Release, versions, and repo settings inside D | Spec C |
 | OMT skill edits "to match" the port | OMT unchanged |
-| Skills catalogue picker | docs/deferrals/skills-catalogue/skills-catalogue-deferral.md |
+| Skills catalogue picker | docs/deferrals/archived/skills-catalogue/skills-catalogue-deferral.md |
 | Executable plan from this skill | `code-plan` only |
 
 ## ADR

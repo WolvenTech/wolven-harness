@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { mkdir, readFile } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { test } from 'node:test';
 import { makeRepo, run } from './helpers/fixture.js';
@@ -103,35 +103,20 @@ test('setup-prompts: no-tty missing only --runtimes names just that flag', async
   assert.doesNotMatch(result.stderr, /--git-host/);
 });
 
-test('setup-prompts: subdir exits 1 and creates nothing', async () => {
-  const dir = await makeRepo({ 'README.md': '# fixture\n' }, { git: true });
-  const subdir = path.join(dir, 'sub');
-  await mkdir(subdir);
-
-  const before = (await walkFiles(dir)).sort();
-  const result = await run(['setup', '--git-host', 'gh', '--runtimes', 'claude'], {
-    cwd: subdir,
-    isTTY: false,
-  });
-  const after = (await walkFiles(dir)).sort();
-
-  assert.equal(result.code, 1);
-  assert.deepEqual(after, before);
-});
-
-test('setup-prompts: non-git dir exits 1 and creates nothing', async () => {
+test('setup-prompts: a folder outside any repository runs the outside mode', async () => {
   const dir = await makeRepo({ 'README.md': '# fixture\n' });
 
-  const before = (await walkFiles(dir)).sort();
   const result = await run(['setup', '--git-host', 'gh', '--runtimes', 'claude'], {
     cwd: dir,
     isTTY: false,
   });
-  const after = (await walkFiles(dir)).sort();
 
-  assert.equal(result.code, 1);
-  assert.deepEqual(after, before);
-  assert.equal(await configExists(dir), false);
+  assert.equal(result.code, 0, result.stderr);
+  assert.equal(await configExists(dir), true);
+  assert.equal(await readFile(path.join(dir, 'README.md'), 'utf8'), '# fixture\n');
+  const files = (await walkFiles(dir)).sort();
+  assert.ok(files.includes('.agents/skills/harness-init/SKILL.md'));
+  assert.equal(files.includes('WOLVEN.md'), false);
 });
 
 test('setup-config: re-run reads .wolven-harness.json without prompting', {
@@ -192,6 +177,63 @@ test('setup-config: a hand-added ignore key survives the re-run', async () => {
 
   const config = await readConfigFile(dir);
   assert.deepEqual(config.ignore, ['templates/**', 'test/**']);
+});
+
+test('proof-install-experience-config-rerun', async () => {
+  const preserved = {
+    ignore: ['templates/**', 'test/**'],
+    layout: 'home',
+    codeRepo: '../client',
+    commitConvention: { style: 'pattern', pattern: '^TASK-[0-9]+:', example: 'TASK-42: add feature' },
+    comments: { paths: ['src/**', 'test/**'] },
+    custom: { enabled: true },
+  };
+  const initial = {
+    version: 1,
+    gitHost: 'bit',
+    runtimes: ['codex'],
+    ...preserved,
+  };
+  const dir = await makeRepo({ '.wolven-harness.json': `${JSON.stringify(initial)}\n` }, { git: true });
+
+  const result = await run(['setup', '--git-host', 'gh', '--runtimes', 'claude'], { cwd: dir, isTTY: false });
+
+  assert.equal(result.code, 0, result.stderr);
+  const config = await readConfigFile(dir);
+  for (const [key, value] of Object.entries(preserved)) assert.deepEqual(config[key], value, key);
+  assert.deepEqual(
+    Object.keys(config).filter((key) => Object.hasOwn(preserved, key)),
+    Object.keys(initial).filter((key) => Object.hasOwn(preserved, key)),
+  );
+  assert.equal(config.version, 1);
+  assert.equal(config.gitHost, 'gh');
+  assert.deepEqual(config.runtimes, ['claude']);
+  assert.deepEqual(config.skillSets, ['ship']);
+  assert.equal(typeof config.packageVersion, 'string');
+  assert.ok((config.packageVersion as string).length > 0);
+  assert.equal(config.packageManager, 'none');
+});
+
+test('proof-install-experience-config-rerun-linked', async () => {
+  const dir = await makeRepo(
+    {
+      '.wolven-harness.json': `${JSON.stringify({
+        version: 1,
+        gitHost: 'bit',
+        runtimes: ['codex'],
+        layout: 'linked',
+        harnessHome: '..',
+      })}\n`,
+    },
+    { git: true },
+  );
+
+  const result = await run(['setup'], { cwd: dir, isTTY: false });
+
+  assert.equal(result.code, 0, result.stderr);
+  const config = await readConfigFile(dir);
+  assert.equal(config.layout, 'linked');
+  assert.equal(config.harnessHome, '..');
 });
 
 test('setup-config: version is 1', async () => {

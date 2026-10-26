@@ -42,7 +42,7 @@ O `WolvenTech/agentic-mkt` instala o pacote, integra o `WOLVEN.md` ao seu `AGENT
 
 ## Out of scope
 
-- Catálogo de skills (docs/deferrals/skills-catalogue/skills-catalogue-deferral.md)
+- Catálogo de skills (docs/deferrals/archived/skills-catalogue/skills-catalogue-deferral.md)
 - App sales-charter como dogfood (docs/deferrals/wolven-harness-sales-charter-dogfood.md)
 - Publicação open source, skills de board/ClickUp, cânone de Area, `okf-qmd-kit`
 - Agentes dedicados (builder/writer/conselho) no pacote

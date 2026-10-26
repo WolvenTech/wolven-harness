@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
+import { lstat, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { test } from 'node:test';
 import { applyTemplates } from '../src/setup/apply.js';
@@ -275,4 +275,13 @@ test('setup-script: no package.json means no change', async () => {
 
   assert.deepEqual(result, { created: [], skipped: [] });
   assert.equal(await fileExists(path.join(root, 'package.json')), false);
+});
+
+test('proof-install-experience-no-manifest: root and outside runs write no manifest', async () => {
+  for (const git of [true, false]) {
+    const dir = await makeRepo({}, { git });
+    const result = await run(['setup', '--git-host', 'gh', '--runtimes', 'claude'], { cwd: dir });
+    assert.equal(result.code, 0, result.stderr);
+    await assert.rejects(lstat(path.join(dir, '.wolven-harness.manifest.json')), { code: 'ENOENT' });
+  }
 });

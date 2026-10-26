@@ -172,7 +172,7 @@ history; D1 narrows, and D2, D12 and D16 stand.
 
 Rafael revised the scope on 2026-10-13, after reviewing a three-layout
 prototype of cj_001 (grid, mood spine, stage cards), now kept in
-`docs/deferrals/service-blueprint/prototype/`. These decisions replace
+`docs/deferrals/archived/service-blueprint/prototype/`. These decisions replace
 D4–D11, D13–D15 and the Recommendation below. D1 narrows, D2 and D16
 stand, and D12 holds without the rename.
 
@@ -182,8 +182,8 @@ stand, and D12 holds without the rename.
 | R2 | A user journey is a flow: an action path drawn like the CLI prompt tree. There is no separate `journey` kind and no typed sub-formats. |
 | R3 | Any step may carry an optional mood from −2 to +2, shown as 🙁 😕 😐 🙂 😃 with a colour, plus an optional thought, touchpoints, pains and opportunities. A map may add a persona header and a slim mood strip under the walked path. |
 | R4 | A Next and Back stepper comes in only if the spec finds it cheap. Otherwise it is dropped. |
-| R5 | Architecture diagrams go to a deferred `architectural-map` skill (`docs/deferrals/architectural-map/`). |
-| R6 | Journey grids and service blueprints go to a deferred `service-blueprint` skill (`docs/deferrals/service-blueprint/`). The prototype is its primary source. |
+| R5 | Architecture diagrams stay outside journey-map; their deferral was promoted to the [architectural-map draft PRD](../../prds/architectural-map/architectural-map-prd.md) on 2026-10-22. |
+| R6 | Journey grids and service blueprints go to a deferred `service-blueprint` skill (`docs/deferrals/archived/service-blueprint/`). The prototype is its primary source. |
 | R7 | A second prototype, on cj_001 drawn as a path, tries combinations of journey details and expanded and collapsed states before the spec. |
 | R8 | The second prototype ran three rounds and Rafael approved its layout H ([journey-details-prototype/ at `385d5fc`](https://github.com/WolvenTech/wolven-harness/tree/385d5fcc88a86d58f448b9f2db3a8199659be84e/docs/notes/visual-map-kinds/journey-details-prototype), [published](https://claude.ai/artifact/XKt1gaaCPo3FwbwGagto4t)). A mood header band, a thought cloud above the card, collapsible details with pains and ideas as stickies, mood-coloured arrows, a docked mood timeline, Prev and Next, and a toolbar trimmed to two buttons plus a menu. The journey-map PRD's US-5 records it. |
 
@@ -196,7 +196,7 @@ validator and its own layout. This follows the split between model, view
 and layout that Structurizr uses
 ([Structurizr DSL](https://docs.structurizr.com/dsl/language)). It keeps
 one copy of the shared code, because each skill must install on its own
-(`docs/adrs/adr-004-standalone-skills-contract.md`).
+(`docs/adrs/adr-006-install-check-and-repair-contract.md`).
 
 Every file carries `version`, `kind`, `title`, `subtitle` and `walk`
 (`steps` or `whole`).
@@ -267,7 +267,7 @@ and plan are revised on the held branch (D12).
 | `templates/.agents/skills/journey-map/references/tree-format.md` | source code | Feedback text format |
 | `templates/.agents/skills/journey-map/SKILL.md` | source code | The anti-pattern the first test map broke |
 | `docs/prds/archived/journey-map/journey-map-prd.md` | repo doc | The "not the UX artifact" scope line |
-| `docs/adrs/adr-004-standalone-skills-contract.md` | ADR | Skills install on their own |
+| `docs/adrs/adr-006-install-check-and-repair-contract.md` | ADR | Skills install on their own |
 | `docs/notes/visual-map-kinds/cj-001-source.json`, [`cj-001-test-map.json` at `385d5fc`](https://github.com/WolvenTech/wolven-harness/blob/385d5fcc88a86d58f448b9f2db3a8199659be84e/docs/notes/visual-map-kinds/cj-001-test-map.json) | test data | The cj_001 test and its findings |
 | https://www.nngroup.com/articles/journey-mapping-101/ | method reference | Journey map parts, emotion line |
 | https://www.nngroup.com/articles/ux-mapping-cheat-sheet/ | method reference | Swim-lane structure of journey maps and blueprints |

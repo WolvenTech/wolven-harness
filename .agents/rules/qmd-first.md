@@ -50,7 +50,9 @@ qmd query "<question>"               # 2. widen only if ADRs miss
    the file. Read that file before treating the indexed body as the decision.
    When the index and the file disagree, name neither number as the limit to
    use.
-3. Only then use the web.
+3. When a harness tool such as `qmd` fails, tell the Human which tool failed
+   and the error before using a fallback.
+4. Only then use the web.
 
 Setup lives in `.qmd/index.yml`. After you write to `docs/`, run `qmd update`,
 then `qmd embed` if content changed.
