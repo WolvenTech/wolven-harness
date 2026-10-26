@@ -2,7 +2,7 @@
 type: prd
 title: QMD Empty Index Handling in Fresh Worktrees
 description: Ensure agents in fresh worktrees or newly initialized repos can detect and repair an unpopulated QMD index so qmd-first reliably searches local architecture decisions.
-status: draft
+status: stable
 ---
 
 # QMD Empty Index Handling in Fresh Worktrees
