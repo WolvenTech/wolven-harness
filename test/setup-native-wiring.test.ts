@@ -277,7 +277,8 @@ test('proof-install-experience-inline-rules', async () => {
   const cursorDir = await makeRepo({}, { git: true });
   const cursor = await run(['setup', '--git-host', 'gh', '--runtimes', 'codex,cursor'], { cwd: cursorDir });
   assert.equal(cursor.code, 0, cursor.stderr);
-  await assertAbsent(cursorDir, ['.cursor']);
+  await assertAbsent(cursorDir, ['.cursor/rules']);
+  assert.ok((await lstat(path.join(cursorDir, '.cursor', 'hooks.json'))).isFile());
 });
 
 test('proof-install-experience-rules-create-only', async () => {

@@ -14,6 +14,47 @@ asks for permission; a deny is final, and the agent asks the Human instead.
 
 Run it as `node .agents/hooks/secret-path-guard.mjs` from the repo root.
 
+`wolven-harness setup` wires it for Cursor and Claude Code when it selects
+them and the runtime's hook config file does not exist yet. When that file
+already exists, `setup` leaves it untouched; add the entry below by hand.
+
+### Cursor — `.cursor/hooks.json`
+
+Add the guard to the `beforeReadFile` and `beforeShellExecution` lists,
+keeping any hooks already there:
+
+```json
+{
+  "version": 1,
+  "hooks": {
+    "beforeReadFile": [{ "command": "node .agents/hooks/secret-path-guard.mjs" }],
+    "beforeShellExecution": [{ "command": "node .agents/hooks/secret-path-guard.mjs" }]
+  }
+}
+```
+
+### Claude Code — `.claude/settings.json`
+
+Add one entry to `hooks.PreToolUse`, keeping any settings already there:
+
+```json
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|Read|Grep|Glob",
+        "hooks": [
+          { "type": "command", "command": "node \"$CLAUDE_PROJECT_DIR/.agents/hooks/secret-path-guard.mjs\"" }
+        ]
+      }
+    ]
+  }
+}
+```
+
+Other runtimes have no hook wired yet and rely on the
+`.agents/rules/secrets.md` standing rule.
+
 ## secret-paths.mjs
 
 The shared pattern list: `isSecretPath` classifies one path and

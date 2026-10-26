@@ -128,16 +128,17 @@ test('runtime-wiring: existing CLAUDE.md byte-identical', async () => {
   assert.ok(result.skipped.includes('CLAUDE.md'));
 });
 
-test('runtime-wiring: codex,cursor create no runtime dirs', async () => {
+test('runtime-wiring: codex,cursor create only the cursor hook config', async () => {
   const dir = await makeRepo({ 'AGENTS.md': '# AGENTS\n' });
   const ctx = makeCtx(dir);
 
   const result = await wireRuntimes(opts(['codex', 'cursor']), ctx);
 
-  for (const rel of ['.claude', '.codex', '.cursor']) {
+  for (const rel of ['.claude', '.codex', '.cursor/rules']) {
     await assert.rejects(fs.lstat(path.join(dir, rel)), `${rel} does not exist`);
   }
-  assert.deepEqual(result.created, []);
+  assert.deepEqual(await fs.readdir(path.join(dir, '.cursor')), ['hooks.json']);
+  assert.deepEqual(result.created, ['.cursor/hooks.json']);
   assert.deepEqual(result.skipped, []);
 });
 
@@ -161,14 +162,15 @@ test('runtime-wiring: symlink failure exits 1 naming macOS/Linux', async () => {
   }
 });
 
-test('runtime-wiring: end-to-end codex,cursor via CLI creates no runtime dirs', async () => {
+test('runtime-wiring: end-to-end codex,cursor via CLI creates only the cursor hook config', async () => {
   const dir = await makeRepo({ 'AGENTS.md': '# AGENTS\n' }, { git: true });
 
   await run(['setup', '--git-host', 'gh', '--runtimes', 'codex,cursor'], { cwd: dir });
 
-  for (const rel of ['.claude', '.codex', '.cursor']) {
+  for (const rel of ['.claude', '.codex', '.cursor/rules']) {
     await assert.rejects(fs.lstat(path.join(dir, rel)), `${rel} does not exist`);
   }
+  assert.deepEqual(await fs.readdir(path.join(dir, '.cursor')), ['hooks.json']);
 });
 
 test('runtime-wiring: runtimes page cites three URLs; README install lines cite macOS/Linux', async () => {

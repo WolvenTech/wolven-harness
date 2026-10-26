@@ -3,6 +3,8 @@ import { readdirSync, readFileSync, statSync } from 'node:fs';
 import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
+import { isDeepStrictEqual } from 'node:util';
+import { runtimeRow } from '../src/setup/runtimes.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, '..');
@@ -93,17 +95,29 @@ test('seed-extract: skills have name and description', () => {
   }
 });
 
-test('seed-extract: hooks README names no hook', () => {
+test('proof-secret-path-guard-manual-wiring-docs: hooks README documents the guard and its manual wiring', () => {
   const readme = files.find((f) => f.rel === path.join('hooks', 'README.md'))!;
   assert.ok(readme, 'hooks/README.md exists');
 
-  // No hook filenames.
-  assert.doesNotMatch(readme.content, /\.sh\b/);
-  assert.doesNotMatch(readme.content, /\.json\b/);
-
-  // No lifecycle hook event names.
-  assert.doesNotMatch(
-    readme.content,
-    /PreToolUse|PostToolUse|UserPromptSubmit|SessionStart|SessionEnd|Notification|Stop|SubagentStop/,
+  const hookFiles = relFiles.filter(
+    (rel) => rel.startsWith(`hooks${path.sep}`) && rel !== path.join('hooks', 'README.md'),
   );
+  assert.deepEqual(hookFiles.sort(), [
+    path.join('hooks', 'secret-path-guard.mjs'),
+    path.join('hooks', 'secret-paths.mjs'),
+  ]);
+  for (const rel of hookFiles)
+    assert.ok(readme.content.includes(`## ${path.basename(rel)}`), `README documents ${rel}`);
+  assert.doesNotMatch(readme.content, /\.sh\b/, 'no shell hook ships');
+  assert.match(readme.content, /\.agents\/rules\/secrets\.md/);
+
+  const jsonBlocks = [...readme.content.matchAll(/```json\n([\s\S]*?)```/g)].map((m) => JSON.parse(m[1]) as unknown);
+  for (const id of ['cursor', 'claude'] as const) {
+    const hookConfig = runtimeRow(id).hookConfig!;
+    assert.ok(readme.content.includes(`\`${hookConfig.path}\``), `README names ${hookConfig.path}`);
+    assert.ok(
+      jsonBlocks.some((block) => isDeepStrictEqual(block, JSON.parse(hookConfig.content))),
+      `README shows exactly what setup writes to ${hookConfig.path}`,
+    );
+  }
 });

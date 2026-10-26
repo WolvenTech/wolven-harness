@@ -158,18 +158,18 @@ Traces to PRD scope **In** and resolved rule-only runtimes decision.
 
 ### Wave 1
 
-- [ ] `secrets.md` template and harness-home copy ship with `alwaysApply: true` (pairs with R1.1, `proof-secret-path-guard-secrets-rule`)
-- [ ] `secret-paths.mjs` implements the #80 pattern list, `.env.example` allowance, and shell forms (pairs with R2.1–R2.3, `proof-secret-path-guard-pattern-list`, `proof-secret-path-guard-env-example-allow`, `proof-secret-path-guard-shell-forms`)
-- [ ] No new runtime npm dependency (pairs with R2.4, `proof-secret-path-guard-no-runtime-dep`)
-- [ ] `secret-path-guard.mjs` denies read/shell on secret paths, allows `.env.example`, never asks (pairs with R3.1–R3.4, `proof-secret-path-guard-deny-read-pem`, `proof-secret-path-guard-deny-shell-cat`, `proof-secret-path-guard-allow-env-example`, `proof-secret-path-guard-no-ask-hook`)
+- [x] `secrets.md` template and harness-home copy ship with `alwaysApply: true` (pairs with R1.1, `proof-secret-path-guard-secrets-rule`)
+- [x] `secret-paths.mjs` implements the #80 pattern list, `.env.example` allowance, and shell forms (pairs with R2.1–R2.3, `proof-secret-path-guard-pattern-list`, `proof-secret-path-guard-env-example-allow`, `proof-secret-path-guard-shell-forms`)
+- [x] No new runtime npm dependency (pairs with R2.4, `proof-secret-path-guard-no-runtime-dep`)
+- [x] `secret-path-guard.mjs` denies read/shell on secret paths, allows `.env.example`, never asks (pairs with R3.1–R3.4, `proof-secret-path-guard-deny-read-pem`, `proof-secret-path-guard-deny-shell-cat`, `proof-secret-path-guard-allow-env-example`, `proof-secret-path-guard-no-ask-hook`)
 
 ### Wave 2
 
-- [ ] `setup` copies hook and rule templates (pairs with R4.1, `proof-secret-path-guard-setup-templates`)
-- [ ] Cursor and Claude Code hook wiring when selected; skip when config exists with README manual steps (pairs with R4.2–R4.5, `proof-secret-path-guard-cursor-wiring`, `proof-secret-path-guard-claude-wiring`, `proof-secret-path-guard-manual-wiring-docs`)
-- [ ] Codex-only setup does not write hook JSON (pairs with R4.4, `proof-secret-path-guard-no-hook-for-inline-only`)
-- [ ] Inline rules list includes `secrets.md` (pairs with R1.2, `proof-secret-path-guard-inline-rules-list`)
-- [ ] Full gate suite green (pairs with R5.1, `proof-secret-path-guard-gates-pass`)
+- [x] `setup` copies hook and rule templates (pairs with R4.1, `proof-secret-path-guard-setup-templates`)
+- [x] Cursor and Claude Code hook wiring when selected; skip when config exists with README manual steps (pairs with R4.2–R4.5, `proof-secret-path-guard-cursor-wiring`, `proof-secret-path-guard-claude-wiring`, `proof-secret-path-guard-manual-wiring-docs`)
+- [x] Codex-only setup does not write hook JSON (pairs with R4.4, `proof-secret-path-guard-no-hook-for-inline-only`)
+- [x] Inline rules list includes `secrets.md` (pairs with R1.2, `proof-secret-path-guard-inline-rules-list`)
+- [x] Full gate suite green (pairs with R5.1, `proof-secret-path-guard-gates-pass`)
 
 ## Eval / gates
 
