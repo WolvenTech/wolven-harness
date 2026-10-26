@@ -49,7 +49,7 @@ The Human liked all three. B's spine reappears in `journey-map` only as a slim, 
 
 ## Contract impact
 
-A new skill in a skill set is outside the public contract (ADR-005). It needs a set entry, the partition test and listings, like any skill.
+A new skill in a skill set is outside the public contract (ADR-006). It needs a set entry, the partition test and listings, like any skill.
 
 Every skill installs on its own, so it can't load `journey-map`'s renderer. It ships its own copy of the canvas, notes and feedback code, or a later decision makes that code a shared install.
 

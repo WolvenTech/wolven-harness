@@ -57,7 +57,7 @@ The spec has no blocking rows. It carries one non-blocking row:
 
 ## Work units
 
-Subagent *(omit)* = the builder default (ADR-004/ADR-005), spawned with `model: sonnet`.
+Subagent *(omit)* = the builder default (ADR-004/ADR-006), spawned with `model: sonnet`.
 
 ### Wave A1 — scaffold, init, templates, runtime wiring
 

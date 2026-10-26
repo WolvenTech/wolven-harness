@@ -29,7 +29,7 @@ original scope and triggers below are retained as history, not active work.
 
 ## Contract impact
 
-[ADR-005](../../../adrs/adr-005-install-anywhere-contract.md) does not freeze which tokens count as claims. Still, accepting 4-digit tokens can raise new `claim-missing` errors in a repo that passes today, so it needs a deprecation release that warns first.
+[ADR-006](../../../adrs/adr-006-install-check-and-repair-contract.md) does not freeze which tokens count as claims. Still, accepting 4-digit tokens can raise new `claim-missing` errors in a repo that passes today, so it needs a deprecation release that warns first.
 
 ## Triggers
 

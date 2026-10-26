@@ -23,7 +23,7 @@ original scope and triggers below are retained as history, not active work.
 
 ## Contract impact
 
-The change policy in [ADR-005](../../../adrs/adr-005-install-anywhere-contract.md) explicitly allows a new runtime id as an additive change. A successor is not required solely for a new id; any other behavior must be checked against that policy. `skills --runtimes` still has its separate three-value contract. Nothing here edits that ADR or authorizes either command's expansion.
+The change policy in [ADR-006](../../../adrs/adr-006-install-check-and-repair-contract.md) explicitly allows a new runtime id as an additive change. A successor is not required solely for a new id; any other behavior must be checked against that policy. `skills --runtimes` still has its separate three-value contract. Nothing here edits that ADR or authorizes either command's expansion.
 
 ## Triggers
 

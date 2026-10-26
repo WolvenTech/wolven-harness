@@ -2,12 +2,12 @@
 type: spec
 title: Install and use experience
 description: A runtime registry that wires the router and rules natively in each agent runtime, setup from any folder, package-manager-neutral commands, a harness-init that adapts layout and commit convention, and a doctor command and skill backed by a hash manifest.
-status: stable
+status: deprecated
 ---
 
 # Install and use experience
 
-**Source:** `docs/prds/install-experience/install-experience-prd.md` (status `stable`).
+**Source:** `docs/prds/archived/install-experience/install-experience-prd.md` (status `deprecated`).
 **Research:** `docs/notes/runtime-instruction-loading/runtime-instruction-loading-note.md` and `docs/notes/skill-load-paths/skill-load-paths-note.md`.
 **Next:** After the Human approves → `code-plan` → `code-execute`, waves **1 → 2 → 3 → 4**.
 **Named proof (this spec's own structural gate):** `proof-install-experience-spec-obligations`
@@ -44,7 +44,7 @@ status: stable
 | `templates/.agents/skills/wayfinder/SKILL.md` (`pnpm exec`) | yes | Package-manager-neutral command |
 | `templates/.agents/skills/harness-doctor/` | no | New core skill |
 | `test/contract.test.ts`, `test/setup-*.test.ts`, `test/harness-init-*.test.ts`, `test/readme-install.test.ts` | yes | Extended; existing cases are the regression floor |
-| The previous public-contract ADR | yes, `stable` until wave 3 | Superseded by ADR-005 (see ADR) |
+| The previous public-contract ADR | yes, `stable` until wave 3 | Superseded by ADR-006 (see ADR) |
 | `docs/deferrals/setup-drift-check/setup-drift-check-deferral.md` | yes | Fulfilled by the doctor drift report; deleted when it ships |
 
 ## Surface walk
@@ -122,7 +122,7 @@ Traces to PRD US-1 (AC-1.1, AC-1.2, AC-1.3).
 
 | ID | Obligation | Named proof | Evidence shape |
 |----|------------|--------------|------------------|
-| R3.1 | At a git top-level, `setup` behaves as ADR-005 records, plus R1, R2, R4 and the manifest (R7.3) | `proof-install-experience-root-unchanged` | The existing `test/setup-*.test.ts` and `test/contract.test.ts` cases pass unchanged except where a later row names the change |
+| R3.1 | At a git top-level, `setup` behaves as ADR-006 records, plus R1, R2, R4 and the manifest (R7.3) | `proof-install-experience-root-unchanged` | The existing `test/setup-*.test.ts` and `test/contract.test.ts` cases pass unchanged except where a later row names the change |
 | R3.2 | Outside a git top-level (no repository, or a subfolder), `setup` writes only the core skills to `.agents/skills/` (including `harness-init` and `harness-doctor`), each selected runtime's skills wiring, `.wolven-harness.json` and the manifest (R7.3). It writes no `docs/`, `WOLVEN.md`, `.qmd/` or rules. It exits 0, and its next step says to open the agent in this folder and run `harness-init` | `proof-install-experience-outside-root` | `test/setup-outside-root.test.ts`: in a temp dir with no `.git`, the written path set equals exactly those paths; exit 0; the next-step text names `harness-init` |
 | R3.3 | When `setup` or `doctor` runs from a non-global location (an `npx` cache or a project `node_modules/.bin`), its output recommends the global install in the detected package manager's form | `proof-install-experience-global-hint` | `test/setup-outside-root.test.ts` with an injected executable path under `node_modules/.bin`: the output contains the global install command |
 
@@ -193,7 +193,7 @@ Traces to PRD US-6 (AC-6.1 to AC-6.4).
 | validation | obligation | `--runtimes`, `--package-manager` and the new config keys are validated before any write. An unknown value exits 1 naming the flag or key (R1.2, R4.1, R9.1); `proof-install-experience-contract` covers the config rules |
 | failure modes | obligation | A symlink that cannot be created raises the existing `SetupError` and exits 1 (`wireClaudeSkillsSymlink` pattern, extended to every symlink in R1.1 and R5.2). An unreadable file during `doctor` is an error finding for that check, not a crash (`proof-install-experience-doctor-checks`) |
 | idempotency and retry | obligation | `setup` stays create-only. A re-run adds only missing native wiring and manifest entries (R2.2, R7.3). `harness-init` finds an existing start marker and refreshes the section instead of adding a second one (R2.4). `doctor` is read-only (R7.5) |
-| authorization | n/a | No new credential or permission surface. The linked layout's symlinks point inside the open folder, so Claude Code's external-import approval does not apply (`runtime-instruction-loading` note). The unchanged surface is `src/skills/**`, whose global-path writes stay as ADR-005 records |
+| authorization | n/a | No new credential or permission surface. The linked layout's symlinks point inside the open folder, so Claude Code's external-import approval does not apply (`runtime-instruction-loading` note). The unchanged surface is `src/skills/**`, whose global-path writes stay as ADR-006 records |
 | concurrency and ordering | n/a | The CLI is a single process with no shared state between runs. The unchanged surface is `src/cli.ts`'s one-command-per-process dispatch |
 | data lifecycle | obligation | The manifest is created by `setup`, updated only by `harness-doctor` refreshes (R8.2), and never by `doctor`. Generated rule files carry the `wolven-` prefix so they can be found and removed. `.wolven-harness.json` keeps preserving unknown keys (R9.1) |
 | external-dependency failure | obligation | Missing `qmd` or missing `git` is a `doctor` error with a fix line (R7.1). The drift report needs no network: it uses the manifest, not the npm registry (R7.4). Runtime documentation that changes is absorbed by editing one registry row (R1.1) |
@@ -294,7 +294,7 @@ Traces to PRD US-6 (AC-6.1 to AC-6.4).
 
 ## ADR
 
-This spec changes the public contract, so it owes a successor to the previous contract ADR, created through the `adr` skill. It is a draft until the Human confirms it, then promoted. The supersede steps run in wave 3: repoint the claims to ADR-005 and deprecate the previous contract ADR. Until the new ADR is `stable`, this spec refers to it only as ADR-NNN.
+This spec changes the public contract, so it owes a successor to the previous contract ADR, created through the `adr` skill. It is a draft until the Human confirms it, then promoted. The supersede steps run in wave 3: repoint the claims to ADR-006 and deprecate the previous contract ADR. Until the new ADR is `stable`, this spec refers to it only as ADR-NNN.
 
 ## Section checklist
 

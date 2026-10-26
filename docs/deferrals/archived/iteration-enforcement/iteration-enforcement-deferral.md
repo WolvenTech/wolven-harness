@@ -20,11 +20,11 @@ from 1 with no gap, and promoting `profile-iteration-doc` from warn to error.
 
 **Why:** the agent picks the next free N, so a gap needs a hand-renamed file,
 and none exists yet. Per
-[ADR-005](../../../adrs/adr-005-install-anywhere-contract.md), an error-level finding is
+[ADR-006](../../../adrs/adr-006-install-check-and-repair-contract.md), an error-level finding is
 a breaking change.
 
 ## Triggers
 
 - [ ] A real repo has an iteration-number gap that confused a review round
 - [ ] Someone asks for iteration-doc violations to fail CI (needs a
-  superseding ADR per ADR-005)
+  superseding ADR per ADR-006)

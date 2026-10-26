@@ -9,7 +9,7 @@ status: stable
 
 **Deferred:** taking every install decision by flag (layout, code repository, commit convention, runtimes) so a script can produce a working install with no prompts and no agent session. This is for a machine image, such as a shared cloud desktop that arrives with the harness ready.
 
-**Why:** the preinstalled machine is an idea with no date. The [install experience PRD](../../prds/install-experience/install-experience-prd.md) moves the layout and convention decisions into `harness-init`, which runs inside an agent, so a script-only path would need a second way to make those decisions before anyone needs it.
+**Why:** the preinstalled machine is an idea with no date. The [install experience PRD](../../prds/archived/install-experience/install-experience-prd.md) moves the layout and convention decisions into `harness-init`, which runs inside an agent, so a script-only path would need a second way to make those decisions before anyone needs it.
 
 **Today:** `setup` already takes its own choices by flag when stdin or stdout is not a terminal. [PR #75](https://github.com/WolvenTech/wolven-harness/pull/75) also supports setup outside a repository; neither behavior replaces the agent's layout and convention decisions in `harness-init`. Scriptable `doctor` checks belong to still-open [PR #76](https://github.com/WolvenTech/wolven-harness/pull/76), not the merged CLI.
 

@@ -82,6 +82,9 @@ jobs:
     steps:
       - name: Check out
         uses: actions/checkout@v7
+        with:
+          # why: doctor fixtures read release tags to exercise historical template drift.
+          fetch-depth: 0
 
       - name: Set up pnpm
         uses: pnpm/action-setup@v6

@@ -68,7 +68,7 @@ directories for companion authorization.
 
 No contract change while deferred. A plugin manifest or copied tree is not
 itself a new CLI contract. Any new command, runtime or config value follows
-[ADR-005](../../../adrs/adr-005-install-anywhere-contract.md)'s change policy.
+[ADR-006](../../../adrs/adr-006-install-check-and-repair-contract.md)'s change policy.
 Changing companion authorization needs its own explicit requirements.
 
 Grok product support remains a separate

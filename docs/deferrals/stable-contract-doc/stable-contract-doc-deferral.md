@@ -9,7 +9,7 @@ status: stable
 
 **Deferred:** extracting the normative CLI contract (commands, flags, exit codes, finding codes, summary lines, and `.wolven-harness.json` schema) out of numbered ADRs into a single version-agnostic contract document, and adding a separate consumer-facing contract page with finding-code meanings.
 
-**Why:** the active contract ADR (`ADR-005`) is pinned by `test/contract.test.ts` and the install-experience delivery obligations (`R9.1`). A second normative file would require moving that authority and its proofs deliberately. A separate reader page would duplicate the existing CLI reference without a recorded reader request. These are distinct changes: asking what a finding means does not by itself justify moving the normative contract.
+**Why:** the active contract ADR (`ADR-006`) is pinned by `test/contract.test.ts` and the install-experience delivery obligations (`R9.1`). A second normative file would require moving that authority and its proofs deliberately. A separate reader page would duplicate the existing CLI reference without a recorded reader request. These are distinct changes: asking what a finding means does not by itself justify moving the normative contract.
 
 **Today:** human-facing guide pages (`site/release.md`, `site/commands.md`) point to the CLI reference instead of hardcoding a numbered ADR link, while `test/contract.test.ts` continues to verify the normative contract ADR in `docs/adrs/`.
 

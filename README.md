@@ -25,7 +25,7 @@ yarn global add @wolven-tech/harness
 pnpm add -g @wolven-tech/harness
 ```
 
-You need Node 22 or later, git, and macOS or Linux. 
+You need Node 22 or later, git, and macOS or Linux.
 
 Then run setup from the top level of a Git repository, or from any folder near your repo code:
 
@@ -36,6 +36,8 @@ wolven-harness setup
 The setup will guide you through the installation choices and then write the chosen skills, rules and commands, their runtime links, and record your choices. Then you can run your agent in that folder and ask for `harness-init`.
 
 Running `npx @wolven-tech/harness setup` works without a global install, but setup then recommends the global install so you can use other commands like `skills` and `validate`.
+
+Run `wolven-harness doctor` to check a wired install. It reports findings and exits 1 when an error needs attention. The core `harness-doctor` skill explains each finding and how to repair it with your approval.
 
 ## Setup
 

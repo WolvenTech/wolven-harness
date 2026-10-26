@@ -214,6 +214,28 @@ test('proof-install-experience-config-rerun', async () => {
   assert.equal(config.packageManager, 'none');
 });
 
+test('proof-install-experience-config-rerun-linked', async () => {
+  const dir = await makeRepo(
+    {
+      '.wolven-harness.json': `${JSON.stringify({
+        version: 1,
+        gitHost: 'bit',
+        runtimes: ['codex'],
+        layout: 'linked',
+        harnessHome: '..',
+      })}\n`,
+    },
+    { git: true },
+  );
+
+  const result = await run(['setup'], { cwd: dir, isTTY: false });
+
+  assert.equal(result.code, 0, result.stderr);
+  const config = await readConfigFile(dir);
+  assert.equal(config.layout, 'linked');
+  assert.equal(config.harnessHome, '..');
+});
+
 test('setup-config: version is 1', async () => {
   const dir = await makeRepo({}, { git: true });
 

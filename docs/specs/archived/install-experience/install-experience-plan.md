@@ -2,13 +2,13 @@
 type: spec
 title: Install and use experience — plan
 description: Ordered work units for the install-experience spec, in four gated waves. Wave 1 loads rules in every runtime, wave 2 runs setup anywhere, wave 3 adds doctor and supersedes the contract, and wave 4 adds the harness-init layout steps, harness-doctor and docs.
-status: stable
+status: deprecated
 ---
 
 # Install and use experience — plan
 
-**Spec:** `docs/specs/install-experience/install-experience-spec.md` (status `stable`).
-**Contract:** ADR-005 (`docs/adrs/adr-005-install-anywhere-contract.md`, status `stable`).
+**Spec:** `docs/specs/archived/install-experience/install-experience-spec.md` (status `deprecated`).
+**Contract:** ADR-006 (`docs/adrs/adr-006-install-check-and-repair-contract.md`, status `stable`).
 
 ## Structural gate
 
@@ -39,17 +39,17 @@ template owns both copies.
 | 05 | `step0-pending` keys on the marker | — | `src/validate/spine.ts`, `test/spine.test.ts` | `spawn` | [x] An `AGENTS.md` with only the mention line warns `step0-pending`, and one with the markers doesn't. Proof: `proof-install-experience-step0-marker` |
 | 06 | **Wave 1 gate** | 03, 04, 05 | — | `inline` | [x] Proofs of units 01 to 05 pass. `pnpm build && pnpm test && pnpm lint && pnpm validate && pnpm comments` pass. On failure, **abort** before wave 2 |
 | 07 | Runtime detection and confirmation | 06 | `src/setup/options.ts` (detection, prompt initial values, `--runtimes` values), `test/setup-runtimes.test.ts` | `spawn` | [x] On a TTY, the prompt pre-selects runtimes whose markers exist. With no markers, nothing is pre-selected. `--runtimes` accepts every registry id. Proofs: `proof-install-experience-detect`, `proof-install-experience-detect-none` |
-| 08 | Config accepts the new optional keys | 06 | `src/setup/config.ts`, `test/config-keys.test.ts` | `spawn` | [x] `packageManager`, `layout`, `harnessHome`, `codeRepo` and `commitConvention` validate per ADR-005's config table. Bad values exit 1 naming the key. Existing configs still load. Proof: `proof-install-experience-contract` (config rows) |
+| 08 | Config accepts the new optional keys | 06 | `src/setup/config.ts`, `test/config-keys.test.ts` | `spawn` | [x] `packageManager`, `layout`, `harnessHome`, `codeRepo` and `commitConvention` validate per ADR-006's config table. Bad values exit 1 naming the key. Existing configs still load. Proof: `proof-install-experience-contract` (config rows) |
 | 09 | Package-manager resolution and command forms | 07, 08 | `src/setup/package-manager.ts` (new), `src/setup/options.ts` (`--package-manager` only), `src/setup/own-package.ts`, `src/setup/harness-score.ts`, `test/package-manager.test.ts` | `spawn` | [x] Resolution follows the R4.1 order and records `packageManager`. Several lockfiles without a TTY is an error naming the flag. Every printed command matches the manager × command-kind table. Proofs: `proof-install-experience-pm-detect`, `proof-install-experience-pm-commands` |
 | 10 | Templates call `wolven-harness` directly | 09 | `templates/WOLVEN.md`, `templates/.agents/skills/{wayfinder,code-execute,harness-init}/**` (command lines and `validate-wiring.md`), their `.agents/skills/` copies, `test/package-manager.test.ts` (template case) | `spawn` | [x] No `pnpm ` remains in `templates/**` outside the per-manager table in `validate-wiring.md`. That table has npm, yarn, pnpm and no-`package.json` branches. Proof: `proof-install-experience-pm-templates` |
 | 11 | Install manifest | 06 | `src/setup/manifest.ts` (new), `src/setup/apply.ts`, `src/setup/runtimes.ts` (route wiring writes through the recorder), `test/setup-apply.test.ts` | `spawn` | [x] After `setup`, the manifest keys equal the set of files it created, including generated rule files, and the hashes match. A re-run adds only new entries. Proof: `proof-install-experience-manifest` |
 | 12 | Setup outside a git top-level | 09, 11 | `src/setup/index.ts`, `src/setup/options.ts` (top-level check only), `test/setup-outside-root.test.ts` | `spawn` | [x] Outside a top-level, the written set equals exactly `CORE_SKILLS`, the runtime skills wiring, the config and the manifest. It exits 0, and the next step names `harness-init`. A non-global executable path gets the global-install hint. Existing `setup-*` and `contract` tests pass unchanged. Proofs: `proof-install-experience-outside-root`, `proof-install-experience-global-hint`, `proof-install-experience-root-unchanged` |
 | 13 | **Wave 2 gate** | 10, 12 | — | `inline` | [x] Proofs of units 07 to 12 pass. The five wave-1 commands pass. A manual `node dist/cli.js setup` in an empty temp dir writes only the R3.2 set. On failure, **abort** before wave 3 |
-| 14 | `doctor` command, output and read-only run | 13 | `src/cli.ts`, `src/doctor/index.ts` (new), `src/doctor/report.ts` (new), `test/doctor.test.ts` | `spawn` | [x] `wolven-harness doctor [--dir]` prints findings and the summary line in the ADR-005 shape, exits 0 or 1, and rejects unknown args. A folder with no config yields only `doctor-config`. The fixture tree's hashes are unchanged after a run. Proofs: `proof-install-experience-doctor-output`, `proof-install-experience-doctor-readonly` |
+| 14 | `doctor` command, output and read-only run | 13 | `src/cli.ts`, `src/doctor/index.ts` (new), `src/doctor/report.ts` (new), `test/doctor.test.ts` | `spawn` | [x] `wolven-harness doctor [--dir]` prints findings and the summary line in the ADR-006 shape, exits 0 or 1, and rejects unknown args. A folder with no config yields only `doctor-config`. The fixture tree's hashes are unchanged after a run. Proofs: `proof-install-experience-doctor-output`, `proof-install-experience-doctor-readonly` |
 | 15 | Doctor runtime checks | 14 | `src/doctor/runtime-checks.ts` (new), `test/doctor-runtime.test.ts` | `spawn` | [x] `doctor-entry`, `doctor-rules` and `doctor-skills` fire per wired runtime from the registry, and `linked` layouts are followed through `harnessHome`. Proof: `proof-install-experience-doctor-checks` (runtime half) |
 | 16 | Doctor environment checks | 14 | `src/doctor/env-checks.ts` (new), `test/doctor-env.test.ts` | `spawn` | [x] `doctor-docs`, `doctor-qmd`, `doctor-code-repo` and `doctor-not-global` fire on their fixtures, with a stub `PATH`. The audited-shape fixture exits 1 with the expected codes, and the repaired one exits 0. Proofs: `proof-install-experience-doctor-checks` (environment half), `proof-install-experience-no-code-writes`, `proof-install-experience-pm-global` |
 | 17 | Doctor drift report | 14 | `src/doctor/drift.ts` (new), `test/doctor-drift.test.ts`, `docs/deferrals/setup-drift-check/` (deleted) | `spawn` | [x] Each drift class has a fixture that yields its warning, and a manifest-less fixture reports differing files as edited. `doctor-version-behind` fires on an older `packageVersion`. The deferral folder is gone. Proofs: `proof-install-experience-drift`, `proof-install-experience-drift-deferral` |
-| 18 | Supersede the previous contract ADR with ADR-005 | 15, 16, 17 | `test/contract.test.ts`, every live (non-archived) file outside `docs/adrs/` that claims the previous contract ADR, and that ADR's status and `superseded_by` | `inline` | [x] Contract tests read ADR-005, and cover the `doctor` codes, `--package-manager`, the runtime ids and the config keys. No live claim targets the previous contract ADR. That ADR is `deprecated` with `superseded_by: adr-005-install-anywhere-contract`. Proof: `proof-install-experience-contract` with `pnpm validate` at 0 claim failures |
+| 18 | Supersede the previous contract ADR with ADR-006 | 15, 16, 17 | `test/contract.test.ts`, every live (non-archived) file outside `docs/adrs/` that claims the previous contract ADR, and that ADR's status and `superseded_by` | `inline` | [x] Contract tests read ADR-006, and cover the `doctor` codes, `--package-manager`, the runtime ids and the config keys. No live claim targets the previous contract ADR. That ADR is `deprecated` with `superseded_by: adr-006-install-check-and-repair-contract`. Proof: `proof-install-experience-contract` with `pnpm validate` at 0 claim failures |
 | 19 | **Wave 3 gate** | 18 | — | `inline` | [x] Proofs of units 14 to 18 pass. The five commands pass. `node dist/cli.js doctor --dir <fixture>` exits 1 on the audited-shape fixture and 0 on the repaired one. On failure, **abort** before wave 4 |
 | 20 | harness-init: harness home and linked layout | 19 | `templates/.agents/skills/harness-init/SKILL.md`, `templates/.agents/skills/harness-init/references/layout.md` (new), their `.agents/skills/harness-init/` copies, `test/harness-init-layout.test.ts` | `spawn` | [x] The skill asks before `git init`, gitignores `codeRepo` and records `layout: "home"`. For a linked layout, it creates the three symlinks and replaces bootstrap copies only on matching manifest hashes. It forbids moves. Proofs: `proof-install-experience-init-home`, `proof-install-experience-init-linked` |
 | 21 | harness-init: commit convention | 20 | `templates/.agents/skills/harness-init/SKILL.md` (convention step), `templates/.agents/skills/harness-init/references/convention.md` (new), their `.agents/skills/harness-init/` copies, `test/harness-init-layout.test.ts` (convention case) | `spawn` | [x] The step reads 30 subjects, proposes a pattern at 80% agreement, falls back to Conventional Commits, and records both config shapes after confirmation. Proof: `proof-install-experience-convention-init` |
@@ -106,7 +106,7 @@ Units run in parallel only when their Owns are disjoint:
 | Field | Value |
 |-------|-------|
 | Unit identifier | 01 — Runtime registry (frontier 1) |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-spec.md` / `docs/specs/archived/install-experience/install-experience-plan.md` |
 | Obligation / proof status | R1.1 / `proof-install-experience-registry` — done |
 | `HEAD` commit | `3027dc3` |
 | `git status` summary | clean |
@@ -118,7 +118,7 @@ Units run in parallel only when their Owns are disjoint:
 | Field | Value |
 |-------|-------|
 | Unit identifier | 02 — Rule frontmatter and truthful router text (frontier 1) |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-spec.md` / `docs/specs/archived/install-experience/install-experience-plan.md` |
 | Obligation / proof status | R2.1, R2.6 / `proof-install-experience-rule-frontmatter`, `proof-install-experience-tool-report` — done |
 | `HEAD` commit | `3027dc3` |
 | `git status` summary | clean |
@@ -130,7 +130,7 @@ Units run in parallel only when their Owns are disjoint:
 | Field | Value |
 |-------|-------|
 | Unit identifier | 05 — `step0-pending` keys on the marker (frontier 1) |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-spec.md` / `docs/specs/archived/install-experience/install-experience-plan.md` |
 | Obligation / proof status | R2.5 / `proof-install-experience-step0-marker` — done |
 | `HEAD` commit | `3027dc3` |
 | `git status` summary | clean |
@@ -142,7 +142,7 @@ Units run in parallel only when their Owns are disjoint:
 | Field | Value |
 |-------|-------|
 | Unit identifier | 03 — Native rules wiring in setup (frontier 2) |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-spec.md` / `docs/specs/archived/install-experience/install-experience-plan.md` |
 | Obligation / proof status | R2.2, R2.3 (setup half) / `proof-install-experience-native-wiring`, `proof-install-experience-inline-rules` — done |
 | `HEAD` commit | `3027dc3` |
 | `git status` summary | dirty — units 01, 02 and 05 own the modified paths; this unit's Owns start clean |
@@ -154,7 +154,7 @@ Units run in parallel only when their Owns are disjoint:
 | Field | Value |
 |-------|-------|
 | Unit identifier | 04 — harness-init: Full and Light only, with markers (frontier 2) |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-spec.md` / `docs/specs/archived/install-experience/install-experience-plan.md` |
 | Obligation / proof status | R2.3 (harness-init half), R2.4 / `proof-install-experience-entry-modes`, `proof-install-experience-inline-rules` — done |
 | `HEAD` commit | `3027dc3` |
 | `git status` summary | dirty — units 01, 02 and 05 own the modified paths; this unit's Owns start clean |
@@ -166,19 +166,19 @@ Units run in parallel only when their Owns are disjoint:
 | Field | Value |
 |-------|-------|
 | Unit identifier | Wave 2 prerequisite — `--runtimes` accepts every registry id (before unit 07) |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-spec.md` / `docs/specs/archived/install-experience/install-experience-plan.md` |
 | Obligation / proof status | R1.2 / `proof-install-experience-detect` — prerequisite done, proof pending in unit 07 |
 | `HEAD` commit | `10a18b4` |
 | `git status` summary | dirty — this prerequisite's three files and the plan only |
 | Intended diff scope | `src/setup/runtimes.ts` (`isRuntimeId`), `src/setup/config.ts` (registry-backed `isRuntime` and error text), `src/skills/parse.ts` (`SKILL_RUNTIMES` keeps its three values) |
-| Decision on every discrepancy | resolved — the plan gave the config runtime list no owner in wave 2, and unit 07's proof runs through the real CLI. `skills --runtimes` stays at `claude`, `codex`, `cursor` per ADR-005. Verified: `setup --runtimes opencode` exits 0, writes and round-trips its config; `skills --runtimes opencode` is still rejected |
+| Decision on every discrepancy | resolved — the plan gave the config runtime list no owner in wave 2, and unit 07's proof runs through the real CLI. `skills --runtimes` stays at `claude`, `codex`, `cursor` per ADR-006. Verified: `setup --runtimes opencode` exits 0, writes and round-trips its config; `skills --runtimes opencode` is still rejected |
 
 ### Unit 07 — Runtime detection and confirmation
 
 | Field | Value |
 |-------|-------|
 | Unit identifier | 07 — Runtime detection and confirmation (wave 2, frontier 1) |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-spec.md` / `docs/specs/archived/install-experience/install-experience-plan.md` |
 | Obligation / proof status | R1.2, R1.3 / `proof-install-experience-detect`, `proof-install-experience-detect-none` — done |
 | `HEAD` commit | `10a18b4` |
 | `git status` summary | dirty — the parent prerequisite and this plan file; this unit's Owns start clean |
@@ -190,7 +190,7 @@ Units run in parallel only when their Owns are disjoint:
 | Field | Value |
 |-------|-------|
 | Unit identifier | 08 — Config accepts the new optional keys (wave 2, frontier 1) |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-spec.md` / `docs/specs/archived/install-experience/install-experience-plan.md` |
 | Obligation / proof status | R9.1 (config rows) / `proof-install-experience-contract` (config rows) — done |
 | `HEAD` commit | `10a18b4` |
 | `git status` summary | dirty — the parent prerequisite and this plan file; this unit's Owns start clean |
@@ -202,7 +202,7 @@ Units run in parallel only when their Owns are disjoint:
 | Field | Value |
 |-------|-------|
 | Unit identifier | 11 — Install manifest (wave 2, frontier 1) |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-spec.md` / `docs/specs/archived/install-experience/install-experience-plan.md` |
 | Obligation / proof status | R7.3 / `proof-install-experience-manifest` — done |
 | `HEAD` commit | `10a18b4` |
 | `git status` summary | dirty — the parent prerequisite and this plan file; this unit's Owns start clean |
@@ -214,19 +214,19 @@ Units run in parallel only when their Owns are disjoint:
 | Field | Value |
 |-------|-------|
 | Unit identifier | 09 — Package-manager resolution and command forms (wave 2, frontier 2) |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-spec.md` / `docs/specs/archived/install-experience/install-experience-plan.md` |
 | Obligation / proof status | R4.1, R4.2 / `proof-install-experience-pm-detect`, `proof-install-experience-pm-commands` — done |
 | `HEAD` commit | `10a18b4` |
 | `git status` summary | dirty — units 07, 08 and 11 own the modified paths; this unit's Owns start clean |
-| Intended diff scope | `src/setup/package-manager.ts` (new), `src/setup/options.ts` (`--package-manager` only), `src/setup/own-package.ts`, `src/setup/harness-score.ts`, `test/package-manager.test.ts` (new), plus the pnpm assertions in `test/install-devdep.test.ts` and the warning assertion in `test/setup-harness-score.test.ts`, the setup-flags test in `test/contract.test.ts` (reads ADR-005), and the setup usage lines in `src/cli.ts` |
-| Decision on every discrepancy | resolved — `--package-manager` is in ADR-005 but not in the previous contract ADR, so the flags contract test reads ADR-005 for that one case (unit 18 repoints the rest); the existing warning assertions name pnpm, which a `package.json` without a signal no longer resolves to |
+| Intended diff scope | `src/setup/package-manager.ts` (new), `src/setup/options.ts` (`--package-manager` only), `src/setup/own-package.ts`, `src/setup/harness-score.ts`, `test/package-manager.test.ts` (new), plus the pnpm assertions in `test/install-devdep.test.ts` and the warning assertion in `test/setup-harness-score.test.ts`, the setup-flags test in `test/contract.test.ts` (reads ADR-006), and the setup usage lines in `src/cli.ts` |
+| Decision on every discrepancy | resolved — `--package-manager` is in ADR-006 but not in the previous contract ADR, so the flags contract test reads ADR-006 for that one case (unit 18 repoints the rest); the existing warning assertions name pnpm, which a `package.json` without a signal no longer resolves to |
 
 ### Unit 10 — Templates call `wolven-harness` directly
 
 | Field | Value |
 |-------|-------|
 | Unit identifier | 10 — Templates call `wolven-harness` directly (wave 2, frontier 3) |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-spec.md` / `docs/specs/archived/install-experience/install-experience-plan.md` |
 | Obligation / proof status | R4.3 / `proof-install-experience-pm-templates` — done |
 | `HEAD` commit | `10a18b4` |
 | `git status` summary | dirty — units 07, 08, 09 and 11 own the modified paths; this unit's Owns start clean |
@@ -238,7 +238,7 @@ Units run in parallel only when their Owns are disjoint:
 | Field | Value |
 |-------|-------|
 | Unit identifier | 12 — Setup outside a git top-level (wave 2, frontier 3) |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-spec.md` / `docs/specs/archived/install-experience/install-experience-plan.md` |
 | Obligation / proof status | R3.2, R3.3, R3.1 / `proof-install-experience-outside-root`, `proof-install-experience-global-hint`, `proof-install-experience-root-unchanged` — done |
 | `HEAD` commit | `10a18b4` |
 | `git status` summary | dirty — units 07, 08, 09 and 11 own the modified paths; this unit's Owns start clean |
@@ -250,7 +250,7 @@ Units run in parallel only when their Owns are disjoint:
 | Field | Value |
 |-------|-------|
 | Unit identifier | 13 — Wave 2 gate (wave 2, frontier 4) |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-spec.md` / `docs/specs/archived/install-experience/install-experience-plan.md` |
 | Obligation / proof status | Units 07–12 proofs — done; gate — pass |
 | `HEAD` commit | `10a18b4` |
 | `git status` summary | dirty — the wave-2 batch (units 07–12 plus the runtime-id prerequisite) is uncommitted |
@@ -262,7 +262,7 @@ Units run in parallel only when their Owns are disjoint:
 | Field | Value |
 |-------|-------|
 | Unit identifier | 14 — `doctor` command, output and read-only run (wave 3, frontier 1) |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-spec.md` / `docs/specs/archived/install-experience/install-experience-plan.md` |
 | Obligation / proof status | R7.1 (output/config/read-only half), R7.2, R7.5 / `proof-install-experience-doctor-output`, `proof-install-experience-doctor-readonly` — done |
 | `HEAD` commit | `e4b91b1` |
 | `git status` summary | clean at dispatch |
@@ -274,7 +274,7 @@ Units run in parallel only when their Owns are disjoint:
 | Field | Value |
 |-------|-------|
 | Unit identifier | 15 runtime checks; 16 environment checks; 17 drift and version-behind (wave 3, frontier 2) |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-spec.md` / `docs/specs/archived/install-experience/install-experience-plan.md` |
 | Obligation / proof status | R7.1, R7.2, R4.4, R5.3, R7.4, R9.3 / `proof-install-experience-doctor-checks`, `proof-install-experience-no-code-writes`, `proof-install-experience-pm-global`, `proof-install-experience-drift`, `proof-install-experience-drift-deferral` — done |
 | `HEAD` commit | `e4b91b1` |
 | `git status` summary | dirty — units 14–17's own files; the three units run on disjoint paths |
@@ -285,20 +285,20 @@ Units run in parallel only when their Owns are disjoint:
 
 | Field | Value |
 |-------|-------|
-| Unit identifier | 18 — Supersede the previous contract ADR with ADR-005 (wave 3, frontier 3, inline) |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Unit identifier | 18 — Supersede the previous contract ADR with ADR-006 (wave 3, frontier 3, inline) |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-spec.md` / `docs/specs/archived/install-experience/install-experience-plan.md` |
 | Obligation / proof status | R9.1 / `proof-install-experience-contract` — done |
 | `HEAD` commit | `e4b91b1` |
 | `git status` summary | dirty — the wave-3 batch; the deferral deletion is staged so `git ls-files` matches the worktree |
 | Intended diff scope | `test/contract.test.ts`, every live claim to the previous contract ADR (25 files: skills, live docs, site pages, the profile comments), and that ADR's `status`/`superseded_by` |
-| Decision on every discrepancy | resolved — ADR-005 carries two `Finding codes:` sections (doctor first, validate second), so the validate-codes test anchors on the `### validate` section; the repoint also covered the two `// why:` comments in `src/validate/profile.ts`, which R9.1's "every live file" requires even though the spec freezes that folder |
+| Decision on every discrepancy | resolved — ADR-006 carries two `Finding codes:` sections (doctor first, validate second), so the validate-codes test anchors on the `### validate` section; the repoint also covered the two `// why:` comments in `src/validate/profile.ts`, which R9.1's "every live file" requires even though the spec freezes that folder |
 
 ### Unit 19 — Wave 3 gate
 
 | Field | Value |
 |-------|-------|
 | Unit identifier | 19 — Wave 3 gate (wave 3, frontier 4, inline) |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-spec.md` / `docs/specs/archived/install-experience/install-experience-plan.md` |
 | Obligation / proof status | Units 14–18 proofs — done; gate — pass |
 | `HEAD` commit | `e4b91b1` |
 | `git status` summary | dirty — the wave-3 batch is uncommitted, with the deferral deletion staged |
@@ -310,7 +310,7 @@ Units run in parallel only when their Owns are disjoint:
 | Field | Value |
 |-------|-------|
 | Unit identifier | Wave 4 prerequisite — `validate` tolerates an unstaged tracked deletion |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-spec.md` / `docs/specs/archived/install-experience/install-experience-plan.md` |
 | Obligation / proof status | none directly; removes the crash R9.3's deletion exposed |
 | `HEAD` commit | `434e27c` |
 | `git status` summary | dirty — this prerequisite's two files and the plan |
@@ -322,7 +322,7 @@ Units run in parallel only when their Owns are disjoint:
 | Field | Value |
 |-------|-------|
 | Unit identifier | 20 — harness-init: harness home and linked layout (wave 4, frontier 1) |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-spec.md` / `docs/specs/archived/install-experience/install-experience-plan.md` |
 | Obligation / proof status | R5.1, R5.2 / `proof-install-experience-init-home`, `proof-install-experience-init-linked` — done |
 | `HEAD` commit | `434e27c` |
 | `git status` summary | dirty — the parent prerequisite and the plan; this unit's Owns start clean |
@@ -334,7 +334,7 @@ Units run in parallel only when their Owns are disjoint:
 | Field | Value |
 |-------|-------|
 | Unit identifier | 22 code-commit/code-pr convention; 23 harness-doctor core skill; 24 README and site (wave 4, frontier 1) |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-spec.md` / `docs/specs/archived/install-experience/install-experience-plan.md` |
 | Obligation / proof status | R6.2, R8.1–R8.3, R9.2 / `proof-install-experience-convention-skills`, `proof-install-experience-doctor-skill`, `proof-install-experience-doctor-refresh`, `proof-install-experience-doctor-migrate`, `proof-install-experience-docs` — done |
 | `HEAD` commit | `434e27c` |
 | `git status` summary | dirty — the parent prerequisite and the plan; each unit's Owns start clean |
@@ -346,7 +346,7 @@ Units run in parallel only when their Owns are disjoint:
 | Field | Value |
 |-------|-------|
 | Unit identifier | 21 — harness-init: commit convention (wave 4, frontier 2) |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-spec.md` / `docs/specs/archived/install-experience/install-experience-plan.md` |
 | Obligation / proof status | R6.1 / `proof-install-experience-convention-init` — done |
 | `HEAD` commit | `434e27c` |
 | `git status` summary | dirty — the wave-4 batch is uncommitted |
@@ -358,7 +358,7 @@ Units run in parallel only when their Owns are disjoint:
 | Field | Value |
 |-------|-------|
 | Unit identifier | 25 — Ship gate (wave 4, frontier 3, inline) |
-| Spec/plan paths | `docs/specs/install-experience/install-experience-spec.md` / `docs/specs/install-experience/install-experience-plan.md` |
+| Spec/plan paths | `docs/specs/archived/install-experience/install-experience-spec.md` / `docs/specs/archived/install-experience/install-experience-plan.md` |
 | Obligation / proof status | every acceptance box in the spec — ticked; gate — pass |
 | `HEAD` commit | `434e27c` |
 | `git status` summary | dirty — the wave-4 batch is uncommitted |

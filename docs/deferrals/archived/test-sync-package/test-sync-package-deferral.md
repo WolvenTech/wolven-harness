@@ -25,7 +25,7 @@ Later use is no longer hypothetical: the [install-experience iteration plan](../
 
 ## Contract impact
 
-None. [ADR-005](../../../adrs/adr-005-install-anywhere-contract.md) leaves the set of skills and skill-set membership out of the contract. A new skill in `templates/` would still be a product change, not a contract change.
+None. [ADR-006](../../../adrs/adr-006-install-check-and-repair-contract.md) leaves the set of skills and skill-set membership out of the contract. A new skill in `templates/` would still be a product change, not a contract change.
 
 ## Triggers
 

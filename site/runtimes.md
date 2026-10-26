@@ -22,7 +22,7 @@ description: How setup wires each supported agent runtime.
 
 ## Claude Code
 
-If `.claude/skills` is missing, setup creates a relative symlink to `.agents/skills`. If `.claude/rules` is missing, it creates a relative symlink to `.agents/rules`. 
+If `.claude/skills` is missing, setup creates a relative symlink to `.agents/skills`. If `.claude/rules` is missing, it creates a relative symlink to `.agents/rules`.
 
 If `CLAUDE.md` is missing, setup creates one that imports `AGENTS.md`. Existing paths are left in place. Docs: [Claude Code](https://code.claude.com/docs/en/skills).
 

@@ -2,7 +2,7 @@
 type: prd
 title: Install and use experience
 description: Make a harness install verifiable and adaptive, with a global CLI, setup from any folder, a harness-init that fits the project, and a doctor that finds and repairs a half-working install.
-status: stable
+status: deprecated
 ---
 
 # Install and use experience
@@ -26,7 +26,7 @@ status: stable
     - `templates/WOLVEN.md` says `.agents/rules/` load unconditionally, but `src/setup/runtimes.ts` wires Claude only with the `.claude/skills` symlink and an `@AGENTS.md` stub.
     - `setup` never checks that `qmd` is installed.
     - Every command `setup` prints assumes pnpm: `pnpm harness:validate`, `pnpm exec`, `pnpm dlx` and `pnpm add -D` (`src/setup/index.ts`, `src/setup/own-package.ts`, `src/setup/harness-score.ts`). So do `WOLVEN.md`, `wayfinder` and the CI wiring `harness-init` writes (`templates/.agents/skills/harness-init/references/validate-wiring.md`). Only `code-execute` names npm and yarn.
-    - `setup` exits 1 when not run at a git top-level ([ADR-005](../../adrs/adr-005-install-anywhere-contract.md)), so a user who cannot commit harness files into the client repo has no supported place to install.
+    - `setup` exits 1 when not run at a git top-level ([ADR-006](../../../adrs/adr-006-install-check-and-repair-contract.md)), so a user who cannot commit harness files into the client repo has no supported place to install.
   - The review of the first implementation (PR 71, 20–21 Oct 2026). Each of these was reproduced against that build:
     - `doctor` passed a linked install while every `qmd` call from the open folder searched an empty index.
     - An install made before the manifest existed never got manifest entries, so every file it held read as "edited" and none could be refreshed.
@@ -43,8 +43,8 @@ status: stable
 
 **Non-goals**
 
-- One install wiring several code repositories. One install serves one code repository ([deferral](../../deferrals/multi-repo-install/multi-repo-install-deferral.md)).
-- A non-interactive `setup` for preinstalled machines ([deferral](../../deferrals/non-interactive-setup/non-interactive-setup-deferral.md)).
+- One install wiring several code repositories. One install serves one code repository ([deferral](../../../deferrals/multi-repo-install/multi-repo-install-deferral.md)).
+- A non-interactive `setup` for preinstalled machines ([deferral](../../../deferrals/non-interactive-setup/non-interactive-setup-deferral.md)).
 - Renaming the harness `code-review` skill or giving it a chat-only mode.
 - Having `grilling` hand off to `create-prd` or `code-spec`.
 - A configurable docs root. That stays with its existing deferral.
@@ -215,7 +215,7 @@ Traces to goal: The install reports its true state.
 
 **Given** harness files in the project differ from the shipped templates
 **When** doctor runs
-**Then** it lists each such file as a warning in one of three groups: edited by the consumer, a stale template the consumer never edited, or a template file missing from the project. It writes nothing, and the warnings alone do not change the exit code. This replaces the deferred `setup --check` ([deferral](../../deferrals/setup-drift-check/setup-drift-check-deferral.md)).
+**Then** it lists each such file as a warning in one of three groups: edited by the consumer, a stale template the consumer never edited, or a template file missing from the project. It writes nothing, and the warnings alone do not change the exit code. This replaces the deferred `setup --check` (closed by [ADR-006](../../../adrs/adr-006-install-check-and-repair-contract.md)).
 
 #### AC-5.4: Healthy install
 
@@ -338,8 +338,8 @@ The scope ships in two pull requests, and the second builds on the first:
 
 **Out**
 
-- Several code repositories in one install ([deferral](../../deferrals/multi-repo-install/multi-repo-install-deferral.md)).
-- A non-interactive `setup` for preinstalled machines ([deferral](../../deferrals/non-interactive-setup/non-interactive-setup-deferral.md)).
+- Several code repositories in one install ([deferral](../../../deferrals/multi-repo-install/multi-repo-install-deferral.md)).
+- A non-interactive `setup` for preinstalled machines ([deferral](../../../deferrals/non-interactive-setup/non-interactive-setup-deferral.md)).
 - An opt-out from `qmd`.
 - Merging consumer edits with new templates.
 - Renaming `code-review` or adding a chat-only mode to it.
