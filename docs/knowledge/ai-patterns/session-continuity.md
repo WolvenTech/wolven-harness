@@ -2,12 +2,13 @@
 type: knowledge
 title: Session continuity
 description: Preserve enough verified project state for useful, bounded work after a session boundary.
-status: current
+status: draft
 aliases:
   - Handoff
   - long-running agents
+review: current
 checked: 2026-10-22
-upstream-date: 2025-11-26 (Anthropic); unknown (book entry)
+upstream: Anthropic 2025-11-26; book entry unknown
 ---
 
 # Session continuity
@@ -28,4 +29,4 @@ For this repository, preserve the task, approved scope, input artifacts, branch 
 
 Use the separate [handoff skill](../../../.agents/skills/handoff/SKILL.md) only on direct request: it is ask-only, writes to the OS temporary directory, cites artifacts, and serves runtime, machine, or worktree transitions. Research about progress logs does not authorize automatic handoff generation, another repository execution log, or automatic commits. A plan plus Git may suffice when work stays in the same session; an external handoff helps when the next session cannot inherit that context. Counterexample: a finished change with no unresolved state needs no handoff artifact.
 
-**Checked:** 2026-10-22. **Review state:** current. **Evidence limits:** one Anthropic engineering report from its Claude Agent SDK/full-stack application experiment; it is useful precedent, not a comparative study of handoff formats or evidence that a separate progress file benefits this harness. The book's Markdown page was inaccessible at check time.
+**Checked:** 2026-10-22. **Evidence limits:** one Anthropic engineering report from its Claude Agent SDK/full-stack application experiment; it is useful precedent, not a comparative study of handoff formats or evidence that a separate progress file benefits this harness. The book's Markdown page was inaccessible at check time.

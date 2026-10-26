@@ -2,7 +2,13 @@
 type: knowledge
 title: Authority boundaries
 description: Decide when an agent can proceed, must prepare and wait, or must stop for explicit authorization.
-status: current
+status: draft
+aliases:
+  - Bounded Autonomy
+  - approval policy
+review: current
+checked: 2026-10-22
+upstream: Anthropic 2024-12-19; book entries not stated
 ---
 
 # Authority boundaries
@@ -27,4 +33,4 @@ The [code-review skill](../../../.agents/skills/code-review/SKILL.md) runs only 
 
 **Local surfaces:** [code-review](../../../.agents/skills/code-review/SKILL.md), [code-ci](../../../.agents/skills/code-ci/SKILL.md), [handoff](../../../.agents/skills/handoff/SKILL.md).
 
-**Sources:** Book entries: [Approval Policy](https://aipatternbook.com/approval-policy), [Bounded Autonomy](https://aipatternbook.com/bounded-autonomy) (upstream dates not stated on the checked pages). Primary source: [Anthropic, Building effective agents](https://www.anthropic.com/research/building-effective-agents) (published 2024-12-19). **Checked:** 2026-10-22. **Evidence limits:** The two book entries give conceptual models, not this harness's policy; Anthropic's article has an old-tooling caveat and does not define repository permissions. **Review state:** current.
+**Sources:** Book entries: [Approval Policy](https://aipatternbook.com/approval-policy), [Bounded Autonomy](https://aipatternbook.com/bounded-autonomy) (upstream dates not stated on the checked pages). Primary source: [Anthropic, Building effective agents](https://www.anthropic.com/research/building-effective-agents) (published 2024-12-19). **Checked:** 2026-10-22. **Evidence limits:** The two book entries give conceptual models, not this harness's policy; Anthropic's article has an old-tooling caveat and does not define repository permissions.

@@ -2,11 +2,11 @@
 type: knowledge
 title: Context selection
 description: Select and curate relevant task context while avoiding unnecessary or ungrounded material.
-status: current
+status: draft
 aliases:
   - Context Engineering
   - Context Rot
-review: current
+review: needs-review
 checked: 2026-10-22
 upstream: Anthropic 2025-09-29; Chroma 2025-07-14; book Context Engineering updated 2026-06-25; book Context Rot date not independently verified
 ---
@@ -29,6 +29,4 @@ For a task, start with the request, applicable repository instructions and settl
 
 Tradeoff: focused context reduces irrelevant material but can omit a dependency or edge case. For a cross-cutting change, reading only the named function may miss callers, contracts, or adjacent tests; search those links and widen the inspection when evidence points there. Conversely, loading the whole repository for a narrow edit adds material without showing it is useful. There is no evidence here for a universal context-size cutoff or for transferring Chroma's measured effects to models/tasks it did not test.
 
-**Sources checked:** Anthropic and Chroma URLs above; book URLs above. **Checked:** 2026-10-22. **Review:** current for the checked primary sources; book Context Rot entry needs review because it was inaccessible. **Evidence limits:** findings are advisory and bounded by the models/tasks reported by each source; no local performance measurement was conducted.
-
-**Ingestion provenance:** Unit 02, requested configuration `gpt-6-luna`, reasoning effort `medium`, `fork_turns: none` per approved plan. Independent runtime model/effort confirmation was unavailable in this task environment; requested configuration is not represented as verified runtime identity.
+**Sources checked:** Anthropic and Chroma URLs above; book URLs above. **Checked:** 2026-10-22. **Evidence limits:** the book Context Rot entry was inaccessible and needs review; findings are advisory and bounded by the models/tasks reported by each source; no local performance measurement was conducted.

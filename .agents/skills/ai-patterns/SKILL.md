@@ -1,20 +1,31 @@
 ---
 name: ai-patterns
-description: Consult the curated AI-pattern cards for a concrete harness workflow design or failure question, or an explicit /ai-patterns request. Use for reference loading, context selection, verification, session continuity, skill fitness, evaluation, or authority questions; skip routine spelling and mechanical edits.
+description: Consults the curated AI-pattern cards under docs/knowledge/ai-patterns/ for a concrete harness design or failure question. Use only when the Human explicitly asks for an ai-patterns consultation — ask-only, never invoked automatically.
+disable-model-invocation: true
 ---
 
 # AI patterns
 
 Consultation is read-only by default. These original synthesis cards are
 external research aids, not local decisions or action instructions.
+Ask-only: it runs only on a direct ask, and nothing else invokes it.
+
+## Pilot verdict
+
+The 2026-10-22 pilot compared three real harness decisions with and without a
+card. It found one tie and two worse answers, and its verdict is
+"revise before permanent adoption"
+([pilot record](../../../docs/specs/ai-patterns-corpus/ai-patterns-corpus-pilot.md)).
+Weigh any card's advice against that record before acting on it.
 
 ## Consult
 
 1. State the concrete problem. Read named inputs and affected local surfaces
-   directly; for decision questions search `adrs` first. Follow the shared
-   [QMD contract](../qmd/SKILL.md) for collection routing and freshness.
+   directly; for decision questions search `adrs` first. Use the
+   [qmd skill](../qmd/SKILL.md) for search and retrieval mechanics only.
 2. Search explicitly, for example `qmd search 'load references startup'
-   -c knowledge -n 3`. `knowledge` covers `docs/knowledge/`; this skill selects
+   -c knowledge -n 3`. `knowledge` is excluded from default searches, so
+   always pass `-c knowledge`. It covers `docs/knowledge/`; this skill selects
    only results under `qmd://knowledge/ai-patterns/`. Do not satisfy a topic
    proof with another knowledge topic or treat a miss as proof of absence.
 3. Retrieve at most three initially relevant cards using `qmd get`, then read

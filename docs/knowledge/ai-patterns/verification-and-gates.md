@@ -2,10 +2,12 @@
 type: knowledge
 title: Verification and gates
 description: Verify changes against observable proof and enforce explicit gates before continuation.
-status: current
+status: draft
 aliases:
   - Checkpoint
+review: current
 checked: 2026-10-22
+upstream: book Verification Loop created 2026-04-04, updated 2026-06-14; Checkpoint unknown; Anthropic 2025-11-26
 ---
 
 # Verification and gates
@@ -63,5 +65,4 @@ the complete visible workflow works.
 **Primary sources:** [Anthropic, “Effective harnesses for long-running
 agents”](https://www.anthropic.com/research/effective-harnesses-for-long-running-agents).
 **Checked:** 2026-10-22. **Upstream dates:** Verification Loop created 2026-04-04 and updated 2026-06-14; Checkpoint date unknown;
-Anthropic article published 2025-11-26. **Review state:** current, with the
-Checkpoint page retrieval caveat above.
+Anthropic article published 2025-11-26.

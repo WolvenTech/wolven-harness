@@ -2,12 +2,14 @@
 type: knowledge
 title: Progressive disclosure
 description: Load linked references on-demand while keeping essential constraints in the parent instructions.
-status: current
+status: draft
 aliases:
   - on-demand references
   - staged context
   - progressive loading
+review: current
 checked: 2026-10-22
+upstream: book page created 2026-04-16, updated 2026-06-14; Anthropic 2025-10-16; specification unknown
 ---
 
 # Progressive disclosure
@@ -35,5 +37,3 @@ The tradeoff is another retrieval step and the risk that a vague pointer or miss
 **Checked:** 2026-10-22. **Upstream dates:** pattern page created 2026-04-16 and updated 2026-06-14; specification publication date unknown; Anthropic article published 2025-10-16 and notes an open-standard update on 2025-12-18.
 
 **Evidence limits:** The specification describes format and recommendations, not comparative performance. The Anthropic article reports the design from its authors; the pattern page is publisher material and was used for its framing of tradeoffs. The Anthropic URL originally supplied under `/research/` could not be fetched; its `/engineering/` alias was checked instead. The parent could reopen that alias, which redirected to `/research/`. No performance gain is claimed here.
-
-**Review state:** current (sources checked 2026-10-22).

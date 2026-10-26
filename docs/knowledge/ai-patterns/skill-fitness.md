@@ -2,7 +2,11 @@
 type: knowledge
 title: Skill fitness
 description: Assess whether a task-specific skill earns its loading and maintenance cost.
-status: current
+status: draft
+aliases: []
+review: current
+checked: 2026-10-22
+upstream: preprint 2026-03-16; book entry unknown
 ---
 
 # Skill fitness
@@ -28,5 +32,3 @@ The tradeoff is measurement effort against context and maintenance cost. A count
 **Evidence limits:** SWE-Skills-Bench is a preliminary, single-agent/model evaluation of selected public SWE skills. Its averages are percentage-point differences, not relative-percent improvement. It does not test this harness’s QMD corpus, and its results do not predict that the seven-card pilot will improve decisions.
 
 **Sources checked:** 2026-10-22. Book entry upstream date: unknown from the accessible page. Preprint date: 2026-03-16.
-
-**Review state:** current

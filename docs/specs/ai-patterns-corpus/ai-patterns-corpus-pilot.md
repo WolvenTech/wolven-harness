@@ -53,7 +53,7 @@ on that shared build. This deviation is retained rather than claimed compliant.
 The parent read all seven complete cards, reopened the primary sources named
 in them, and checked local `code-spec`, `code-execute`, `qmd`, `harness-init`,
 `code-review`, `code-ci`, and `handoff` permissions and reference paths.
-The [research note](../../../notes/ai-patterns-corpus/ai-patterns-corpus-note.md)
+The [research note](../../notes/ai-patterns-corpus/ai-patterns-corpus-note.md)
 remains historical draft research; its earlier root/topic-collection proposal
 is superseded by the approved spec. It is not routing policy.
 
@@ -249,7 +249,7 @@ Trace: `qmd search 'automatic review' -c adrs -n 3` → no result; exact live
 `code-review`, `code-ci`, `handoff` permissions read; `qmd search 'authorization
 explicit' -c knowledge -n 3 --format json` → authority card `#3b155c`; full
 card and its live file read. Response: no automatic review authorization;
-the [local review skill](../../../../.agents/skills/code-review/SKILL.md) requires
+the [local review skill](../../../.agents/skills/code-review/SKILL.md) requires
 an explicit ask and never merges. Book advice conflicts and stays advisory.
 [Anthropic's effective agents report](https://www.anthropic.com/research/building-effective-agents)
 does not define this repo's permissions and flags its aged tooling context.
