@@ -90,10 +90,13 @@ Traces to goal: Give every runtime at least a standing rule.
 - Configurable pattern overrides in `.wolven-harness.json`.
 - Hook wiring for Codex, Copilot, Gemini, and the remaining runtimes.
 
+## Resolved open questions
+
+- **Block outright vs ask-the-Human at the hook** — The hook blocks outright; it does not ask the Human. The standing rule tells agents to ask the Human when access is truly needed. Owner: Rafael, 2026-10-26.
+- **Runtimes without hook surfaces** — Rule-only coverage is acceptable for Codex and other runtimes that lack a hook surface in this slice; native hook wiring is a follow-up. Owner: Rafael, 2026-10-26.
+
 ## Open questions
 
-- Block outright vs ask-the-Human where the runtime supports ask — owner: None (this slice blocks outright at the hook; rule tells agents to ask the Human when access is truly needed).
-- Which runtimes lack hook surfaces and whether rule-only is acceptable there — owner: None (Codex/antigravity use inline rules for now; native hook wiring is a follow-up).
 - Pre-commit scan as built-in patterns vs a new dependency — owner: None (deferred per non-goals).
 
 ## Notes
