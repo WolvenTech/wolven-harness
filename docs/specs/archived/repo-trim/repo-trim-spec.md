@@ -48,7 +48,7 @@ Searched `qmd query -c adrs` for the rename, the registry move, and what a stabl
 | `test/legacy.test.ts`, `test/validate-legacy-folders.test.ts`, `test/harness-init-migration.test.ts`, `test/behaviour-brownfield.test.ts` | yes | Consumer legacy-ADR path. Stay. They use fixtures. This package's own tree has no legacy ADRs. |
 | `video/harness-explainer.mp4`, `video/harness_explainer.py` | yes | Surveyed. About 3.5MB. Uncited. Restyled in `8a11541`. Stays. |
 | `.agents/skills/test-sync/SKILL.md` | yes | Dogfood skill. Adapted rules only. Not under `templates/`. |
-| `docs/deferrals/test-sync-package/test-sync-package-deferral.md` | yes | Promotion into the package waits on this deferral. |
+| `docs/deferrals/archived/test-sync-package/test-sync-package-deferral.md` | yes | Promotion into the package waits on this deferral. |
 | `pnpm test`, `pnpm validate` | yes | Gates. `pnpm validate` is `node dist/cli.js validate`. |
 
 ## Surface walk
@@ -139,7 +139,7 @@ None. The Human confirmed that finished migration verifications can go. The cons
 | Delete `test/template-residue.test.ts` because most of its bans are extract vocabulary | 2 — the extract bans are finished | 6 — the concrete ADR-token rule is the only scan of three template trees that `setup` copies and this repo's `validate` ignores | **Refuse.** R2.4 deletes the extract rules and keeps that one rule. |
 | Invent a new ban list to replace the extract vocabulary | 0 — those words are an accepted loss | 3 | **Refuse.** R2.4 deletes the extract rules. It does not write a replacement list. |
 | Add an `-h` test in this trim | 2 — [ADR-003](../../../adrs/adr-003-public-contract.md) names `-h` and no test runs it | 3 — a new proof, outside a deletion batch | **Refuse.** Out of scope. |
-| Paste the upstream test-sync skill, add `npx test-sync` to CI, or add its Python cleanup scripts | 2 — the three categories were useful once | 7 — a new tool, a CI gate, and a 1:1 file-name rule that does not match this suite | **Refuse.** `.agents/skills/test-sync/SKILL.md` is the adapted rules. Promotion is `docs/deferrals/test-sync-package/test-sync-package-deferral.md`. |
+| Paste the upstream test-sync skill, add `npx test-sync` to CI, or add its Python cleanup scripts | 2 — the three categories were useful once | 7 — a new tool, a CI gate, and a 1:1 file-name rule that does not match this suite | **Refuse.** `.agents/skills/test-sync/SKILL.md` is the adapted rules. Promotion is `docs/deferrals/archived/test-sync-package/test-sync-package-deferral.md`. |
 | Add a test file per `src/` module the audit marks "missing" | 1 — the CLI suites already exercise those modules | 6 — new tests for modules that are not untested | **Refuse.** |
 | Refactor stdout and workflow pins into looser assertions | 2 — they can break when wording changes | 6 — a sweep across the suite, and [ADR-003](../../../adrs/adr-003-public-contract.md) already says messages are not contract | **Refuse.** Not a deletion. |
 | A new dependency, a new command, or an ADR | 0 | — | **Refuse.** |
@@ -173,7 +173,7 @@ None. The Human confirmed that finished migration verifications can go. The cons
 | Rewrite `site/search.md` or [ADR-002](../../../adrs/adr-002-public-npm-oidc.md) so they stop mentioning GitHub Packages | The history stays in the ADR. The search page stays a search example. |
 | Delete `test/legacy.test.ts` or the harness-init migration playbook tests | Consumer path. [ADR-001](../../../adrs/adr-001-claim-path.md) and [ADR-003](../../../adrs/adr-003-public-contract.md). |
 | Delete the concrete ADR-token scan, or move it into a new test file | R2.4. The scan stays in `test/template-residue.test.ts`. |
-| Ship test-sync in `templates/` or a skill set | `docs/deferrals/test-sync-package/test-sync-package-deferral.md` |
+| Ship test-sync in `templates/` or a skill set | `docs/deferrals/archived/test-sync-package/test-sync-package-deferral.md` |
 | An executable plan from this skill | `code-plan` only |
 
 ## ADR

@@ -13,11 +13,11 @@ This reference was written against harness-score 1.6.5, the version `setup`
 pins. Check IDs and presets below come from that release.
 
 Run `harness:score` and read the whole report. When it cannot run because
-`harness-score` is not installed, run `pnpm exec wolven-harness setup` again:
-it creates only missing paths and prints the pinned install command. Show the
+`harness-score` is not installed, run `wolven-harness setup` again: it
+creates only missing paths and prints the pinned install command. Show the
 Human that command, and score only after their yes and the install. A repo
-with no `package.json` has no `harness:score` script; use the
-`pnpm dlx harness-score@<version>` command `setup` prints instead.
+with no `package.json` has no `harness:score` script; use the install
+command `setup` prints instead.
 
 Record the level and score in the note as the "before" figure.
 

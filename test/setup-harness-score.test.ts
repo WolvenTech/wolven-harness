@@ -30,7 +30,7 @@ test('harness-score: setup warns with the pinned install command and leaves depe
 
   assert.equal(result.code, 0, result.stderr);
   assert.ok(
-    result.stderr.includes(`pnpm add -D -E harness-score@${HARNESS_SCORE_VERSION}`),
+    result.stderr.includes(`npm install -D -E harness-score@${HARNESS_SCORE_VERSION}`),
     'prints the pinned install command',
   );
   const pkg = JSON.parse(await readFile(path.join(dir, 'package.json'), 'utf8'));
@@ -57,7 +57,8 @@ test('harness-score: no package.json means no warning and no script', async () =
 
   assert.equal(result.code, 0, result.stderr);
   assert.doesNotMatch(result.stderr, /harness-score is not in your dependencies/);
-  assert.ok(result.stdout.includes(`pnpm dlx harness-score@${HARNESS_SCORE_VERSION}`), 'pins the dlx version');
+  assert.match(result.stdout, /`wolven-harness validate`/, 'names the bare harness binary');
+  assert.match(result.stdout, /`harness-score`/, 'names the bare score binary');
 });
 
 test('harness-score: an existing .harness-score.json is kept', async () => {

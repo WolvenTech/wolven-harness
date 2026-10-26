@@ -15,13 +15,19 @@ const QMD_INDEX = '.qmd/index.yml';
  * Template files installed under a different name. why: npm drops every
  * `.gitignore` from a published tarball, so the template ships without the dot.
  */
-const INSTALLED_AS: Record<string, string> = {
+export const INSTALLED_AS: Record<string, string> = {
   '.qmd/gitignore': '.qmd/.gitignore',
   'docs/maps/gitignore': 'docs/maps/.gitignore',
 };
 
-function toPosix(relFsPath: string): string {
+export function toPosix(relFsPath: string): string {
   return relFsPath.split(path.sep).join('/');
+}
+
+/** A template path and its installed path, both relative to their respective roots. */
+export interface SelectedTemplateFile {
+  source: string;
+  installed: string;
 }
 
 /**
@@ -70,6 +76,34 @@ async function walkFiles(dir: string): Promise<string[]> {
   return files;
 }
 
+/** Selects template files using the same skill and set rules as `setup`. */
+export async function selectTemplateFiles(
+  templatesDir: string,
+  skillFolders?: readonly string[],
+  sets?: readonly SkillSet[],
+  options: { skillsOnly?: boolean } = {},
+): Promise<SelectedTemplateFile[]> {
+  const selected: SelectedTemplateFile[] = [];
+
+  for (const relFsPath of await walkFiles(templatesDir)) {
+    const source = toPosix(relFsPath);
+    const installed = INSTALLED_AS[source] ?? source;
+
+    if (options.skillsOnly === true && !installed.startsWith('.agents/skills/')) continue;
+    const skillName = /^\.agents\/skills\/([^/]+)\//.exec(installed)?.[1];
+    if (skillFolders !== undefined && skillName !== undefined && !skillFolders.includes(skillName)) continue;
+
+    const unchosen =
+      sets !== undefined &&
+      SKILL_SETS.some((set) => !sets.includes(set) && SET_PATHS[set].some((p) => installed.startsWith(p)));
+    if (unchosen) continue;
+
+    selected.push({ source, installed });
+  }
+
+  return selected;
+}
+
 /**
  * Walks `ctx.templatesDir` and creates each template file at its matching
  * path under `ctx.root`, but only when that path (and every directory
@@ -82,29 +116,21 @@ async function walkFiles(dir: string): Promise<string[]> {
  * created nor reported. When `sets` is given, a template under a set's
  * `SET_PATHS` is skipped unless that set is chosen, and set-marked lines in
  * `WOLVEN.md` and `.qmd/index.yml` follow the same choice.
+ * With `options.skillsOnly`, every template outside `.agents/skills/` is
+ * left out, for the mode that runs outside a git top-level.
  */
 export async function applyTemplates(
   ctx: Context,
   skillFolders?: readonly string[],
   sets?: readonly SkillSet[],
+  options: { skillsOnly?: boolean } = {},
 ): Promise<StepResult> {
   const created: string[] = [];
   const skipped: string[] = [];
 
-  const templateFiles = await walkFiles(ctx.templatesDir);
+  const templateFiles = await selectTemplateFiles(ctx.templatesDir, skillFolders, sets, options);
 
-  for (const relFsPath of templateFiles) {
-    const sourceRel = toPosix(relFsPath);
-    const rel = INSTALLED_AS[sourceRel] ?? sourceRel;
-
-    const skillName = /^\.agents\/skills\/([^/]+)\//.exec(rel)?.[1];
-    if (skillFolders !== undefined && skillName !== undefined && !skillFolders.includes(skillName)) continue;
-
-    const unchosen =
-      sets !== undefined &&
-      SKILL_SETS.some((set) => !sets.includes(set) && SET_PATHS[set].some((p) => rel.startsWith(p)));
-    if (unchosen) continue;
-
+  for (const { source, installed: rel } of templateFiles) {
     if (rel === AGENTS_MD) {
       // invariant: setup never creates or edits AGENTS.md, even when a template lists it.
       skipped.push(rel);
@@ -120,7 +146,7 @@ export async function applyTemplates(
 
     await mkdir(path.dirname(targetPath), { recursive: true });
 
-    const raw = () => readFile(path.join(ctx.templatesDir, ...sourceRel.split('/')), 'utf8');
+    const raw = () => readFile(path.join(ctx.templatesDir, ...source.split('/')), 'utf8');
     const content =
       rel === WOLVEN_MD
         ? await renderWolven(ctx, skillFolders, sets)

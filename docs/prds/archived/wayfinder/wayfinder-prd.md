@@ -290,7 +290,7 @@ Traces to goal: One canvas serves both skills.
 **Out**
 
 - Everything listed under Non-goals.
-- Architecture diagrams and service blueprints, deferred to their own skills ([architectural map](../../../deferrals/architectural-map/architectural-map-deferral.md), [service blueprint](../../../deferrals/service-blueprint/service-blueprint-deferral.md)).
+- Architecture diagrams and service blueprints, tracked separately ([architectural-map draft PRD](../../architectural-map/architectural-map-prd.md), [service-blueprint deferral](../../../deferrals/archived/service-blueprint/service-blueprint-deferral.md)).
 
 ## Open questions
 

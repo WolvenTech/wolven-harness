@@ -287,7 +287,7 @@ test('harness-ignored: no ignore rules over harness paths raise nothing', async 
 
 // --- step0-pending ---
 
-test('step0-pending: fresh init warns, and AGENTS.md mentioning WOLVEN.md clears it', async () => {
+test('step0-pending: fresh init warns, and a plain AGENTS.md mention does not clear it', async () => {
   const dir = await makeRepo({}, { git: true });
 
   const initResult = await run(['setup', '--git-host', 'gh', '--runtimes', 'codex'], { cwd: dir });
@@ -301,7 +301,22 @@ test('step0-pending: fresh init warns, and AGENTS.md mentioning WOLVEN.md clears
 
   const second = await run(['validate'], { cwd: dir });
   assert.equal(second.code, 0);
-  assert.doesNotMatch(second.stdout, /harness-init step 0 pending/);
+  assert.match(second.stdout, /harness-init step 0 pending/);
+});
+
+test('step0-pending: an AGENTS.md with the harness start marker clears it', async () => {
+  const dir = await makeRepo(
+    {
+      'WOLVEN.md': '# Wolven\n',
+      'AGENTS.md': '<!-- wolven-harness:start -->\n\nSee WOLVEN.md.\n\n<!-- wolven-harness:end -->\n',
+    },
+    { git: true },
+  );
+
+  const result = await run(['validate'], { cwd: dir });
+
+  assert.equal(result.code, 0);
+  assert.doesNotMatch(result.stdout, /harness-init step 0 pending/);
 });
 
 test('step0-pending: a dangling WOLVEN.md symlink is absent, so there is no warning', async () => {

@@ -16,10 +16,31 @@ test('renderer-copies: every skill copy holds exactly its manifest, byte-identic
 
 test('renderer-copies: each skill folder holds only its own manifest', () => {
   assert.deepEqual(MANIFEST['journey-map'], ['logic.js', 'canvas.js', 'draw.js', 'page.html']);
-  assert.deepEqual(MANIFEST.wayfinder, ['logic.js', 'canvas.js', 'radial.js', 'radial-draw.js', 'radial.html']);
+  assert.deepEqual(MANIFEST.wayfinder, [
+    'logic.js',
+    'canvas.js',
+    'lanes.js',
+    'lanes-draw.js',
+    'lanes.html',
+    'radial.js',
+    'radial-draw.js',
+    'radial.html',
+  ]);
   for (const skill of Object.keys(MANIFEST)) {
     for (const copyRoot of ['templates/.agents/skills', '.agents/skills']) {
       assert.deepEqual(readdirSync(path.join(root, copyRoot, skill, 'renderer')).sort(), [...MANIFEST[skill]].sort());
+    }
+  }
+});
+
+test('proof-wayfinder-lanes-manifest (R2.7): MANIFEST.wayfinder lists the lanes files and every copy matches renderer/', () => {
+  const lanesFiles = ['lanes.js', 'lanes-draw.js', 'lanes.html'];
+  for (const file of lanesFiles) assert.ok(MANIFEST.wayfinder.includes(file));
+  for (const file of lanesFiles) {
+    const source = readFileSync(path.join(root, 'renderer', file));
+    for (const copyRoot of ['templates/.agents/skills', '.agents/skills']) {
+      const copy = path.join(root, copyRoot, 'wayfinder', 'renderer', file);
+      assert.ok(readFileSync(copy).equals(source), `${copy} matches renderer/${file}`);
     }
   }
 });

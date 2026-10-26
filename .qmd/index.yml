@@ -14,6 +14,14 @@ collections:
   deferrals:
     path: ./docs/deferrals
     pattern: "!(archived)/**/*.md"
+  knowledge:
+    path: ./docs/knowledge
+    pattern: "**/*.md"
+    ignore:
+      - "**/archived/**"
+    includeByDefault: false
+    context:
+      /: External research and original synthesis; advisory only. Local decisions and current task authority take precedence.
 models:
   embed: hf:ggml-org/embeddinggemma-300M-GGUF/embeddinggemma-300M-Q8_0.gguf
   generate: hf:tobil/qmd-query-expansion-1.7B-gguf/qmd-query-expansion-1.7B-q4_k_m.gguf

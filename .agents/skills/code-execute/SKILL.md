@@ -146,11 +146,12 @@ not a registered persona file.
 ## Final check (mandatory, paste both outputs)
 
 Whether a unit ran inline or as a spawned subagent, before that unit is
-marked done — and again at every wave gate — run:
+marked done — and again at every wave gate — run the `harness:comments`
+and `harness:validate` checks with the harness directly:
 
 ```sh
-npm run harness:comments   # or: pnpm harness:comments, yarn harness:comments
-npm run harness:validate   # or: pnpm harness:validate, yarn harness:validate
+wolven-harness comments
+wolven-harness validate
 ```
 
 and paste both outputs. A spawned subagent already carries this
