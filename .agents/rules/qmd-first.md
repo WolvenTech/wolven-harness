@@ -8,6 +8,22 @@ alwaysApply: true
 For any question this repo might already answer, search before you answer from
 memory or the web.
 
+## Index readiness
+
+Fresh git worktrees do not share the gitignored local index (`.qmd/index.sqlite*`).
+Before you treat zero query hits as “no decision exists,” check readiness:
+
+```bash
+qmd status    # Documents → Total: N files indexed
+```
+
+When **Total is `0 files indexed`**, run `qmd update` once to build the index
+from `.qmd/index.yml`, then search below. Do not run `qmd embed` for this
+bootstrap — lexical search is enough to start.
+
+When Total is greater than zero, query directly. Do not run unasked `qmd update`
+or `qmd embed` during routine search.
+
 ## Search ADRs first, then widen
 
 Collections are not interchangeable. Which one a hit came from tells you how
