@@ -2,12 +2,12 @@
 type: spec
 title: QMD empty index handling in fresh worktrees
 description: Freeze agent and contributor guidance so qmd-first detects an unpopulated local index, authorizes qmd update for bootstrap, and avoids false-negative zero-hit searches in fresh worktrees.
-status: stable
+status: deprecated
 ---
 
 # QMD empty index handling in fresh worktrees
 
-**Source:** `docs/prds/qmd-worktree-empty-index/qmd-worktree-empty-index-prd.md` (confirmed stable by owner Rafael, 2026-10-26)
+**Source:** `docs/prds/archived/qmd-worktree-empty-index/qmd-worktree-empty-index-prd.md` (confirmed stable by owner Rafael, 2026-10-26; archived at merge)
 **Next:** After the Human approves the plan → `code-execute`, wave **1 → 2**
 **Named proof (this spec's own structural gate):** `proof-qmd-worktree-empty-index-spec-obligations`
 

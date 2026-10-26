@@ -2,12 +2,12 @@
 type: spec
 title: QMD empty index handling in fresh worktrees — plan
 description: Work-unit plan to align qmd-first and the qmd skill for qmd status–gated empty-index bootstrap, contract tests, and contributor docs.
-status: stable
+status: deprecated
 ---
 
 # QMD empty index handling in fresh worktrees — plan
 
-**Spec:** `docs/specs/qmd-worktree-empty-index/qmd-worktree-empty-index-spec.md` (status `stable`)
+**Spec:** `docs/specs/archived/qmd-worktree-empty-index/qmd-worktree-empty-index-spec.md` (status `deprecated`)
 
 ## Structural gate
 
@@ -22,7 +22,7 @@ Confirmed: obligations R1.1–R1.3, R2.1–R2.2, and R3.1–R3.3 each map to nam
 | 03 | Contract tests for empty-index guidance | 01, 02 | `test/skill-qmd-empty-index.test.ts` (new) | `inline` | [x] New tests assert `qmd status` readiness wording, empty-index `qmd update` authorization, populated-index no-mutate language, and template/live byte parity for rule and skill; `pnpm test test/skill-qmd-empty-index.test.ts` and `pnpm test test/seed-extract.test.ts` exit 0 (`proof-qmd-empty-index-seed-extract-adrs-first` and Wave 1 proofs) |
 | 04 | **Wave 1 gate** | 03 | — | `inline` | [x] `pnpm test` and `node dist/cli.js validate` exit 0; Wave 1 acceptance boxes in the spec may be ticked; manual spot-check optional: empty worktree path `qmd status` → `qmd update` → ADR query returns hits — **abort before Wave 2** on failure |
 | 05 | Contributor docs: worktree index lifecycle | 04 | `site/search.md`<br>`CONTRIBUTING.md` | `inline` | [x] Index lifecycle sections state that git worktrees do not share the gitignored SQLite index, name `qmd status` and `qmd update` / agent self-repair as the intended fresh-worktree workflow, and keep Cloud Agent bootstrap text consistent with `.cursor/install.sh` (`proof-qmd-empty-index-site-search`, `proof-qmd-empty-index-contributing`) |
-| 06 | **Wave 2 ship gate** | 05 | `docs/specs/qmd-worktree-empty-index/qmd-worktree-empty-index-spec.md` (acceptance checkboxes only) | `inline` | [x] `pnpm test`, `pnpm lint`, `pnpm harness:comments`, and `node dist/cli.js validate` exit 0; Wave 2 acceptance boxes ticked; `proof-qmd-worktree-empty-index-spec-obligations` holds — ready for `code-commit` / PR update |
+| 06 | **Wave 2 ship gate** | 05 | `docs/specs/archived/qmd-worktree-empty-index/qmd-worktree-empty-index-spec.md` (acceptance checkboxes only) | `inline` | [x] `pnpm test`, `pnpm lint`, `pnpm harness:comments`, and `node dist/cli.js validate` exit 0; Wave 2 acceptance boxes ticked; `proof-qmd-worktree-empty-index-spec-obligations` holds — ready for `code-commit` / PR update |
 
 ## Wave stops
 
@@ -54,7 +54,7 @@ Units 01 and 02 are disjoint in Owns and may run in parallel. Unit 03 requires b
 | Field | Value |
 |-------|-------|
 | Unit identifier | 05–06 — contributor docs + ship gate |
-| Spec/plan paths | `docs/specs/qmd-worktree-empty-index/qmd-worktree-empty-index-spec.md` / `docs/specs/qmd-worktree-empty-index/qmd-worktree-empty-index-plan.md` |
+| Spec/plan paths | `docs/specs/archived/qmd-worktree-empty-index/qmd-worktree-empty-index-spec.md` / `docs/specs/archived/qmd-worktree-empty-index/qmd-worktree-empty-index-plan.md` |
 | Obligation / proof status | R3.1, R3.2 — done; Wave 1 R1–R2 — done at `22248d7` |
 | `HEAD` commit | `22248d7` (pre–Wave 2 commit) |
 | `git status` summary | dirty — Wave 2 doc + spec acceptance paths |

@@ -2,7 +2,7 @@
 type: prd
 title: QMD Empty Index Handling in Fresh Worktrees
 description: Ensure agents in fresh worktrees or newly initialized repos can detect and repair an unpopulated QMD index so qmd-first reliably searches local architecture decisions.
-status: stable
+status: deprecated
 ---
 
 # QMD Empty Index Handling in Fresh Worktrees
@@ -25,7 +25,7 @@ status: stable
 
 **Non-goals**
 
-- Committing `index.sqlite` to Git (it remains gitignored per ADR-004 to avoid binary churn and merge conflicts).
+- Committing `index.sqlite` to Git (it remains gitignored via `templates/.qmd/gitignore` to avoid binary churn and merge conflicts).
 - Requiring `qmd embed` (vector embeddings) during initial repair (fast lexical indexing via `qmd update` takes seconds and satisfies BM25 search without blocking on model downloads).
 - Modifying the upstream `@tobilu/qmd` CLI tool.
 
