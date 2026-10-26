@@ -2,7 +2,7 @@
 type: prd
 title: Secret-path guard (issue 80 slice)
 description: Ship a standing rule and pre-tool hook so agents refuse reads and shell commands that touch secret-shaped paths.
-status: draft
+status: stable
 ---
 
 # Secret-path guard (issue 80 slice)
