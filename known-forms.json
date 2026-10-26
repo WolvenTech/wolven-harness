@@ -150,6 +150,7 @@
       "6ed130bede4f1a93c3496700697b43e31db753931e4271f09420386d64766c75"
     ],
     ".agents/skills/harness-init/SKILL.md": [
+      "038f56ac8a73c8c5607988a22a3696d4ca1baa82db9faa2b9a9b7cd97263dd6a",
       "46e7d9466b33da6cef50add337ee5dbbac64d50ccd218d852f2a2afcf5963bdd",
       "6bff09b8c3559302a917670bdbd1b717521a87b272898c3f0c719cab125a89dd",
       "a3c4bc7e0da7e746e89edae346cb6c6dfdd2304379a11befdc735c97cd81078f",
@@ -307,6 +308,7 @@
       "dce418d768098c3add619e9993a7727f10ddbdd9e04d7cc9b61d26cd01c0f2c7"
     ],
     ".agents/skills/wayfinder/SKILL.md": [
+      "1d82af9b213b652cb7baeee5db747d62a7f2ac61be3290b59ba1c5099bc8424a",
       "9e72183330f01034af149c1a754eef40ae5602bc4da4b10083eff7a442b921e3",
       "eacb1a87a58530f10a9ca43fe4338e090c89649ed966e84c311ecd0500d20808"
     ],
@@ -315,6 +317,15 @@
     ],
     ".agents/skills/wayfinder/renderer/canvas.js": [
       "3ef1c556c1bdc00cd28572e1e0bba6848b675007128a430c56fe33899e6bf549"
+    ],
+    ".agents/skills/wayfinder/renderer/lanes-draw.js": [
+      "09cb4ecf3dd01a0a27a4963ad450ee44ad61f515c8d4f89a3b3b04844adaad9a"
+    ],
+    ".agents/skills/wayfinder/renderer/lanes.html": [
+      "aa8310cd24f2a34ba9849fef802d0615dd511e595a5ba141b8fd03f2414d59ff"
+    ],
+    ".agents/skills/wayfinder/renderer/lanes.js": [
+      "8bb0858ec9b45aa5c9a7ec6f2e73e46280dc9f2555a32ea2223c696b044c185d"
     ],
     ".agents/skills/wayfinder/renderer/logic.js": [
       "17772a595763ed905fa7c553d0dd9f5fa866571220518ee30e02f0cc59a8471b"
@@ -329,7 +340,8 @@
       "e2ed42da7bd3a1252ba40f7503a66cb4f42232d8ecd192ae3b6dd76ec3413a7a"
     ],
     ".agents/skills/wayfinder/scripts/build-canvas.mjs": [
-      "e78381d7884c54315b4c81e748c2f4f33fd9ad6926e32192e2fa894623b70519"
+      "e78381d7884c54315b4c81e748c2f4f33fd9ad6926e32192e2fa894623b70519",
+      "f589b248b5f47c1aea0d2be59cdf16123accf3567727fa2f8a624f5c003ba611"
     ],
     ".harness-score.json": [
       "822f6ec8446562a4de9a3b1a2481af50fac01bbedc32e1963142709e5f48ec13"

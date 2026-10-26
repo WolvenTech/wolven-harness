@@ -226,7 +226,7 @@ test('doctor: the default run wires the three check modules in order', () => {
   );
 });
 
-test('doctor: a claude-and-codex install with a complete inline block exits 0', async () => {
+test('doctor: a claude-and-codex install fails when a runtime entry or skill is missing', async () => {
   const dir = await makeRepo({}, { git: true });
   const setup = await run(['setup', '--git-host', 'gh', '--runtimes', 'claude,codex'], { cwd: dir });
   assert.equal(setup.code, 0, setup.stderr);
@@ -251,10 +251,24 @@ test('doctor: a claude-and-codex install with a complete inline block exits 0', 
   await writeFile(path.join(dir, '.qmd', 'index.sqlite'), 'fixture index', 'utf8');
   const tools = await makeRepo({ qmd: '#!/bin/sh\nexit 0\n', 'wolven-harness': '#!/bin/sh\nexit 0\n' });
   for (const name of ['qmd', 'wolven-harness']) await chmod(path.join(tools, name), 0o755);
-  const result = await run(['doctor'], { cwd: dir, env: { PATH: `${tools}:${process.env.PATH ?? ''}` } });
+  const options = { cwd: dir, env: { PATH: `${tools}:${process.env.PATH ?? ''}` } };
+  const result = await run(['doctor'], options);
 
   assert.equal(result.code, 0, result.stdout);
   assert.equal(result.stdout, 'doctor: ok\n');
+
+  await rm(path.join(dir, 'CLAUDE.md'));
+  const missingEntry = await run(['doctor'], options);
+  assert.equal(missingEntry.code, 1, missingEntry.stdout);
+  assert.match(missingEntry.stdout, /error \[doctor-entry\] Claude Code:.*CLAUDE\.md/);
+
+  await writeFile(path.join(dir, 'CLAUDE.md'), '@AGENTS.md\n', 'utf8');
+  await rm(path.join(dir, '.agents', 'skills', 'harness-init', 'SKILL.md'));
+  const missingSkill = await run(['doctor'], options);
+  assert.equal(missingSkill.code, 1, missingSkill.stdout);
+  assert.match(missingSkill.stdout, /error \[doctor-skills\] Claude Code:.*harness-init/);
+  assert.match(missingSkill.stdout, /error \[doctor-skills\] Codex:.*harness-init/);
+  assert.match(missingSkill.stdout, /warn \[doctor-drift-missing\].*harness-init\/SKILL\.md/);
 });
 
 test('proof-install-experience-doctor-gemini: a gemini-and-codex install passes until GEMINI.md is removed', async () => {

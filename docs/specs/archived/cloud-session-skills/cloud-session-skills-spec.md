@@ -15,7 +15,7 @@ A **session skill list** is the list of skills the runtime provided for this ses
 
 The issue comment decides the companion predicate. Ask-only skills set `disable-model-invocation: true` and `allow_implicit_invocation: false`, and hosts that honor those flags leave them off the implicit session skill list. The standalone-skills rule still stops when the companion was never installed. The stop looks at the checkout file, because an ask-only companion is off that implicit list even when the file is there.
 
-The Human confirmed three further choices. Grokbot is outside this spec; `docs/deferrals/grok-cloud-runtime/grok-cloud-runtime-deferral.md` holds the revisit. Both required companions use the checkout file. After wave 1 is in the checkout, the Human runs Codex, Cursor, and Claude Code and brings back a report; wave 2 fills the smoke note from that report.
+The Human confirmed three further choices. Grokbot is outside this spec; `docs/deferrals/archived/grok-cloud-runtime/grok-cloud-runtime-deferral.md` holds the revisit. Both required companions use the checkout file. After wave 1 is in the checkout, the Human runs Codex, Cursor, and Claude Code and brings back a report; wave 2 fills the smoke note from that report.
 
 ## Term challenge
 
@@ -99,7 +99,7 @@ A failed gate aborts before the next wave. Wave 2 starts only after wave 1 passe
 
 ## Out of scope
 
-- Grokbot, a `grok` runtime, and a `.grok/skills/` tree. Revisit lives in `docs/deferrals/grok-cloud-runtime/grok-cloud-runtime-deferral.md`.
+- Grokbot, a `grok` runtime, and a `.grok/skills/` tree. Revisit lives in `docs/deferrals/archived/grok-cloud-runtime/grok-cloud-runtime-deferral.md`.
 - Home-directory installs (`~/.agents/skills/`, `~/.claude/skills/`) and Cursor Sync Skills for Cloud Agents.
 - A plugin manifest or a marketplace entry.
 - A per-skill key in `.wolven-harness.json`.
@@ -109,9 +109,9 @@ A failed gate aborts before the next wave. Wave 2 starts only after wave 1 passe
 
 ## Pragmatic-guard refuses
 
-- A session-time registrar or a Codex plugin so ask-only skills appear on the implicit catalog. Need 2 once the companion check reads the checkout. Complexity 8. Verdict: refuse. Deferral: `docs/deferrals/codex-cloud-plugin/codex-cloud-plugin-deferral.md`.
-- A Grok runtime or a `.grok/skills/` tree. Need 3. Complexity 7. Verdict: refuse. Deferral: `docs/deferrals/grok-cloud-runtime/grok-cloud-runtime-deferral.md`.
-- A duplicated `.claude/skills/` tree beside the symlink. Need 2. Complexity 6. Verdict: refuse. Deferral: `docs/deferrals/skill-tree-copy/skill-tree-copy-deferral.md`.
+- A session-time registrar or a Codex plugin so ask-only skills appear on the implicit catalog. Need 2 once the companion check reads the checkout. Complexity 8. Verdict: refuse. Deferral consolidated into `docs/deferrals/archived/cloud-skill-discovery/cloud-skill-discovery-deferral.md` on 2026-10-22.
+- A Grok runtime or a `.grok/skills/` tree. Need 3. Complexity 7. Verdict: refuse. Deferral: `docs/deferrals/archived/grok-cloud-runtime/grok-cloud-runtime-deferral.md`.
+- A duplicated `.claude/skills/` tree beside the symlink. Need 2. Complexity 6. Verdict: refuse. Deferral consolidated into `docs/deferrals/archived/cloud-skill-discovery/cloud-skill-discovery-deferral.md` on 2026-10-22.
 - A new `.wolven-harness.json` skill inventory. Need 1 — ADR-004 has no per-skill list, and the checkout `SKILL.md` is the install signal the comment names. Complexity 4. Verdict: refuse. No deferral.
 
 Companion install check: need 9 (the PR #49 session stopped with `code-pr` on disk), complexity 3 (predicate sentences and tests). Verdict: approve.

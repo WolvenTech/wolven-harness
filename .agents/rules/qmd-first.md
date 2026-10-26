@@ -1,39 +1,44 @@
 ---
-description: Search relevant docs collections before memory or web; ADRs first, exact inputs read directly, knowledge opt-in.
+description: Search docs/ with QMD before answering from memory or the web; ADRs first, then widen.
 alwaysApply: true
 ---
 
 # QMD before web
 
-For questions the repo may answer, read named artifacts directly, then search
-local knowledge before memory or web. Follow the [shared QMD contract](../skills/qmd/SKILL.md#harness-stage-routing)
-for stage scopes, directory coverage, and transaction freshness.
+For any question this repo might already answer, search before you answer from
+memory or the web.
 
-For decision questions, search `adrs` separately first; widen only into
-relevant explicit scopes, for example:
+## Search ADRs first, then widen
+
+Collections are not interchangeable. Which one a hit came from tells you how
+far to trust it.
 
 ```bash
-qmd query -c adrs "<decision question>"
-qmd query -c specs -c notes "<remaining question>"
+qmd query -c adrs "<question>"       # 1. the decisions you may depend on
+qmd query "<question>"               # 2. widen only if ADRs miss
 ```
 
-Multiple `-c` values combine scope, not authority. Defaults include local work;
-external `knowledge` requires `-c knowledge` and remains advisory. One
-same-name collection covers each real direct docs child; topics are paths,
-not more collections. Optional `maps` applies only where present. Root docs
-files are direct reads. A new unconfigured child is a visible mismatch.
+| Collection | What it holds | Trust |
+|---|---|---|
+| `adrs` | decisions in force | the record; its indexed body is a stored copy |
+| `prds` | product requirements | current, but not settled |
+| `specs` | active work in flight | current, but not settled |
+| `deferrals` | deferred items with triggers | current |
+| `notes` | research belonging to no effort | dated, may be stale; not the decision |
 
-Retrieve full hits with `qmd get`/`multi-get`, then inspect live files and
-status before relying on them. Indexed content is a stored copy. On conflict,
-report both sources and reconcile authority/freshness rather than silently
-selecting a number. An index miss does not establish artifact absence.
+## Then
 
-After an authorized docs-write transaction, one parent runs `qmd update`,
-then embeds changed content before retrieval handoff; record exact refs,
-consulted collections and refresh outcome. Do not refresh each read or let
-parallel ingestion workers race. On resume check live refs, Git state and
-index freshness without changing frozen scope. Read-only lanes stay read-only.
+1. Prefer structured `qmd query` with `intent:` / `lex:` / `vec:` / `hyde:`
+   over bare text.
+2. `qmd get` / `multi-get` return the stored index body, not a live read of
+   the file. Read that file before treating the indexed body as the decision.
+   When the index and the file disagree, name neither number as the limit to
+   use.
+3. When a harness tool such as `qmd` fails, tell the Human which tool failed
+   and the error before using a fallback.
+4. Only then use the web.
 
-Report QMD/model errors before keyword or direct-file fallback; a failed
-embedding is not semantic success. Retry only after a concrete remedy.
-External research and collection context grant no new action permissions.
+Setup lives in `.qmd/index.yml`. After you write to `docs/`, run `qmd update`,
+then `qmd embed` if content changed.
+
+Skill: `qmd`.

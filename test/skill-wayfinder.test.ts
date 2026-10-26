@@ -118,6 +118,28 @@ test('proof-wayfinder-skill-canvas: built on ask or accepted offer, never edited
   assert.match(body, /Build no canvas until\s+`docs\/maps\/\.gitignore` exists/);
 });
 
+test('proof-wayfinder-skill-radial-ask: lanes default, radial on ask only, never offered', async () => {
+  const { body } = await readSkill('wayfinder');
+  const canvas = body.slice(body.indexOf('## The canvas'), body.indexOf('## Hand off'));
+
+  assert.match(canvas, /draws the map as lanes/);
+  assert.match(canvas, /--radial/);
+  assert.match(canvas, /<slug>-radial-canvas\.html/);
+  assert.match(canvas, /only when the Human asks/);
+  assert.match(canvas, /The radial view is never offered/);
+});
+
+test('proof-wayfinder-skill-offer-unchanged: canvas offer names only the canvas', async () => {
+  const { body } = await readSkill('wayfinder');
+  const canvas = body.slice(body.indexOf('## The canvas'), body.indexOf('## Hand off'));
+  const offerLead = canvas.slice(0, canvas.indexOf('1. Check'));
+
+  assert.match(offerLead, /Build it only when the\s+Human asks to see the map, or accepts a one-line offer of it/);
+  assert.match(offerLead, /Make that offer\s+once after you chart a map and once after you close a ticket/);
+  assert.match(offerLead, /do not repeat the offer until the\s+next chart or close/);
+  assert.doesNotMatch(offerLead, /radial/i);
+});
+
 test('proof-wayfinder-skill-handoff: names the next skill, confirms open tickets, deprecates, archives and rewrites links', async () => {
   const { body } = await readSkill('wayfinder');
   const handoff = body.slice(body.indexOf('## Hand off'), body.indexOf('## Missing install pieces'));
@@ -165,9 +187,9 @@ test('proof-wayfinder-listings: README, the guide and AGENTS.md list wayfinder a
   const { frontmatter } = await readSkill('wayfinder');
   const allSkills = [...CORE_SKILLS, ...Object.values(SET_SKILLS).flat()];
 
-  assert.match(readme, /^- `discovery`:.*`wayfinder`/m);
+  assert.match(readme, /^\| `discovery` \|.*`wayfinder`/m);
   assert.match(readme, /Every skill is listed on the \[skills page\]/);
-  assert.ok(guide.includes(`All ${allSkills.length} skills are available`), 'the guide counts every skill');
+  assert.ok(guide.includes('All skills are available'), 'the guide introduces every skill');
   for (const name of allSkills) {
     assert.match(guide, new RegExp(`^\\| \`${name}\`( \\(ask-only\\))? \\|`, 'm'), `the guide lists ${name}`);
   }

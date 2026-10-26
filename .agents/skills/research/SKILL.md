@@ -17,10 +17,6 @@ answer as a cited note.
 |------|--------------|
 | [note-template.md](references/note-template.md) | Before drafting the note — the skeleton and required sections |
 
-**Docs retrieval:** Follow the [shared QMD routing contract](../qmd/SKILL.md#harness-stage-routing)
-for `research`: read exact inputs directly, choose relevant collection scopes,
-and preserve this skill's permissions and docs-write handoff/resume boundaries.
-
 ## Hard gates
 
 1. Search local docs with `qmd` before the web — the question may already be

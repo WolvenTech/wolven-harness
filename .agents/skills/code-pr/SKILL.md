@@ -21,10 +21,6 @@ That run writes no deferral and no sentence claiming the guard ran.
 **Closure (last batch before merge):** [pre-merge-closure.md](references/pre-merge-closure.md).
 **Host operations:** [host-operations.md](references/host-operations.md) — every host action this skill performs (push branch, open PR, read PR and diff) goes through that table.
 
-**Docs retrieval:** Follow the [shared QMD routing contract](../qmd/SKILL.md#harness-stage-routing)
-for `code-pr`: read exact inputs directly, choose relevant collection scopes,
-and preserve this skill's permissions and docs-write handoff/resume boundaries.
-
 ## When not to use
 
 - Local commit only, no remote pull request → `code-commit`.

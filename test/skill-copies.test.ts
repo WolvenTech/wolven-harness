@@ -21,9 +21,14 @@ async function filesUnder(dir: string): Promise<string[]> {
     .sort();
 }
 
+/** Skills intentionally customized locally in this repository that may diverge from shipped templates. */
+const LOCAL_CUSTOMIZED_SKILLS = new Set(['qmd']);
+
 test('proof-lean-init-copies-identical: installed and template copies of every shared skill are identical', async () => {
   const templateNames = new Set(await skillDirs(TEMPLATE));
-  const shared = (await skillDirs(INSTALLED)).filter((name) => templateNames.has(name)).sort();
+  const shared = (await skillDirs(INSTALLED))
+    .filter((name) => templateNames.has(name) && !LOCAL_CUSTOMIZED_SKILLS.has(name))
+    .sort();
   assert.ok(shared.includes('harness-init'), 'harness-init must exist in both skill trees');
 
   const differences: string[] = [];

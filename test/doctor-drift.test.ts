@@ -157,6 +157,19 @@ test('proof-install-experience-drift: a changed file with no known form is docto
   assert.match(findings[0].message, /qmd-first\.md/);
 });
 
+test('runDriftChecks returns findings instead of throwing when known-forms.json is missing or malformed', async () => {
+  const dir = await install();
+  await writeFile(path.join(dir, '.agents/rules/qmd-first.md'), 'a changed rule\n', 'utf8');
+  const malformed = path.join(dir, 'known-forms.json');
+  await writeFile(malformed, '{ not json', 'utf8');
+  const ctx = await contextFor(dir);
+
+  for (const file of [malformed, path.join(dir, 'absent-known-forms.json')]) {
+    const findings = await runDriftChecks(ctx, file);
+    assert.deepEqual(codes(findings), ['doctor-drift-edited']);
+  }
+});
+
 test('proof-install-experience-drift: an older recorded packageVersion is doctor-version-behind', async () => {
   const dir = await install();
   const ctx = await contextFor(dir);

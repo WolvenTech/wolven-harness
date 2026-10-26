@@ -32,7 +32,7 @@ export default defineConfig({
         text: 'Guide',
         items: [
           { text: 'Overview', link: '/' },
-          { text: 'Setup', link: '/harness-init' },
+          { text: 'Installation', link: '/install' },
           { text: 'Development workflow', link: '/cycle' },
           { text: 'Search', link: '/search' },
           { text: 'Files and validation', link: '/layout' },

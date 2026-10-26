@@ -17,10 +17,6 @@ This skill turns those findings into repairs the Human approves, one at a time.
 **In / out / handoff:** a wired install → findings read, approved fixes applied,
 `doctor` rerun → a closing summary that keeps every declined check failing.
 
-**Docs retrieval:** Follow the [shared QMD routing contract](../qmd/SKILL.md#harness-stage-routing)
-for `harness-doctor`: read exact inputs directly, choose relevant collection scopes,
-and preserve this skill's permissions and docs-write handoff/resume boundaries.
-
 ## Hard gates
 
 1. **`doctor` is the only source of truth.** Run `wolven-harness doctor` and read
