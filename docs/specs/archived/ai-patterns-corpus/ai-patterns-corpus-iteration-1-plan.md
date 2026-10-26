@@ -2,7 +2,7 @@
 type: spec
 title: AI patterns pilot — iteration 1 review fixes - plan
 description: One wave of four units that apply the PR 78 review fixes, a gate, and a closing re-report of every finding.
-status: stable
+status: deprecated
 ---
 
 # AI patterns pilot — iteration 1 review fixes - plan

@@ -15,7 +15,7 @@ Ask-only: it runs only on a direct ask, and nothing else invokes it.
 The 2026-10-22 pilot compared three real harness decisions with and without a
 card. It found one tie and two worse answers, and its verdict is
 "revise before permanent adoption"
-([pilot record](../../../docs/specs/ai-patterns-corpus/ai-patterns-corpus-pilot.md)).
+([pilot record](../../../docs/specs/archived/ai-patterns-corpus/ai-patterns-corpus-pilot.md)).
 Weigh any card's advice against that record before acting on it.
 
 ## Consult

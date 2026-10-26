@@ -2,7 +2,7 @@
 type: spec
 title: AI patterns pilot — iteration 1 review fixes
 description: Delta obligations from the PR 78 review — ask-only consultation, one card frontmatter shape, the qmd skill restored to its template, and retrievable pilot evidence.
-status: stable
+status: deprecated
 ---
 
 # AI patterns pilot — iteration 1 review fixes
@@ -170,7 +170,7 @@ Structural check, from the repository root:
 ```sh
 python3 - <<'PY'
 import pathlib, re
-s = pathlib.Path('docs/specs/ai-patterns-corpus/ai-patterns-corpus-iteration-1-spec.md').read_text()
+s = pathlib.Path('docs/specs/archived/ai-patterns-corpus/ai-patterns-corpus-iteration-1-spec.md').read_text()
 matrix = s.split('## Requirements (obligation ↔ proof)')[1].split('## Nine-dimension landings')[0]
 rows = re.findall(r'^\| (I\d+) \|.*?`(proof-ai-patterns-iter1-[a-z-]+)`', matrix, re.M)
 accept = re.findall(r'^- \[ \] (I\d+) / `(proof-ai-patterns-iter1-[a-z-]+)`', s, re.M)
@@ -214,7 +214,7 @@ Link check (`proof-ai-patterns-iter1-links`):
 ```sh
 python3 - <<'PY'
 import pathlib, re
-files = [*pathlib.Path('docs/specs/ai-patterns-corpus').glob('*.md'),
+files = [*pathlib.Path('docs/specs/archived/ai-patterns-corpus').glob('*.md'),
          *pathlib.Path('docs/knowledge/ai-patterns').glob('*.md'),
          pathlib.Path('.agents/skills/ai-patterns/SKILL.md'),
          pathlib.Path('docs/notes/ai-patterns-corpus/ai-patterns-corpus-note.md')]

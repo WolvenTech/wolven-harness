@@ -8,7 +8,7 @@ status: deprecated
 # Docs collection routing and AI patterns pilot
 
 **Source:** Human ask, "please write a spec on this", following the
-[research note](../../notes/ai-patterns-corpus/ai-patterns-corpus-note.md).
+[research note](../../../notes/ai-patterns-corpus/ai-patterns-corpus-note.md).
 Additional requirement: "the ingestion should be done in paralell luna-medium
 agents". The research remains a draft input, not an approved architecture decision.
 Expanded ask: one collection per direct child directory of `docs/`, with
@@ -287,7 +287,7 @@ Structural check, run from repository root:
 ```sh
 python3 - <<'PY'
 import pathlib, re
-p = pathlib.Path('docs/specs/ai-patterns-corpus/ai-patterns-corpus-spec.md')
+p = pathlib.Path('docs/specs/archived/ai-patterns-corpus/ai-patterns-corpus-spec.md')
 s = p.read_text()
 matrix = s.split('## Requirements (obligation ↔ proof)')[1].split('## Nine-dimension landings')[0]
 rows = re.findall(r'^\| (R\d+) \|.*?`(proof-ai-patterns-[a-z-]+)`', matrix, re.M)
