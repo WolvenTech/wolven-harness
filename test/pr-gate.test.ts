@@ -59,9 +59,20 @@ test('pr-gate: the test job tests from source on Node 22 and 24', async () => {
   assert.ok(job, 'test job present');
   assert.deepEqual(runsOf(job), ['pnpm install --frozen-lockfile', 'pnpm test']);
 
-  const matrix: unknown[] = job.strategy?.matrix?.node ?? [];
-  assert.ok(matrix.includes(22), 'node 22 in matrix');
-  assert.ok(matrix.includes(24), 'node 24 in matrix');
+  const include: Record<string, unknown>[] = job.strategy?.matrix?.include ?? [];
+  assert.deepEqual(
+    include.map((entry) => entry.line),
+    [22, 24],
+    'node 22 and 24 lines in matrix',
+  );
+  for (const entry of include) {
+    assert.match(
+      String(entry.node),
+      new RegExp(`^${entry.line}\\.\\d+\\.\\d+$`),
+      `node ${entry.line} is an exact patch`,
+    );
+  }
+  assert.equal(job.name, 'Test (Node ${{ matrix.line }})');
 
   const nodeSetup = job.steps.find((s: Record<string, any>) => String(s.uses ?? '').startsWith('actions/setup-node@'));
   assert.equal(nodeSetup?.with?.['node-version'], '${{ matrix.node }}');
