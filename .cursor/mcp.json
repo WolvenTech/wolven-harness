@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "qmd": {
+      "type": "stdio",
+      "command": "sh",
+      "args": [
+        "-c",
+        "cd \"${workspaceFolder}\" && exec \"${userHome}/.local/bin/qmd\" mcp"
+      ]
+    }
+  }
+}
