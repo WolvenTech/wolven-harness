@@ -2,7 +2,7 @@
 type: spec
 title: Secret-path guard (issue 80 slice)
 description: Freeze design for a standing secrets rule, built-in path patterns, and pre-tool hooks wired for Cursor and Claude Code via setup.
-status: draft
+status: stable
 ---
 
 # Secret-path guard (issue 80 slice)
@@ -39,7 +39,7 @@ status: draft
 
 - **In scope:**
   - `templates/.agents/rules/secrets.md` and `.agents/rules/secrets.md`
-  - `templates/.agents/hooks/secret-paths.mjs`, `secret-path-guard.mjs`, and `templates/.agents/hooks/README.md`
+  - `templates/.agents/hooks/secret-paths.mjs`, `secret-path-guard.mjs`, and `templates/.agents/hooks/README.md` (including manual wiring when hook config already exists)
   - `src/setup/runtimes.ts` (and tests) for Cursor / Claude Code hook wiring when those runtimes are selected
   - `test/secret-path-guard.test.ts` (or equivalent) for pattern and shell-form matching
   - `test/setup-surfaces.test.ts`, `test/seed-extract.test.ts`, and any setup wiring tests extended for hook JSON
@@ -108,6 +108,7 @@ Traces to PRD scope **In** and resolved rule-only runtimes decision.
 | R4.2 | When Cursor is among selected runtimes, `setup` writes `.cursor/hooks.json` that registers the guard for pre-tool Read and shell events per Cursor's hook schema, pointing at `.agents/hooks/secret-path-guard.mjs`. | `proof-secret-path-guard-cursor-wiring` | Setup fixture test + JSON inspect |
 | R4.3 | When Claude Code is among selected runtimes, `setup` writes `.claude/settings.json` with a `PreToolUse` hook entry for the same script per Claude Code's settings schema. | `proof-secret-path-guard-claude-wiring` | Setup fixture test + JSON inspect |
 | R4.4 | Selecting only inline runtimes (for example Codex alone) does not write Cursor or Claude hook config; rule-only coverage remains acceptable. | `proof-secret-path-guard-no-hook-for-inline-only` | Setup test with `--runtimes codex` |
+| R4.5 | When `.cursor/hooks.json` or `.claude/settings.json` already exists, `setup` skips writing it (unchanged `createFile` / `applyTemplates` behavior). `templates/.agents/hooks/README.md` documents how to wire `secret-path-guard.mjs` manually for Cursor and Claude Code. | `proof-secret-path-guard-manual-wiring-docs` | Setup test with pre-existing hook config skipped; README inspect |
 
 ### R5 — Regression floor
 
@@ -121,7 +122,7 @@ Traces to PRD scope **In** and resolved rule-only runtimes decision.
 |-----------|---------------|---------|
 | validation | obligation ↔ proof | R2.1–R2.3 and R5.1 — `pnpm test` exercises pattern and hook fixtures; `node dist/cli.js validate` checks new docs. |
 | failure modes | obligation ↔ proof | R3.1–R3.3 — deny on secret paths; allow on `.env.example`; R3.4 — no silent allow on malformed hook input (hook exits non-zero or deny-safe default — exact behavior fixed in implementation, tested in R3). |
-| idempotency and retry | obligation ↔ proof | R4.1 — `setup` skip-if-exists: re-running `setup` does not overwrite an existing consumer hook file (same as `createFile` / `applyTemplates` today). |
+| idempotency and retry | obligation ↔ proof | R4.1 and R4.5 — `setup` skip-if-exists: re-running `setup` does not overwrite an existing consumer hook config; manual wiring docs cover repos that already had hook JSON. |
 | authorization | obligation ↔ proof | R1.1 and R3.1 — agent tool boundary enforcement; no elevation path through the hook (deny only). Human approval flow stays in the standing rule text, not the hook. |
 | concurrency and ordering | n/a | Unchanged surface: `wireRuntimes` order and template walk in `src/setup/apply.ts` — hook wiring runs after templates copy in existing `setup` sequence. |
 | data lifecycle | n/a | Unchanged surface: hook reads tool metadata only; no persistence of paths or file contents. Cited unchanged surface: hook scripts under `.agents/hooks/`. |
@@ -134,7 +135,7 @@ Traces to PRD scope **In** and resolved rule-only runtimes decision.
 | Identifier | Decision needed | Owner | Blocking effect | Disposition |
 |------------|-------------------|-------|-------------------|--------------|
 | `U-pre-commit-scan` | Pre-commit secret scan: built-in `secret-paths.mjs` vs scanner dependency | Rafael / deferred | Non-blocking for this slice | Defer per PRD non-goals and pragmatic-guard note (need 2/10; complexity 5 built-in vs 8 dependency). Revisit when a commit-side incident or explicit follow-up spec is opened. |
-| `U-hook-config-merge` | When `.cursor/hooks.json` or `.claude/settings.json` already exists, `setup` skips today — merge guard entries vs leave manual | Rafael | Blocks R4.2/R4.3 acceptance in repos with existing hook config | Resolve before Wave 2 ships, or document skip-only behavior and a doctor follow-up |
+| `U-hook-config-merge` | When `.cursor/hooks.json` or `.claude/settings.json` already exists, `setup` skips today — merge guard entries vs leave manual | Rafael | Non-blocking (settled 2026-10-26) | **Settled:** keep skip-if-exists; document manual guard wiring in `templates/.agents/hooks/README.md` (R4.5). No merge in `setup`. |
 | `U-native-hook-follow-up` | Wire guard on remaining runtimes (Codex, Copilot, Gemini, …) | Rafael | Non-blocking | Follow-up initiative after slice 1; rule-only acceptable now |
 
 ## Out of scope
@@ -165,7 +166,7 @@ Traces to PRD scope **In** and resolved rule-only runtimes decision.
 ### Wave 2
 
 - [ ] `setup` copies hook and rule templates (pairs with R4.1, `proof-secret-path-guard-setup-templates`)
-- [ ] Cursor and Claude Code hook wiring when selected (pairs with R4.2–R4.3, `proof-secret-path-guard-cursor-wiring`, `proof-secret-path-guard-claude-wiring`)
+- [ ] Cursor and Claude Code hook wiring when selected; skip when config exists with README manual steps (pairs with R4.2–R4.5, `proof-secret-path-guard-cursor-wiring`, `proof-secret-path-guard-claude-wiring`, `proof-secret-path-guard-manual-wiring-docs`)
 - [ ] Codex-only setup does not write hook JSON (pairs with R4.4, `proof-secret-path-guard-no-hook-for-inline-only`)
 - [ ] Inline rules list includes `secrets.md` (pairs with R1.2, `proof-secret-path-guard-inline-rules-list`)
 - [ ] Full gate suite green (pairs with R5.1, `proof-secret-path-guard-gates-pass`)
