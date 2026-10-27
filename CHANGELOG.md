@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.4.0](https://github.com/WolvenTech/wolven-harness/compare/v0.3.2...v0.4.0) (2026-10-27)
+
+
+### Features
+
+* **agents:** qmd status empty-index bootstrap for fresh worktrees ([#74](https://github.com/WolvenTech/wolven-harness/issues/74)) ([292014e](https://github.com/WolvenTech/wolven-harness/commit/292014e512c42051069a98dac208c5a5844ac16e))
+* **doctor:** check a wired install and repair it with consent ([#76](https://github.com/WolvenTech/wolven-harness/issues/76)) ([05efd1e](https://github.com/WolvenTech/wolven-harness/commit/05efd1e72c18f8db8818e40481390d6c2436c02e))
+* **hooks:** secret-path guard rule, hook, and setup wiring for issue 80 ([#88](https://github.com/WolvenTech/wolven-harness/issues/88)) ([7c2773d](https://github.com/WolvenTech/wolven-harness/commit/7c2773d9ee469801b0c17902054024db56cfbfb6))
+* **install:** wire the harness into nine runtimes and run setup anywhere ([#75](https://github.com/WolvenTech/wolven-harness/issues/75)) ([bdb63b8](https://github.com/WolvenTech/wolven-harness/commit/bdb63b8537b22ffdc1dbfa0c928b3158a2143ce3))
+* **knowledge:** add an ask-only AI-pattern consultation pilot ([#78](https://github.com/WolvenTech/wolven-harness/issues/78)) ([7432586](https://github.com/WolvenTech/wolven-harness/commit/7432586cc80286a85e2a0215339f5cffc65159e5))
+* **wayfinder:** make lanes the default canvas ([#82](https://github.com/WolvenTech/wolven-harness/issues/82)) ([3265bb5](https://github.com/WolvenTech/wolven-harness/commit/3265bb5ccedc0012e47d85e94e6e740f1d4b5ce6))
+
+
+### Bug Fixes
+
+* **cloud:** fall back to PATH qmd for MCP on macOS ([#91](https://github.com/WolvenTech/wolven-harness/issues/91)) ([a16b1fb](https://github.com/WolvenTech/wolven-harness/commit/a16b1fbcb779d259da6a7dee01f51bca6180fb57))
+* **cloud:** wire QMD MCP, Cursor rules, and robust install ([#90](https://github.com/WolvenTech/wolven-harness/issues/90)) ([fdb1cec](https://github.com/WolvenTech/wolven-harness/commit/fdb1cec248fcf6de14a77ef4e16ee9e95836218e))
+* **release:** cut 0.4.0 once and keep the release pull request current ([#85](https://github.com/WolvenTech/wolven-harness/issues/85)) ([76cbe9d](https://github.com/WolvenTech/wolven-harness/commit/76cbe9dd5b24aa5c462036060ca02a7ebf67b917))
+
 ## [0.3.2](https://github.com/WolvenTech/wolven-harness/compare/v0.3.1...v0.3.2) (2026-10-15)
 
 
