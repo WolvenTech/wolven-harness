@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
 import { readdirSync, readFileSync } from 'node:fs';
-import { readFile } from 'node:fs/promises';
+import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
@@ -50,8 +50,11 @@ test('setup-surfaces: creates exactly the expected paths', async () => {
     '.agents/rules/comments.md',
     '.agents/rules/project-skill-precedence.md',
     '.agents/rules/qmd-first.md',
+    '.agents/rules/secrets.md',
     '.agents/rules/yagni-strict.md',
     '.agents/hooks/README.md',
+    '.agents/hooks/secret-path-guard.mjs',
+    '.agents/hooks/secret-paths.mjs',
     'docs/WRITING-PROFILE.md',
     'docs/adrs/adr-000-record-architecture-decisions.md',
     'docs/prds/.gitkeep',
@@ -70,6 +73,19 @@ test('setup-surfaces: creates exactly the expected paths', async () => {
   const actual = (await walkFiles(dir)).sort();
 
   assert.deepEqual(actual, expected);
+});
+
+test('proof-secret-path-guard-inline-rules-list: a codex install lists secrets.md with the other standing rules', async () => {
+  const dir = await makeRepo({}, { git: true });
+  const result = await run(['setup', '--git-host', 'gh', '--runtimes', 'codex'], { cwd: dir });
+  assert.equal(result.code, 0, result.stderr);
+
+  const wolven = await readFile(path.join(dir, 'WOLVEN.md'), 'utf8');
+  const standingRules = wolven.split('## Standing rules')[1].split('\n## ')[0];
+  for (const rule of await readdir(path.join(dir, '.agents', 'rules'))) {
+    assert.ok(standingRules.includes(`\`.agents/rules/${rule}\``), `standing rules list ${rule}`);
+  }
+  assert.ok(standingRules.includes('`.agents/rules/secrets.md`'));
 });
 
 test('wolven-template: first line points to harness-init step 0', async () => {

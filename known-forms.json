@@ -1,7 +1,15 @@
 {
   "forms": {
     ".agents/hooks/README.md": [
-      "528bcb7f9f829b3efdd021f491175c39c7a15c0e5df1df5e9917791399372e3d"
+      "03b312ba6a8d098ca1ba2d17219ce056814de26dc75e05506cce436c68103df3",
+      "528bcb7f9f829b3efdd021f491175c39c7a15c0e5df1df5e9917791399372e3d",
+      "d82222e24da4c4a66cc85a037136b6860ef03dd655c76608f52cc642370ceb40"
+    ],
+    ".agents/hooks/secret-path-guard.mjs": [
+      "77def2fd1f705c8e9de3f97e72d782e199d43922cffe2858693084185eec14bc"
+    ],
+    ".agents/hooks/secret-paths.mjs": [
+      "db636c3d5087c713727b89e5f583a188c4ad7b76e039f49cb701ef61bd4f3213"
     ],
     ".agents/rules/comments.md": [
       "cb99e8ebf9d24cd02120d349e816e6513a4ee8b4535991ad35564a78c24107ca"
@@ -15,6 +23,9 @@
       "4dee583a761294d6aa236d14aaaa1efa39c41cc82b147bcbf45ab15b0e5ec552",
       "828075b5737be5cc34b0c6bf218234d8bd419fd82a84d3c9124efb96fc22c56f",
       "966ba2743e44f46f5f929d2b43aaf34fa95e1fdd849e91d83f06a116928d7182"
+    ],
+    ".agents/rules/secrets.md": [
+      "6353a2543115ebde4a07d7b579f5eb5dd7c83b98a4e916ca132b66e9f49e5b00"
     ],
     ".agents/rules/yagni-strict.md": [
       "6cf77cefb21c428f5da4d0c29f91ba24cfef721c1d5088f9408a45b8bbae8d1a"

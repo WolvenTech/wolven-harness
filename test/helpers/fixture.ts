@@ -35,6 +35,8 @@ export async function makeRepo(files: Record<string, string>, opts: { git?: bool
     await execFileAsync('git', ['init', '-q'], { cwd: dir, env });
     await execFileAsync('git', ['config', 'user.name', GIT_ENV.GIT_AUTHOR_NAME], { cwd: dir, env });
     await execFileAsync('git', ['config', 'user.email', GIT_ENV.GIT_AUTHOR_EMAIL], { cwd: dir, env });
+    // why: a global commit.gpgsign makes every fixture commit call the signer, which can stall for seconds.
+    await execFileAsync('git', ['config', 'commit.gpgsign', 'false'], { cwd: dir, env });
     await execFileAsync('git', ['add', '-A'], { cwd: dir, env });
     await execFileAsync('git', ['commit', '-q', '-m', 'fixture', '--allow-empty'], { cwd: dir, env });
   }

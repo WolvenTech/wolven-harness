@@ -184,6 +184,7 @@ test('proof-install-experience-registry-data', async () => {
       const expected = [
         ...(row.skills.kind === 'symlink' ? [row.skills.path] : []),
         ...(row.entryFile === undefined ? [] : [row.entryFile.path]),
+        ...(row.hookConfig === undefined ? [] : [row.hookConfig.path]),
       ];
       if (rulesMode([row.id]) === 'native') {
         if (row.rules.kind === 'link') expected.push(row.rules.path);

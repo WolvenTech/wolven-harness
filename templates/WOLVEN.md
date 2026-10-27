@@ -37,6 +37,7 @@ qmd query "<question>"
 
 - `.agents/rules/qmd-first.md` — QMD before web, ADRs first
 - `.agents/rules/yagni-strict.md` — strict YAGNI; deferrals under `docs/deferrals/` only
+- `.agents/rules/secrets.md` — never read or print secret-shaped files; ask the Human when access is truly needed
 - `.agents/rules/comments.md` — comment style for added lines; run `harness:comments` before handing work back
 - `.agents/rules/project-skill-precedence.md` — before using a skill, check `.agents/skills/<name>/SKILL.md` and `.claude/skills/<name>/SKILL.md`; follow an available project copy, use the user-level copy only when neither exists, and resolve relative references from the selected skill directory
 

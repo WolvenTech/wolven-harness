@@ -40,7 +40,35 @@ export interface RuntimeRegistryRow {
   skills: ProjectSkills;
   rules: RulesWiring;
   entryFile?: { path: string; content: string };
+  /** Project hook config that runs the secret-path guard before reads and shell commands. */
+  hookConfig?: { path: string; content: string };
 }
+
+const GUARD_SCRIPT = '.agents/hooks/secret-path-guard.mjs';
+
+function jsonFile(value: unknown): string {
+  return `${JSON.stringify(value, null, 2)}\n`;
+}
+
+const cursorHooksJson = jsonFile({
+  version: 1,
+  hooks: {
+    beforeReadFile: [{ command: `node ${GUARD_SCRIPT}` }],
+    beforeShellExecution: [{ command: `node ${GUARD_SCRIPT}` }],
+  },
+});
+
+const claudeSettingsJson = jsonFile({
+  hooks: {
+    PreToolUse: [
+      {
+        matcher: 'Bash|Read|Grep|Glob',
+        // why: Claude Code expands $CLAUDE_PROJECT_DIR, so the hook resolves from any working directory.
+        hooks: [{ type: 'command', command: `node "$CLAUDE_PROJECT_DIR/${GUARD_SCRIPT}"` }],
+      },
+    ],
+  },
+});
 
 function envDir(env: RuntimeEnv, key: string): string | undefined {
   const value = env[key];
@@ -84,6 +112,7 @@ export const RUNTIME_REGISTRY: readonly RuntimeRegistryRow[] = [
     skills: { kind: 'symlink', path: '.claude/skills', target: '../.agents/skills' },
     rules: { kind: 'link', path: '.claude/rules', target: '../.agents/rules' },
     entryFile: { path: 'CLAUDE.md', content: '@AGENTS.md\n' },
+    hookConfig: { path: '.claude/settings.json', content: claudeSettingsJson },
   },
   {
     id: 'codex',
@@ -100,6 +129,7 @@ export const RUNTIME_REGISTRY: readonly RuntimeRegistryRow[] = [
     folderMarkers: ['.cursor', '.cursorrules'],
     skills: { kind: 'direct', path: '.agents/skills' },
     rules: { kind: 'per-rule', pattern: '.cursor/rules/wolven-{rule}.mdc', frontmatter: 'alwaysApply: true' },
+    hookConfig: { path: '.cursor/hooks.json', content: cursorHooksJson },
   },
   {
     id: 'opencode',
@@ -347,7 +377,8 @@ async function wireSkillsPaths(
 
 /**
  * Wires the selected runtimes: skills paths that are symlinks, the
- * `CLAUDE.md` stub, and each native row's rules wiring. When any selected
+ * `CLAUDE.md` stub, each row's hook config whatever the rules strategy,
+ * and each native row's rules wiring. When any selected
  * runtime is `inline`, the harness section carries the rules, so no native
  * rules wiring is created for any runtime.
  */
@@ -362,6 +393,9 @@ export async function wireRuntimes(opts: Options, ctx: Context): Promise<StepRes
     const sharedRulesFile = mode === 'native' && row.rules.kind === 'file' && row.entryFile?.path === row.rules.path;
     if (row.entryFile !== undefined && !sharedRulesFile) {
       await createFile(ctx, row.entryFile.path, row.entryFile.content, created, skipped);
+    }
+    if (row.hookConfig !== undefined) {
+      await createFile(ctx, row.hookConfig.path, row.hookConfig.content, created, skipped);
     }
   }
 

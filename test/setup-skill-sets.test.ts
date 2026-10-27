@@ -25,7 +25,7 @@ test('setup-skill-sets: default without a terminal installs core and ship', asyn
   assert.equal(result.code, 0, result.stderr);
   assert.deepEqual(await installed(dir), [...CORE_SKILLS, ...SET_SKILLS.ship].sort());
   assert.deepEqual((await config(dir)).skillSets, ['ship']);
-  assert.match(result.stdout, new RegExp(`✔ ${CORE_AND_SHIP} skills \\(core, ship\\) and 4 rules in \\.agents/`));
+  assert.match(result.stdout, new RegExp(`✔ ${CORE_AND_SHIP} skills \\(core, ship\\) and 5 rules in \\.agents/`));
 });
 
 test('setup-skill-sets: --skills none installs core only', async () => {
@@ -37,7 +37,7 @@ test('setup-skill-sets: --skills none installs core only', async () => {
   assert.deepEqual(await installed(dir), [...CORE_SKILLS].sort());
   assert.ok(!(await installed(dir)).includes('code-commit'));
   assert.deepEqual((await config(dir)).skillSets, []);
-  assert.match(result.stdout, new RegExp(`✔ ${CORE_SKILLS.length} skills \\(core\\) and 4 rules`));
+  assert.match(result.stdout, new RegExp(`✔ ${CORE_SKILLS.length} skills \\(core\\) and 5 rules`));
 });
 
 test('setup-skill-sets: --skills ship,discovery installs every template skill', async () => {
