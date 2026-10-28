@@ -464,6 +464,100 @@ test('journey-map feedback: an unchanged continued checklist gets a line and a d
   assert.ok(!changed.includes('continued with no change'));
 });
 
+test('journey-map feedback: a note on an unrevealed node still appears in layout order', () => {
+  const logic = loadLogic();
+  const map = fixture('lotr-map.json');
+  const text = logic.feedback(map, { forest: { note: 'Shortcut?' } }, 'lotr-map.json');
+  assert.match(text, /forest "Cross the Old Forest": note "Shortcut\?"/);
+  assert.ok(text.indexOf('forest') > text.indexOf('route'));
+});
+
+test('journey-map persistence: storage key uses path, pathname fallback, and content hash', () => {
+  const logic = loadLogic();
+  const map = fixture('lotr-map.json');
+  const hash = logic.mapContentHash(map);
+  assert.match(hash, /^[0-9a-f]{8}$/);
+  assert.equal(logic.storageIdentity('docs/x-map.json', { pathname: '/ignored' }), 'docs/x-map.json');
+  assert.equal(logic.storageIdentity('', { pathname: '/maps/walk.html' }), '/maps/walk.html');
+  assert.equal(logic.storageIdentity('', { pathname: '' }), '(no-path)');
+  const key = logic.storageKey('lotr-map.json', map, { pathname: '/x' });
+  assert.equal(key, `journey-map:v1:lotr-map.json:${hash}`);
+  const map2 = structuredClone(map);
+  map2.trees[0].nodes[0].label = 'Changed';
+  assert.notEqual(logic.mapContentHash(map2), hash);
+});
+
+test('journey-map persistence: load and save round-trip; hash change ignores old key', () => {
+  const logic = loadLogic();
+  const map = fixture('lotr-map.json');
+  const loc = { pathname: '/test.html' };
+  const store = new Map<string, string>();
+  const storage = {
+    getItem: (k: string) => store.get(k) ?? null,
+    setItem: (k: string, v: string) => {
+      store.set(k, v);
+    },
+    removeItem: (k: string) => {
+      store.delete(k);
+    },
+  };
+  const notes = {
+    route: { note: 'A' },
+    pack: { note: 'B' },
+    pony: { note: 'C' },
+  };
+  logic.saveWalkState(storage, 'lotr-map.json', map, loc, notes);
+  assert.equal(JSON.stringify(logic.loadWalkState(storage, 'lotr-map.json', map, loc)), JSON.stringify(notes));
+  const fb = logic.feedback(map, logic.loadWalkState(storage, 'lotr-map.json', map, loc)!, 'lotr-map.json');
+  assert.equal(fb.split('\n').filter((l) => l.includes('note ')).length, 3);
+  const altered = structuredClone(map);
+  altered.trees[0].nodes[0].id = 'shire-renamed';
+  assert.equal(logic.loadWalkState(storage, 'lotr-map.json', altered, loc), null);
+});
+
+test('journey-map persistence: empty feedback detection', () => {
+  const logic = loadLogic();
+  const map = fixture('lotr-map.json');
+  assert.ok(logic.feedbackIsEmpty(map, {}, 'lotr-map.json'));
+  assert.ok(!logic.feedbackIsEmpty(map, { route: { note: 'x' } }, 'lotr-map.json'));
+});
+
+test('journey-map persistence: storage throws on read or write do not propagate', () => {
+  const logic = loadLogic();
+  const map = fixture('lotr-map.json');
+  const loc = { pathname: '/t' };
+  const throwingRead = {
+    getItem: () => {
+      throw new Error('denied');
+    },
+    setItem: () => {},
+    removeItem: () => {},
+  };
+  assert.equal(logic.loadWalkState(throwingRead, 'lotr-map.json', map, loc), null);
+  const throwingWrite = {
+    getItem: () => null,
+    setItem: () => {
+      throw new Error('quota');
+    },
+    removeItem: () => {},
+  };
+  assert.doesNotThrow(() => logic.saveWalkState(throwingWrite, 'lotr-map.json', map, loc, { route: { note: 'x' } }));
+  assert.doesNotThrow(() => logic.clearWalkState(throwingWrite, 'lotr-map.json', map, loc));
+});
+
+test('journey-map draw: wires persistence load, save, clear, and empty copy', () => {
+  const draw = rendererFile('draw.js');
+  assert.match(draw, /loadWalkState/);
+  assert.match(draw, /saveWalkState/);
+  assert.match(draw, /clearWalkState/);
+  assert.match(draw, /feedbackIsEmpty/);
+  assert.match(draw, /emptyCopyMessage/);
+  const loadIdx = draw.indexOf('loadWalkState');
+  const noteOpenIdx = draw.indexOf('noteOpen = new Set()');
+  assert.ok(loadIdx > 0 && noteOpenIdx > loadIdx);
+  assert.ok(!draw.slice(loadIdx, noteOpenIdx).includes('noteOpen.add'));
+});
+
 const skillDir = path.join(root, 'templates', '.agents', 'skills', 'journey-map');
 const buildScript = path.join(skillDir, 'scripts', 'build-map.mjs');
 const rendererFile = (name: string) => readFileSync(path.join(skillDir, 'renderer', name), 'utf8');
