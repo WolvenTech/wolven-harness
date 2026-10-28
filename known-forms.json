@@ -223,6 +223,7 @@
     ],
     ".agents/skills/journey-map/SKILL.md": [
       "1f7304e17c73f7a95372732275333ec3b1307f984cea4ea00fc3af58ff5411e2",
+      "517e9cd9172f655fcd0a8bd71d1bf4bcfa53340afd7f097f4ca87a4777872623",
       "a38c7d52972d3dba01d7d16d3b07899c9a86591575f59e70933d187e98296948"
     ],
     ".agents/skills/journey-map/references/tree-format.md": [
@@ -235,6 +236,7 @@
     ".agents/skills/journey-map/renderer/draw.js": [
       "364ed9479e03825bc67b26c25dcfe904873c3a0bb0981fc2e13a699bd83a6ba6",
       "5dfe4fc598472f527342177e4304d5a3cbe014c22770c16d56190e3acb3d8ce4",
+      "8e7e1cb9c482f3199c0bdee99258365dc5e9b4ba6278bea4985b3731d2da7624",
       "c719b2271d8ef6722a3b9cd7842f76e8930282f64d84eec95334ea2ce1787083"
     ],
     ".agents/skills/journey-map/renderer/logic.js": [

@@ -117,7 +117,7 @@ Traces to goal: Storage failures do not break the map.
 
 **In**
 
-- Persist `state` (per-node `choice`, `checks`, `text`, `note`, `done`) to `localStorage` on every change, keyed by the map's `path` from embedded page data plus a hash of the map JSON so content changes invalidate old state.
+- Persist `state` (per-node `choice`, `checks`, `text`, `note`, `done`) to `localStorage` when the walk is non-empty — after map mutations via `render()`, with a ~300ms debounced save while typing notes or text, and an immediate flush on `pagehide` / `beforeunload` — keyed by the map's `path` from embedded page data plus a hash of the map JSON so content changes invalidate old state.
 - Restore saved `state` on load when the key matches; wrap all storage reads and writes in try/catch.
 - Clear the saved entry when **Start over** runs (including the double-**R** confirmed reset).
 - Empty-copy UX in the feedback panel when `feedback()` would return only the header (message per issue #92 acceptance).

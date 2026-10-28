@@ -584,6 +584,28 @@ test('journey-map draw: wires persistence load, save, clear, and empty copy', ()
   assert.match(draw, /function resetWalk\(\)[\s\S]*clearWalkState/);
   assert.match(draw, /schedulePersist/);
   assert.match(draw, /if \(!Object\.keys\(state\)\.length\) return/);
+  assert.match(draw, /function flushPendingPersist/);
+  assert.match(draw, /pagehide/);
+  assert.match(draw, /beforeunload/);
+});
+
+test('journey-map persistence: flush pending debounce writes before unload', () => {
+  let persistTimer = 0;
+  const writes: string[] = [];
+  const persistWalk = () => writes.push('saved');
+  const schedulePersist = () => {
+    clearTimeout(persistTimer);
+    persistTimer = setTimeout(persistWalk, 300);
+  };
+  const flushPendingPersist = () => {
+    clearTimeout(persistTimer);
+    persistTimer = 0;
+    persistWalk();
+  };
+  schedulePersist();
+  assert.equal(writes.length, 0);
+  flushPendingPersist();
+  assert.deepEqual(writes, ['saved']);
 });
 
 const skillDir = path.join(root, 'templates', '.agents', 'skills', 'journey-map');

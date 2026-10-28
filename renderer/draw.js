@@ -82,6 +82,14 @@
     clearTimeout(persistTimer);
     persistTimer = setTimeout(persistWalk, 300);
   }
+  function flushPendingPersist() {
+    clearTimeout(persistTimer);
+    persistTimer = 0;
+    persistWalk();
+  }
+  for (const ev of ['pagehide', 'beforeunload']) {
+    window.addEventListener(ev, flushPendingPersist);
+  }
 
   function text(parent, x, y, str, font, color = 'var(--ink)', anchor = 'start') {
     const t = el('text', { x, y, 'text-anchor': anchor }, parent);

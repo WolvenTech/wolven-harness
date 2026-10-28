@@ -64,7 +64,7 @@ status: stable
 
 ### Persisted payload
 
-JSON object: `{ v: 1, state: { … } }` where inner `state` matches the in-memory map (only answer fields). Serialize after every mutation that changes `state` (same events that call `render()` today). Wrap all `localStorage` read/write/remove in try/catch; on throw, continue in-memory only (PRD US-4).
+JSON object: `{ v: 1, state: { … } }` where inner `state` matches the in-memory map (only answer fields). **Save timing:** persist after each `render()` when `state` is non-empty (no write for an empty walk, including the first load). Note and text fields schedule a **300ms debounced** save while typing; `pagehide` and `beforeunload` flush any pending debounced write so a reload within 300ms still keeps typed text. Wrap all `localStorage` read/write/remove in try/catch; on throw, continue in-memory only (PRD US-4).
 
 ### Load and restore
 
