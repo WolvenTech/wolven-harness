@@ -2,7 +2,7 @@
 type: prd
 title: Journey-map reload persistence
 description: Persist journey-map answers and notes across reloads, copy every note for the agent, and warn when copy would be header-only.
-status: draft
+status: stable
 ---
 
 # Journey-map reload persistence
