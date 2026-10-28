@@ -222,19 +222,26 @@
       "c2eb4c31fcb32f44c70c0f77fce769a4af1a434667478d12b2c020a3d0d01b37"
     ],
     ".agents/skills/journey-map/SKILL.md": [
+      "1f7304e17c73f7a95372732275333ec3b1307f984cea4ea00fc3af58ff5411e2",
+      "517e9cd9172f655fcd0a8bd71d1bf4bcfa53340afd7f097f4ca87a4777872623",
       "a38c7d52972d3dba01d7d16d3b07899c9a86591575f59e70933d187e98296948"
     ],
     ".agents/skills/journey-map/references/tree-format.md": [
-      "87f0b73d668aa9c4f2f941f1490e68305e960bf473967740d4a8c7a5def72599"
+      "87f0b73d668aa9c4f2f941f1490e68305e960bf473967740d4a8c7a5def72599",
+      "a1c0ade8ced57a66ab25435f2a9358bdff355c1f81d4c6476c21d505e6d91c87"
     ],
     ".agents/skills/journey-map/renderer/canvas.js": [
       "3ef1c556c1bdc00cd28572e1e0bba6848b675007128a430c56fe33899e6bf549"
     ],
     ".agents/skills/journey-map/renderer/draw.js": [
+      "364ed9479e03825bc67b26c25dcfe904873c3a0bb0981fc2e13a699bd83a6ba6",
+      "5dfe4fc598472f527342177e4304d5a3cbe014c22770c16d56190e3acb3d8ce4",
+      "8e7e1cb9c482f3199c0bdee99258365dc5e9b4ba6278bea4985b3731d2da7624",
       "c719b2271d8ef6722a3b9cd7842f76e8930282f64d84eec95334ea2ce1787083"
     ],
     ".agents/skills/journey-map/renderer/logic.js": [
-      "17772a595763ed905fa7c553d0dd9f5fa866571220518ee30e02f0cc59a8471b"
+      "17772a595763ed905fa7c553d0dd9f5fa866571220518ee30e02f0cc59a8471b",
+      "aff5a4e003073b0e2f6b4ea4a08ef84991b6a62650bef634eb502231b5e61999"
     ],
     ".agents/skills/journey-map/renderer/page.html": [
       "3e97e2750f3be21eda28fe433399268d9d4839e1a26aa93b507ccda28be49190"
@@ -341,7 +348,8 @@
       "8bb0858ec9b45aa5c9a7ec6f2e73e46280dc9f2555a32ea2223c696b044c185d"
     ],
     ".agents/skills/wayfinder/renderer/logic.js": [
-      "17772a595763ed905fa7c553d0dd9f5fa866571220518ee30e02f0cc59a8471b"
+      "17772a595763ed905fa7c553d0dd9f5fa866571220518ee30e02f0cc59a8471b",
+      "aff5a4e003073b0e2f6b4ea4a08ef84991b6a62650bef634eb502231b5e61999"
     ],
     ".agents/skills/wayfinder/renderer/radial-draw.js": [
       "97c5c79237ac2ed06b0ed34f456b1aecfd55c03d2e9940dd2a457163e123aaa7"
