@@ -1,0 +1,271 @@
+{
+  "version": 1,
+  "title": "Jury 2 verdict: from global install to each scenario",
+  "subtitle": "The verdict as built, code backstop kept for now. Walk a path, then copy your answers",
+  "persona": { "name": "Someone who just installed the harness", "role": "Consultant, maintainer or teammate", "goal": "Get the harness working next to their code without exposing anything" },
+  "scenario": "npm i -g @wolven-tech/harness is done and wolven-harness is on PATH. Where they run setup decides the path.",
+  "trees": [
+    {
+      "id": "flow",
+      "nodes": [
+        { "id": "start", "kind": "start", "label": "Installed globally", "next": "where" },
+        {
+          "id": "where",
+          "kind": "choice",
+          "tag": "Scenario",
+          "label": "Where is the code, and where does setup run?",
+          "options": [
+            { "key": "ws", "label": "In a workspace root with an unversioned sibling", "hint": "ws/ holds hybris/ (11 GB, no git) and app/ (git)", "next": "w-1" },
+            { "key": "sibling", "label": "In a new empty folder beside the workspace", "hint": "The S02 shape", "next": "b-1" },
+            { "key": "repo", "label": "At the top level of a plain single repo", "hint": "Today's flow; must not regress", "next": "r-1" },
+            { "key": "multi", "label": "In a folder beside several repos", "hint": "client/ and api/ side by side", "next": "m-1" },
+            { "key": "upgrade", "label": "In an existing install, after upgrading", "next": "u-1" },
+            { "key": "clone", "label": "In a teammate's clone of a harness folder", "hint": "The repos are not beside it", "next": "c-1" }
+          ]
+        },
+
+        { "id": "w-1", "kind": "waypoint", "tag": "Setup", "label": "Runs setup in ws/", "mood": 0,
+          "thought": "I just want it near app/.",
+          "touchpoints": ["Terminal", "wolven-harness setup"],
+          "pains": ["Outside a repo, setup writes skills and runtime links into ws/ itself"],
+          "opportunities": ["Nothing is written under app/ or hybris/ (held in all 42 fixture runs)"], "next": "w-2" },
+        { "id": "w-2", "kind": "waypoint", "tag": "Open", "label": "Opens Claude in ws/ and runs harness-init", "mood": 0,
+          "touchpoints": ["Claude session", "harness-init skill"], "next": "w-3" },
+        { "id": "w-3", "kind": "waypoint", "tag": "Layout", "label": "harness-init records layout and codeRepo first", "mood": 1,
+          "thought": "It saved my repo path before asking anything risky.",
+          "touchpoints": [".wolven-harness.json"],
+          "pains": ["Today a no to git init ends the layout step with no write"],
+          "opportunities": ["Q3 reorder: a later no skips only the git steps"], "next": "w-4" },
+        { "id": "w-4", "kind": "waypoint", "tag": "Layout", "label": "Claude recommends a sibling harness folder (1c)", "mood": 0,
+          "thought": "Why not right here?",
+          "touchpoints": ["Claude session"],
+          "pains": ["One more folder to understand"],
+          "opportunities": ["Says why: hybris/ is not a repo, so git here would track it"], "next": "w-pick" },
+        {
+          "id": "w-pick",
+          "kind": "choice",
+          "tag": "Decision",
+          "label": "What does the person answer?",
+          "default": "linked",
+          "options": [
+            { "key": "linked", "label": "Linked layout: harness home beside ws/", "hint": "ws/ keeps only symlinks", "next": "w-l1" },
+            { "key": "plain", "label": "Plain sibling folder, open Claude there", "hint": "The fallback", "next": "w-p1" },
+            { "key": "insist", "label": "Insist on git init in ws/", "next": "w-x1" },
+            { "key": "nogit", "label": "No git anywhere", "next": "w-n1" },
+            { "key": "manual", "label": "Leave the skill and run git init by hand", "next": "w-m1" }
+          ]
+        },
+        { "id": "w-l1", "kind": "waypoint", "tag": "Linked", "label": "Reads one diff: home folder plus symlinks in ws/", "mood": 1,
+          "thought": "Nothing moves; ws/ only gets links.",
+          "touchpoints": ["Claude session", "layout.md Linked layout"],
+          "pains": ["Unverified: hybris/ and app/ stay usable from the agent through the links"],
+          "opportunities": ["Bootstrap copies setup left in ws/ become links in the same shown diff"], "next": "w-l2" },
+        { "id": "w-l2", "kind": "waypoint", "tag": "Git", "label": "git init runs in the harness home only", "mood": 2,
+          "thought": "Only harness files are tracked.",
+          "touchpoints": ["git", "harness:validate"],
+          "opportunities": ["The backstop stays quiet: the home holds only harness paths"], "next": "w-ok" },
+        { "id": "w-p1", "kind": "waypoint", "tag": "Sibling", "label": "Opens Claude in the sibling; codeRepo is ../ws/app", "mood": 1,
+          "thought": "Works, but I can't see hybris/ from here.",
+          "touchpoints": ["Claude session"],
+          "pains": ["The agent's working folder no longer shows the workspace"],
+          "opportunities": ["Same clean shape as S02"], "next": "w-l2" },
+        { "id": "w-x1", "kind": "waypoint", "tag": "Refusal", "label": "git init is refused (1b)", "mood": -1,
+          "thought": "It won't let me.",
+          "touchpoints": ["Claude session"],
+          "pains": ["Too strict a rule and people route around it by hand"],
+          "opportunities": ["Names the entry that triggered it (hybris/) and offers the linked layout"], "next": "w-x2" },
+        {
+          "id": "w-x2",
+          "kind": "choice",
+          "tag": "Decision",
+          "label": "After the refusal?",
+          "default": "accept",
+          "options": [
+            { "key": "accept", "label": "Accept the linked layout", "next": "w-l1" },
+            { "key": "hand", "label": "Do it by hand anyway", "next": "w-m1" }
+          ]
+        },
+        { "id": "w-n1", "kind": "waypoint", "tag": "No git", "label": "Declines git init", "mood": -1,
+          "touchpoints": ["Claude session"],
+          "opportunities": ["codeRepo is already recorded"], "next": "w-n2" },
+        { "id": "w-n2", "kind": "waypoint", "tag": "Validate", "label": "validate exits 1 with the conditional message", "mood": -1,
+          "thought": "So what do I do now?",
+          "touchpoints": ["harness:validate"],
+          "pains": ["harness-init waits for validate to pass before each phase, so the run stalls"],
+          "opportunities": ["Message: git init here only if this folder holds nothing but harness files; otherwise a sibling home"], "next": "w-stall" },
+        { "id": "w-m1", "kind": "waypoint", "tag": "By hand", "label": "Runs git init in ws/ by hand", "mood": -2,
+          "thought": "git status lists 300 files I don't know. git add . ?",
+          "touchpoints": ["Terminal", "git"],
+          "pains": ["1b is skill text; a by-hand git init bypasses it (S01)", "Today validate exits 0 and says nothing"], "next": "w-bs" },
+        {
+          "id": "w-bs",
+          "kind": "choice",
+          "tag": "Backstop",
+          "label": "Where does the backstop fire?",
+          "note": "Kept for now; the guard vetoed it",
+          "default": "doctor",
+          "options": [
+            { "key": "doctor", "label": "A doctor warning", "hint": "The guard's minimum if kept; allowlist from the list setup writes", "next": "w-bd" },
+            { "key": "validate", "label": "A validate error", "hint": "Integrator's pick; the gate harness-init runs", "next": "w-bv" }
+          ]
+        },
+        { "id": "w-bd", "kind": "waypoint", "tag": "Backstop", "label": "doctor warns: hybris/ is not ignored and not a repo", "mood": -1,
+          "thought": "Good thing I ran doctor before pushing.",
+          "touchpoints": ["wolven-harness doctor"],
+          "pains": ["Seen only if doctor runs before git add and push", "Its allowlist can drift: two HARNESS_PATHS lists already disagree"],
+          "opportunities": ["Runs only when the config records codeRepo, so a plain repo gets no false positive"], "next": "w-caught" },
+        { "id": "w-bv", "kind": "waypoint", "tag": "Backstop", "label": "validate fails and names hybris/", "mood": 0,
+          "thought": "It stopped me before I committed.",
+          "touchpoints": ["harness:validate", "harness-init"],
+          "pains": ["validate reads only ignore from the config today; it needs a codeRepo loader", "A README or package.json in the home could be a false positive"],
+          "opportunities": ["harness-init runs validate before each phase, so it is hard to miss"], "next": "w-caught" },
+        { "id": "w-ok", "kind": "card", "label": "Workspace untouched, harness versioned",
+          "sub": "app/ and hybris/ never tracked by the harness's git",
+          "sections": [
+            { "head": "Concrete test (Q1)", "items": ["Drive harness-init in ws/{hybris, app}, answer yes to everything", "Pass: no .git in ws/, the harness home is a sibling"] }
+          ] },
+        { "id": "w-stall", "kind": "card", "label": "Stalled without git",
+          "sub": "Loud and safe, but no first value",
+          "sections": [
+            { "head": "Proposed deferral validate-without-git", "items": ["A Human reports a machine where the harness folder cannot be a git repo", "harness-init stalls on no-git in a real install"] }
+          ] },
+        { "id": "w-caught", "kind": "card", "label": "Exposure caught after the fact",
+          "sub": "Only the backstop sees this path",
+          "sections": [
+            { "head": "Then", "items": ["Remove .git from ws/, or move to a sibling harness home"] },
+            { "head": "If the backstop is deferred (git-exposure-backstop)", "items": ["The Q1 test shows an agent running git init despite the refusal", "A field report of unignored non-harness siblings after 1b ships"] }
+          ] },
+
+        { "id": "b-1", "kind": "waypoint", "tag": "Setup", "label": "Runs setup in an empty folder beside ws/", "mood": 1,
+          "thought": "A clean folder just for the harness.",
+          "touchpoints": ["Terminal", "wolven-harness setup"], "next": "b-2" },
+        { "id": "b-2", "kind": "waypoint", "tag": "Layout", "label": "harness-init records codeRepo ../ws/app", "mood": 1,
+          "touchpoints": ["Claude session", ".wolven-harness.json"], "next": "b-agents" },
+        {
+          "id": "b-agents",
+          "kind": "choice",
+          "tag": "Check",
+          "label": "Does app/ already have its own .agents?",
+          "default": "no",
+          "options": [
+            { "key": "no", "label": "No", "next": "b-3" },
+            { "key": "yes", "label": "Yes, the repo owns one", "hint": "S16", "next": "b-a1" }
+          ]
+        },
+        { "id": "b-a1", "kind": "waypoint", "tag": "Finding 3", "label": "doctor no longer says move .agents out", "mood": 0,
+          "thought": "Good, it isn't asking me to delete the repo's files.",
+          "touchpoints": ["wolven-harness doctor", "harness-doctor skill"],
+          "pains": ["Today the fix text, and harness-doctor's table, propose moving files the repo owns"],
+          "opportunities": ["The fix says the path may belong to the repo; move it only if the harness put it there"], "next": "b-3" },
+        { "id": "b-3", "kind": "waypoint", "tag": "Git", "label": "Accepts git init: the folder holds only harness files", "mood": 2,
+          "touchpoints": ["git", "harness:validate"],
+          "opportunities": ["No refusal, no backstop warning"], "next": "b-ok" },
+        { "id": "b-ok", "kind": "card", "label": "Clean sibling install",
+          "sub": "The S02 shape, now the recommended one",
+          "sections": [{ "head": "Kept", "items": ["Nothing written under ws/", "codeRepo recorded as one relative path"] }] },
+
+        { "id": "r-1", "kind": "waypoint", "tag": "Setup", "label": "Runs setup at the repo's top level", "mood": 1,
+          "touchpoints": ["Terminal", "wolven-harness setup"], "next": "r-skills" },
+        {
+          "id": "r-skills",
+          "kind": "choice",
+          "tag": "Check",
+          "label": "Does the repo already have a real .claude/skills?",
+          "default": "no",
+          "options": [
+            { "key": "no", "label": "No", "next": "r-2" },
+            { "key": "yes", "label": "Yes, with the team's own skills", "hint": "S39", "next": "r-k1" }
+          ]
+        },
+        { "id": "r-2", "kind": "waypoint", "tag": "Init", "label": "Core skills wired; harness-init runs as today", "mood": 2,
+          "touchpoints": ["Claude session"],
+          "opportunities": ["The backstop does not run: no codeRepo in the config"], "next": "r-ok" },
+        { "id": "r-k1", "kind": "waypoint", "tag": "Finding 10", "label": "setup keeps the folder and says core skills are not wired", "mood": -1,
+          "thought": "At least it told me.",
+          "touchpoints": ["setup summary", "wolven-harness doctor"],
+          "pains": ["Today: exit 0, core skills unreachable, and doctor's fix loops back to setup"],
+          "opportunities": ["doctor's fix names the manual step: move your skills under .agents/skills, remove the folder, re-run"], "next": "r-manual" },
+        { "id": "r-ok", "kind": "card", "label": "No regression",
+          "sub": "Today's flow, unchanged",
+          "sections": [{ "head": "Kept", "items": ["Nothing in the verdict touches a plain repo's path"] }] },
+        { "id": "r-manual", "kind": "card", "label": "One manual step to wire the core skills",
+          "sub": "Nothing lost, nothing merged",
+          "sections": [{ "head": "Not built", "items": ["Merging skills or linking each one"] }] },
+
+        { "id": "m-1", "kind": "waypoint", "tag": "Setup", "label": "Runs setup beside client/ and api/", "mood": 0,
+          "thought": "One harness for both would be nice.",
+          "touchpoints": ["Terminal", "wolven-harness setup"], "next": "m-2" },
+        { "id": "m-2", "kind": "waypoint", "tag": "Config", "label": "Writes a list in codeRepo", "mood": -1,
+          "touchpoints": [".wolven-harness.json"],
+          "pains": ["Lists are not supported in this version"],
+          "opportunities": ["The error says so: lists are not supported; record one path"], "next": "m-pick" },
+        {
+          "id": "m-pick",
+          "kind": "choice",
+          "tag": "Decision",
+          "label": "Then?",
+          "default": "per",
+          "options": [
+            { "key": "per", "label": "One harness folder per repo", "next": "m-3" },
+            { "key": "abs", "label": "Tries an absolute path instead", "next": "m-abs" }
+          ]
+        },
+        { "id": "m-abs", "kind": "waypoint", "tag": "Config", "label": "Error says write it relative, e.g. ../ws/app", "mood": 0,
+          "touchpoints": ["wolven-harness setup"],
+          "pains": ["Today one message covers list, absolute and empty"], "next": "m-3" },
+        { "id": "m-3", "kind": "waypoint", "tag": "Setup", "label": "Keeps one harness folder per repo", "mood": 0,
+          "thought": "Fine for now.",
+          "pains": ["A rule change is made in each folder"], "next": "m-ok" },
+        { "id": "m-ok", "kind": "card", "label": "One repo per harness, for now",
+          "sections": [{ "head": "Proposed deferral code-repo-list", "items": ["A real user or the maintainer runs one harness for 2 or more repos", "An issue asks for a second codeRepo"] }] },
+
+        { "id": "u-1", "kind": "waypoint", "tag": "Upgrade", "label": "Upgrades and re-runs setup", "mood": 1,
+          "touchpoints": ["npm", "wolven-harness setup"],
+          "opportunities": ["packageVersion rewritten; missing files restored, edited ones kept (S23)"], "next": "u-2" },
+        { "id": "u-2", "kind": "waypoint", "tag": "Doctor", "label": "Runs doctor", "mood": 0,
+          "touchpoints": ["wolven-harness doctor"], "next": "u-pick" },
+        {
+          "id": "u-pick",
+          "kind": "choice",
+          "tag": "Check",
+          "label": "What does doctor find?",
+          "default": "clean",
+          "options": [
+            { "key": "clean", "label": "Nothing new", "next": "u-ok" },
+            { "key": "file", "label": "codeRepo points at a file", "hint": "S33", "next": "u-f" },
+            { "key": "old", "label": "An older install already put git in ws/", "next": "u-bs" }
+          ]
+        },
+        { "id": "u-f", "kind": "waypoint", "tag": "Finding 8", "label": "An error finding, no stack trace", "mood": 0,
+          "touchpoints": ["wolven-harness doctor"],
+          "pains": ["Today doctor crashes with ENOTDIR"],
+          "opportunities": ["One stat of codeRepo: error when it is not a directory"], "next": "u-fix" },
+        { "id": "u-bs", "kind": "waypoint", "tag": "Backstop", "label": "The backstop flags hybris/ in the old ws/ install", "mood": -1,
+          "thought": "I had no idea those files were sitting there untracked.",
+          "touchpoints": ["wolven-harness doctor"],
+          "pains": ["Only if the backstop ships; the skill's refusal never sees an old install"],
+          "opportunities": ["The one path where only the backstop helps an existing user"], "next": "w-caught" },
+        { "id": "u-ok", "kind": "card", "label": "Upgraded, nothing to fix",
+          "sections": [{ "head": "Kept", "items": ["Drift reported per file; edits never overwritten"] }] },
+        { "id": "u-fix", "kind": "card", "label": "Fix the config by hand",
+          "sections": [{ "head": "Next", "items": ["Point codeRepo at the repo folder, re-run doctor"] }] },
+
+        { "id": "c-1", "kind": "waypoint", "tag": "Clone", "label": "Clones the harness folder; ../ws/app is missing", "mood": -1,
+          "thought": "Where is the code supposed to be?",
+          "touchpoints": ["git clone"], "next": "c-2" },
+        { "id": "c-2", "kind": "waypoint", "tag": "Finding 8", "label": "doctor warns: codeRepo is missing", "mood": 0,
+          "touchpoints": ["wolven-harness doctor"],
+          "pains": ["Today doctor says nothing (S25)"],
+          "opportunities": ["A warning, not an error, so doctor stays usable"], "next": "c-ok" },
+        { "id": "c-ok", "kind": "card", "label": "Knows to clone the repo beside it",
+          "sections": [{ "head": "Concrete test (Q4)", "items": ["Run S25 and S33 after the fix", "Pass: one finding each, no stack trace"] }] }
+      ]
+    }
+  ],
+  "links": [],
+  "annotations": [
+    { "id": "a-where", "target": "where", "text": "Every path draws the verdict as built; today only the S02 and S22 shapes behave this way" },
+    { "id": "a-bs", "target": "w-bs", "text": "Panel 5-0 for it; guard vetoed it (need 4, complexity 5). Decide after walking" },
+    { "id": "a-ubs", "target": "u-bs", "text": "Weigh this path when deciding on the backstop" }
+  ]
+}

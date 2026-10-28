@@ -1,0 +1,365 @@
+{
+  "version": 1,
+  "title": "In-repo harness install (plain .wolven-harness/)",
+  "subtitle": "From a global install to a first session, then a worktree session. Walk it, then copy your answers",
+  "persona": {
+    "name": "Consultant on a client repo",
+    "role": "Claude Code desktop app user",
+    "goal": "Use the harness on app/ with the fewest files in the client repo's git, losing nothing in worktrees"
+  },
+  "scenario": "npm i -g @wolven-tech/harness is done. The client code is app/, a git repo. The harness is local-first: only the paths the user picks are versioned, by the client repo's own git.",
+  "trees": [
+    {
+      "id": "install",
+      "label": "Install",
+      "nodes": [
+        {
+          "id": "start",
+          "kind": "start",
+          "label": "Installed globally",
+          "next": "open"
+        },
+        {
+          "id": "open",
+          "kind": "waypoint",
+          "tag": "Open",
+          "label": "Opens app/ in the desktop app",
+          "touchpoints": [
+            "Claude Code desktop app",
+            "app/ (client repo, git)"
+          ],
+          "next": "setup"
+        },
+        {
+          "id": "setup",
+          "kind": "waypoint",
+          "tag": "Setup (silent)",
+          "label": "Runs wolven-harness setup at app/",
+          "touchpoints": [
+            "First: app/.wolven-harness/.gitignore (ignore all, re-include itself, rules, hooks, docs/adrs)",
+            "Then: skills, rules, hooks, docs, AGENTS.md, qmd config",
+            "A plain folder: no git of its own"
+          ],
+          "thought": "Nothing outside the folder yet, so no question",
+          "opportunities": [
+            "Writes only inside .wolven-harness/; asks nothing",
+            "Prints one next step: open Claude and run harness-init"
+          ],
+          "next": "wire"
+        },
+        {
+          "id": "wire",
+          "kind": "choice",
+          "tag": "harness-init asks once",
+          "label": "Wire the harness into app/?",
+          "note": "One diff for everything outside .wolven-harness/: the entry points and the ignore lines. Nothing is committed by this step",
+          "default": "yes",
+          "options": [
+            {
+              "key": "yes",
+              "label": "Yes, show the diff and apply",
+              "next": "version"
+            },
+            {
+              "key": "no",
+              "label": "Not now",
+              "hint": "Harness stays unwired; re-run harness-init later",
+              "next": "unwired"
+            }
+          ]
+        },
+        {
+          "id": "version",
+          "kind": "checklist",
+          "label": "Which harness paths should app/ version?",
+          "sub": "Ticks edit .wolven-harness/.gitignore, which the user can read and change later. Versioned means your history and PR review; teammates' agents use it only if the entry points are committed too",
+          "items": [
+            {
+              "key": "rules",
+              "label": ".agents/rules/",
+              "hint": "Recommended: worktrees and teammates get the rules"
+            },
+            {
+              "key": "hooks",
+              "label": ".agents/hooks/",
+              "hint": "Recommended: the secret guard script travels with the repo"
+            },
+            {
+              "key": "adrs",
+              "label": "docs/adrs/",
+              "hint": "Recommended: decisions written from a worktree go on its branch"
+            },
+            {
+              "key": "notes",
+              "label": "docs/notes/",
+              "on": false,
+              "hint": "Opt-in"
+            },
+            {
+              "key": "specs",
+              "label": "docs/specs/ and docs/prds/",
+              "on": false,
+              "hint": "Opt-in"
+            },
+            {
+              "key": "deferrals",
+              "label": "docs/deferrals/",
+              "on": false,
+              "hint": "Opt-in"
+            }
+          ],
+          "next": "ignore"
+        },
+        {
+          "id": "ignore",
+          "kind": "choice",
+          "tag": "Ignore",
+          "label": "Where should the entry-point ignore lines live?",
+          "note": "Only the entry points: the harness folder ignores itself through its own .gitignore",
+          "options": [
+            {
+              "key": "gitignore",
+              "label": ".gitignore",
+              "hint": "Visible: the user sees what is versioned and can change it; one more tracked file",
+              "next": "links"
+            },
+            {
+              "key": "exclude",
+              "label": ".git/info/exclude",
+              "hint": "Invisible: no tracked change; only this clone",
+              "next": "links"
+            }
+          ]
+        },
+        {
+          "id": "links",
+          "kind": "waypoint",
+          "tag": "Entry points (local)",
+          "label": "Creates the entry points in app/, all ignored",
+          "touchpoints": [
+            "CLAUDE.local.md -> .wolven-harness/AGENTS.md",
+            ".claude/skills -> .wolven-harness/.agents/skills",
+            ".claude/rules/: one link per rule file",
+            ".claude/settings.local.json: the secret guard hook, plus a SessionStart check that warns when a worktree lacks CLAUDE.local.md or .claude/rules/",
+            ".worktreeinclude: CLAUDE.local.md, .claude/rules/, .claude/skills",
+            ".wolven-harness.json (layout linked, harnessHome .wolven-harness)"
+          ],
+          "next": "commit"
+        },
+        {
+          "id": "commit",
+          "kind": "choice",
+          "tag": "Commit",
+          "label": "Commit the versioned harness paths now?",
+          "note": "One commit in app/, only the ticked paths. The user's call",
+          "default": "later",
+          "options": [
+            {
+              "key": "now",
+              "label": "Yes, show the commit and make it",
+              "next": "check"
+            },
+            {
+              "key": "later",
+              "label": "No, I'll commit when I want",
+              "hint": "The paths show in git status until then",
+              "next": "check"
+            }
+          ]
+        },
+        {
+          "id": "check",
+          "kind": "waypoint",
+          "tag": "Check",
+          "label": "harness:validate and doctor pass",
+          "touchpoints": [
+            "wolven-harness validate",
+            "wolven-harness doctor"
+          ],
+          "next": "done"
+        },
+        {
+          "id": "done",
+          "kind": "card",
+          "label": "Installed",
+          "sections": [
+            {
+              "head": "In the client repo's git",
+              "items": [
+                ".wolven-harness/.gitignore and the ticked paths under .wolven-harness/",
+                "The root .gitignore too, if the Ignore answer was .gitignore"
+              ]
+            },
+            {
+              "head": "Local and ignored",
+              "items": [
+                "The rest of .wolven-harness/: skills, AGENTS.md, qmd index, unticked docs",
+                "Every entry point in app/: CLAUDE.local.md, .claude/skills, .claude/rules/, .claude/settings.local.json, .worktreeinclude, .wolven-harness.json"
+              ]
+            },
+            {
+              "head": "History",
+              "items": [
+                "Versioned paths: the client repo's git",
+                "Local paths: none; skills reinstall from the package"
+              ]
+            },
+            {
+              "head": "Uninstall",
+              "items": [
+                "wolven-harness uninstall (new command, proposed): removes the entry points, the ignore lines and .wolven-harness.json, then asks before deleting .wolven-harness/; versioned files stay in git history"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "unwired",
+          "kind": "card",
+          "label": "Not wired",
+          "sections": [
+            {
+              "head": "State",
+              "items": [
+                "app/.wolven-harness/ exists; nothing else in app/ changed",
+                "Re-run harness-init to wire it, or wolven-harness uninstall to remove it"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "worktree",
+      "label": "Worktree session (proof run 2026-10-28, fixture p-proof)",
+      "nodes": [
+        {
+          "id": "wt-start",
+          "kind": "start",
+          "label": "Starts a parallel session",
+          "sub": "Desktop app, app/ open",
+          "next": "wt-create"
+        },
+        {
+          "id": "wt-create",
+          "kind": "waypoint",
+          "tag": "Worktree",
+          "label": "App creates .claude/worktrees/<name>/",
+          "touchpoints": [
+            "The checkout brings the versioned paths: .wolven-harness/.agents/{rules,hooks} and docs/",
+            ".worktreeinclude copies CLAUDE.local.md and each rule file as plain files",
+            ".claude/settings.local.json is copied too, unlisted"
+          ],
+          "mood": 1,
+          "next": "wt-load"
+        },
+        {
+          "id": "wt-load",
+          "kind": "waypoint",
+          "tag": "Context",
+          "label": "Skills, AGENTS.md and rules load",
+          "touchpoints": [
+            "Proved: skill marker, from the main checkout fallback",
+            "Proved: agents marker, from the copied CLAUDE.local.md",
+            "Proved: rule marker, from the copied .claude/rules/"
+          ],
+          "mood": 2,
+          "next": "wt-hook"
+        },
+        {
+          "id": "wt-hook",
+          "kind": "waypoint",
+          "tag": "Secrets",
+          "label": "A read of app/.env is blocked",
+          "touchpoints": [
+            "Proved: the agent first refused on the secrets rule alone",
+            "Proved: after a go-ahead, secret-path-guard blocked the Read, wired only in the main checkout's settings.local.json"
+          ],
+          "pains": [
+            "The hook message cites .agents/rules/secrets.md, which now sits under .wolven-harness/"
+          ],
+          "mood": 2,
+          "next": "wt-write"
+        },
+        {
+          "id": "wt-write",
+          "kind": "waypoint",
+          "tag": "Writes",
+          "label": "An ADR is written to .wolven-harness/docs/adrs/",
+          "touchpoints": [
+            "Proved: Write tool, no block, no prompt",
+            "Proved: shows in the worktree's git status, ready to commit on its branch; app/ stays clean"
+          ],
+          "mood": 2,
+          "next": "wt-proof"
+        },
+        {
+          "id": "wt-proof",
+          "kind": "card",
+          "label": "Proof result",
+          "sections": [
+            {
+              "head": "Same as a fully tracked install",
+              "items": [
+                "Skills, AGENTS.md, rules, the secret hook, and doc writes that go on the branch"
+              ]
+            },
+            {
+              "head": "Caveats",
+              "items": [
+                "Rule copies are taken when the worktree is created; a later rule change reaches only new worktrees",
+                "Unticked docs are not in a worktree, so they cannot be written from one",
+                "The qmd index points at the main checkout's docs; a worktree's new ADR is searchable after merge and qmd update"
+              ]
+            },
+            {
+              "head": "Earlier runs (superseded)",
+              "items": [
+                "M, a nested git in .wolven-harness/: harness writes blocked in a worktree; the client repo cannot track files inside a nested repo",
+                "A‴, a sibling harness: writes allowed, but rules missing in a worktree"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "from": "done",
+      "to": "wt-start",
+      "label": "later, a parallel session"
+    }
+  ],
+  "annotations": [
+    {
+      "id": "n-silent",
+      "target": "setup",
+      "text": "Silent: only writes inside its own folder. Needs a change: setup today refuses a subfolder and writes .agents/ and docs/ at the repo root"
+    },
+    {
+      "id": "n-docs-path",
+      "target": "version",
+      "text": "Open: skills write docs/adrs/ from the repo root. Templates need a path change, or one tracked docs link"
+    },
+    {
+      "id": "n-open",
+      "target": "open",
+      "text": "Proved: open app/ itself. The parent folder loads no harness and gets no worktree"
+    },
+    {
+      "id": "n-tools",
+      "target": "check",
+      "text": "Needs a change: validate lists files through git (ignored ones vanish); doctor-docs wants docs/ in a git repo and unignored. doctor must also run check-ignore on each re-included path and report a root rule that ignores .wolven-harness/ itself"
+    },
+    {
+      "id": "n-claims",
+      "target": "commit",
+      "text": "Required before shipping: scope ADR claims to harness files, so the client's own ADR-NNN mentions do not fail validate"
+    },
+    {
+      "id": "n-alarm",
+      "target": "wt-create",
+      "text": "Pre-mortem: copying file links is undocumented; the SessionStart check turns a silent loss into a warning"
+    }
+  ]
+}
