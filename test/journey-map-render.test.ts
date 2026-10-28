@@ -545,6 +545,31 @@ test('journey-map persistence: storage throws on read or write do not propagate'
   assert.doesNotThrow(() => logic.clearWalkState(throwingWrite, 'lotr-map.json', map, loc));
 });
 
+test('journey-map persistence: start over removes the same storage key saveWalkState uses', () => {
+  const logic = loadLogic();
+  const map = fixture('lotr-map.json');
+  const loc = { pathname: '/maps/lotr-map.html' };
+  const expectedKey = logic.storageKey('lotr-map.json', map, loc);
+  const store = new Map<string, string>();
+  let removeKey: string | undefined;
+  const storage = {
+    getItem: (k: string) => store.get(k) ?? null,
+    setItem: (k: string, v: string) => {
+      store.set(k, v);
+    },
+    removeItem: (k: string) => {
+      removeKey = k;
+      store.delete(k);
+    },
+  };
+  const walk = { route: { choice: 'road' }, pack: { note: 'pack note' }, pony: { text: 'Bill' } };
+  logic.saveWalkState(storage, 'lotr-map.json', map, loc, walk);
+  assert.ok(store.has(expectedKey));
+  logic.clearWalkState(storage, 'lotr-map.json', map, loc);
+  assert.equal(removeKey, expectedKey);
+  assert.equal(store.has(expectedKey), false);
+});
+
 test('journey-map draw: wires persistence load, save, clear, and empty copy', () => {
   const draw = rendererFile('draw.js');
   assert.match(draw, /loadWalkState/);
@@ -556,6 +581,9 @@ test('journey-map draw: wires persistence load, save, clear, and empty copy', ()
   const noteOpenIdx = draw.indexOf('noteOpen = new Set()');
   assert.ok(loadIdx > 0 && noteOpenIdx > loadIdx);
   assert.ok(!draw.slice(loadIdx, noteOpenIdx).includes('noteOpen.add'));
+  assert.match(draw, /function resetWalk\(\)[\s\S]*clearWalkState/);
+  assert.match(draw, /schedulePersist/);
+  assert.match(draw, /if \(!Object\.keys\(state\)\.length\) return/);
 });
 
 const skillDir = path.join(root, 'templates', '.agents', 'skills', 'journey-map');

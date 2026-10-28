@@ -73,6 +73,16 @@
   const layoutOpts = () => ({ open });
   let plan = L.layout(map, layoutOpts());
 
+  let persistTimer = 0;
+  function persistWalk() {
+    if (!Object.keys(state).length) return;
+    L.saveWalkState(globalThis.localStorage, path, map, persistLoc, state);
+  }
+  function schedulePersist() {
+    clearTimeout(persistTimer);
+    persistTimer = setTimeout(persistWalk, 300);
+  }
+
   function text(parent, x, y, str, font, color = 'var(--ink)', anchor = 'start') {
     const t = el('text', { x, y, 'text-anchor': anchor }, parent);
     t.style.font = font;
@@ -233,6 +243,7 @@
       state[id] ||= {};
       state[id][isNote ? 'note' : 'text'] = field.value;
       updateStatus();
+      schedulePersist();
     });
     return field;
   }
@@ -720,7 +731,7 @@
     updateStatus();
     const fresh = [...shown].filter((id) => !shownBefore.has(id));
     shownBefore = shown;
-    L.saveWalkState(globalThis.localStorage, path, map, persistLoc, state);
+    persistWalk();
     return fresh;
   }
 
@@ -867,6 +878,7 @@
   }
 
   function resetWalk() {
+    clearTimeout(persistTimer);
     state = Object.create(null);
     noteOpen.clear();
     L.clearWalkState(globalThis.localStorage, path, map, persistLoc);
