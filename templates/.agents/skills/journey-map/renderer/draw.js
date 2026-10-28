@@ -53,7 +53,12 @@
     waypoint: ['Step', '--k-step'],
     card: ['Summary', '--k-card'],
   };
+  const persistLoc = { pathname: globalThis.location?.pathname ?? '' };
   let state = Object.create(null);
+  const restored = L.loadWalkState(globalThis.localStorage, path, map, persistLoc);
+  if (restored) {
+    for (const id of Object.keys(restored)) state[id] = restored[id];
+  }
   let noteOpen = new Set();
   const open = new Set();
   let showAll = false;
@@ -715,6 +720,7 @@
     updateStatus();
     const fresh = [...shown].filter((id) => !shownBefore.has(id));
     shownBefore = shown;
+    L.saveWalkState(globalThis.localStorage, path, map, persistLoc, state);
     return fresh;
   }
 
@@ -863,6 +869,7 @@
   function resetWalk() {
     state = Object.create(null);
     noteOpen.clear();
+    L.clearWalkState(globalThis.localStorage, path, map, persistLoc);
     render();
     focusOn(startIds());
   }
@@ -1001,7 +1008,15 @@
   document.getElementById('fit').onclick = fitAll;
   document.getElementById('reset').onclick = resetWalk;
 
+  const emptyCopyMessage =
+    'Nothing to copy yet. Pick an option on the map or use the pencil on a card to add a note for your agent.';
   copyButton.onclick = async () => {
+    if (L.feedbackIsEmpty(map, state, path)) {
+      feedbackPanel.hidden = false;
+      feedbackBox.value = emptyCopyMessage;
+      feedbackBox.focus();
+      return;
+    }
     const value = L.feedback(map, state, path);
     if (await globalThis.CanvasCore.copyText(value, { panel: feedbackPanel, box: feedbackBox })) {
       statusEl.textContent = 'Copied. Paste it into your agent chat.';

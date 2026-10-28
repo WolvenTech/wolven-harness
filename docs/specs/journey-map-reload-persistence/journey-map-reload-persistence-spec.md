@@ -187,16 +187,16 @@ A failed gate aborts before the next wave.
 
 ### Wave 1
 
-- [ ] Content hash and storage key helpers including path / pathname / `(no-path)` fallback (pairs with R1.2, R5.1, `proof-journey-map-reload-hash-invalidate`, `proof-journey-map-storage-key-fallback`)
-- [ ] Empty-copy detection helper (pairs with R3.1, `proof-journey-map-empty-copy-message`)
-- [ ] Unit tests for R2.1 baseline if not already covered (pairs with R2.1, `proof-journey-map-reload-unrevealed-note`)
+- [x] Content hash and storage key helpers including path / pathname / `(no-path)` fallback (pairs with R1.2, R5.1, `proof-journey-map-reload-hash-invalidate`, `proof-journey-map-storage-key-fallback`)
+- [x] Empty-copy detection helper (pairs with R3.1, `proof-journey-map-empty-copy-message`)
+- [x] Unit tests for R2.1 baseline if not already covered (pairs with R2.1, `proof-journey-map-reload-unrevealed-note`)
 
 ### Wave 2
 
-- [ ] `draw.js` load/save/clear wired with try/catch; restore without opening note editors (pairs with R1.1, R1.3, R4.1, R4.2, R6.1)
-- [ ] Copy button uses empty-copy UX (pairs with R3.1, R3.2)
-- [ ] Skill docs updated; template synced via `pnpm sync:renderer` (pairs with R7.1, R8.1)
-- [ ] Full gate suite green (pairs with R8.1, `proof-journey-map-reload-gates-pass`)
+- [x] `draw.js` load/save/clear wired with try/catch; restore without opening note editors (pairs with R1.1, R1.3, R4.1, R4.2, R6.1)
+- [x] Copy button uses empty-copy UX (pairs with R3.1, R3.2)
+- [x] Skill docs updated; template synced via `pnpm sync:renderer` (pairs with R7.1, R8.1)
+- [x] Full gate suite green (pairs with R8.1, `proof-journey-map-reload-gates-pass`)
 
 ## Eval / gates
 

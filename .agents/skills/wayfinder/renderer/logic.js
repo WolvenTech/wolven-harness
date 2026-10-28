@@ -708,6 +708,62 @@
     return { faded: fade, later };
   }
 
+  const PERSIST_PREFIX = 'journey-map:v1:';
+
+  /** FNV-1a over embedded tree JSON so content edits change the storage key. */
+  function mapContentHash(tree) {
+    const str = JSON.stringify(tree);
+    let h = 2166136261;
+    for (let i = 0; i < str.length; i++) {
+      h ^= str.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    return (h >>> 0).toString(16).padStart(8, '0');
+  }
+
+  /** Path segment for localStorage: embedded path, else pathname, else `(no-path)`. */
+  function storageIdentity(path, locationLike = {}) {
+    if (typeof path === 'string' && path.trim()) return path.trim();
+    const pathname = locationLike.pathname;
+    if (typeof pathname === 'string' && pathname.length) return pathname;
+    return '(no-path)';
+  }
+
+  function storageKey(path, tree, locationLike) {
+    return `${PERSIST_PREFIX}${storageIdentity(path, locationLike)}:${mapContentHash(tree)}`;
+  }
+
+  function loadWalkState(storage, path, tree, locationLike) {
+    if (!storage) return null;
+    try {
+      const raw = storage.getItem(storageKey(path, tree, locationLike));
+      if (!raw) return null;
+      const blob = JSON.parse(raw);
+      if (blob?.v !== 1 || !blob.state || typeof blob.state !== 'object') return null;
+      return blob.state;
+    } catch {
+      return null;
+    }
+  }
+
+  function saveWalkState(storage, path, tree, locationLike, state) {
+    if (!storage) return;
+    try {
+      storage.setItem(storageKey(path, tree, locationLike), JSON.stringify({ v: 1, state }));
+    } catch {
+      // hazard: quota or private mode must not break the walk
+    }
+  }
+
+  function clearWalkState(storage, path, tree, locationLike) {
+    if (!storage) return;
+    try {
+      storage.removeItem(storageKey(path, tree, locationLike));
+    } catch {
+      // hazard: storage may throw when blocked; clearing must stay best-effort
+    }
+  }
+
   /**
    * The "Copy for agent" text: a header, then one line per answer or note on
    * each touched node, in layout order. Labels and typed text are JSON-escaped.
@@ -735,6 +791,11 @@
       if (answer.note !== undefined) result.push(`${prefix}note ${JSON.stringify(answer.note)}`);
     }
     return result.join('\n');
+  }
+
+  /** True when `feedback()` would emit only the header line. */
+  function feedbackIsEmpty(map, state, path) {
+    return feedback(map, state, path).split('\n').length <= 1;
   }
 
   /**
@@ -769,5 +830,36 @@
     return { points, label: { x: to.x - 22, y: gapY - 26 } };
   }
 
-  globalThis.JourneyMapLogic = { validate, linkRoute, revealed, walked, pending, prevTarget, faded, feedback, layout, edges, isStep, MOOD, moodOf, chipRows, chipRowHeights, ctx, parts, lines, all, outgoing, rows, height, M };
+  globalThis.JourneyMapLogic = {
+    validate,
+    linkRoute,
+    revealed,
+    walked,
+    pending,
+    prevTarget,
+    faded,
+    feedback,
+    feedbackIsEmpty,
+    mapContentHash,
+    storageIdentity,
+    storageKey,
+    loadWalkState,
+    saveWalkState,
+    clearWalkState,
+    layout,
+    edges,
+    isStep,
+    MOOD,
+    moodOf,
+    chipRows,
+    chipRowHeights,
+    ctx,
+    parts,
+    lines,
+    all,
+    outgoing,
+    rows,
+    height,
+    M,
+  };
 })();

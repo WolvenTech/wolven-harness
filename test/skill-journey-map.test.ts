@@ -45,7 +45,8 @@ test('skill-journey-map: closes the loop with Copy for agent, a rebuild and a re
   assert.match(skill.body, /rebuild/i);
   assert.match(skill.body, /same URL/);
   assert.match(skill.body, /Show whole map/);
-  assert.match(skill.body, /not saved across reloads/);
+  assert.match(skill.body, /localStorage/);
+  assert.match(skill.body, /Start over.*clears saved state/i);
 });
 
 test('skill-journey-map: calls a map a design aid that moves with its doc folder', async () => {

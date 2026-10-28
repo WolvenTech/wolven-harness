@@ -139,7 +139,8 @@ Field details:
   the chosen option. At a `checklist` or `text` it continues only after
   Continue.
 - "Show whole map" draws the unrevealed steps too, faint.
-- Answers live only in the page. A reload clears them.
+- Answers and notes persist across reload in `localStorage`, keyed by the map
+  path and a hash of the JSON. Rebuild after structural edits to start clean.
 
 ## Feedback text
 
