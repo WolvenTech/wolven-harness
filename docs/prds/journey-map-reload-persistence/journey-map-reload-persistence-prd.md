@@ -133,9 +133,9 @@ Traces to goal: Storage failures do not break the map.
 
 ## Open questions
 
-- Whether the storage key should include only the map `path` string embedded at build time or also the page URL when `path` is missing — owner: implementer during `code-spec`
-- Whether restored notes should reopen the pencil editor or only show the sticky preview — owner: Human at spec review
-- Maximum size or pruning policy if many maps accumulate keys in `localStorage` — owner: None (defer until a reported quota issue)
+- **Storage key when embedded `path` is missing:** deferred to the implementer — resolve in `code-spec` (Rafael).
+- **Restored notes after reload:** show only the sticky preview; do **not** reopen the pencil editor (Rafael).
+- **Maximum size or pruning policy** if many maps accumulate keys in `localStorage`: remains deferred until a reported quota issue (Rafael).
 
 ## Handoff
 
