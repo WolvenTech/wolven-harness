@@ -2,13 +2,13 @@
 type: spec
 title: Journey-map reload persistence
 description: Persist walk answers and pencil notes in localStorage, invalidate on map change, explicit empty copy, graceful storage failure.
-status: draft
+status: stable
 ---
 
 # Journey-map reload persistence
 
 **Source:** `docs/prds/journey-map-reload-persistence/journey-map-reload-persistence-prd.md` (status `stable`)
-**Next:** After the Human approves → `code-plan` → `code-execute`, waves **1 → 2**
+**Next:** `code-plan` → `code-execute`, waves **1 → 2**
 **Named proof (this spec's own structural gate):** `proof-journey-map-reload-persistence-spec-obligations`
 
 ## Terms
