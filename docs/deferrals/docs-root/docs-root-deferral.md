@@ -20,7 +20,7 @@ status: stable
 
 ## Contract impact
 
-A new optional config key and a new `setup` flag are both additive under [ADR-007](../../adrs/adr-007-in-repo-install-contract.md). The `ignore` rule's ban on `docs` would have to follow `docsDir`, which changes a frozen rule. Write it down as an amendment, not a side effect.
+A new optional config key and a new `setup` flag are both additive under [ADR-007](../../adrs/adr-007-quiet-install-contract.md). The `ignore` rule's ban on `docs` would have to follow `docsDir`, which changes a frozen rule. Write it down as an amendment, not a side effect.
 
 ## Triggers
 

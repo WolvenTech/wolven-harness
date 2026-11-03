@@ -37,7 +37,7 @@ instructions, rules, hooks and doc writes.
 `<repo>/.wolven-harness/` with no git of its own, holding the harness, and
 ignored entry points in the repo root that point into it. It reuses the
 `linked` layout and harness home of
-[ADR-007](../../adrs/adr-007-in-repo-install-contract.md); it does
+[ADR-007](../../adrs/adr-007-quiet-install-contract.md); it does
 not add a layout value.
 
 ## Goals

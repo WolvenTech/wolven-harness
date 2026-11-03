@@ -9,7 +9,7 @@ import { SetupError } from '../src/setup/types.js';
 import { makeRepo, run } from './helpers/fixture.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const ADR = path.join(ROOT, 'docs', 'adrs', 'adr-007-in-repo-install-contract.md');
+const ADR = path.join(ROOT, 'docs', 'adrs', 'adr-007-quiet-install-contract.md');
 
 /** Text of ADR-007 from the line starting with `start` up to the next line starting with `end` (or the end of the file). */
 function adrSection(adr: string, start: string, end?: string): string {

@@ -15,7 +15,7 @@ status: stable
 
 ## Contract impact
 
-Any future config shape follows [ADR-007](../../adrs/adr-007-in-repo-install-contract.md)'s change policy: new optional keys can be additive; replacing the existing `codeRepo` or convention behavior requires a separate compatibility decision. Nothing in this deferral adds or changes a config key.
+Any future config shape follows [ADR-007](../../adrs/adr-007-quiet-install-contract.md)'s change policy: new optional keys can be additive; replacing the existing `codeRepo` or convention behavior requires a separate compatibility decision. Nothing in this deferral adds or changes a config key.
 
 ## Triggers
 
