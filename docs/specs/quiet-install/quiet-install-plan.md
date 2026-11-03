@@ -2,7 +2,7 @@
 type: spec
 title: Quiet install — plan
 description: Work-unit plan for the quiet install, in four waves (validate and doctor, setup, harness-init and guides, desktop proof), with an explicit subagent model per unit.
-status: draft
+status: stable
 ---
 
 # Quiet install — plan
