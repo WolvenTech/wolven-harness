@@ -84,7 +84,7 @@
           "id": "s-write",
           "kind": "waypoint",
           "tag": "setup writes",
-          "label": "Nested .gitignore first, then the harness under .wolven-harness/ (its own AGENTS.md, no WOLVEN.md), then the root config",
+          "label": "Nested .gitignore first, then the harness under .wolven-harness/ (its own AGENTS.md, no WOLVEN.md), then the root config, then a harness-init symlink in each tool's skills folder",
           "next": "s-done"
         },
         {
@@ -103,7 +103,8 @@
               "items": [
                 ".wolven-harness/.gitignore and .wolven-harness/AGENTS.md",
                 "Rules, hooks and decision records under .wolven-harness/",
-                ".wolven-harness.json"
+                ".wolven-harness.json",
+                ".claude/skills/harness-init, untracked on purpose until harness-init runs"
               ]
             },
             {
@@ -111,14 +112,14 @@
               "items": [
                 "package.json (no scripts added)",
                 "Your AGENTS.md and CLAUDE.md",
-                "Every symlink for your tools"
+                "Every other symlink for your tools"
               ]
             },
             {
               "head": "Next steps printed",
               "items": [
                 "wolven-harness validate",
-                "Ask your agent to run the harness-init skill"
+                "Open your agent and run harness-init, or remove the harness: .wolven-harness/, .wolven-harness.json and the harness-init symlink"
               ],
               "numbered": true
             }
@@ -310,7 +311,7 @@
           "kind": "choice",
           "tag": "R5.5",
           "label": "Apply this switch? It removes .wolven-harness/ and adds tracked files at the root.",
-          "note": "Shown under the diff. If a root path is in the way, it stops first: \"Nothing changed. Move or rename it, then ask again.\"",
+          "note": "Shown under the diff, which also moves your edited or added skills, rules and hooks to the root and removes the quiet install's symlinks, hooks, ignore lines and harness block. If a root path is in the way, or a symlink into .wolven-harness/ may not be the harness's, it stops first: \"Nothing changed.\" and what to do next.",
           "options": [
             {
               "key": "yes",
@@ -332,9 +333,10 @@
             {
               "head": "What happens",
               "items": [
-                "Docs move to the root and the rest of .wolven-harness/ goes",
+                "Docs and your edited or added files move to the root; the rest of .wolven-harness/ goes",
+                "The quiet install's symlinks, hooks, ignore lines and harness block are removed",
                 "setup reruns and writes the root scaffold",
-                "harness-init carries on with its full-install flow"
+                "harness-init checks nothing still points into .wolven-harness/, then carries on with its full-install flow"
               ],
               "numbered": true
             }
@@ -411,12 +413,40 @@
             {
               "key": "yes",
               "label": "Yes",
-              "next": "i-wire"
+              "next": "i-occupied"
             },
             {
               "key": "no",
               "label": "No",
               "hint": "Those tools stay not set up, and doctor names them",
+              "next": "i-occupied"
+            }
+          ]
+        },
+        {
+          "id": "i-occupied",
+          "kind": "choice",
+          "tag": "R5.14",
+          "label": "You already have .claude/skills/code-commit, and it stays as it is. For the harness's code-commit: merge it into yours, save it next to yours as wolven-code-commit, or skip it?",
+          "note": "Asked once per occupied path, before the wiring diff; skipped when nothing is occupied. A real .claude/skills/ folder is kept, and the harness adds one symlink per skill inside it. Each outcome goes in .wolven-harness/wiring.json for doctor and later runs",
+          "default": "prefix",
+          "options": [
+            {
+              "key": "merge",
+              "label": "Merge into mine",
+              "hint": "Merged text shows in the wiring diff; a tracked change when the path is tracked",
+              "next": "i-wire"
+            },
+            {
+              "key": "prefix",
+              "label": "Save as wolven-code-commit",
+              "hint": "Symlinked beside yours",
+              "next": "i-wire"
+            },
+            {
+              "key": "skip",
+              "label": "Skip it",
+              "hint": "Nothing created there",
               "next": "i-wire"
             }
           ]
@@ -426,7 +456,7 @@
           "kind": "choice",
           "tag": "R5.3",
           "label": "Create the harness symlinks for Claude Code?",
-          "note": "The diff lists each symlink, the Claude Code hooks it sets up, and any tracked change, such as .dockerignore",
+          "note": "The diff lists each symlink (one per skill and per rule), the Claude Code hooks it sets up, the ignore lines (the harness-init symlink included) and any tracked change, such as .dockerignore",
           "default": "yes",
           "options": [
             {
@@ -447,7 +477,7 @@
           "kind": "choice",
           "tag": "R5.6",
           "label": "Commit these 6 files to feature/x? Nothing is pushed.",
-          "note": "One offer for the whole run, with every path tagged tracked or new. The session note is in it only if Notes is ticked. With no remote it says: \"This repo has no remote, so there is nothing to commit for.\"",
+          "note": "One offer for the whole run, listing only files git would track, each tagged tracked or new. Ignored symlinks are never force-added; the closing lists them as staying on this machine, plus every path kept as yours. The session note is in it only if Notes is ticked. With no remote it says: \"This repo has no remote, so there is nothing to commit for.\"",
           "default": "yes",
           "options": [
             {
@@ -472,9 +502,17 @@
               "head": "Claude Code symlinks",
               "items": [
                 "CLAUDE.local.md",
-                ".claude/skills, .claude/rules/",
+                ".claude/skills/<name> and .claude/rules/<name>, one per skill and rule",
                 ".claude/settings.local.json (secret guard, worktree warning)",
                 ".worktreeinclude, .qmd"
+              ]
+            },
+            {
+              "head": "Closing lists",
+              "items": [
+                "These stay on this machine, and git ignores them: the symlinks and wiring.json",
+                "Kept as yours: each occupied path, merged, saved as wolven-<name>, or skipped",
+                "Docker builds skip the harness when your .dockerignore got the line; otherwise packaging that ignores .gitignore picks it up"
               ]
             },
             {
@@ -516,7 +554,7 @@
           "id": "d-checks",
           "kind": "waypoint",
           "tag": "checks",
-          "label": "Decision records under .wolven-harness/docs/adrs/, each tool's symlinks, skills edited since install; validate warns on a harness doc outside .wolven-harness/",
+          "label": "Decision records under .wolven-harness/docs/adrs/, each tool's symlinks against wiring.json, skills edited since install; validate warns on a harness doc outside .wolven-harness/",
           "next": "d-result"
         },
         {
