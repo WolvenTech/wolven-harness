@@ -456,7 +456,7 @@
           "kind": "choice",
           "tag": "R5.3",
           "label": "Create the harness symlinks for Claude Code?",
-          "note": "The diff lists each symlink (one per skill and per rule), the Claude Code hooks it sets up, the ignore lines (the harness-init symlink included) and any tracked change, such as .dockerignore",
+          "note": "The diff lists each symlink (one per skill and per rule), the Claude Code hooks it sets up, the ignore lines (the harness-init symlink included) and any tracked change, such as .dockerignore. When a tool can't read a piece from a file only on this machine (Amp, OpenCode, Copilot on GitHub, Gemini with its own GEMINI.md), the diff offers the tracked edit that would, Yes or No; Codex gets a manual step",
           "default": "yes",
           "options": [
             {
