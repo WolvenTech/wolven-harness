@@ -64,23 +64,31 @@ The run ends at hand-back: building the gaps afterwards is a separate change on
 its own branch, not a commit on the harness-init branch.
 
 `HYG-03`, `HYG-04` and `HYG-06` detect leaked credentials and can never be
-dropped. A failure there is not a question: stop and show the Human the
-finding before going on.
+dropped. The score step asks no dimension question about them: the safety
+audit below covers them.
 
-## Leaked-credential checks on every path
+## Safety audit at the end of setup
 
-Every run reads the leaked-credential checks, whichever path the Human
-picked and whether or not the score is covered this run. They run before
-step 0, so a leak stops the run before the session note or any other file
-is written. Run `harness:score` and read `HYG-03`, `HYG-04` and `HYG-06`. A
-failure stops the run: show the Human the finding before anything else is
-written.
+Every run offers the safety audit as its last step, before the commit offer,
+whichever path the Human picked and whether or not the score is covered this
+run. It runs only on a yes to the question in step 6 of `SKILL.md`. It checks
+that the protection around secrets is in place, and it never reads them:
+
+- `HYG-03` looks only at file names: whether an env file exists and git
+  ignores it. It never opens the file.
+- `HYG-04` reads MCP config files for key-shaped text.
+- `HYG-06` reads harness files, the ones your agent loads anyway.
+
+Run `harness:score` and read only those three. The report names the file and
+the kind of match, never the value. Never open a flagged file or a
+secret-shaped file to look closer; `.agents/rules/secrets.md` holds for this
+step too. A finding never stops the run: report it with step 6's message.
 
 When the score is not covered this run, nothing else from the report is
 recorded or asked about. When `harness-score` is not installed, show the
 pinned install command as "Run it" above describes. If the Human declines
-the install, the run continues, and the hand-back and the note list
-"leaked-credential checks not run" under **Left for later**.
+the audit or the install, the run continues, and the hand-back and the note
+list "safety audit not run" under **Left for later**.
 
 ## Write and re-score
 

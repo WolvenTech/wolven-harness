@@ -36,11 +36,11 @@ The skill makes one commit offer, at the end, listing only the files git would t
 
 `harness-init` starts by asking how much setup you want right now, on any repo, new or with code.
 
-**Quick setup** connects the harness to your coding agents and hands back. It asks no goal question. Everything else waits: old decision records, discovery, research, skill suggestions, the score and automatic checks are listed under **Left for later** in the session note. [`lean-path.md`](https://github.com/WolvenTech/wolven-harness/blob/main/templates/.agents/skills/harness-init/references/lean-path.md) has the full list. The leaked-credential checks still run, and a leaked credential stops the run.
+**Quick setup** connects the harness to your coding agents and hands back. It asks no goal question. Everything else waits: old decision records, discovery, research, skill suggestions, the score and automatic checks are listed under **Left for later** in the session note. [`lean-path.md`](https://github.com/WolvenTech/wolven-harness/blob/main/templates/.agents/skills/harness-init/references/lean-path.md) has the full list.
 
 **Guided setup** opens by asking what the repo is for and your role in it. It then offers each remaining step one at a time, in order, and you run it or skip it. A skipped step is listed under **Left for later**. Skill suggestions run only when the repo looks new or still unexplored, and you can overrule that call.
 
-Both paths end by telling you what was installed, what was left for later and what to do next, and by asking what to work on next.
+As its last step, either path offers a safety audit. The harness never reads your passwords, keys or `.env` files, and it blocks your agent from opening them where a guard hook is set up. The audit checks that protection is in place and reports file names, never values. You can skip it. Both paths end by telling you what was installed, what was left for later and what to do next, and by asking what to work on next.
 
 ## Check the setup
 

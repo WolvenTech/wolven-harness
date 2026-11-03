@@ -18,6 +18,18 @@ Before the first question, say this to the Human:
 > anything outside that folder changes, you see the diff and say yes. Nothing
 > is ever pushed.
 
+Then, before the first question, check where the session runs. When
+`git rev-parse --git-dir` and `git rev-parse --git-common-dir` differ, it is
+in a git worktree. A worktree with no `.wolven-harness.json` has no harness
+yet, so stop: write nothing, never write into the main checkout from here,
+and never copy the harness in. The main checkout is the first path
+`git worktree list` prints. Say:
+
+> This session is in a git worktree, and the harness isn't here yet: it stays
+> in your main checkout until you commit it. Nothing changed. Next: open a
+> session on `<main checkout path>` with no worktree, then run `harness-init`
+> there.
+
 **Consult:** `adr`, `research`, `code-commit` (when installed), `qmd`, `grilling`.
 
 ## Hard gates
@@ -48,8 +60,8 @@ These rules hold across every step below.
 `references/session-note-template.md` renders the record of this run at
 `docs/notes/harness-init-<yyyy-mm-dd>/harness-init-<yyyy-mm-dd>-note.md`
 (a second run on the same day adds `-2`). It is created `draft` at the start
-of step 0, or right after the leaked-credential checks in a quiet install,
-which skips step 0. Each phase below adds its section to the note, and the
+of step 0, or right after the path question in a quiet install, which skips
+step 0. Each phase below adds its section to the note, and the
 note turns `stable` at hand-back in step 6. A `draft` note left by an
 interrupted run is where the next run resumes from — never start a second
 note over it.
@@ -170,16 +182,6 @@ setup then runs the quiet-install section of
 [references/layout.md](references/layout.md), after the last phase and
 before the hand-back. The closing asks what to work on next.
 
-## Leaked credentials before step 0
-
-On both paths, once the path question (and, in guided setup, the repo-and-role question)
-is settled, and before step 0 writes anything (the session note included), run
-`harness:score` and read the leaked-credential checks: `HYG-03`, `HYG-04`
-and `HYG-06`. A failure stops the run before any file is written: show the
-finding, say "Nothing changed.", and name the next step: remove the
-credential from the repo and rotate it, then run `harness-init` again. See
-[references/harness-score.md](references/harness-score.md).
-
 ## Workflow
 
 ### 0. Entry integration
@@ -271,7 +273,7 @@ warns `skill-stub-open` once for that `SKILL.md`.
 
 ### 6. Score, session note and hand-back
 
-The leaked-credential checks already ran before step 0. When the Human runs the
+When the Human runs the
 score step, run `harness:score` again and record the
 level and score. For each dimension with a failing check, ask one question
 in plain language: state what the repo lacks and what building it means, with check IDs as supporting references,
@@ -288,6 +290,31 @@ skip: how should `harness:validate` be wired —
 existing scripts first, frame the options with that evidence, and list the
 recommended option first. Nothing is written without the Human's yes. See
 [references/validate-wiring.md](references/validate-wiring.md).
+
+Then, on both paths, offer the safety audit as the last step of setup, before
+the commit offer. Ask:
+
+> Last step: do you want a safety audit? The harness never reads your
+> passwords, keys or `.env` files, and it blocks your agent from opening them.
+> This audit checks that protection is in place: that git ignores those files
+> and that no key sits in a config file your agent loads. It reports file
+> names, never values.
+
+For a runtime with no secret guard hook, or when the wiring was declined, say
+"and its rules tell your agent not to open them" in place of "and it blocks
+your agent from opening them". Options: "Run the audit (recommended)" and
+"Skip it". Never run it unasked. On a yes, run `harness:score` and read only
+`HYG-03`, `HYG-04` and `HYG-06`. Never open a flagged file or a secret-shaped
+file yourself, and never print a value. When it finds nothing, say so in one
+line of the closing message. A finding never stops the run; say:
+
+> The safety audit found a gap: <file and check>. Setup didn't cause this, and
+> the audit changed nothing. Next: have git ignore that file, or move the key
+> out of it.
+
+Leave any path with a finding out of the commit offer, and say so. "Skip it"
+lists "safety audit not run" under **Left for later**. See
+[references/harness-score.md](references/harness-score.md).
 
 Then add the note's final sections, set it `stable`, make the one commit
 offer (see "Commit offer"), and hand the run back to the Human in one closing

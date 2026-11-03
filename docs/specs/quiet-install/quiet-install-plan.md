@@ -64,8 +64,8 @@ fails on any difference. Owns lists the template path only.
 | 22 | Site guide, layout page and docs-root deferral | 12 | `site/install.md`, `site/layout.md`, `docs/deferrals/docs-root/docs-root-deferral.md` | `spawn` | sol | [x] The uninstall guide keeps edited files and docs before removal. The layout page names the quiet install as the default and the full install by name. The deferral fixes the docs root at `<harnessHome>/docs/`. `pnpm docs:build` and validate exit 0 (`proof-quiet-install-uninstall-guide`, `-layout-page`, `-deferral`) |
 | 23 | Copy rules pass | 11, 13, 16, 18, 19, 22 | `test/quiet-install-copy.test.ts` (new); edits limited to the strings checked, in the files units 04–05, 11, 13–19 and 22 own | `inline` | — | [x] Every question that writes outside the home names its tracked change. No "the Human" or glossary term is left in text people read, and the introduction comes first. Every stop says "Nothing changed." when true and names the next step, including wave 1–2 messages (`proof-quiet-install-tracked-changes`, `-terms-first`, `-next-step`) |
 | 24 | **Wave 3 gate** | 20, 21, 23 | `docs/specs/quiet-install/quiet-install-spec.md` (Wave 3 boxes) | `inline` | — | [x] The five gates plus `pnpm docs:build` exit 0; Wave 3 boxes ticked — **abort before Wave 4** |
-| 25 | Desktop worktree proof run | 24 | `docs/notes/quiet-install-proof/quiet-install-proof-note.md` (new) | `inline` | — | [ ] With the Human watching, a fixture made by the built setup and a harness-init run loads skills, `AGENTS.md`, rules and the guard in a desktop worktree. A home ADR stays untracked with no prompt, root `git status` is empty, and deleting `CLAUDE.local.md` shows the parity warning. Cursor and other runtimes are probed where at hand (`proof-quiet-install-worktree-run`, `-worktree-warning`) |
-| 26 | **Ship gate** | 25 | `docs/specs/quiet-install/quiet-install-spec.md` (Wave 4 boxes) | `inline` | — | [ ] Every acceptance box ticked; the breaking-marker gate exits 0; `node dist/cli.js validate` PASS — hand off to `code-pr` only on the Human's ask |
+| 25 | Desktop worktree proof run | 24 | `docs/notes/quiet-install-proof/quiet-install-proof-note.md` (new) | `inline` | — | [x] With the Human watching, a fixture made by the built setup and a harness-init run loads skills, `AGENTS.md`, rules and the guard in a desktop worktree. A home ADR stays untracked with no prompt, root `git status` is empty, and deleting `CLAUDE.local.md` shows the parity warning. Cursor and other runtimes are probed where at hand (`proof-quiet-install-worktree-run`, `-worktree-warning`) |
+| 26 | **Ship gate** | 25 | `docs/specs/quiet-install/quiet-install-spec.md` (Wave 4 boxes) | `inline` | — | [x] Every acceptance box ticked; the breaking-marker gate exits 0; `node dist/cli.js validate` PASS — hand off to `code-pr` only on the Human's ask |
 
 Unit 23 is `inline` although its strings are copy. It edits strings
 across files that eight earlier units own, so it must share the session
@@ -361,3 +361,76 @@ runtime-loading result is claimed by these text and filesystem tests.
 One local wave commit carries units 13–24 and their acceptance marks. STOP
 at unit 24. Next frontier: Wave 4 (unit 25, the desktop worktree proof),
 only with the Human watching. Nothing is pushed; no PR is opened.
+
+### Unit 25 — Desktop worktree proof run
+
+The Human resumed Wave 4 in Claude Code on 2026-11-03 and is watching.
+Active batch: Wave 4, units 25–26. Stop after unit 26; no push or PR.
+
+| Field | Value |
+|-------|-------|
+| Unit identifier | 25 — Desktop worktree proof run; Wave 4 frontier, inline |
+| Spec/plan paths | `docs/specs/quiet-install/quiet-install-spec.md` / `docs/specs/quiet-install/quiet-install-plan.md` |
+| Obligation / proof status | R10.1, R10.2 — done; Human accepted on 2026-11-03. `U-cursor-ignored-rules`, `U-runtimes-ignored-load` stay open: no other runtime was at hand |
+| `HEAD` commit | `dc00a35` |
+| `git status` summary | clean at unit start; this plan file is the only dirt before the proof note |
+| Intended diff scope | `docs/notes/quiet-install-proof/quiet-install-proof-note.md` (new) |
+| Decision on every discrepancy | Resolved: the fixture lives outside this repository at `quiet-install-proof-app/`, with a local bare `origin` so harness-init makes its commit offer. Marker files (a rule, a skill and an `AGENTS.md` line in its home) show what each session loaded. Only Claude Code is wired; other runtimes are probed only if the Human has them at hand |
+
+During unit 25's first harness-init attempt the Human directed one change.
+The leaked-credential check no longer runs unasked before step 0. It is now
+an opt-in security check, explained in its question, offered on both paths as
+the last step before the commit offer, and a finding no longer stops the run.
+The two strings are in the spec's wording table. The change lands in the
+Wave 4 commit, and the fixture's `harness-init` was restored from the new
+template.
+
+The Human then rejected the first wording, which read as the harness searching
+for their passwords. It is now a safety audit: it opens with the promise that
+the harness never reads secrets, and it checks that the protection is in place.
+`HYG-03` looks at file names only; `HYG-04` and `HYG-06` read MCP config and
+harness files. The agent never opens a flagged file or prints a value.
+
+The same attempt found a gap. The desktop app opened the session in a
+worktree, where a fresh install's untracked harness is absent, and the skill
+has no instruction for that case, so the agent improvised a question. At the
+Human's direction the skill now stops before its first question when a
+worktree has no `.wolven-harness.json`, naming the main checkout as the next
+step. The wording is in the spec's table, and
+`proof-quiet-install-worktree-stop` covers it.
+
+The rerun found a third gap. Claude Code's question tool can't pre-tick items
+and shows at most four options, so the versioning defaults came up unticked
+and split in two. At the Human's direction, such a runtime now asks a
+keep-the-defaults choice first, and shows the checkboxes only on request.
+
+The same run reported a false `harness-ignored` failure on `.qmd`. Its session
+ran the main checkout's older build, because no global `wolven-harness` is on
+PATH, and added `!.qmd`. This branch's build passes with `.qmd` ignored, so
+this was the proof environment, not a defect. At the Human's direction the
+wiring diff now explains `.qmd`, and the skill forbids re-including an entry
+point to clear a failed check.
+
+### Unit 26 — Ship gate
+
+| Field | Value |
+|-------|-------|
+| Unit identifier | 26 — Ship gate; STOP, inline |
+| Spec/plan paths | `docs/specs/quiet-install/quiet-install-spec.md` / `docs/specs/quiet-install/quiet-install-plan.md` |
+| Obligation / proof status | Wave 4 acceptance boxes — done; ship gate PASS |
+| `HEAD` commit | `dc00a35` |
+| `git status` summary | dirty — unit 25's note, the Human-directed skill changes and their mirrors, tests, `known-forms.json`, one deferral, spec and plan; no unrelated paths |
+| Intended diff scope | Wave 4 acceptance marks and plan marks, in one wave commit with the work above |
+| Decision on every discrepancy | Resolved: the Human accepted R10.2 as run in a terminal, with the warning reaching the agent rather than the person. Five follow-ups are listed in the proof note |
+
+### Wave 4 evidence
+
+On 2026-11-03, `pnpm build`, `pnpm test` (1,113 passed, zero failed),
+`pnpm lint`, `pnpm comments`, `node dist/cli.js validate` and
+`pnpm docs:build` all exited 0, and the breaking-marker gate found one
+`BREAKING CHANGE:` footer. The results and limits are in
+`docs/notes/quiet-install-proof/quiet-install-proof-note.md`. Inline units 25
+and 26 ran on Claude Opus 5.5.
+
+STOP at unit 26. Hand off to `code-pr` only on the Human's ask. Nothing is
+pushed; no PR is opened.

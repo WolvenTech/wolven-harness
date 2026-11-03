@@ -95,6 +95,17 @@ test('proof-quiet-install-init-section: the quiet-install section states its pla
   assert.match(flat, /Guided setup runs it after the guided steps/);
 });
 
+test('proof-quiet-install-init-wire: entry points stay ignored, and the diff explains .qmd', async () => {
+  const flat = flatten(await readLayout());
+
+  assert.match(flat, /Every entry point stays ignored/);
+  assert.match(flat, /Never re-include one to clear a failed check; show the failure and ask/);
+  assert.match(
+    flat,
+    /"`\.qmd` is the search index for your harness docs\. It lets your agent search your decision records, specs and notes before it answers, instead of working from memory\."/,
+  );
+});
+
 test('proof-quiet-install-init-version: the versioning question has six items, defaults and a footer', async () => {
   const flat = flatten(await readLayout());
 
@@ -108,6 +119,14 @@ test('proof-quiet-install-init-version: the versioning question has six items, d
   assert.match(flat, /"Notes" \(not ticked\)/);
   assert.match(flat, /"Requirements and specs" \(not ticked\)/);
   assert.match(flat, /"Postponed-work notes" \(not ticked\)/);
+  assert.match(
+    flat,
+    /When the question tool can't show items already ticked, never make the person tick the defaults by hand/,
+  );
+  assert.match(
+    flat,
+    /"Keep the defaults \(recommended\): Rules, Hooks and Decision records \(ADRs\)" and "Choose the folders myself"/,
+  );
   assert.match(
     flat,
     /Ticked folders get committed, and your client sees them\. Unticked ones stay on this machine and don't reach worktrees\./,

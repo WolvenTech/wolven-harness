@@ -247,7 +247,10 @@ test('skill-harness-init: step 6 scores the harness, asks per dimension, and nev
     ref,
     /L1 Context ≥ 40%; L2 Context ≥ 60%, Skills ≥ 30% or Hooks ≥ 30%, Hygiene ≥ 50%; L3 Sensors ≥ 60%, CI ≥ 50%; L4 Hooks ≥ 70%, Total ≥ 80%/,
   );
-  assert.match(ref, /`HYG-03`, `HYG-04` and `HYG-06` detect leaked credentials and can never be dropped/);
+  assert.match(
+    ref,
+    /`HYG-03`, `HYG-04` and `HYG-06` detect leaked credentials and can never be dropped\. The score step asks no dimension question about them/,
+  );
   assert.match(ref, /add `"no-hooks"` to `extends`/);
   assert.match(ref, /Never build a failing check inside this run/);
   assert.match(ref, /The run ends at hand-back.*separate change on its own branch/);
@@ -340,46 +343,55 @@ test('proof-basics-writes: the lean path writes only the step 0 change and the n
   assert.match(writes, /In a quiet install, only what the quiet-install section writes and the session note/);
 });
 
-test('proof-leak-checks-every-path: every path reads the leaked-credential checks before step 0 writes anything', async () => {
+test('proof-safety-audit-offered-last: every path asks first, promises secrets stay unread, and offers it before the commit offer', async () => {
   const skill = await readSkill('harness-init');
 
-  const gate = skill.body.indexOf('## Leaked credentials before step 0');
-  assert.ok(gate >= 0, 'SKILL.md has a leaked-credential gate section');
-  assert.ok(gate < skill.body.indexOf('### 0. Entry integration'), 'the gate comes before step 0 writes anything');
-  const gateText = flatten(section(skill.body, '## Leaked credentials before step 0'));
-  assert.match(gateText, /before step 0 writes anything \(the session note included\)/);
+  assert.doesNotMatch(skill.body, /## Leaked credentials before step 0/);
+  const step6 = flatten((skill.body.split(/^### 6\. /m)[1]?.split(/^## /m)[0] ?? '').replace(/^> ?/gm, ''));
   assert.match(
-    gateText,
-    /read the leaked-credential checks: `HYG-03`, `HYG-04` and `HYG-06`\. A failure stops the run/,
+    step6,
+    /Last step: do you want a safety audit\? The harness never reads your passwords, keys or `\.env` files, and it blocks your agent from opening them\./,
   );
-  const step6 = flatten(skill.body.split(/^### 6\. /m)[1]?.split(/^## /m)[0] ?? '');
-  assert.match(step6, /The leaked-credential checks already ran before step 0/);
+  assert.match(step6, /This audit checks that protection is in place/);
+  assert.match(step6, /It reports file names, never values\./);
+  assert.doesNotMatch(step6, /looks through this repo/);
+  assert.match(step6, /"and its rules tell your agent not to open them"/);
+  assert.match(step6, /"Run the audit \(recommended\)" and "Skip it"\. Never run it unasked/);
+  assert.match(step6, /read only `HYG-03`, `HYG-04` and `HYG-06`/);
+  assert.match(step6, /Never open a flagged file or a secret-shaped file yourself, and never print a value/);
+  assert.match(step6, /A finding never stops the run/);
+  assert.match(step6, /Setup didn't cause this, and the audit changed nothing\. Next: have git ignore that file/);
+  assert.match(step6, /Leave any path with a finding out of the commit offer/);
+  assert.match(step6, /"safety audit not run" under \*\*Left for later\*\*/);
+  assert.ok(
+    step6.indexOf('do you want a safety audit') < step6.indexOf('make the one commit offer'),
+    'the safety audit comes before the commit offer',
+  );
 
   const score = flatten(
-    section(await skill.read('references/harness-score.md'), '## Leaked-credential checks on every path'),
+    section(await skill.read('references/harness-score.md'), '## Safety audit at the end of setup'),
   );
-  assert.match(score, /Every run reads the leaked-credential checks, whichever path the Human picked/);
-  assert.match(
-    score,
-    /They run before step 0, so a leak stops the run before the session note or any other file is written/,
-  );
+  assert.match(score, /Every run offers the safety audit as its last step, before the commit offer/);
+  assert.match(score, /It runs only on a yes to the question in step 6/);
+  assert.match(score, /`HYG-03` looks only at file names/);
+  assert.match(score, /It never opens the file/);
+  assert.match(score, /Never open a flagged file or a secret-shaped file to look closer/);
+  assert.match(score, /A finding never stops the run/);
   assert.match(
     score,
     /When the score is not covered this run, nothing else from the report is recorded or asked about/,
   );
-  assert.match(score, /If the Human declines the install, the run continues/);
-  assert.match(score, /"leaked-credential checks not run" under \*\*Left for later\*\*/);
+  assert.match(score, /If the Human declines the audit or the install, the run continues/);
+  assert.match(score, /"safety audit not run" under \*\*Left for later\*\*/);
 
   const runs = flatten(section(await skill.read(LEAN_PATH), '## What the lean path runs'));
-  const leak = runs.indexOf('The leaked-credential checks');
+  const check = runs.indexOf('The safety audit question');
   assert.ok(
-    leak >= 0 && leak < runs.indexOf('step 0, entry integration'),
-    'the lean path checks for leaks before step 0',
+    check > runs.indexOf('step 0, entry integration'),
+    'the lean path offers the safety audit after the setup steps',
   );
-  assert.match(
-    runs,
-    /right after the path question and before anything is written\. A leaked credential stops the run before anything else is written/,
-  );
+  assert.match(runs, /as the last step, before the commit offer\. It runs only on a yes/);
+  assert.doesNotMatch(runs, /stops the run/);
 });
 
 test('proof-guided-no-checklist: guided setup opens with repo and role, then one step question per phase, in order', async () => {

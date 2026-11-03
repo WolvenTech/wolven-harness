@@ -172,6 +172,12 @@ Follow the list with this footer: "Ticked folders get committed, and your
 client sees them. Unticked ones stay on this machine and don't reach
 worktrees."
 
+When the question tool can't show items already ticked, never make the
+person tick the defaults by hand. Ask the same question as one choice first,
+with the footer: "Keep the defaults (recommended): Rules, Hooks and Decision
+records (ADRs)" and "Choose the folders myself". Show the checkboxes only
+after the second answer.
+
 The items map to `.agents/rules/`, `.agents/hooks/`, `docs/adrs/`,
 `docs/notes/`, `docs/prds/` with `docs/specs/`, and `docs/deferrals/`. The
 home's `AGENTS.md` is always tracked and is not a checkbox. Edit only
@@ -224,6 +230,13 @@ those runtimes, and take one approval for the whole diff:
 - The ignore lines cover every entry point, and the bootstrap symlinks
   (`<runtime skills folder>/harness-init`) too, so they stop showing as
   untracked.
+- Every entry point stays ignored: each is a symlink into a folder other
+  clones may not have. Never re-include one to clear a failed check; show
+  the failure and ask.
+- The `.qmd` symlink carries this line, here and wherever a question names
+  it: "`.qmd` is the search index for your harness docs. It lets your agent
+  search your decision records, specs and notes before it answers, instead
+  of working from memory."
 - When the repository root has a `.dockerignore`, the same diff adds
   `.wolven-harness/` to it.
 - The harness block question below is part of this diff.

@@ -48,17 +48,16 @@ It asks no goal question, in either install.
 
 ## What the lean path runs
 
-- The leaked-credential checks from [harness-score.md](harness-score.md),
-  right after the path question and before anything is written. A leaked
-  credential stops the run before anything else is written; no other part
-  of the score is recorded or asked about.
 - In a full install, step 0, entry integration, with the diff shown and the
   Human's yes before anything is written.
 - In a quiet install, step 0 is skipped, and the run follows the
   quiet-install section of [layout.md](layout.md) right after the path
   question, then hands back.
-- The session note: `draft` at step 0 (or right after the leaked-credential
-  checks in a quiet install), `stable` at hand-back.
+- The session note: `draft` at step 0 (or right after the path question in a
+  quiet install), `stable` at hand-back.
+- The safety audit question from step 6 of `SKILL.md`, as the last step,
+  before the commit offer. It runs only on a yes, and no other part of the
+  score is recorded or asked about.
 - The hand-back at the end of step 6.
 
 ## What the lean path does not run

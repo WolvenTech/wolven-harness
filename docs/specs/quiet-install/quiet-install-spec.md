@@ -67,6 +67,8 @@ Copy rules (R11) apply to every string this initiative adds or changes:
 | Occupied entry point (R5.14) | You already have `<path>`, and it stays as it is. For the harness's `<name>`: merge it into yours (tracked change when `<path>` is tracked), save it next to yours as `wolven-<name>`, or skip it? Options: "Merge into mine", "Save as wolven-<name>", "Skip it" |
 | Layout switch blocked (R5.5) | Can't switch to a full install: `<path>` already exists at the repo root. Nothing changed. Move or rename it, then ask again. |
 | Versioning question (R5.2) | Which harness folders should git track? Items: "Rules: instructions your agent always follows", "Hooks: scripts Claude Code runs automatically", "Decision records (ADRs): why the code is the way it is. They keep your agent's context accurate over the long run, so keep them current", "Notes", "Requirements and specs", "Postponed-work notes". Footer: "Ticked folders get committed, and your client sees them. Unticked ones stay on this machine and don't reach worktrees." |
+| Versioning defaults choice (the Human's direction, 2026-11-03) | Where the question tool can't show items already ticked, the versioning question is first one choice, with its footer. Options: "Keep the defaults (recommended): Rules, Hooks and Decision records (ADRs)" and "Choose the folders myself". The checkboxes show only after the second |
+| `.qmd` explanation (the Human's direction, 2026-11-03) | `.qmd` is the search index for your harness docs. It lets your agent search your decision records, specs and notes before it answers, instead of working from memory. Shown in the wiring diff and wherever a question names `.qmd` |
 | Ignore question (R5.3) | How should we ignore the harness local-only files? Options: "In `.gitignore` (tracked change your client sees)" and "Only on this machine: `.git/info/exclude` (nothing tracked changes)" |
 | Wiring question (R5.3) | Create the harness symlinks for <runtime names>? The diff lists each symlink, the Claude Code hooks it sets up, and any tracked change, such as `.dockerignore`. |
 | Block question (R5.4) | Add the harness block to <file names>? (Tracked change; `AGENTS.md` is created if missing.) Options: Yes and No only |
@@ -74,6 +76,9 @@ Copy rules (R11) apply to every string this initiative adds or changes:
 | Guided step question (R5.9) | Next: <what the step does, in one line, with any tracked change named>. Run it, or skip? Options: "Run it" and "Skip it". Asked once per step, in order; never shown as a list |
 | Migration question (R5.10) | Copy `<file>` into the harness as a decision record? Your file is not changed. |
 | Checks question (R5.11) | How should we check the harness? Options: "Only when I run it (recommended): `wolven-harness validate`" and "On every pull request: new tracked file `.github/workflows/<file>`, which your client sees" |
+| Worktree stop (the Human's direction, 2026-11-03) | This session is in a git worktree, and the harness isn't here yet: it stays in your main checkout until you commit it. Nothing changed. Next: open a session on `<main checkout path>` with no worktree, then run `harness-init` there. Shown before the first question when a worktree has no `.wolven-harness.json` |
+| Safety audit question (the Human's direction, 2026-11-03) | Last step: do you want a safety audit? The harness never reads your passwords, keys or `.env` files, and it blocks your agent from opening them. This audit checks that protection is in place: that git ignores those files and that no key sits in a config file your agent loads. It reports file names, never values. Options: "Run the audit (recommended)" and "Skip it". Asked on both paths as the last step, before the commit question. A runtime with no secret guard hook says "and its rules tell your agent not to open them" |
+| Safety audit finding (the Human's direction, 2026-11-03) | The safety audit found a gap: <file and check>. Setup didn't cause this, and the audit changed nothing. Next: have git ignore that file, or move the key out of it. It never stops the run, the agent never opens a flagged file or prints a value, and any path with a finding stays out of the commit offer |
 | Commit question (R5.6) | Commit these <N> files to `<branch>`? Nothing is pushed. |
 | No remote (R5.6) | This repo has no remote, so there is nothing to commit for. Your changes stay in the working tree. |
 | Local-only list (R5.6) | These stay on this machine, and git ignores them: `<paths>`. |
@@ -392,8 +397,8 @@ there too.
 
 ### Wave 4
 
-- [ ] `proof-quiet-install-worktree-run` PASS — R10.1
-- [ ] `proof-quiet-install-worktree-warning` PASS — R10.2
+- [x] `proof-quiet-install-worktree-run` PASS — R10.1
+- [x] `proof-quiet-install-worktree-warning` PASS — R10.2
 
 ## Eval / gates
 

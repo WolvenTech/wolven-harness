@@ -109,7 +109,19 @@ test('proof-quiet-install-next-step: every harness-init stop that changed nothin
       );
     }
   }
-  assert.ok(stops >= 5, `expected the switch, wiring, credential and no-moves stops, found ${stops}`);
+  assert.ok(stops >= 5, `expected the switch, wiring and no-moves stops, found ${stops}`);
+});
+
+test('proof-quiet-install-worktree-stop: harness-init stops before its first question in a worktree with no harness', async () => {
+  const skill = flatten((await readHarnessInit('SKILL.md')).replace(/^> ?/gm, ''));
+  const stop = skill.indexOf("This session is in a git worktree, and the harness isn't here yet");
+
+  assert.ok(stop >= 0, 'SKILL.md has the worktree stop');
+  assert.ok(stop < skill.indexOf('How much setup do you want right now?'), 'the stop comes before the path question');
+  assert.match(skill, /`git rev-parse --git-dir` and `git rev-parse --git-common-dir` differ/);
+  assert.match(skill, /A worktree with no `\.wolven-harness\.json` has no harness yet, so stop/);
+  assert.match(skill, /never write into the main checkout from here, and never copy the harness in/);
+  assert.match(skill, /Nothing changed\. Next: open a session on `<main checkout path>` with no worktree/);
 });
 
 test('proof-quiet-install-next-step: the parity warning says nothing changed and names the next step', async () => {
