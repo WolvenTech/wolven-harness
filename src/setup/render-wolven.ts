@@ -2,6 +2,7 @@ import type { Dirent } from 'node:fs';
 import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { classifyFrontmatter, skillIdentity } from '../frontmatter.js';
+import { mapQuietInstallPaths } from './path-map.js';
 import { isSkillSet, type SkillSet } from './skill-sets.js';
 import type { Context } from './types.js';
 
@@ -99,6 +100,7 @@ export async function renderWolven(
   ctx: Context,
   only?: readonly string[],
   sets?: readonly SkillSet[],
+  quiet = false,
 ): Promise<string> {
   const templatePath = path.join(ctx.templatesDir, 'WOLVEN.md');
   const template = await readFile(templatePath, 'utf8');
@@ -106,5 +108,10 @@ export async function renderWolven(
   const skills = await collectSkills(ctx.templatesDir, only);
   const table = renderSkillsTable(skills);
 
-  return applySetMarkers(template.split(SKILLS_TABLE_PLACEHOLDER).join(table), sets);
+  const rendered = applySetMarkers(template.split(SKILLS_TABLE_PLACEHOLDER).join(table), sets);
+  if (!quiet) return rendered;
+  return mapQuietInstallPaths(rendered.slice(rendered.indexOf('<!-- wolven-harness:start -->')), 'linked').replaceAll(
+    '`.harness-score.json`',
+    '`.wolven-harness/.harness-score.json`',
+  );
 }

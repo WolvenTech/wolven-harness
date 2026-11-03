@@ -15,6 +15,7 @@ export const TABLE_PATH = 'known-forms.json';
 /** Template files `setup` installs under a different name, as `INSTALLED_AS` in `src/setup/apply.ts` maps them. */
 const INSTALLED_AS = {
   '.qmd/gitignore': '.qmd/.gitignore',
+  '.wolven-harness/gitignore': '.gitignore',
   'docs/maps/gitignore': 'docs/maps/.gitignore',
 };
 

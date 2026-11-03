@@ -163,7 +163,7 @@ test('runtime-wiring: symlink failure exits 1 naming macOS/Linux', async () => {
 });
 
 test('runtime-wiring: end-to-end codex,cursor via CLI creates only the cursor hook config', async () => {
-  const dir = await makeRepo({ 'AGENTS.md': '# AGENTS\n' }, { git: true });
+  const dir = await makeRepo({ 'AGENTS.md': '# AGENTS\n' }, { git: true, layout: 'home' });
 
   await run(['setup', '--git-host', 'gh', '--runtimes', 'codex,cursor'], { cwd: dir });
 
@@ -241,7 +241,7 @@ test('runtime-detect: an empty home and no repo markers preselect nothing but li
 
 test('runtime-flag: --runtimes accepts every registry id', async () => {
   for (const id of IDS) {
-    const dir = await makeRepo({}, { git: true });
+    const dir = await makeRepo({}, { git: true, layout: 'home' });
     const result = await run(['setup', '--git-host', 'gh', '--runtimes', id], { cwd: dir });
 
     assert.equal(result.code, 0, `${id}: ${result.stderr}`);
@@ -251,7 +251,7 @@ test('runtime-flag: --runtimes accepts every registry id', async () => {
     assert.deepEqual(config.runtimes, [id], id);
   }
 
-  const opencode = await makeRepo({}, { git: true });
+  const opencode = await makeRepo({}, { git: true, layout: 'home' });
   await run(['setup', '--git-host', 'gh', '--runtimes', 'opencode'], { cwd: opencode });
   assert.ok((await fs.lstat(path.join(opencode, 'opencode.json'))).isFile(), 'opencode wiring was created');
 });

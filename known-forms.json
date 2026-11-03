@@ -356,6 +356,9 @@
       "e78381d7884c54315b4c81e748c2f4f33fd9ad6926e32192e2fa894623b70519",
       "f589b248b5f47c1aea0d2be59cdf16123accf3567727fa2f8a624f5c003ba611"
     ],
+    ".gitignore": [
+      "8e0c6bac6a1ecb68671b0f8ae73cc52f0c344c8f4d0353bd2dd37b4c03df4c68"
+    ],
     ".harness-score.json": [
       "822f6ec8446562a4de9a3b1a2481af50fac01bbedc32e1963142709e5f48ec13"
     ],

@@ -1,16 +1,16 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { applyTemplates } from './apply.js';
-import type { PackageManager } from './config.js';
+import { applyTemplates, type TemplateWriter } from './apply.js';
+import { type PackageManager, writeConfig } from './config.js';
 import { HARNESS_SCORE_VERSION, harnessScoreWarning } from './harness-score.js';
 import { resolveOptions } from './options.js';
 import { devDependencyWarning, resolveOwnPackage } from './own-package.js';
 import { execBinary, executePackage, globalAdd, recordedPackageManager, runScript } from './package-manager.js';
 import { addValidateScript } from './package-script.js';
-import { wireRuntimeSkills, wireRuntimes } from './runtimes.js';
+import { wireQuietBootstrap, wireRuntimeSkills, wireRuntimes } from './runtimes.js';
 import { CORE_SKILLS, skillFolders } from './skill-sets.js';
 import type { Summary } from './summary.js';
-import { buildSummary, joinNames, runtimeName } from './summary.js';
+import { buildSummary, joinNames, quietNextSteps, quietSummary, runtimeName } from './summary.js';
 import type { Context, Io, Runtime, StepResult } from './types.js';
 import { SetupCancelled, SetupError } from './types.js';
 import { createUi } from './ui.js';
@@ -107,7 +107,7 @@ function outsideSummary(apply: StepResult, wiring: StepResult): Summary {
  * `--verbose` also lists every file; `--debug` (or `WOLVEN_HARNESS_DEBUG=1`)
  * traces each step on stderr.
  */
-export async function runSetup(argv: string[], io: Io): Promise<number> {
+export async function runSetup(argv: string[], io: Io, write?: TemplateWriter): Promise<number> {
   const ctx: Context = {
     root: io.cwd,
     templatesDir: resolveTemplatesDir(),
@@ -119,12 +119,32 @@ export async function runSetup(argv: string[], io: Io): Promise<number> {
 
   const { name, version } = await resolveOwnPackage();
   ui.intro(`${name} ${version}`, [
-    "I'll set up your agent harness here: the .agents/ source tree, the docs/ folders and WOLVEN.md at a git top-level,",
-    'or only the core skills and their runtime links outside one. Nothing is committed, and existing files are never overwritten.',
+    "I'll set up your agent harness. Nothing is committed, and existing files are never overwritten.",
   ]);
 
   try {
     const opts = await traced(io, debug, 'resolveOptions', () => resolveOptions(argv, ctx));
+    if (opts.quietConfig !== undefined) {
+      const homeContext = { ...ctx, root: path.resolve(ctx.root, opts.quietConfig.harnessHome ?? '.wolven-harness') };
+      const apply = await ui.phase('Copying the quiet install', 'Copied the quiet install', () =>
+        traced(io, debug, 'applyTemplates', () =>
+          applyTemplates(homeContext, skillFolders(opts.skillSets), opts.skillSets, { quiet: true, write }),
+        ),
+      );
+      await writeConfig(ctx.root, opts.quietConfig, write);
+      const bootstrap = await traced(io, debug, 'wireQuietBootstrap', () =>
+        wireQuietBootstrap(opts, ctx, homeContext.root),
+      );
+      ui.summary(quietSummary(apply, bootstrap, opts.runtimes));
+      if (verbose) {
+        ui.files(
+          [...apply.created.map((file) => `.wolven-harness/${file}`), '.wolven-harness.json', ...bootstrap.created],
+          [...apply.skipped.map((file) => `.wolven-harness/${file}`), ...bootstrap.skipped],
+        );
+      }
+      ui.nextSteps(quietNextSteps(bootstrap));
+      return 0;
+    }
     const outside = opts.mode === 'outside';
     const manager = await traced(io, debug, 'recordedPackageManager', () => recordedPackageManager(ctx.root));
     const wiredNames = opts.runtimes.map(runtimeName).join(' / ');

@@ -1,4 +1,4 @@
-import { rulesMode, runtimeRow } from './runtimes.js';
+import { type BootstrapResult, rulesMode, runtimeRow } from './runtimes.js';
 import type { SkillSet } from './skill-sets.js';
 import { setsOf } from './skill-sets.js';
 import type { Runtime, StepResult } from './types.js';
@@ -216,4 +216,40 @@ export function buildSummary(
   }
 
   return { done, kept, notes };
+}
+
+export const QUIET_INSTALL_DESCRIPTION = 'The harness lives in `.wolven-harness/`, and git sees only what you pick.';
+
+/** Reports the quiet scaffold and bootstrap links without implying runtime setup is complete. */
+export function quietSummary(apply: StepResult, bootstrap: BootstrapResult, runtimes: Runtime[]): Summary {
+  return {
+    done: [
+      'Quiet install',
+      QUIET_INSTALL_DESCRIPTION,
+      `Harness files for ${joinNames(runtimes.map(runtimeName))} in .wolven-harness/`,
+      ...bootstrap.created.map((file) => `harness-init symlink: ${file}`),
+    ],
+    kept: [...apply.skipped.map((file) => `.wolven-harness/${file}`), ...bootstrap.skipped],
+    notes: [],
+  };
+}
+
+/** Hands setup over to harness-init and names the removable footprint and any manual entry. */
+export function quietNextSteps(bootstrap: BootstrapResult): string[] {
+  const steps = ['Open your coding agent and run the `harness-init` skill to connect the harness.'];
+  if (bootstrap.created.length > 0) {
+    steps.push(
+      `\`git status\` shows ${bootstrap.created.map((file) => `\`${file}\``).join(', ')} as untracked until you do; that's expected.`,
+    );
+  }
+  steps.push(
+    `To drop the harness instead, remove \`.wolven-harness/\`, \`.wolven-harness.json\`${bootstrap.created.length > 0 ? ' and those links' : ''}.`,
+  );
+  if (bootstrap.manualRuntimes.length > 0) {
+    steps.push(
+      `For ${joinNames(bootstrap.manualRuntimes.map(runtimeName))}: ask your agent to read \`${bootstrap.skillPath}\` and follow it.`,
+    );
+  }
+  steps.push('Run `wolven-harness validate` any time to check the harness.');
+  return steps;
 }

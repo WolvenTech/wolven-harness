@@ -264,7 +264,11 @@ async function existingKeyOrder(file: string): Promise<string[]> {
  * carrying an existing `ignore`/`extra` value forward — `writeConfig` never
  * invents or drops them itself, it only writes what it is given.
  */
-export async function writeConfig(root: string, config: Config): Promise<void> {
+export async function writeConfig(
+  root: string,
+  config: Config,
+  write: (file: string, content: string) => Promise<void> = (file, content) => writeFile(file, content, 'utf8'),
+): Promise<void> {
   const file = path.join(root, CONFIG_FILENAME);
 
   const fresh: Record<string, unknown> = {
@@ -310,5 +314,5 @@ export async function writeConfig(root: string, config: Config): Promise<void> {
   }
 
   const json = `${JSON.stringify(body, null, 2)}\n`;
-  await writeFile(file, json, 'utf8');
+  await write(file, json);
 }

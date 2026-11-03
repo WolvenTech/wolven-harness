@@ -20,7 +20,7 @@ const templatesDir = path.join(repoRoot, 'templates');
 
 /** A git repo with a full install written by the real `setup`. */
 async function install(): Promise<string> {
-  const dir = await makeRepo({}, { git: true });
+  const dir = await makeRepo({}, { git: true, layout: 'home' });
   const result = await run(['setup', '--git-host', 'gh', '--runtimes', 'claude'], { cwd: dir });
   assert.equal(result.code, 0, result.stderr);
   return dir;

@@ -17,7 +17,7 @@ async function readJson(dir: string, rel: string): Promise<Record<string, unknow
 }
 
 test('proof-secret-path-guard-cursor-wiring: cursor gets .cursor/hooks.json running the guard on reads and shell', async () => {
-  const dir = await makeRepo({ 'README.md': '# demo\n' }, { git: true });
+  const dir = await makeRepo({ 'README.md': '# demo\n' }, { git: true, layout: 'home' });
 
   const result = await setup(dir, 'cursor');
   assert.equal(result.code, 0, result.stderr);
@@ -35,7 +35,7 @@ test('proof-secret-path-guard-cursor-wiring: cursor gets .cursor/hooks.json runn
 });
 
 test('proof-secret-path-guard-claude-wiring: claude gets .claude/settings.json with a PreToolUse guard', async () => {
-  const dir = await makeRepo({ 'README.md': '# demo\n' }, { git: true });
+  const dir = await makeRepo({ 'README.md': '# demo\n' }, { git: true, layout: 'home' });
 
   const result = await setup(dir, 'claude');
   assert.equal(result.code, 0, result.stderr);
@@ -53,7 +53,7 @@ test('proof-secret-path-guard-claude-wiring: claude gets .claude/settings.json w
 });
 
 test('proof-secret-path-guard-no-hook-for-inline-only: codex alone writes no hook config', async () => {
-  const dir = await makeRepo({ 'README.md': '# demo\n' }, { git: true });
+  const dir = await makeRepo({ 'README.md': '# demo\n' }, { git: true, layout: 'home' });
 
   const result = await setup(dir, 'codex');
   assert.equal(result.code, 0, result.stderr);
@@ -63,7 +63,7 @@ test('proof-secret-path-guard-no-hook-for-inline-only: codex alone writes no hoo
 });
 
 test('hook config is written for cursor even when an inline runtime is also selected', async () => {
-  const dir = await makeRepo({ 'README.md': '# demo\n' }, { git: true });
+  const dir = await makeRepo({ 'README.md': '# demo\n' }, { git: true, layout: 'home' });
 
   const result = await setup(dir, 'codex,cursor');
   assert.equal(result.code, 0, result.stderr);
@@ -77,7 +77,7 @@ test('pre-existing hook config is skipped, not merged', async () => {
   const claudeSettings = '{ "permissions": { "allow": ["Bash(ls)"] } }\n';
   const dir = await makeRepo(
     { 'README.md': '# demo\n', '.cursor/hooks.json': cursorHooks, '.claude/settings.json': claudeSettings },
-    { git: true },
+    { git: true, layout: 'home' },
   );
 
   const result = await setup(dir, 'claude,cursor');
@@ -88,7 +88,7 @@ test('pre-existing hook config is skipped, not merged', async () => {
 });
 
 test('the wired guard command denies a secret read from the repo root', async () => {
-  const dir = await makeRepo({ 'README.md': '# demo\n' }, { git: true });
+  const dir = await makeRepo({ 'README.md': '# demo\n' }, { git: true, layout: 'home' });
 
   const result = await setup(dir, 'claude,cursor');
   assert.equal(result.code, 0, result.stderr);

@@ -42,7 +42,7 @@ test('proof-skills-command-usage', async () => {
 });
 
 test('setup prints a summary and the harness-init next step', async () => {
-  const dir = await makeRepo({}, { git: true });
+  const dir = await makeRepo({}, { git: true, layout: 'home' });
   const result = await run(['setup', '--git-host', 'gh', '--runtimes', 'codex'], { cwd: dir });
 
   assert.equal(result.code, 0);

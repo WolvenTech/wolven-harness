@@ -27,7 +27,7 @@ async function snapshot(dir: string): Promise<Map<string, string>> {
 }
 
 test('proof-wayfinder-setup-discovery: discovery creates the maps pieces with no marker text left', async () => {
-  const dir = await makeRepo({}, { git: true });
+  const dir = await makeRepo({}, { git: true, layout: 'home' });
 
   const result = await run([...BASE, '--skills', 'discovery'], { cwd: dir });
 
@@ -44,7 +44,7 @@ test('proof-wayfinder-setup-discovery: discovery creates the maps pieces with no
 
 test('proof-wayfinder-setup-absent: ship and none create no maps pieces', async () => {
   for (const skills of ['ship', 'none']) {
-    const dir = await makeRepo({}, { git: true });
+    const dir = await makeRepo({}, { git: true, layout: 'home' });
 
     const result = await run([...BASE, '--skills', skills], { cwd: dir });
 
@@ -62,7 +62,7 @@ test('proof-wayfinder-setup-absent: ship and none create no maps pieces', async 
 });
 
 test('proof-wayfinder-setup-rerun: a second run is byte-identical and an older install only gains missing paths', async () => {
-  const dir = await makeRepo({}, { git: true });
+  const dir = await makeRepo({}, { git: true, layout: 'home' });
   assert.equal((await run([...BASE, '--skills', 'discovery'], { cwd: dir })).code, 0);
   const first = await snapshot(dir);
 
@@ -72,7 +72,7 @@ test('proof-wayfinder-setup-rerun: a second run is byte-identical and an older i
 
   const older = await makeRepo(
     { '.qmd/index.yml': 'collections:\n  mine:\n    path: ./x\n', 'WOLVEN.md': 'mine\n' },
-    { git: true },
+    { git: true, layout: 'home' },
   );
 
   assert.equal((await run([...BASE, '--skills', 'discovery'], { cwd: older })).code, 0);

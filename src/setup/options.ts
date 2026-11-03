@@ -378,12 +378,13 @@ export function canPrompt(io: Io): boolean {
  * (before any prompt or write); then flags override `.wolven-harness.json`
  * defaults, which override interactive prompts (TTY only — no TTY with a
  * value still missing is a named-flag `SetupError`; a cancelled prompt is `SetupCancelled`). The resolved options
- * are written back to `.wolven-harness.json` on every run, refreshing
+ * are persisted immediately except for quiet installs, whose caller writes
+ * the returned `quietConfig` after the scaffold, refreshing
  * `packageVersion` to this running package's own version and carrying
  * every other existing key (`ignore`, `comments`, and any unknown key)
  * forward untouched.
  */
-export async function resolveOptions(argv: string[], ctx: Context): Promise<Options> {
+export async function resolveOptions(argv: string[], ctx: Context): Promise<Options & { quietConfig?: Config }> {
   const toplevel = await gitTopLevelFor(ctx.io);
   const mode: SetupMode = toplevel === undefined ? 'outside' : 'root';
   if (toplevel !== undefined && !(await isGitTopLevel(ctx.io, toplevel))) {
@@ -395,6 +396,15 @@ export async function resolveOptions(argv: string[], ctx: Context): Promise<Opti
 
   const flags = parseFlags(argv);
   const existing = await readConfig(ctx.root);
+  const homeRelative = path.relative(ctx.root, path.resolve(ctx.root, existing?.harnessHome ?? '.'));
+  const quiet =
+    mode === 'root' &&
+    (existing === undefined ||
+      (existing.layout === 'linked' &&
+        homeRelative !== '' &&
+        homeRelative !== '..' &&
+        !homeRelative.startsWith(`..${path.sep}`) &&
+        !path.isAbsolute(homeRelative)));
 
   const interactive = canPrompt(ctx.io);
   const notes: Notes = {};
@@ -461,7 +471,9 @@ export async function resolveOptions(argv: string[], ctx: Context): Promise<Opti
     managerPrompter === undefined ? undefined : () => promptPackageManager(managerPrompter),
   );
 
-  const installed = await detectInstalledSets(ctx.root);
+  const installed = await detectInstalledSets(
+    quiet ? path.resolve(ctx.root, existing?.harnessHome ?? '.wolven-harness') : ctx.root,
+  );
   let skillSets: SkillSet[] | undefined =
     skillsFlag !== undefined
       ? parseOrAsk(
@@ -495,7 +507,19 @@ export async function resolveOptions(argv: string[], ctx: Context): Promise<Opti
     packageManager,
   };
 
-  await writeConfig(ctx.root, config);
+  if (quiet) {
+    config.layout = 'linked';
+    config.harnessHome = existing?.harnessHome ?? '.wolven-harness';
+  } else {
+    await writeConfig(ctx.root, config);
+  }
 
-  return { gitHost: resolvedGitHost, runtimes: resolvedRuntimes, skillSets: orderSets(chosenSets), keptSets, mode };
+  return {
+    gitHost: resolvedGitHost,
+    runtimes: resolvedRuntimes,
+    skillSets: orderSets(chosenSets),
+    keptSets,
+    mode,
+    ...(quiet ? { quietConfig: config } : {}),
+  };
 }

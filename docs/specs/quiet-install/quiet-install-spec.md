@@ -351,13 +351,13 @@ there too.
 
 ### Wave 2
 
-- [ ] `proof-quiet-install-setup-default` PASS — R4.1
-- [ ] `proof-quiet-install-nested-gitignore` PASS — R4.2
-- [ ] `proof-quiet-install-setup-scope` PASS — R4.3
-- [ ] `proof-quiet-install-render` PASS — R4.4
-- [ ] `proof-quiet-install-setup-rerun` PASS — R4.5
-- [ ] `proof-quiet-install-setup-unchanged` PASS — R4.6
-- [ ] `proof-quiet-install-setup-wording` PASS — R4.7
+- [x] `proof-quiet-install-setup-default` PASS — R4.1
+- [x] `proof-quiet-install-nested-gitignore` PASS — R4.2
+- [x] `proof-quiet-install-setup-scope` PASS — R4.3
+- [x] `proof-quiet-install-render` PASS — R4.4
+- [x] `proof-quiet-install-setup-rerun` PASS — R4.5
+- [x] `proof-quiet-install-setup-unchanged` PASS — R4.6
+- [x] `proof-quiet-install-setup-wording` PASS — R4.7
 
 ### Wave 3
 

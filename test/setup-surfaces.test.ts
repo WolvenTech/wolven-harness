@@ -38,7 +38,7 @@ function templateSkillNames(): string[] {
 }
 
 test('setup-surfaces: creates exactly the expected paths', async () => {
-  const dir = await makeRepo({}, { git: true });
+  const dir = await makeRepo({}, { git: true, layout: 'home' });
 
   const result = await run(['setup', '--git-host', 'gh', '--runtimes', 'codex', '--skills', 'ship,discovery'], {
     cwd: dir,
@@ -76,7 +76,7 @@ test('setup-surfaces: creates exactly the expected paths', async () => {
 });
 
 test('proof-secret-path-guard-inline-rules-list: a codex install lists secrets.md with the other standing rules', async () => {
-  const dir = await makeRepo({}, { git: true });
+  const dir = await makeRepo({}, { git: true, layout: 'home' });
   const result = await run(['setup', '--git-host', 'gh', '--runtimes', 'codex'], { cwd: dir });
   assert.equal(result.code, 0, result.stderr);
 
@@ -194,7 +194,10 @@ test('setup-surfaces: adr-000 is a stable profile ADR', () => {
 });
 
 test('setup-surfaces: a fresh install passes validate once committed', async () => {
-  const dir = await makeRepo({ 'package.json': '{ "name": "consumer", "version": "1.0.0" }\n' }, { git: true });
+  const dir = await makeRepo(
+    { 'package.json': '{ "name": "consumer", "version": "1.0.0" }\n' },
+    { git: true, layout: 'home' },
+  );
   const init = await run(['setup', '--git-host', 'gh', '--runtimes', 'claude'], { cwd: dir });
   assert.equal(init.code, 0, init.stderr);
 

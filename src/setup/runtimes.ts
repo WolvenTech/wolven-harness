@@ -412,6 +412,62 @@ async function wireNativeRules(
   }
 }
 
+export interface BootstrapResult extends StepResult {
+  manualRuntimes: Runtime[];
+  skillPath: string;
+}
+
+/** True when a bootstrap's parent is a client file or symlink rather than a plain directory. */
+async function bootstrapParentOccupied(root: string, skillsPath: string): Promise<boolean> {
+  let current = root;
+  for (const part of skillsPath.split('/')) {
+    current = path.join(current, part);
+    try {
+      if (!(await fs.lstat(current)).isDirectory()) return true;
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === 'ENOENT') return false;
+      throw error;
+    }
+  }
+  return false;
+}
+
+/** Adds only per-skill bootstrap links, keeping client paths and symlink parents untouched. */
+export async function wireQuietBootstrap(opts: Options, ctx: Context, harnessHome: string): Promise<BootstrapResult> {
+  const result: BootstrapResult = {
+    created: [],
+    skipped: [],
+    manualRuntimes: [],
+    skillPath: `${path.relative(ctx.root, harnessHome).split(path.sep).join('/')}/.agents/skills/harness-init/SKILL.md`,
+  };
+  const visited = new Set<string>();
+  for (const runtime of opts.runtimes) {
+    const row = runtimeRow(runtime);
+    const skillsPath = row.quietInstall?.skillsPath;
+    if (skillsPath === undefined) {
+      result.manualRuntimes.push(runtime);
+      continue;
+    }
+    const rel = `${skillsPath}/harness-init`;
+    if (visited.has(rel)) {
+      if (result.skipped.includes(rel)) result.manualRuntimes.push(runtime);
+      continue;
+    }
+    visited.add(rel);
+    if (await bootstrapParentOccupied(ctx.root, skillsPath)) {
+      result.skipped.push(rel);
+    } else {
+      const target = path.relative(
+        path.join(ctx.root, skillsPath),
+        path.join(harnessHome, '.agents/skills/harness-init'),
+      );
+      await createSymlink(ctx, rel, target, row.name, result.created, result.skipped);
+    }
+    if (result.skipped.includes(rel)) result.manualRuntimes.push(runtime);
+  }
+  return result;
+}
+
 /**
  * Wires only the selected runtimes' skills paths, for the mode that runs
  * outside a git top-level. Direct rows create nothing, and no entry file,

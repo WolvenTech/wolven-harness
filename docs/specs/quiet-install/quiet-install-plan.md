@@ -48,10 +48,10 @@ fails on any difference. Owns lists the template path only.
 | 06 | Quiet-install rows in the registry, and doctor per runtime | 05 | `src/setup/runtimes.ts`, `src/doctor/runtime-checks.ts`, `test/doctor-runtime.test.ts`, `test/runtime-registry.test.ts` | `spawn` | sol | [x] Each non-Claude registry row carries its quiet-install entry points, tracked-edit offer and manual step, copied from `docs/notes/quiet-install-runtimes/quiet-install-runtimes-note.md`. Doctor passes a fixture wired per row, and fails an unwired Codex with the manual step as `fix:` (`proof-quiet-install-doctor-runtimes`) |
 | 07 | Drift applies the path map | 02 | `src/doctor/drift.ts`, `test/doctor-drift.test.ts` | `spawn` | sol | [x] A mapped skill is not reported as edited; mapped plus hand-edited is `doctor-drift-edited` (`proof-quiet-install-drift-pathmap`) |
 | 08 | **Wave 1 gate** | 01, 03, 04, 06, 07 | `docs/specs/quiet-install/quiet-install-spec.md` (Wave 1 boxes) | `inline` | — | [x] `pnpm build`, `pnpm test`, `pnpm lint`, `pnpm comments` and `node dist/cli.js validate` exit 0; Wave 1 boxes ticked with evidence — **abort before Wave 2** |
-| 09 | Setup writes the quiet-install scaffold | 08 | `src/setup/{options,index,apply,render-wolven}.ts`, `templates/.wolven-harness/gitignore` (new), `test/setup-quiet-install.test.ts` (new), `test/setup-layout.test.ts` | `spawn` | sol | [ ] At a top-level with no config, setup writes the nested `.gitignore` first, then the home with the map applied, the home `AGENTS.md` (no `WOLVEN.md`), and the config. A `home` config keeps today's scaffold (`proof-quiet-install-setup-default`, `-nested-gitignore`, `-render`, `-setup-unchanged`) |
-| 10 | Bootstrap links and rerun | 09 | `src/setup/index.ts`, `src/setup/runtimes.ts`, `test/setup-quiet-install.test.ts` | `spawn` | sol | [ ] Setup links `<skills folder>/harness-init` per runtime, unignored, and keeps an existing path. A rerun restores missing home files and links with the map applied and leaves edits alone. A fresh clone plus setup shows no drift (R4.1 bootstrap part; `proof-quiet-install-setup-rerun`) |
-| 11 | Setup summary and next steps | 10 | `src/setup/summary.ts`, `src/setup/ui.ts`, `test/setup-quiet-install.test.ts` (stdout snapshots) | `spawn` | sol | [ ] stdout names the quiet install with its description and never prints `linked` or `home`. The next step is the wording table's, with the untracked-link and remove-instead lines and the `SKILL.md` path for a runtime with no skills folder. `package.json` is unchanged (`proof-quiet-install-setup-scope`, `-setup-wording`) |
-| 12 | **Wave 2 gate** | 11 | `docs/specs/quiet-install/quiet-install-spec.md` (Wave 2 boxes) | `inline` | — | [ ] The same five gates exit 0; Wave 2 boxes ticked; wave 2's flip commit carries `BREAKING CHANGE:` naming the new default — **abort before Wave 3** |
+| 09 | Setup writes the quiet-install scaffold | 08 | `src/setup/{options,index,apply,render-wolven}.ts`, `templates/.wolven-harness/gitignore` (new), `test/setup-quiet-install.test.ts` (new), `test/setup-layout.test.ts` | `spawn` | sol | [x] At a top-level with no config, setup writes the nested `.gitignore` first, then the home with the map applied, the home `AGENTS.md` (no `WOLVEN.md`), and the config. A `home` config keeps today's scaffold (`proof-quiet-install-setup-default`, `-nested-gitignore`, `-render`, `-setup-unchanged`) |
+| 10 | Bootstrap links and rerun | 09 | `src/setup/index.ts`, `src/setup/runtimes.ts`, `test/setup-quiet-install.test.ts` | `spawn` | sol | [x] Setup links `<skills folder>/harness-init` per runtime, unignored, and keeps an existing path. A rerun restores missing home files and links with the map applied and leaves edits alone. A fresh clone plus setup shows no drift (R4.1 bootstrap part; `proof-quiet-install-setup-rerun`) |
+| 11 | Setup summary and next steps | 10 | `src/setup/summary.ts`, `src/setup/ui.ts`, `test/setup-quiet-install.test.ts` (stdout snapshots) | `spawn` | sol | [x] stdout names the quiet install with its description and never prints `linked` or `home`. The next step is the wording table's, with the untracked-link and remove-instead lines and the `SKILL.md` path for a runtime with no skills folder. `package.json` is unchanged (`proof-quiet-install-setup-scope`, `-setup-wording`) |
+| 12 | **Wave 2 gate** | 11 | `docs/specs/quiet-install/quiet-install-spec.md` (Wave 2 boxes) | `inline` | — | [x] The same five gates exit 0; Wave 2 boxes ticked; wave 2's flip commit carries `BREAKING CHANGE:` naming the new default — **abort before Wave 3** |
 | 13 | Worktree parity hook | 12 | `templates/.agents/hooks/worktree-parity.mjs` (new), `test/worktree-parity.test.ts` (new), `test/setup-hook-wiring.test.ts` | `spawn` | sol | [ ] The hook exits 0 always and warns per missing entry point with a next step. Every install gets the script, and the root scaffold wires no `SessionStart` (`proof-quiet-install-parity-hook`, `-parity-wiring`) |
 | 14 | layout.md: quiet-install versioning and wiring | 12 | `templates/.agents/skills/harness-init/references/layout.md`, `test/harness-init-layout.test.ts` | `spawn` | sol | [ ] The quiet-install section states its place on both paths. It has the versioning question with six items and its footer, the ignore and wiring questions with one diff and one approval, the Claude entry-point table, and the hook paths, all in the wording table's text with both layout names (`proof-quiet-install-init-section`, `-init-version`, `-init-wire`, `-init-wording`, `-claude-entry`, `-hook-paths`) |
 | 15 | layout.md: occupied paths, wiring record, runtime table | 14 | `templates/.agents/skills/harness-init/references/layout.md`, `test/harness-init-layout.test.ts` | `spawn` | sol | [ ] The check before the diff keeps client paths and asks the three-way question; the kept-folder line and per-skill links are present. The wiring record has its fields and rerun rule. The eight runtime rows match the research note, each tracked-edit offer is in the wording table's text, and Codex's manual step is named (`proof-quiet-install-occupied`, `-wiring-record`, `-runtime-table`) |
@@ -115,7 +115,7 @@ Parallel units have disjoint Owns:
 
 Models: every builder uses `gpt-6.1-sol`, low reasoning effort, as requested.
 Commit cadence: `autocommit: true`, `autocommit-rule: wave`, both from
-`.agents/code-commit.config.yml`. Stop after unit 08; no push or PR.
+`.agents/code-commit.config.yml`. Active batch: Wave 2, units 09–12. Stop after unit 12; no push or PR.
 
 ### Unit 01 — Amend ADR-007 in place
 
@@ -228,5 +228,73 @@ used `gpt-6.1-sol` with low reasoning effort. No runtime-loading probe is
 claimed by these filesystem tests.
 
 Units 01–08 and the Wave 1 acceptance marks land with their implementation
-in one local commit. STOP at unit 08. Next frontier: unit 09, only after
-the Human resumes Wave 2. Nothing is pushed; no PR is opened.
+in one local commit. STOP at unit 08. Wave 2 was resumed by the Human on 2026-11-03; its first frontier is unit 09. Nothing is pushed; no PR is opened.
+
+### Unit 09 — Setup writes the quiet-install scaffold
+
+| Field | Value |
+|-------|-------|
+| Unit identifier | 09 — Setup writes the quiet-install scaffold; first Wave 2 frontier |
+| Spec/plan paths | `docs/specs/quiet-install/quiet-install-spec.md` / `docs/specs/quiet-install/quiet-install-plan.md` |
+| Obligation / proof status | R4.1 scaffold, R4.2, R4.4, R4.6 — done; Wave 2 gate PASS |
+| `HEAD` commit | `ea1a4a2` |
+| `git status` summary | dirty — proven Wave 2 paths and plan only; clean at batch start |
+| Intended diff scope | `src/setup/{options,index,apply,render-wolven}.ts`, `templates/.wolven-harness/gitignore`, `test/setup-quiet-install.test.ts`, `test/setup-layout.test.ts` |
+| Decision on every discrepancy | Resolved: unit 09 also owns a minimal `src/setup/config.ts` writer injection so the required write-order proof reuses the config serializer. No contract or config-key change. Parent also owns `test/helpers/fixture.ts` and existing setup regression fixtures that require `layout: home`; these fixtures opt into the unchanged full install, with original behavior assertions preserved. New-default and prompt-detection fixtures remain config-free. Units 09–11 run serially on shared Owns |
+
+### Unit 10 — Bootstrap links and rerun
+
+| Field | Value |
+|-------|-------|
+| Unit identifier | 10 — Bootstrap links and rerun; after 09 focused proofs |
+| Spec/plan paths | `docs/specs/quiet-install/quiet-install-spec.md` / `docs/specs/quiet-install/quiet-install-plan.md` |
+| Obligation / proof status | R4.1 bootstrap, R4.5 — done; Wave 2 gate PASS |
+| `HEAD` commit | `ea1a4a2` |
+| `git status` summary | dirty — unit 09 source, template, tests and plan; parent owns explicit-home regression fixtures |
+| Intended diff scope | `src/setup/index.ts`, `src/setup/runtimes.ts`, `test/setup-quiet-install.test.ts` |
+| Decision on every discrepancy | Resolved: unit 09 targeted checks passed; old full-install fixture failures are being migrated by parent. Parent also owns generated `known-forms.json`, required by the new template. Keep unit 09 writer ordering proof; bootstrap follows config. |
+
+### Unit 11 — Setup summary and next steps
+
+| Field | Value |
+|-------|-------|
+| Unit identifier | 11 — Setup summary and next steps; after 10 focused proofs |
+| Spec/plan paths | `docs/specs/quiet-install/quiet-install-spec.md` / `docs/specs/quiet-install/quiet-install-plan.md` |
+| Obligation / proof status | R4.3, R4.7 — done; Wave 2 gate PASS |
+| `HEAD` commit | `ea1a4a2` |
+| `git status` summary | dirty — units 09–10 plus explicit-home regression fixtures and known-forms generation |
+| Intended diff scope | `src/setup/summary.ts`, `src/setup/ui.ts`, `test/setup-quiet-install.test.ts`; `src/setup/index.ts` orchestration exception |
+| Decision on every discrepancy | Resolved: index must call the new summary and pass bootstrap outcomes; this orchestration is necessary for the listed stdout proof. Existing full/outside copy assertions stay intact; quiet copy follows the frozen wording table. |
+
+### Unit 12 — Wave 2 gate
+
+| Field | Value |
+|-------|-------|
+| Unit identifier | 12 — Wave 2 gate; STOP before Wave 3 |
+| Spec/plan paths | `docs/specs/quiet-install/quiet-install-spec.md` / `docs/specs/quiet-install/quiet-install-plan.md` |
+| Obligation / proof status | Wave 2 acceptance boxes — done; Wave 2 gate PASS |
+| `HEAD` commit | `ea1a4a2` |
+| `git status` summary | dirty — Wave 2 Owns, explicit-home regression fixture migrations, generated template forms and plan |
+| Intended diff scope | `docs/specs/quiet-install/quiet-install-spec.md` Wave 2 acceptance, plan completion marks, atomic wave commit with breaking footer |
+| Decision on every discrepancy | Resolved: full-install fixtures opt into home so original assertions remain; prompt/invalid/new-default tests remain config-free. The template mapping is mirrored in `scripts/known-forms.mjs`, its test and generated `known-forms.json`. Index orchestration and config writer seam are recorded under units 09 and 11. |
+
+### Wave 2 evidence and next frontier
+
+On 2026-11-03, `pnpm build`, `pnpm test` (1,076 passed, zero failed),
+`pnpm lint`, `pnpm comments` and `node dist/cli.js validate` all exited 0
+on the final code. Comments reported zero findings; validate reported
+66 valid claims and zero failures. The suite proves all R4 obligations,
+including write order, ignored/bootstrap footprint, occupied paths,
+create-only reruns, clone restoration without drift, stdout and unchanged
+client package bytes. Existing full-install regressions use explicit home
+fixtures; outside, prompt and refusal tests continue to exercise their
+original cases. No acceptance assertion was relaxed for the default flip.
+
+One local wave commit carries units 09–12, their acceptance marks and the
+`BREAKING CHANGE:` footer naming the quiet-install default. The new nested
+ignore template's installed-path hash is generated with the existing tool.
+All builders used `gpt-6.1-sol` with low reasoning effort. No desktop
+runtime-loading result is claimed by these tests.
+
+STOP at unit 12. Next frontier: Wave 3 (units 13, 14, 17, 19, 20, 21, 22),
+only after the Human resumes it. Nothing is pushed; no PR is opened.

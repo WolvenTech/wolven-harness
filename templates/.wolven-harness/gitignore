@@ -1,0 +1,13 @@
+*
+!.gitignore
+!AGENTS.md
+!.agents/
+.agents/*
+!.agents/rules/
+!.agents/rules/**
+!.agents/hooks/
+!.agents/hooks/**
+!docs/
+docs/*
+!docs/adrs/
+!docs/adrs/**

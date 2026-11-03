@@ -85,7 +85,7 @@ async function inlineRules(dir: string): Promise<string> {
  * write itself (amp's imports, codex's inline rules block).
  */
 async function install(runtime: Runtime): Promise<string> {
-  const dir = await makeRepo({}, { git: true });
+  const dir = await makeRepo({}, { git: true, layout: 'home' });
   const result = await run(['setup', '--git-host', 'gh', '--runtimes', runtime], { cwd: dir });
   assert.equal(result.code, 0, result.stderr);
 

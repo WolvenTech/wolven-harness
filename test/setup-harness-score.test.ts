@@ -24,7 +24,7 @@ test('harness-score: the starter config drops nothing', async () => {
 });
 
 test('harness-score: setup warns with the pinned install command and leaves dependencies alone', async () => {
-  const dir = await makeRepo({ 'package.json': packageJson() }, { git: true });
+  const dir = await makeRepo({ 'package.json': packageJson() }, { git: true, layout: 'home' });
 
   const result = await run(['setup', '--git-host', 'gh', '--runtimes', 'claude'], { cwd: dir });
 
@@ -41,7 +41,7 @@ test('harness-score: setup warns with the pinned install command and leaves depe
 test('harness-score: no warning when harness-score is already a dependency', async () => {
   const dir = await makeRepo(
     { 'package.json': packageJson({ devDependencies: { 'harness-score': '1.0.0' } }) },
-    { git: true },
+    { git: true, layout: 'home' },
   );
 
   const result = await run(['setup', '--git-host', 'gh', '--runtimes', 'claude'], { cwd: dir });
@@ -51,7 +51,7 @@ test('harness-score: no warning when harness-score is already a dependency', asy
 });
 
 test('harness-score: no package.json means no warning and no script', async () => {
-  const dir = await makeRepo({}, { git: true });
+  const dir = await makeRepo({}, { git: true, layout: 'home' });
 
   const result = await run(['setup', '--git-host', 'gh', '--runtimes', 'claude'], { cwd: dir });
 
@@ -63,7 +63,7 @@ test('harness-score: no package.json means no warning and no script', async () =
 
 test('harness-score: an existing .harness-score.json is kept', async () => {
   const mine = '{\n  "extends": ["no-hooks"]\n}\n';
-  const dir = await makeRepo({ '.harness-score.json': mine }, { git: true });
+  const dir = await makeRepo({ '.harness-score.json': mine }, { git: true, layout: 'home' });
 
   const result = await run(['setup', '--git-host', 'gh', '--runtimes', 'claude'], { cwd: dir });
 
@@ -74,7 +74,7 @@ test('harness-score: an existing .harness-score.json is kept', async () => {
 test('harness-score: a kept harness:score script that runs something else gets no warning', async () => {
   const dir = await makeRepo(
     { 'package.json': packageJson({ scripts: { 'harness:score': 'node scripts/score.js' } }) },
-    { git: true },
+    { git: true, layout: 'home' },
   );
 
   const result = await run(['setup', '--git-host', 'gh', '--runtimes', 'claude'], { cwd: dir });

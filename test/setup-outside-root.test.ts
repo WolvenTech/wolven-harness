@@ -165,8 +165,8 @@ test('proof-install-experience-global-hint: a local or cached executable recomme
   assert.doesNotMatch(global.stdout + global.stderr, /install -g/);
 });
 
-test('proof-install-experience-root-unchanged: a git top-level still gets the full scaffold and its next steps', async () => {
-  const dir = await makeRepo({}, { git: true });
+test('proof-install-experience-root-unchanged: a recorded home at a git top-level keeps the full scaffold and its next steps', async () => {
+  const dir = await makeRepo({}, { git: true, layout: 'home' });
 
   const result = await run(['setup', '--git-host', 'gh', '--runtimes', 'claude'], { cwd: dir });
 
