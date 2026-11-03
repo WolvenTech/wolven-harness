@@ -1,6 +1,8 @@
 import { readdir, readFile, realpath, stat } from 'node:fs/promises';
 import path from 'node:path';
 import {
+  quietEntryRequirements,
+  quietGeneratedFiles,
   type RuleSource,
   type RuntimeRegistryRow,
   readRules,
@@ -10,8 +12,205 @@ import {
 } from '../setup/runtimes.js';
 import { skillFolders } from '../setup/skill-sets.js';
 import type { Runtime } from '../setup/types.js';
-import type { DoctorContext } from './index.js';
+import { type DoctorContext, isQuietInstall } from './index.js';
 import type { DoctorCode, DoctorFinding } from './report.js';
+
+type WiringEntry = { path: string; outcome: string };
+
+export async function readWiringRecord(ctx: DoctorContext): Promise<WiringEntry[]> {
+  if (!isQuietInstall(ctx)) return [];
+  try {
+    const record: unknown = JSON.parse(await readFile(path.join(ctx.harnessHome, 'wiring.json'), 'utf8'));
+    if (typeof record !== 'object' || record === null || !('entries' in record) || !Array.isArray(record.entries))
+      return [];
+    return record.entries.filter(
+      (entry): entry is WiringEntry =>
+        typeof entry === 'object' &&
+        entry !== null &&
+        typeof entry.path === 'string' &&
+        typeof entry.outcome === 'string',
+    );
+  } catch {
+    return [];
+  }
+}
+
+function keptEntry(record: WiringEntry[], file: string): WiringEntry | undefined {
+  return record.find((entry) => entry.path === file && ['merged', 'prefixed', 'skipped'].includes(entry.outcome));
+}
+
+async function quietClaudeFindings(ctx: DoctorContext, rules: Rule[]): Promise<DoctorFinding[]> {
+  const row = runtimeRow('claude');
+  const findings: DoctorFinding[] = [];
+  const record = await readWiringRecord(ctx);
+  const inspect = async (file: string, target: string, code: DoctorCode) => {
+    const kept = keptEntry(record, file);
+    if (kept !== undefined) {
+      findings.push({ level: 'warn', code, message: `${row.name}: kept client path ${file} (${kept.outcome})` });
+    } else if (!(await resolvesTo(path.join(ctx.root, file), target))) {
+      findings.push({
+        level: 'error',
+        code,
+        message: `${row.name}: ${file} does not resolve to ${path.relative(ctx.root, target)}. Nothing changed.`,
+        fix: 'run "harness-init" in this folder to review and recreate this link',
+      });
+    }
+  };
+  await inspect(row.quietInstall?.entryPoints[0] ?? '', path.join(ctx.harnessHome, 'AGENTS.md'), 'doctor-entry');
+  if (rules.length === 0) {
+    findings.push({
+      level: 'error',
+      code: 'doctor-rules',
+      message: `${row.name}: no standing rules were found in the harness home`,
+      fix: 'run "harness-init" to install the standing rules',
+    });
+  }
+  for (const rule of rules)
+    await inspect(
+      `${row.rules.kind === 'link' ? row.rules.path : ''}/${rule.base}.md`,
+      path.join(ctx.harnessHome, '.agents/rules', `${rule.base}.md`),
+      'doctor-rules',
+    );
+  for (const skill of skillFolders(ctx.config.skillSets ?? [])) {
+    const file = `${row.skills.path}/${skill}`;
+    await inspect(file, path.join(ctx.harnessHome, '.agents/skills', skill), 'doctor-skills');
+    if (
+      !keptEntry(record, file) &&
+      (await resolvesTo(path.join(ctx.root, file), path.join(ctx.harnessHome, '.agents/skills', skill))) &&
+      (await readText(path.join(ctx.root, file, 'SKILL.md'))) === undefined
+    ) {
+      findings.push({
+        level: 'error',
+        code: 'doctor-skills',
+        message: `${row.name}: ${file}/SKILL.md is missing or unreadable`,
+        fix: 'run "wolven-harness setup" to restore the skill',
+      });
+    }
+  }
+  return findings;
+}
+
+async function quietRuntimeFindings(
+  row: RuntimeRegistryRow,
+  ctx: DoctorContext,
+  rules: Rule[],
+): Promise<DoctorFinding[]> {
+  const wiring = row.quietInstall;
+  if (wiring === undefined) return [];
+  const findings: DoctorFinding[] = [];
+  const record = await readWiringRecord(ctx);
+  const home = path.relative(ctx.root, ctx.harnessHome).split(path.sep).join('/');
+  const agents = await readText(path.join(ctx.harnessHome, 'AGENTS.md'));
+  const inspect = async (file: string, code: DoctorCode, problem: () => Promise<string | undefined>) => {
+    const kept = keptEntry(record, file);
+    if (kept !== undefined) {
+      findings.push({ level: 'warn', code, message: `${row.name}: kept client path ${file} (${kept.outcome})` });
+      return;
+    }
+    const reason = await problem();
+    if (reason !== undefined)
+      findings.push({
+        level: 'error',
+        code,
+        message: `${row.name}: ${file} ${reason}. Nothing changed.`,
+        fix: wiring.manualStep,
+      });
+  };
+  for (const skill of skillFolders(ctx.config.skillSets ?? [])) {
+    const file = `${wiring.skillsPath}/${skill}`;
+    await inspect(file, 'doctor-skills', async () => {
+      if (!(await resolvesTo(path.join(ctx.root, file), path.join(ctx.harnessHome, '.agents/skills', skill))))
+        return 'does not resolve to its harness skill';
+      return (await readText(path.join(ctx.root, file, 'SKILL.md'))) === undefined
+        ? 'has no readable SKILL.md'
+        : undefined;
+    });
+  }
+  if (row.id === 'codex') {
+    await inspect(
+      'AGENTS.md',
+      'doctor-entry',
+      async () => 'cannot automatically load the harness instructions and rules',
+    );
+    return findings;
+  }
+  const requirement = quietEntryRequirements(row, home);
+  if (requirement !== undefined) {
+    await inspect(requirement.file, 'doctor-entry', async () => {
+      const text = await readText(path.join(ctx.root, requirement.file));
+      if (text === undefined) return 'is missing or unreadable';
+      if (requirement.json) {
+        try {
+          const parsed = JSON.parse(text) as { instructions?: unknown };
+          return Array.isArray(parsed.instructions) &&
+            requirement.needles.every((needle) => (parsed.instructions as unknown[]).includes(needle))
+            ? undefined
+            : 'does not list the harness instructions and rules';
+        } catch {
+          return 'is not valid JSON';
+        }
+      }
+      return requirement.needles.every((needle) => text.includes(needle))
+        ? undefined
+        : 'does not import the harness instructions and rules';
+    });
+  }
+  const generated = quietGeneratedFiles(row, rules, agents ?? '', home);
+  for (const [file, expected] of generated) {
+    await inspect(file, file.includes('agents.mdc') ? 'doctor-entry' : 'doctor-rules', async () => {
+      return (await readText(path.join(ctx.root, file))) === undefined ? 'is missing or unreadable' : undefined;
+    });
+    if (!keptEntry(record, file)) {
+      const actual = await readText(path.join(ctx.root, file));
+      if (actual !== undefined && actual !== expected)
+        findings.push({
+          level: 'error',
+          code: 'doctor-rules-stale',
+          message: `${row.name}: ${file} differs from the current harness source`,
+          fix: `run "harness-doctor" to refresh ${file}`,
+        });
+    }
+  }
+  if (row.rules.kind === 'per-rule') {
+    const pattern = row.rules.pattern;
+    const folder = pattern.slice(0, pattern.lastIndexOf('/'));
+    const [prefix, suffix] = path.posix.basename(pattern).split('{rule}');
+    let names: string[] = [];
+    try {
+      names = await readdir(path.join(ctx.root, folder));
+    } catch {
+      // why: missing expected files already produce wiring findings.
+    }
+    for (const name of names.sort()) {
+      if (!name.startsWith(prefix) || !name.endsWith(suffix) || name.length <= prefix.length + suffix.length) continue;
+      const file = `${folder}/${name}`;
+      if (generated.has(file)) continue;
+      const kept = keptEntry(record, file);
+      findings.push(
+        kept === undefined
+          ? {
+              level: 'error',
+              code: 'doctor-rules-stale',
+              message: `${row.name}: ${file} has no current source rule`,
+              fix: `run "harness-doctor" to review ${file}`,
+            }
+          : {
+              level: 'warn',
+              code: 'doctor-rules-stale',
+              message: `${row.name}: kept client path ${file} (${kept.outcome})`,
+            },
+      );
+    }
+  }
+  if (agents === undefined)
+    findings.push({
+      level: 'error',
+      code: 'doctor-entry',
+      message: `${row.name}: ${home}/AGENTS.md is missing. Nothing changed.`,
+      fix: 'run "wolven-harness setup" to restore the harness instructions',
+    });
+  return findings;
+}
 
 const HARNESS_START = '<!-- wolven-harness:start -->';
 const RULES_START = '<!-- wolven-harness:rules:start -->';
@@ -304,9 +503,17 @@ export async function runRuntimeChecks(ctx: DoctorContext): Promise<DoctorFindin
   const findings: DoctorFinding[] = [];
   const ids = [...new Set<Runtime>(ctx.config.runtimes)];
   const rows = ids.map(runtimeRow);
-  const inline = rulesMode(ids) === 'inline';
+  const inline = rulesMode(ids) === 'inline' && !isQuietInstall(ctx);
 
   for (const row of rows) {
+    if (isQuietInstall(ctx) && row.id === 'claude') {
+      findings.push(...(await quietClaudeFindings(ctx, rules)));
+      continue;
+    }
+    if (isQuietInstall(ctx)) {
+      findings.push(...(await quietRuntimeFindings(row, ctx, rules)));
+      continue;
+    }
     const entry = await check('doctor-entry', row.name, ENTRY_FIX, () => entryProblem(row, ctx, agents));
     if (entry !== undefined) findings.push(entry);
 

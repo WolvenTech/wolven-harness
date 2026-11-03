@@ -1,3 +1,4 @@
+import path from 'node:path';
 import { readConfig } from '../setup/config.js';
 import type { Finding } from './report.js';
 
@@ -31,6 +32,7 @@ function isValidEntry(entry: string): boolean {
 export interface IgnoreConfig {
   /** Valid entries, in file order. */
   entries: string[];
+  homePrefix?: string;
   /** One `error` finding per invalid entry, naming it verbatim. */
   findings: Finding[];
 }
@@ -62,5 +64,12 @@ export function partitionIgnore(raw: readonly string[]): IgnoreConfig {
 /** Reads `.wolven-harness.json` at `root` and validates its `ignore` entries. */
 export async function loadIgnoreConfig(root: string): Promise<IgnoreConfig> {
   const config = await readConfig(root);
-  return partitionIgnore(config?.ignore ?? []);
+  const result = partitionIgnore(config?.ignore ?? []);
+  if (config?.layout === 'linked' && config.harnessHome) {
+    const rel = path.relative(root, path.resolve(root, config.harnessHome));
+    if (rel !== '' && rel !== '..' && !rel.startsWith(`..${path.sep}`) && !path.isAbsolute(rel)) {
+      result.homePrefix = rel.split(path.sep).join('/');
+    }
+  }
+  return result;
 }

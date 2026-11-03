@@ -1,8 +1,10 @@
 import { createHash } from 'node:crypto';
-import { readFile } from 'node:fs/promises';
+import { readFile, realpath } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { gitTopLevel } from '../git.js';
 import { type SelectedTemplateFile, selectTemplateFiles } from '../setup/apply.js';
+import { mapQuietInstallPaths } from '../setup/path-map.js';
 import { applySetMarkers } from '../setup/render-wolven.js';
 import { type SkillSet, skillFolders } from '../setup/skill-sets.js';
 import type { DoctorContext } from './index.js';
@@ -97,6 +99,17 @@ export async function runDriftChecks(
   const findings: DoctorFinding[] = [];
   const linked = ctx.config.layout === 'linked' && ctx.harnessHome !== ctx.root;
   const baseDir = linked ? ctx.harnessHome : ctx.root;
+  let quiet = false;
+  if (linked) {
+    try {
+      const root = await realpath(await gitTopLevel(ctx.root));
+      const relative = path.relative(root, await realpath(ctx.harnessHome));
+      quiet =
+        relative !== '' && relative !== '..' && !relative.startsWith(`..${path.sep}`) && !path.isAbsolute(relative);
+    } catch {
+      quiet = false;
+    }
+  }
   const sets = (ctx.config.skillSets ?? []) as readonly SkillSet[];
   const known = await readKnownForms(knownFormsFile);
 
@@ -126,12 +139,16 @@ export async function runDriftChecks(
       continue;
     }
 
+    const expectedText =
+      quiet && installed.startsWith('.agents/skills/') && templateText !== undefined
+        ? mapQuietInstallPaths(templateText, 'linked')
+        : templateText;
     const expectedBytes =
       installed === QMD_INDEX && templateText !== undefined
         ? Buffer.from(applySetMarkers(templateText, sets), 'utf8')
-        : templateText === undefined
+        : expectedText === undefined
           ? undefined
-          : Buffer.from(templateText, 'utf8');
+          : Buffer.from(expectedText, 'utf8');
     if (expectedBytes !== undefined && bytes.equals(expectedBytes)) continue;
 
     const forms = known.forms[installed] ?? [];

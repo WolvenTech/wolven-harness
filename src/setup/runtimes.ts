@@ -24,6 +24,13 @@ export type ProjectSkills = { kind: 'direct'; path: string } | { kind: 'symlink'
 /** The environment a machine marker is computed from. */
 export type RuntimeEnv = Record<string, string | undefined>;
 
+export interface QuietInstallWiring {
+  skillsPath: string;
+  entryPoints: readonly string[];
+  trackedEdit?: string;
+  manualStep: string;
+}
+
 /** One row of the runtime registry. */
 export interface RuntimeRegistryRow {
   id: Runtime;
@@ -37,6 +44,7 @@ export interface RuntimeRegistryRow {
   machineMarkers(env: RuntimeEnv): string[];
   /** Project-relative posix paths that mark the runtime in a repository. */
   folderMarkers: readonly string[];
+  quietInstall?: QuietInstallWiring;
   skills: ProjectSkills;
   rules: RulesWiring;
   entryFile?: { path: string; content: string };
@@ -106,6 +114,7 @@ const homeDir = (env: RuntimeEnv): string | undefined => envDir(env, 'HOME');
 export const RUNTIME_REGISTRY: readonly RuntimeRegistryRow[] = [
   {
     id: 'claude',
+    quietInstall: { skillsPath: '.claude/skills', entryPoints: ['CLAUDE.local.md'], manualStep: 'run harness-init' },
     name: 'Claude Code',
     machineMarkers: (env) => markerUnder(homeDir(env), '.claude'),
     folderMarkers: ['CLAUDE.md', '.claude'],
@@ -116,6 +125,11 @@ export const RUNTIME_REGISTRY: readonly RuntimeRegistryRow[] = [
   },
   {
     id: 'codex',
+    quietInstall: {
+      skillsPath: '.agents/skills',
+      entryPoints: ['.agents/skills/<name>'],
+      manualStep: 'ask Codex to read .wolven-harness/AGENTS.md, or add its text to ~/.codex/AGENTS.md',
+    },
     name: 'Codex',
     machineMarkers: (env) => markerUnder(codexDir(env)),
     folderMarkers: ['.codex'],
@@ -124,6 +138,16 @@ export const RUNTIME_REGISTRY: readonly RuntimeRegistryRow[] = [
   },
   {
     id: 'cursor',
+    quietInstall: {
+      skillsPath: '.agents/skills',
+      entryPoints: [
+        '.agents/skills/<name>',
+        '.cursor/rules/wolven-<rule>.mdc',
+        '.cursor/rules/wolven-agents.mdc',
+        '.cursor/hooks.json',
+      ],
+      manualStep: 'run "harness-init" to recreate the Cursor rules',
+    },
     name: 'Cursor',
     machineMarkers: (env) => markerUnder(homeDir(env), '.cursor'),
     folderMarkers: ['.cursor', '.cursorrules'],
@@ -133,6 +157,14 @@ export const RUNTIME_REGISTRY: readonly RuntimeRegistryRow[] = [
   },
   {
     id: 'opencode',
+    quietInstall: {
+      skillsPath: '.agents/skills',
+      entryPoints: ['.agents/skills/<name>'],
+      manualStep:
+        'add .wolven-harness/AGENTS.md and .wolven-harness/.agents/rules/*.md to instructions in opencode.json',
+      trackedEdit:
+        'offer an instructions entry in opencode.json listing .wolven-harness/AGENTS.md and .wolven-harness/.agents/rules/*.md (tracked change, or new tracked file)',
+    },
     name: 'OpenCode',
     machineMarkers: (env) => markerUnder(xdgConfigDir(env), 'opencode'),
     folderMarkers: ['opencode.json'],
@@ -141,6 +173,13 @@ export const RUNTIME_REGISTRY: readonly RuntimeRegistryRow[] = [
   },
   {
     id: 'amp',
+    quietInstall: {
+      skillsPath: '.agents/skills',
+      entryPoints: ['.agents/skills/<name>'],
+      manualStep: 'add @.wolven-harness/AGENTS.md inside the harness block in AGENTS.md',
+      trackedEdit:
+        'offer an @.wolven-harness/AGENTS.md line inside the harness block of the client’s AGENTS.md (tracked change)',
+    },
     name: 'Amp',
     machineMarkers: (env) => markerUnder(xdgConfigDir(env), 'amp'),
     folderMarkers: [],
@@ -149,6 +188,13 @@ export const RUNTIME_REGISTRY: readonly RuntimeRegistryRow[] = [
   },
   {
     id: 'copilot',
+    quietInstall: {
+      skillsPath: '.agents/skills',
+      entryPoints: ['.agents/skills/<name>', '.github/instructions/wolven-<rule>.instructions.md'],
+      manualStep: 'run "harness-init" to recreate the Copilot instruction files',
+      trackedEdit:
+        'offer to commit the generated .github/instructions/wolven-<rule>.instructions.md files (new tracked files)',
+    },
     name: 'GitHub Copilot',
     machineMarkers: (env) => markerUnder(homeDir(env), '.copilot'),
     folderMarkers: ['.github/copilot-instructions.md'],
@@ -161,6 +207,12 @@ export const RUNTIME_REGISTRY: readonly RuntimeRegistryRow[] = [
   },
   {
     id: 'gemini',
+    quietInstall: {
+      skillsPath: '.agents/skills',
+      entryPoints: ['.agents/skills/<name>', 'GEMINI.md'],
+      manualStep: 'add @.wolven-harness/AGENTS.md to GEMINI.md',
+      trackedEdit: 'offer @.wolven-harness/AGENTS.md in an existing client GEMINI.md (tracked change)',
+    },
     name: 'Gemini CLI',
     machineMarkers: (env) => markerUnder(homeDir(env), '.gemini'),
     folderMarkers: ['GEMINI.md', '.gemini'],
@@ -170,6 +222,12 @@ export const RUNTIME_REGISTRY: readonly RuntimeRegistryRow[] = [
   },
   {
     id: 'kiro',
+    quietInstall: {
+      skillsPath: '.kiro/skills',
+      entryPoints: ['.kiro/skills/<name>', '.kiro/steering/wolven-harness.md'],
+      manualStep: 'run "harness-init" to recreate the Kiro steering file',
+      trackedEdit: 'where .gitignore is in agentIgnoreFiles, offer the steering file as a new tracked file',
+    },
     name: 'Kiro',
     machineMarkers: (env) => markerUnder(homeDir(env), '.kiro'),
     folderMarkers: ['.kiro'],
@@ -178,6 +236,11 @@ export const RUNTIME_REGISTRY: readonly RuntimeRegistryRow[] = [
   },
   {
     id: 'antigravity',
+    quietInstall: {
+      skillsPath: '.agents/skills',
+      entryPoints: ['.agents/skills/<name>', '.agents/rules/wolven-harness.md'],
+      manualStep: 'run "harness-init" to recreate the Antigravity rule',
+    },
     name: 'Antigravity',
     // hazard: Antigravity documents no home directory, so it reports no machine marker.
     machineMarkers: () => [],
@@ -412,4 +475,39 @@ export async function wireRuntimes(opts: Options, ctx: Context): Promise<StepRes
 /** The one rules strategy for a selected runtime set. */
 export function rulesMode(runtimes: readonly Runtime[]): RulesStrategy {
   return runtimes.some((runtime) => runtimeRow(runtime).rules.kind === 'inline') ? 'inline' : 'native';
+}
+
+export function quietGeneratedFiles(
+  row: RuntimeRegistryRow,
+  rules: RuleSource[],
+  agents: string,
+  home: string,
+): Map<string, string> {
+  const files = new Map<string, string>();
+  if (row.id === 'cursor' || row.id === 'copilot') {
+    if (row.rules.kind !== 'per-rule') return files;
+    for (const rule of rules)
+      files.set(row.rules.pattern.replace('{rule}', rule.base), wrapRule(rule, row.rules.frontmatter));
+    if (row.id === 'cursor')
+      files.set('.cursor/rules/wolven-agents.mdc', wrapRule({ base: 'agents', body: agents }, 'alwaysApply: true'));
+  } else if (row.id === 'kiro') {
+    files.set('.kiro/steering/wolven-harness.md', `---\ninclusion: always\n---\n\n#[[file:${home}/AGENTS.md]]\n`);
+  } else if (row.id === 'antigravity') {
+    files.set(
+      '.agents/rules/wolven-harness.md',
+      `---\ntrigger: always_on\n---\n\n@[harness](../../${home}/AGENTS.md)\n`,
+    );
+  }
+  return files;
+}
+
+export function quietEntryRequirements(
+  row: RuntimeRegistryRow,
+  home: string,
+): { file: string; needles: string[]; json: boolean } | undefined {
+  if (row.id === 'opencode')
+    return { file: 'opencode.json', needles: [`${home}/AGENTS.md`, `${home}/.agents/rules/*.md`], json: true };
+  if (row.id === 'amp' || row.id === 'gemini')
+    return { file: row.id === 'amp' ? 'AGENTS.md' : 'GEMINI.md', needles: [`@${home}/AGENTS.md`], json: false };
+  return undefined;
 }

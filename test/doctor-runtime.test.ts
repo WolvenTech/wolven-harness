@@ -356,7 +356,7 @@ test('doctor-linked: wiring under the open folder follows links into harnessHome
       null,
       2,
     )}\n`,
-    'AGENTS.md': AGENTS_SECTION,
+    'harness/AGENTS.md': AGENTS_SECTION,
     'CLAUDE.md': '@AGENTS.md\n',
     'harness/.agents/rules/qmd-first.md':
       '---\ndescription: Search first.\ntrigger: always_on\n---\n\n# QMD before web\n',
@@ -368,8 +368,12 @@ test('doctor-linked: wiring under the open folder follows links into harnessHome
 
   const dir = await makeRepo(files);
   await mkdir(path.join(dir, '.claude'), { recursive: true });
-  await symlink('../harness/.agents/rules', path.join(dir, '.claude', 'rules'), 'dir');
-  await symlink('../harness/.agents/skills', path.join(dir, '.claude', 'skills'), 'dir');
+  await symlink('harness/AGENTS.md', path.join(dir, 'CLAUDE.local.md'));
+  await mkdir(path.join(dir, '.claude/rules'), { recursive: true });
+  await mkdir(path.join(dir, '.claude/skills'), { recursive: true });
+  await symlink('../../harness/.agents/rules/qmd-first.md', path.join(dir, '.claude/rules/qmd-first.md'));
+  for (const skill of CORE_SKILLS)
+    await symlink(`../../harness/.agents/skills/${skill}`, path.join(dir, '.claude/skills', skill));
 
   const ctx = await contextFor(dir);
   const findings = await runRuntimeChecks(ctx);
@@ -421,4 +425,155 @@ test('doctor-runtime: a linked layout that is missing the harness home reports f
 
   assertFinding(findings, 'doctor-rules', 'claude');
   assertFinding(findings, 'doctor-skills', 'claude');
+});
+
+async function quietClaude(): Promise<string> {
+  const dir = await makeRepo({
+    '.wolven-harness.json': JSON.stringify({
+      version: 1,
+      gitHost: 'gh',
+      runtimes: ['claude'],
+      skillSets: ['ship'],
+      layout: 'linked',
+      harnessHome: '.wolven-harness',
+    }),
+    '.wolven-harness/AGENTS.md': '# Harness\n',
+    '.wolven-harness/.agents/rules/example.md': '---\ndescription: Example\n---\n# Example\n',
+    '.claude/skills/client/SKILL.md': '# Client\n',
+  });
+  await mkdir(path.join(dir, '.claude/rules'), { recursive: true });
+  await symlink('.wolven-harness/AGENTS.md', path.join(dir, 'CLAUDE.local.md'));
+  await symlink('../../.wolven-harness/.agents/rules/example.md', path.join(dir, '.claude/rules/example.md'));
+  for (const skill of [...CORE_SKILLS, 'code-commit', 'code-pr', 'code-review', 'code-ci']) {
+    await mkdir(path.join(dir, '.wolven-harness/.agents/skills', skill), { recursive: true });
+    await writeFile(path.join(dir, '.wolven-harness/.agents/skills', skill, 'SKILL.md'), `# ${skill}\n`);
+    await symlink(`../../.wolven-harness/.agents/skills/${skill}`, path.join(dir, '.claude/skills', skill));
+  }
+  return dir;
+}
+
+test('proof-quiet-install-doctor-claude: individual links coexist with client skills', async () => {
+  const dir = await quietClaude();
+  assert.deepEqual(await runRuntimeChecks(await contextFor(dir)), []);
+  await rm(path.join(dir, '.claude/rules/example.md'));
+  assertFinding(await runRuntimeChecks(await contextFor(dir)), 'doctor-rules', 'claude');
+});
+
+test('proof-quiet-install-doctor-record: kept paths warn, missing linked paths fail', async () => {
+  for (const outcome of ['skipped', 'merged', 'prefixed', 'linked']) {
+    const dir = await quietClaude();
+    await rm(path.join(dir, '.claude/skills/code-commit'));
+    await writeFile(
+      path.join(dir, '.wolven-harness/wiring.json'),
+      JSON.stringify({ entries: [{ path: '.claude/skills/code-commit', outcome }] }),
+    );
+    const findings = await runRuntimeChecks(await contextFor(dir));
+    assert.equal(findings.length, 1, JSON.stringify(findings));
+    assert.equal(findings[0].code, 'doctor-skills');
+    assert.equal(findings[0].level, outcome === 'linked' ? 'error' : 'warn');
+    assert.match(findings[0].message, /\.claude\/skills\/code-commit/);
+    if (outcome !== 'linked') assert.ok(findings[0].message.includes(outcome));
+  }
+});
+
+test('proof-quiet-install-doctor-runtimes: seven automatic rows pass and Codex names its manual step', async () => {
+  for (const runtime of ALL_RUNTIMES.filter((id) => id !== 'claude')) {
+    const row = runtimeRow(runtime);
+    const wiring = row.quietInstall;
+    assert.ok(wiring);
+    const dir = await makeRepo({
+      '.wolven-harness.json': JSON.stringify({
+        version: 1,
+        gitHost: 'gh',
+        runtimes: [runtime],
+        layout: 'linked',
+        harnessHome: '.wolven-harness',
+      }),
+      '.wolven-harness/AGENTS.md': '# Harness\n',
+      '.wolven-harness/.agents/rules/example.md': '---\ndescription: Example\n---\n# Example\n',
+    });
+    for (const skill of CORE_SKILLS) {
+      await mkdir(path.join(dir, '.wolven-harness/.agents/skills', skill), { recursive: true });
+      await writeFile(path.join(dir, '.wolven-harness/.agents/skills', skill, 'SKILL.md'), `# ${skill}\n`);
+      await mkdir(path.join(dir, wiring.skillsPath), { recursive: true });
+      await symlink(`../../.wolven-harness/.agents/skills/${skill}`, path.join(dir, wiring.skillsPath, skill));
+    }
+    const generated: Record<string, string> = {};
+    if (runtime === 'cursor') {
+      generated['.cursor/rules/wolven-example.mdc'] = '---\nalwaysApply: true\n---\n\n# Example\n';
+      generated['.cursor/rules/wolven-agents.mdc'] = '---\nalwaysApply: true\n---\n\n# Harness\n';
+    } else if (runtime === 'copilot') {
+      generated['.github/instructions/wolven-example.instructions.md'] = '---\napplyTo: "**"\n---\n\n# Example\n';
+    } else if (runtime === 'kiro') {
+      generated['.kiro/steering/wolven-harness.md'] =
+        '---\ninclusion: always\n---\n\n#[[file:.wolven-harness/AGENTS.md]]\n';
+    } else if (runtime === 'antigravity') {
+      generated['.agents/rules/wolven-harness.md'] =
+        '---\ntrigger: always_on\n---\n\n@[harness](../../.wolven-harness/AGENTS.md)\n';
+    } else if (runtime === 'opencode') {
+      generated['opencode.json'] = JSON.stringify({
+        instructions: ['.wolven-harness/AGENTS.md', '.wolven-harness/.agents/rules/*.md'],
+      });
+    } else if (runtime === 'amp') generated['AGENTS.md'] = '@.wolven-harness/AGENTS.md\n';
+    else if (runtime === 'gemini') generated['GEMINI.md'] = '@.wolven-harness/AGENTS.md\n';
+    for (const [file, text] of Object.entries(generated)) {
+      await mkdir(path.dirname(path.join(dir, file)), { recursive: true });
+      await writeFile(path.join(dir, file), text);
+    }
+    const findings = await runRuntimeChecks(await contextFor(dir));
+    if (runtime === 'codex') {
+      assert.equal(findings.length, 1);
+      assert.equal(findings[0].code, 'doctor-entry');
+      assert.equal(findings[0].level, 'error');
+      if (findings[0].level === 'error') assert.equal(findings[0].fix, wiring.manualStep);
+      assert.match(findings[0].message, /Nothing changed\./);
+    } else assert.deepEqual(findings, [], runtime);
+    if (row.rules.kind === 'per-rule') {
+      const orphan = row.rules.pattern.replace('{rule}', 'removed-source');
+      const unrelated = path.posix.join(path.posix.dirname(orphan), 'client-notes.md');
+      await writeFile(path.join(dir, unrelated), '# Client steering\n');
+      assert.deepEqual(await runRuntimeChecks(await contextFor(dir)), [], runtime);
+      await writeFile(path.join(dir, orphan), '# Removed source\n');
+      const orphanFindings = await runRuntimeChecks(await contextFor(dir));
+      assert.equal(orphanFindings.length, 1, runtime);
+      assert.equal(orphanFindings[0].code, 'doctor-rules-stale');
+      assert.equal(orphanFindings[0].level, 'error');
+      assert.ok(orphanFindings[0].message.includes(orphan));
+      await writeFile(
+        path.join(dir, '.wolven-harness/wiring.json'),
+        JSON.stringify({ entries: [{ path: orphan, outcome: 'prefixed' }] }),
+      );
+      const keptOrphan = await runRuntimeChecks(await contextFor(dir));
+      assert.equal(keptOrphan.length, 1, runtime);
+      assert.equal(keptOrphan[0].level, 'warn');
+      assert.match(keptOrphan[0].message, /prefixed/);
+      await rm(path.join(dir, orphan));
+      await rm(path.join(dir, '.wolven-harness/wiring.json'));
+    }
+    if (['cursor', 'copilot', 'kiro', 'antigravity'].includes(runtime)) {
+      const file = Object.keys(generated)[0];
+      await writeFile(path.join(dir, file), `${generated[file]}edited\n`);
+      assertFinding(await runRuntimeChecks(await contextFor(dir)), 'doctor-rules-stale', runtime);
+      await rm(path.join(dir, file));
+      const missing = await runRuntimeChecks(await contextFor(dir));
+      assert.ok(
+        missing.some((finding) => finding.level === 'error' && ['doctor-entry', 'doctor-rules'].includes(finding.code)),
+        runtime,
+      );
+      await writeFile(
+        path.join(dir, '.wolven-harness/wiring.json'),
+        JSON.stringify({ entries: [{ path: file, outcome: 'skipped' }] }),
+      );
+      const kept = await runRuntimeChecks(await contextFor(dir));
+      assert.equal(
+        kept.some((finding) => finding.level === 'error'),
+        false,
+        runtime,
+      );
+      assert.ok(
+        kept.some((finding) => finding.level === 'warn' && finding.message.includes(file)),
+        runtime,
+      );
+    }
+  }
 });

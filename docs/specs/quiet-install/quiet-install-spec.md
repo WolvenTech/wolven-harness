@@ -331,23 +331,23 @@ there too.
 
 ### Wave 1
 
-- [ ] `proof-quiet-install-fixed-map` PASS — R1.1
-- [ ] `proof-quiet-install-contract` PASS — R1.2
-- [ ] `proof-quiet-install-pathmap-boundary` PASS — R1.3
-- [ ] `proof-quiet-install-validate-root` PASS — R2.1
-- [ ] `proof-quiet-install-validate-scan` PASS — R2.2
-- [ ] `proof-quiet-install-client-claims` PASS — R2.3
-- [ ] `proof-quiet-install-client-docs` PASS — R2.4
-- [ ] `proof-quiet-install-ignored-scope` PASS — R2.5
-- [ ] `proof-quiet-install-ignore-entries` PASS — R2.6
-- [ ] `proof-quiet-install-validate-unchanged` PASS — R2.7
-- [ ] `proof-quiet-install-misplaced` PASS — R2.8
-- [ ] `proof-quiet-install-doctor-docs` PASS — R3.1
-- [ ] `proof-quiet-install-doctor-claude` PASS — R3.2
-- [ ] `proof-quiet-install-doctor-runtimes` PASS — R3.3
-- [ ] `proof-quiet-install-drift-pathmap` PASS — R3.4
-- [ ] `proof-quiet-install-no-code-repo` PASS — R3.5
-- [ ] `proof-quiet-install-doctor-record` PASS — R3.6
+- [x] `proof-quiet-install-fixed-map` PASS — R1.1
+- [x] `proof-quiet-install-contract` PASS — R1.2
+- [x] `proof-quiet-install-pathmap-boundary` PASS — R1.3
+- [x] `proof-quiet-install-validate-root` PASS — R2.1
+- [x] `proof-quiet-install-validate-scan` PASS — R2.2
+- [x] `proof-quiet-install-client-claims` PASS — R2.3
+- [x] `proof-quiet-install-client-docs` PASS — R2.4
+- [x] `proof-quiet-install-ignored-scope` PASS — R2.5
+- [x] `proof-quiet-install-ignore-entries` PASS — R2.6
+- [x] `proof-quiet-install-validate-unchanged` PASS — R2.7
+- [x] `proof-quiet-install-misplaced` PASS — R2.8
+- [x] `proof-quiet-install-doctor-docs` PASS — R3.1
+- [x] `proof-quiet-install-doctor-claude` PASS — R3.2
+- [x] `proof-quiet-install-doctor-runtimes` PASS — R3.3
+- [x] `proof-quiet-install-drift-pathmap` PASS — R3.4
+- [x] `proof-quiet-install-no-code-repo` PASS — R3.5
+- [x] `proof-quiet-install-doctor-record` PASS — R3.6
 
 ### Wave 2
 

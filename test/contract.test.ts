@@ -228,3 +228,21 @@ test('contract: doctor finding codes and levels match ADR-007', async () => {
     assert.ok(section.includes(`| \`${code}\` | ${level} |`), `${code} has the contract level`);
   }
 });
+
+test('proof-quiet-install-contract: quiet install records its fixed map and setup footprint', async () => {
+  const adr = await readFile(ADR, 'utf8');
+  const setup = adrSection(adr, '### `setup`', '### `doctor`');
+  assert.match(adr, /^status: stable$/m);
+  assert.match(setup, /fixed path map/);
+  assert.match(setup, /`docs\/` →\s*`\.wolven-harness\/docs\/`/);
+  assert.match(setup, /`\.agents\/` → `\.wolven-harness\/\.agents\/`/);
+  assert.match(setup, /path-token start/);
+  assert.match(setup, /untracked and unignored/);
+  assert.match(setup, /writes `\.wolven-harness\/AGENTS\.md` directly, with no `WOLVEN\.md`/);
+  assert.match(adr, /No deprecation-warning release/);
+  assert.match(adr, /carries `BREAKING CHANGE:`/);
+  assert.match(adr, /offers no separate choice to\s*commit them/);
+  assert.match(adr, /fixed map reversed/);
+  assert.match(adr, /`\.wolven-harness\/wiring\.json`/);
+  assert.match(adr, /not a config key/);
+});

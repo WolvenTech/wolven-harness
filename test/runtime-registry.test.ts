@@ -264,3 +264,20 @@ test('runtime-registry: runtimeRow finds every row', () => {
     assert.equal(runtimeRow(id).id, id);
   }
 });
+
+test('quiet-install registry: all eight non-Claude rows name local entry points and the tracked offer or manual step', () => {
+  const rows = RUNTIME_REGISTRY.filter((row) => row.id !== 'claude');
+  assert.equal(rows.length, 8);
+  for (const row of rows) {
+    assert.ok(row.quietInstall, row.id);
+    assert.equal(row.quietInstall.skillsPath, row.id === 'kiro' ? '.kiro/skills' : '.agents/skills');
+    assert.ok(row.quietInstall.entryPoints.includes(`${row.quietInstall.skillsPath}/<name>`), row.id);
+    assert.ok(row.quietInstall.manualStep.length > 0, row.id);
+    assert.equal(
+      row.quietInstall.trackedEdit !== undefined,
+      ['opencode', 'amp', 'copilot', 'gemini', 'kiro'].includes(row.id),
+      row.id,
+    );
+  }
+  assert.match(runtimeRow('codex').quietInstall?.manualStep ?? '', /~\/.codex\/AGENTS.md/);
+});

@@ -6,7 +6,7 @@ import { pathExists } from '../path-exists.js';
 import { globalInstallHint } from '../setup/index.js';
 import { recordedPackageManager } from '../setup/package-manager.js';
 import { RUNTIME_REGISTRY } from '../setup/runtimes.js';
-import type { DoctorContext } from './index.js';
+import { type DoctorContext, isQuietInstall } from './index.js';
 import type { DoctorCode, DoctorFinding } from './report.js';
 
 /** The harness's own files; runtime wiring comes from the registry. */
@@ -36,7 +36,31 @@ async function findOnPath(name: string, env: Record<string, string | undefined>)
 }
 
 /** `doctor-docs`: `docs/` is a committed, unignored path inside a git repository. */
-async function checkDocs(harnessHome: string): Promise<DoctorFinding[]> {
+async function checkDocs(ctx: DoctorContext): Promise<DoctorFinding[]> {
+  const { harnessHome, root } = ctx;
+  if (isQuietInstall(ctx)) {
+    const rel = `${path.relative(root, harnessHome)}/docs/adrs/`;
+    if (!(await pathExists(path.join(root, rel)))) {
+      return [
+        failed('doctor-docs', `${rel} is missing. Nothing changed.`, 'run "wolven-harness setup", then "harness-init"'),
+      ];
+    }
+    try {
+      const { stdout } = await execGit(root, ['check-ignore', '-v', '--no-index', '--', rel]);
+      if (stdout.trim() && !stdout.split('\t')[0]?.split(':').at(-1)?.startsWith('!')) {
+        return [
+          failed(
+            'doctor-docs',
+            `${rel} is ignored by ${stdout.trim()}. Nothing changed.`,
+            'remove the ignore rule hiding this path, then run "wolven-harness doctor" again',
+          ),
+        ];
+      }
+    } catch {
+      // why: check-ignore exits 1 for an unignored path.
+    }
+    return [];
+  }
   const docs = path.join(harnessHome, 'docs');
   if (!(await pathExists(docs))) {
     return [
@@ -257,7 +281,7 @@ async function checkNotGlobal(ctx: DoctorContext): Promise<DoctorFinding[]> {
  * tool or unreadable path is a finding, never a throw.
  */
 export async function runEnvChecks(ctx: DoctorContext): Promise<DoctorFinding[]> {
-  const docs = await checkDocs(ctx.harnessHome);
+  const docs = await checkDocs(ctx);
   const qmd = await checkQmd(ctx);
   const codeRepo = await checkCodeRepo(ctx);
   const notGlobal = await checkNotGlobal(ctx);

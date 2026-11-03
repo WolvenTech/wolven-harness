@@ -62,7 +62,10 @@ export async function runValidate(argv: string[], io: Io): Promise<number> {
     return 1;
   }
 
-  const ctx = await buildRepoContext(root, { ignoreEntries: ignoreConfig.entries });
+  const ctx = await buildRepoContext(root, {
+    ignoreEntries: ignoreConfig.entries,
+    homePrefix: ignoreConfig.homePrefix,
+  });
 
   const profileFindings = await checkProfile(ctx);
   const spineFindings = await checkSpine(ctx);
@@ -70,7 +73,18 @@ export async function runValidate(argv: string[], io: Io): Promise<number> {
   const adrFolderFindings = await checkAdrFolders(ctx);
 
   const allFindings: Finding[] = [...profileFindings, ...spineFindings, ...claimsResult.findings, ...adrFolderFindings];
-  const summary = summarizeFindings(allFindings, verbose);
+  const displayedFindings = ctx.homePrefix
+    ? allFindings.map((finding) =>
+        finding.rule === 'harness-misplaced'
+          ? finding
+          : {
+              ...finding,
+              ...(finding.file ? { file: `${ctx.homePrefix}/${finding.file}` } : {}),
+              message: finding.message.replace(/(?<![\w./-])(docs\/|\.agents\/)/g, `${ctx.homePrefix}/$1`),
+            },
+      )
+    : allFindings;
+  const summary = summarizeFindings(displayedFindings, verbose);
 
   for (const line of summary.lines) io.stdout.write(`${line}\n`);
 
@@ -78,7 +92,8 @@ export async function runValidate(argv: string[], io: Io): Promise<number> {
   io.stdout.write(`claims: ${ok} ok, ${legacyWarn} legacy-warn, ${fail} fail\n`);
 
   if (ctx.ignore.entries.length > 0) {
-    io.stdout.write(`ignored: ${ctx.ignore.entries.join(', ')} (${ctx.ignore.count} files)\n`);
+    const entries = ctx.ignore.entries.map((entry) => (ctx.homePrefix ? `${ctx.homePrefix}/${entry}` : entry));
+    io.stdout.write(`ignored: ${entries.join(', ')} (${ctx.ignore.count} files)\n`);
   }
 
   if (summary.errorCount === 0) {

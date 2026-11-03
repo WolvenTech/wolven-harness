@@ -29,6 +29,18 @@ export interface DoctorContext {
   packageVersion: string;
 }
 
+/** True when a linked install keeps its home strictly inside the open repository. */
+export function isQuietInstall(ctx: DoctorContext): boolean {
+  const relative = path.relative(ctx.root, ctx.harnessHome);
+  return (
+    ctx.config.layout === 'linked' &&
+    relative !== '' &&
+    relative !== '..' &&
+    !relative.startsWith(`..${path.sep}`) &&
+    !path.isAbsolute(relative)
+  );
+}
+
 /** One read-only check: it returns findings instead of throwing. */
 export type DoctorCheck = (ctx: DoctorContext) => Promise<DoctorFinding[]> | DoctorFinding[];
 

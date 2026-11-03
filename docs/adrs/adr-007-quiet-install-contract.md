@@ -1,11 +1,11 @@
 ---
 type: adr
-title: Make the in-repo install the default at a repository root
+title: Make the quiet install the default at a repository root
 description: Carry the check-and-repair contract forward, make setup at a repository root with no config write a linked install whose harness home is .wolven-harness/, and scope validate's docs, claims and ignore checks to that home.
 status: stable
 ---
 
-# Make the in-repo install the default at a repository root
+# Make the quiet install the default at a repository root
 
 ## Context
 
@@ -95,20 +95,32 @@ Flags. Each value flag takes `--flag value` or `--flag=value`.
 Modes:
 
 - **At a git top-level with no `.wolven-harness.json`,** it writes the
-  **in-repo install**: the `linked` layout with its harness home at
+  **quiet install**: the `linked` layout with its harness home at
   `.wolven-harness/`.
   - It writes `.wolven-harness/.gitignore` before any other path. That file
     ignores everything in the folder and re-includes itself,
     `.agents/rules/`, `.agents/hooks/` and `docs/adrs/`.
   - It then scaffolds the harness inside `.wolven-harness/` as below, with
     every harness path, `docs/` included, relative to that folder.
-  - Outside `.wolven-harness/` it writes only `.wolven-harness.json`,
-    recording `layout: "linked"` and `harnessHome: ".wolven-harness"`. It
-    adds no `package.json` script and no runtime wiring there; wiring the
-    entry points is `harness-init`'s step.
+  - It writes `.wolven-harness/AGENTS.md` directly, with no `WOLVEN.md`.
+    The nested `.gitignore` always re-includes this file.
+  - Skill text uses the fixed path map: `docs/` →
+    `.wolven-harness/docs/` and `.agents/` → `.wolven-harness/.agents/`.
+    A prefix is mapped only at a path-token start: a line start or after
+    whitespace, a backtick, a quote or `(`. No config key records the map.
+  - Outside `.wolven-harness/` it writes `.wolven-harness.json`, recording
+    `layout: "linked"` and `harnessHome: ".wolven-harness"`, and one
+    bootstrap link to the home's `harness-init` per selected runtime with
+    a skills folder. These links are deliberately untracked and unignored.
+    An existing path is kept, and setup prints the skill's `SKILL.md` path
+    instead. It adds no `package.json` script and no other runtime wiring.
+- **At a git top-level whose config records a quiet install,** it restores
+  missing files and bootstrap links in that harness home with the same map,
+  leaving existing files and links alone.
 - **At a git top-level whose `.wolven-harness.json` records `home` or no
   layout,** it scaffolds the harness in the repository root as below, as
-  ADR-006 recorded.
+  ADR-006 recorded. This is the **full install**, where git tracks the
+  whole harness at the root.
 - **Outside any git repository,** it writes only:
   - the core skills under `.agents/skills/`;
   - each selected runtime's skills wiring;
@@ -126,7 +138,8 @@ Guarantees, in both modes:
 - It creates only missing paths and never overwrites or edits an existing
   file. This includes each runtime's rules wiring: an existing
   `opencode.json` or `GEMINI.md` is left as it is.
-- It never creates or edits `AGENTS.md`.
+- It never creates or edits the client's `AGENTS.md`. The harness-owned
+  `.wolven-harness/AGENTS.md` in a quiet install is created only if missing.
 - At a git top-level in the `home` layout, it adds `harness:validate`,
   `harness:comments` and
   `harness:score` to an existing `package.json` only when the script key is
@@ -173,7 +186,7 @@ Finding codes:
 | `doctor-rules` | error | A wired runtime cannot reach its standing rules, or the inline block is missing or incomplete. |
 | `doctor-rules-stale` | error | A generated rule copy or the inline block differs from current source rules, or a generated copy has no source rule. |
 | `doctor-skills` | error | A wired runtime cannot reach the expected installed skills from the open folder. |
-| `doctor-docs` | error | The docs folder is missing, outside a git repository with a commit, or ignored. In an in-repo install, the docs folder may be partly ignored by the nested `.gitignore`; the finding fires when `docs/adrs/` is ignored, including by a rule that ignores the harness home itself, and names that rule. |
+| `doctor-docs` | error | The docs folder is missing, outside a git repository with a commit, or ignored. In a quiet install, the docs folder may be partly ignored by the nested `.gitignore`; the finding fires when `docs/adrs/` is ignored, including by a rule that ignores the harness home itself, and names that rule. |
 | `doctor-qmd` | error | qmd is absent from PATH, or the nearest index config found upward from the open folder does not reach the harness home's indexed `.qmd` folder. |
 | `doctor-code-repo` | error | A harness-owned path exists under the configured code repository; unrelated agent settings do not count. |
 | `doctor-not-global` | warn | The CLI is absent from PATH; a local or cached executable gets the resolved manager's global-install hint. |
@@ -198,6 +211,22 @@ Rules and drift:
 - qmd lookup walks upward from the open folder to the first
   `.qmd/index.yaml` or `.qmd/index.yml`. That folder's real path must equal
   the harness home's `.qmd`, and it must hold `index.sqlite`.
+- For a quiet install, Claude Code's `CLAUDE.local.md` links to the home's
+  `AGENTS.md`. Real `.claude/skills/` and `.claude/rules/` folders hold one
+  link per home skill or rule, beside client files. These satisfy the
+  entry, skills and rules checks. Other runtimes use the registry's
+  quiet-install entry points; missing wiring names the manual step.
+- In a quiet install, `doctor-code-repo` does not run without `codeRepo`.
+- `.wolven-harness/wiring.json` is an ignored, machine-local wiring record,
+  not a config key. It records each entry point's path and outcome:
+  `linked`, `merged`, `prefixed`, `skipped` or `unwired`. An entry recorded
+  as `merged`, `prefixed` or `skipped` raises a warning under its wiring
+  code, naming the kept client path and outcome, instead of an error.
+  A missing or dangling `linked` entry still fails. With no record, checks
+  follow the entry points above. A rerun asks again only for a missing
+  entry point with no recorded outcome.
+- File drift in a quiet install applies the fixed path map to skill
+  templates before comparing bytes; a hand edit still counts as edited.
 - File drift compares current template bytes first, then known forms
   shipped with the package. Earlier installs need no adoption step or
   local write record. `WOLVEN.md` is not classified because initialization
@@ -286,15 +315,18 @@ Guarantees:
   counts.
 - `step0-pending` fires while `WOLVEN.md` exists and `AGENTS.md` lacks the
   `<!-- wolven-harness:start -->` marker.
-- In an in-repo install, run from the repository root:
+- In a quiet install, run anywhere in the repository:
   - profile docs are read under `.wolven-harness/docs/`, and the repository
     root's own `docs/` is not a profile folder;
   - claims resolve against `.wolven-harness/docs/adrs/` and are read only in
-    files under `.wolven-harness/`, so a client file's own ADR mentions are
-    neither claims nor findings;
+    files under `.wolven-harness/`, including ignored files, so a client's
+    own ADR mentions are neither claims nor findings;
   - `harness-ignored` checks only the paths the nested `.gitignore`
     re-includes. The entry points and the rest of the harness home are
-    ignored by design and are not reported.
+    ignored by design and are not reported;
+  - `ignore` entries are relative to the harness home;
+  - a tracked or untracked-but-not-ignored Markdown file outside the home
+    with a profile `type` raises a warning naming its proper home folder.
 
 Finding codes:
 
@@ -322,6 +354,7 @@ Finding codes:
 | `profile-map-doc` | warn |
 | `skill-stub-open` | warn |
 | `step0-pending` | warn |
+| `harness-misplaced` | warn |
 | `adr-unrecognized` | warn |
 | `legacy-adr` | warn |
 | `adr-status-mismatch` | warn |
@@ -428,15 +461,18 @@ number is not the guarantee. This policy is.
   `layout` stays `home`, and a rerun of `setup` does not create
   `.wolven-harness/`. Moving a fully tracked install is a manual uninstall
   followed by a fresh `setup`; no command migrates it.
-- The default change follows the change policy: one release keeps the
-  `home` scaffold at a git top-level with no config and prints a
-  deprecation warning that the next release writes the in-repo install,
-  and the release that flips it is marked `feat!`.
+- The Human waived change-policy step 2 on 2026-11-03 for the one aware
+  consumer. No deprecation-warning release precedes the default change.
+  The commit that flips the default carries `BREAKING CHANGE:` naming the
+  quiet install; that footer is the only notice.
 - The harness docs root is fixed at `<harnessHome>/docs/`. No `docsDir`
   config key is added.
-- Teammates' agents read the versioned harness paths only if the person
-  also commits the entry points; `harness-init` offers that as a separate
-  choice, and this record does not require it.
+- Entry points remain ignored; harness-init offers no separate choice to
+  commit them. Teammates run setup and harness-init to connect their copy.
+- A switch to the full install carries edited and added harness files to
+  the root with the fixed map reversed and removes only owned wiring
+  according to the record. Client paths are kept; ambiguous links block
+  the switch until resolved.
 - Worktree parity in Claude Code rests on `.worktreeinclude` copying the
   entry-point links, which is undocumented. Which files wire it, including
   a `SessionStart` warning when a worktree lacks them, stays outside the
