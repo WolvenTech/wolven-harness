@@ -50,10 +50,11 @@ test('skill-set: the harness-init page covers stubs and the skill-stub-open warn
   assert.match(section, /`skill-stub-open`/);
 });
 
-test('skill-set: the harness-init page covers the phased commits', async () => {
+test('skill-set: the harness-init page covers the one commit offer', async () => {
   const section = flatten(extractSection(await readHarnessInit(), 'Installation'));
 
-  assert.match(section, /three commits/i);
-  assert.match(section, /entry, migration, setup/i);
-  assert.match(section, /only after validation passes and you say yes/i);
+  assert.match(section, /one commit offer, at the end, listing only the files git would track/i);
+  assert.match(section, /nothing is pushed/i);
+  assert.match(section, /offered only after validation passes/i);
+  assert.doesNotMatch(section, /three commits/i);
 });

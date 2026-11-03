@@ -59,7 +59,7 @@ Use `--skills ship,discovery` to pick sets, or `--skills none` for core only. Re
 
 ## What to do next
 
-Ask your agent to run `harness-init`. It first asks how much setup you want right now. The basics path notes your first goal and updates `AGENTS.md`, then hands back; [`lean-path.md`](https://github.com/WolvenTech/wolven-harness/blob/main/templates/.agents/skills/harness-init/references/lean-path.md) lists what it leaves for later. The full tour opens with one checklist of what this run should cover. Either way, the run ends by offering to start a spec for your goal. See [Installation](https://wolventech.github.io/wolven-harness/install). Then:
+Ask your agent to run `harness-init`. It first asks how much setup you want right now. Quick setup connects the harness to your coding agents, then hands back; [`lean-path.md`](https://github.com/WolvenTech/wolven-harness/blob/main/templates/.agents/skills/harness-init/references/lean-path.md) lists what it leaves for later. Guided setup walks through every step one at a time, and you run or skip each. Either way, the run ends by asking what to work on next. See [Installation](https://wolventech.github.io/wolven-harness/install). Then:
 
 | Step | Skill | What it does |
 | --- | --- | --- |

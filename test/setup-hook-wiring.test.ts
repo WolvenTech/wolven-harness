@@ -87,6 +87,19 @@ test('pre-existing hook config is skipped, not merged', async () => {
   assert.equal(await readFile(path.join(dir, '.claude/settings.json'), 'utf8'), claudeSettings);
 });
 
+test('proof-quiet-install-parity-wiring: the root scaffold copies worktree-parity.mjs and wires no SessionStart', async () => {
+  const dir = await makeRepo({ 'README.md': '# demo\n' }, { git: true, layout: 'home' });
+
+  const result = await setup(dir, 'claude,cursor');
+  assert.equal(result.code, 0, result.stderr);
+
+  assert.ok(await pathExists(path.join(dir, '.agents/hooks/worktree-parity.mjs')));
+  const claude = JSON.stringify(await readJson(dir, '.claude/settings.json'));
+  const cursor = JSON.stringify(await readJson(dir, '.cursor/hooks.json'));
+  assert.ok(!claude.includes('SessionStart') && !claude.includes('worktree-parity'), claude);
+  assert.ok(!cursor.includes('sessionStart') && !cursor.includes('worktree-parity'), cursor);
+});
+
 test('the wired guard command denies a secret read from the repo root', async () => {
   const dir = await makeRepo({ 'README.md': '# demo\n' }, { git: true, layout: 'home' });
 

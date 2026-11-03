@@ -39,10 +39,10 @@ disable-model-invocation: true
 # <name>
 
 Ask-only: an explicit ask for `<name>` is the only run.
-`disable-model-invocation: true` stays until the Human removes it. While
+`disable-model-invocation: true` stays until you remove it. While
 any step below is still a prompt, the run stops after Cited evidence and
 Local decision. The workflow for <tool-or-field> is step 3, and step 3
-stays a prompt until the Human fills it.
+stays a prompt until you fill it.
 
 ## Cited evidence
 
@@ -71,35 +71,35 @@ decision whenever Conflict names one.
 
 ### 1. Trigger
 
-Ask the Human what this skill does and when an agent should reach for
-it. Write both into `description`: what it does, in third person, then
+Ask what this skill does and when an agent should reach for it, and
+write down your answer. Write both into `description`: what it does, in third person, then
 `Use when …` with one distinct situation per branch.
 
 Done when: `description` opens with what the skill does, in third
 person, its `Use when` clause follows, and every branch is a situation
-the Human stated in this step.
+you stated in this step.
 
 ### 2. Conventions
 
-Ask the Human what they decided for <tool-or-field> — naming, layout, and
-the rules they already follow. Write each decision as its own bullet.
+Ask what you decided for <tool-or-field> — naming, layout, and the
+rules you already follow. Write each decision as its own bullet.
 
-Done when: every bullet is a decision the Human stated, and a reader can
-point at the Human's answer for each one.
+Done when: every bullet is a decision you stated, and a reader can
+point at your answer for each one.
 
 ### 3. Workflow
 
-Ask the Human for the ordered steps this skill runs for <tool-or-field>.
+Ask for the ordered steps this skill runs for <tool-or-field>.
 Write them here, each ending with its own `Done when:` line. A cited step
 that Local decision records as a conflict stays out.
 
 Done when: every step ends with a `Done when:` line whose result a later
 run can observe — a command's exit code, a file's contents, or a diff —
-and each step is one the Human stated.
+and each step is one you stated.
 
 ### 4. Verify
 
-Ask the Human for the command or the file read that shows the skill did
+Ask for the command or the file read that shows the skill did
 its job. Write that command or path here.
 
 Done when: the command or the path is written below, and running it or
@@ -134,10 +134,10 @@ the Human does that, the warning stays and the skill stays ask-only.
 
 ## Commit
 
-Every stub this step writes lands in the setup phase's single commit
-offer, together with everything else steps 2 through 6 write — never a
-commit per stub, and never a commit per file inside one.
+Every stub this step writes is listed in the run's one commit offer at
+the end, together with everything else the run writes — never a commit
+per stub, and never a commit per file inside one.
 
 ## Hand-back
 
-Hand back to the Human: define each stub, then remove the marker.
+Hand back with your next step: define each stub, then remove the marker.

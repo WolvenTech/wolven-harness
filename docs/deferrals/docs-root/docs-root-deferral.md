@@ -1,13 +1,15 @@
 ---
 type: deferral
 title: Configurable docs root
-description: A docsDir config key that moves the harness doc folders out of docs/ waits until a consumer demonstrates a collision with the governed folders or its documentation site.
+description: A docsDir config key that moves the harness docs root waits until a consumer demonstrates a collision; the root itself is fixed at the harness home's docs folder.
 status: stable
 ---
 
 # Configurable docs root
 
 **Deferred:** a `setup --docs-dir <path>` flag, saved as `docsDir` in `.wolven-harness.json`, that moves the harness doc folders out of `docs/`.
+
+**Fixed today:** the harness docs root is `<harnessHome>/docs/`. A full install keeps it at `docs/` in the repo root, and a quiet install keeps it at `.wolven-harness/docs/`. It is not configurable.
 
 **Why:** `docs/` is the harness's most invasive path, but it only collides through the folders the writing profile governs: `docs/adrs/`, `docs/prds/`, `docs/specs/`, `docs/notes/`, `docs/deferrals/` and, since [PR #57](https://github.com/WolvenTech/wolven-harness/pull/57), warning-only `docs/maps/`. Other content, such as `docs/getting-started.md` or `docs/api/**`, is left alone. No consumer has reported a collision it could not resolve in the reviewed evidence.
 

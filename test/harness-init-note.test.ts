@@ -60,7 +60,7 @@ test('session-note: every section heading appears in order inside the template',
     'Harness score',
     'Validate wiring',
     'Left for later',
-    'Next steps for the human',
+    'Next steps for you',
   ];
 
   // why: the shipped template capitalizes that word in its heading; matching
@@ -76,14 +76,17 @@ test('session-note: every section heading appears in order inside the template',
   }
 });
 
-test('proof-note-left-for-later: the later section carries path, goal, covered and the remaining-work table', async () => {
+test('proof-note-left-for-later: the later section carries path, repo and role, and the remaining-work table', async () => {
   const template = extractTemplate(await readReference());
   const section = template.split(/^## Left for later/m)[1]?.split(/^## /m)[0] ?? '';
 
   assert.doesNotMatch(template, /Deferred \/ skipped steps/);
-  assert.match(section, /\*\*Path:\*\* <Just the basics \(lean\) or The full tour \(full\)>/);
-  assert.match(section, /\*\*Goal:\*\*.*"none given".*"n\/a — full tour"/);
-  assert.match(section, /\*\*Covered:\*\*.*"n\/a — basics"/);
+  assert.match(section, /\*\*Path:\*\* <Quick setup \(lean\) or Guided setup \(full\)>/);
+  assert.match(
+    section,
+    /\*\*Repo and role:\*\*.*"What's this repo for, and what's your role in it\?".*"n\/a — Quick setup"/,
+  );
+  assert.doesNotMatch(section, /\*\*Goal:\*\*|\*\*Covered:\*\*/);
   assert.match(section, /\| Step \| Name \| Remaining work \|/);
   assert.doesNotMatch(section, /Reason/);
   assert.doesNotMatch(section, /\*\*Mode:\*\*|\*\*Immediate goal:\*\*/);
@@ -100,14 +103,13 @@ test('proof-note-label-and-mode: choices are recorded label first with the mode 
   assert.match(wiring, /"nothing written"/);
 });
 
-test('proof-note-handback: next steps record the spec offer and the answer', async () => {
+test('proof-note-handback: next steps record the closing question and your answer', async () => {
   const template = extractTemplate(await readReference());
-  const section = template.split(/^## Next steps for the Human/m)[1]?.split(/^## /m)[0] ?? '';
+  const section = template.split(/^## Next steps for you/m)[1]?.split(/^## /m)[0] ?? '';
 
   assert.match(section, /hand-back's next steps/);
-  assert.match(section, /"Should we start with a spec for …\?"/);
-  assert.match(section, /"What should we build first\?" with no goal/);
-  assert.match(section, /the Human's answer/);
+  assert.match(section, /question about what to work on next/);
+  assert.match(section, /your answer/);
 });
 
 test('session-note: sections that cover a skipped step say so instead of disappearing', async () => {
@@ -118,13 +120,16 @@ test('session-note: sections that cover a skipped step say so instead of disappe
   assert.match(flat, /skipped step fills its section with why.*rather than leaving the heading empty or dropping it/i);
 });
 
-test('session-note: the lifecycle states draft at step 0, a per-phase update before each commit offer, stable at hand-back, and resume-not-replace', async () => {
+test('session-note: the lifecycle states draft at step 0, a per-phase update, stable before the one commit offer, and resume-not-replace', async () => {
   const flat = flatten(await readReference());
 
   assert.match(flat, /created with `?status: draft`? at the very start of step 0/i);
-  assert.match(flat, /each phase.*adds its own section.*before that phase's commit offer/i);
-  assert.match(flat, /every phase commit carries its own part of the note/i);
-  assert.match(flat, /step 6 fills in whatever sections are still open and sets `?status: stable`? at hand-back/i);
+  assert.match(flat, /each phase.*adds its own section.*as it finishes/i);
+  assert.doesNotMatch(flat, /phase commit|that phase's commit offer/i);
+  assert.match(
+    flat,
+    /step 6 fills in whatever sections are still open and sets `?status: stable`? before the one commit offer/i,
+  );
   assert.match(
     flat,
     /a `?draft`? note left by an interrupted run.*the next run reads it and keeps filling it in, rather than starting a second note over it/i,
@@ -140,7 +145,7 @@ test('session-note: the ADR migration section carries a per-ADR table and names 
   assert.match(template, /each claim repointed, reworded, or left as is/i);
   assert.match(template, /### Meaning check/);
   assert.match(template, /grouped by ADR number/i);
-  assert.match(template, /`ok` or `mismatch → the Human's answer`/);
+  assert.match(template, /`ok` or `mismatch → your answer`/);
   assert.match(template, /Skipped only when step 1 was skipped/);
   assert.match(flat, /## Naming ADRs in the note/);
   assert.match(flat, /names an ADR only by its bare number and title/i);

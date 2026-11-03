@@ -256,3 +256,16 @@ test("migrate-example: the after fixture's ADRs carry the mapped statuses and su
   assert.match(stable, /status: stable/);
   assert.doesNotMatch(stable, /superseded_by/);
 });
+
+test('proof-quiet-install-migration-copy: a quiet install copies each record, asks in the table text, and never moves a client file', async () => {
+  const raw = await readReference();
+  const section = flatten(raw.split(/^### In a quiet install$/m)[1]?.split(/^### /m)[0] ?? '');
+  assert.ok(section, 'reference has an "In a quiet install" section');
+  assert.ok(
+    section.includes('Copy `<file>` into the harness as a decision record? Your file is not changed.'),
+    'the question is quoted verbatim',
+  );
+  assert.match(section, /migration copies and never moves/);
+  assert.match(section, /`\.wolven-harness\/docs\/adrs\/adr-NNN-<slug>\.md`/);
+  assert.match(section, /Never `git mv`, rename, rewrite or delete the client's file/);
+});

@@ -361,34 +361,34 @@ there too.
 
 ### Wave 3
 
-- [ ] `proof-quiet-install-init-section` PASS — R5.1
-- [ ] `proof-quiet-install-init-version` PASS — R5.2
-- [ ] `proof-quiet-install-init-wire` PASS — R5.3
-- [ ] `proof-quiet-install-init-agents-conflict` PASS — R5.4 (client `AGENTS.md` and `CLAUDE.md`)
-- [ ] `proof-quiet-install-init-fork` PASS — R5.5
-- [ ] `proof-quiet-install-init-statement` PASS — R5.6
-- [ ] `proof-quiet-install-init-step0` PASS — R5.7
-- [ ] `proof-quiet-install-init-wording` PASS — R5.8
-- [ ] `proof-quiet-install-lean-path` PASS — R5.9
-- [ ] `proof-quiet-install-migration-copy` PASS — R5.10
-- [ ] `proof-quiet-install-checks-question` PASS — R5.11
-- [ ] `proof-quiet-install-switch-keeps` PASS — R5.12
-- [ ] `proof-quiet-install-switch-unwires` PASS — R5.13
-- [ ] `proof-quiet-install-occupied` PASS — R5.14
-- [ ] `proof-quiet-install-wiring-record` PASS — R5.15
-- [ ] `proof-quiet-install-claude-entry` PASS — R6.1
-- [ ] `proof-quiet-install-runtime-table` PASS — R6.2
-- [ ] `proof-quiet-install-hook-paths` PASS — R6.3
-- [ ] `proof-quiet-install-parity-hook` PASS — R7.1
-- [ ] `proof-quiet-install-parity-wiring` PASS — R7.2
-- [ ] `proof-quiet-install-convention` PASS — R8.1
-- [ ] `proof-quiet-install-no-home-staging` PASS — R8.2
-- [ ] `proof-quiet-install-uninstall-guide` PASS — R9.1
-- [ ] `proof-quiet-install-layout-page` PASS — R9.2
-- [ ] `proof-quiet-install-deferral` PASS — R9.3
-- [ ] `proof-quiet-install-tracked-changes` PASS — R11.1
-- [ ] `proof-quiet-install-terms-first` PASS — R11.2
-- [ ] `proof-quiet-install-next-step` PASS — R11.3
+- [x] `proof-quiet-install-init-section` PASS — R5.1
+- [x] `proof-quiet-install-init-version` PASS — R5.2
+- [x] `proof-quiet-install-init-wire` PASS — R5.3
+- [x] `proof-quiet-install-init-agents-conflict` PASS — R5.4 (client `AGENTS.md` and `CLAUDE.md`)
+- [x] `proof-quiet-install-init-fork` PASS — R5.5
+- [x] `proof-quiet-install-init-statement` PASS — R5.6
+- [x] `proof-quiet-install-init-step0` PASS — R5.7
+- [x] `proof-quiet-install-init-wording` PASS — R5.8
+- [x] `proof-quiet-install-lean-path` PASS — R5.9
+- [x] `proof-quiet-install-migration-copy` PASS — R5.10
+- [x] `proof-quiet-install-checks-question` PASS — R5.11
+- [x] `proof-quiet-install-switch-keeps` PASS — R5.12
+- [x] `proof-quiet-install-switch-unwires` PASS — R5.13
+- [x] `proof-quiet-install-occupied` PASS — R5.14
+- [x] `proof-quiet-install-wiring-record` PASS — R5.15
+- [x] `proof-quiet-install-claude-entry` PASS — R6.1
+- [x] `proof-quiet-install-runtime-table` PASS — R6.2
+- [x] `proof-quiet-install-hook-paths` PASS — R6.3
+- [x] `proof-quiet-install-parity-hook` PASS — R7.1
+- [x] `proof-quiet-install-parity-wiring` PASS — R7.2
+- [x] `proof-quiet-install-convention` PASS — R8.1
+- [x] `proof-quiet-install-no-home-staging` PASS — R8.2
+- [x] `proof-quiet-install-uninstall-guide` PASS — R9.1
+- [x] `proof-quiet-install-layout-page` PASS — R9.2
+- [x] `proof-quiet-install-deferral` PASS — R9.3
+- [x] `proof-quiet-install-tracked-changes` PASS — R11.1
+- [x] `proof-quiet-install-terms-first` PASS — R11.2
+- [x] `proof-quiet-install-next-step` PASS — R11.3
 
 ### Wave 4
 

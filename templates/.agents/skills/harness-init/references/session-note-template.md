@@ -30,7 +30,7 @@ status: <status>
 
 ## Entry integration
 
-<the mode question as asked, the mode recommended and why, and the Human's answer — recorded label first with the mode in brackets, as in "A short section (light)" — plus any checks step 0 raised>
+<the mode question as asked, the mode recommended and why, and your answer — recorded label first with the mode in brackets, as in "A short section (light)" — plus any checks step 0 raised>
 
 ## ADR migration
 
@@ -38,13 +38,13 @@ status: <status>
 
 | Number | Title | Legacy status | Mapped status | Evidence | Decision |
 | --- | --- | --- | --- | --- | --- |
-| <number> | <title of the ADR> | <legacy status as the repo wrote it> | <mapped status> | <where the status and any still-applies language came from> | <"table" for a direct mapping, or the Human's answer> |
+| <number> | <title of the ADR> | <legacy status as the repo wrote it> | <mapped status> | <where the status and any still-applies language came from> | <"table" for a direct mapping, or your answer> |
 
-<each claim repointed, reworded, or left as is during the claim loop and the meaning check, with the Human's answer>
+<each claim repointed, reworded, or left as is during the claim loop and the meaning check, with your answer>
 
 ### Meaning check
 
-<grouped by ADR number, in the bare-number form below: each citing `file:line` with `ok` or `mismatch → the Human's answer`. Skipped only when step 1 was skipped.>
+<grouped by ADR number, in the bare-number form below: each citing `file:line` with `ok` or `mismatch → your answer`. Skipped only when step 1 was skipped.>
 
 ## Discovery
 
@@ -56,27 +56,25 @@ status: <status>
 
 ## Suggestions
 
-<the two to four skills suggested, and which of them the Human picked>
+<the two to four skills suggested, and which of them you picked>
 
 ## Stubs
 
-<the stubs written for the Human's picks>
+<the stubs written for your picks>
 
 ## Harness score
 
-<the level and score before and after, each dimension question with the Human's answer, and every check dropped in `.harness-score.json` with its reason>
+<the level and score before and after, each dimension question with your answer, and every check dropped in `.harness-score.json` with its reason>
 
 ## Validate wiring
 
-<the wiring question as asked, the option recommended and why, the Human's answer recorded label first with the option in brackets, as in "On every pull request (CI job)", and what was written — or "nothing written"; or "later — see Left for later" when the basics path left the wiring question for later>
+<the wiring question as asked, the option recommended and why, your answer recorded label first with the option in brackets, as in "On every pull request (CI job)", and what was written — or "nothing written"; or "later — see Left for later" when Quick setup left the wiring question for later>
 
 ## Left for later
 
-**Path:** <Just the basics (lean) or The full tour (full)>
+**Path:** <Quick setup (lean) or Guided setup (full)>
 
-**Goal:** <the Human's words, "none given", or "n/a — full tour">
-
-**Covered:** <the ticked items, or "n/a — basics">
+**Repo and role:** <your answer to "What's this repo for, and what's your role in it?", or "n/a — Quick setup">
 
 <one row per step that did not run, or "none" when nothing was left>
 
@@ -84,18 +82,19 @@ status: <status>
 | --- | --- | --- |
 | <number> | <step name> | <what still needs doing later> |
 
-## Next steps for the Human
+## Next steps for you
 
-<what the Human still has to define in each stub, and anything else left open — plus the hand-back's next steps, the spec offer ("Should we start with a spec for …?", or "What should we build first?" with no goal) and the Human's answer>
+<what you still have to define in each stub, and anything else left open — plus the hand-back's next steps, the closing's question about what to work on next, and your answer>
 ```
 
 Every section heading above stays in the note even when its step was
 skipped — a skipped step fills its section with why, rather than leaving
 the heading empty or dropping it, so the note always shows the full shape
-of the run. **Left for later** holds the path, the goal, what was covered,
+of the run. **Left for later** holds the path, the repo-and-role answer,
 and the steps that did not run (step number, name, remaining work), with
-`none` in place of the list when nothing was left. It is filled as step 0
-creates the note, since the path and goal are agreed before step 0.
+`none` in place of the list when nothing was left. It is filled as the note
+is created, since the path and the repo-and-role answer are agreed before
+any write.
 
 ## Naming ADRs in the note
 
@@ -111,10 +110,9 @@ legacy-status and evidence columns.
 - **Created.** The note is created with `status: draft` at the very start
   of step 0.
 - **Grows with the run.** Each phase — entry, migration, setup — adds its
-  own section (or sections) to the note before that phase's commit offer,
-  so every phase commit carries its own part of the note.
+  own section (or sections) to the note as it finishes.
 - **Closes.** Step 6 fills in whatever sections are still open and sets
-  `status: stable` at hand-back.
+  `status: stable` before the one commit offer and the hand-back.
 - **Resuming.** A `draft` note left by an interrupted run is the run's own
   state, not a leftover to clean up: the next run reads it and keeps
   filling it in, rather than starting a second note over it.

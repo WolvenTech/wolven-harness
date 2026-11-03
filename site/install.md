@@ -30,17 +30,17 @@ Install `@wolven-tech/harness` globally, then run `wolven-harness setup` at a Gi
 4. It creates only the skill stubs you choose. They are unfinished, ask-only skills; validation reports a `skill-stub-open` warning until you complete them. The warning does not fail validation.
 5. Choose how to run validation: as a CI job, through an existing check script, or locally. The agent finishes a session note in `docs/notes/`.
 
-The skill offers three commits, covering entry, migration, setup; each is offered only after validation passes and you say yes. Declining a commit leaves that phase uncommitted.
+The skill makes one commit offer, at the end, listing only the files git would track, and nothing is pushed. It is offered only after validation passes, and declining it leaves your changes in the working tree.
 
-## Basics path
+## Quick setup and guided setup
 
 `harness-init` starts by asking how much setup you want right now, on any repo, new or with code.
 
-**Just the basics** asks for your first goal in one sentence and how much to change your `AGENTS.md`, then hands back. Everything else waits: old decision records, discovery, research, skill suggestions, the score and automatic checks are listed under **Left for later** in the session note. [`lean-path.md`](https://github.com/WolvenTech/wolven-harness/blob/main/templates/.agents/skills/harness-init/references/lean-path.md) has the full list. The leaked-credential checks still run, and a leaked credential stops the run.
+**Quick setup** connects the harness to your coding agents and hands back. It asks no goal question. Everything else waits: old decision records, discovery, research, skill suggestions, the score and automatic checks are listed under **Left for later** in the session note. [`lean-path.md`](https://github.com/WolvenTech/wolven-harness/blob/main/templates/.agents/skills/harness-init/references/lean-path.md) has the full list. The leaked-credential checks still run, and a leaked credential stops the run.
 
-**The full tour** opens with one checklist, "What should this run cover?", with every item ticked. Untick whatever should wait: it is never asked about and is listed for later. Skill suggestions run only when the repo looks new or still unexplored, and you can overrule that call.
+**Guided setup** opens by asking what the repo is for and your role in it. It then offers each remaining step one at a time, in order, and you run it or skip it. A skipped step is listed under **Left for later**. Skill suggestions run only when the repo looks new or still unexplored, and you can overrule that call.
 
-Both paths end by telling you what was installed, what was left for later and what to do next, and by offering to start a spec for your goal.
+Both paths end by telling you what was installed, what was left for later and what to do next, and by asking what to work on next.
 
 ## Check the setup
 
@@ -51,5 +51,15 @@ wolven-harness validate
 `setup` adds `harness:validate` as a package script for `wolven-harness validate` when that script is missing. In that case the `harness:validate` script runs the same check, whatever package manager the install recorded. Existing scripts are preserved.
 
 Migration is complete when validation exits 0 with no legacy warnings left and no `adr-status-mismatch`. A superseded ADR is never kept `stable`: it gets a successor and is deprecated. References to decision records must resolve to a stable record in `docs/adrs/`; legacy records get migration warnings during the transition.
+
+## Uninstall a quiet install
+
+There is no uninstall command. Remove the harness by hand, in this order, so nothing you edited is lost.
+
+1. List what setup and `harness-init` created: `.wolven-harness/`, `.wolven-harness.json`, and the symlinks that point into `.wolven-harness/`, such as `CLAUDE.local.md`, `.claude/skills/<name>`, `.claude/rules/<name>`, `.qmd` and `harness-init` in your runtime skills folders. `.wolven-harness/wiring.json` lists each one. Also look for the ignore lines `harness-init` added to `.gitignore` or `.git/info/exclude`, the `.claude/settings.local.json` and `.worktreeinclude` entries, a `.wolven-harness/` line in `.dockerignore`, and the harness block in `AGENTS.md` or `CLAUDE.md`.
+2. Keep a copy of any skill or rule you edited, such as a skill folder under `.wolven-harness/.agents/skills/` or a file under `.wolven-harness/.agents/rules/`.
+3. Move the harness docs you want to keep out of `.wolven-harness/docs/`, such as decision records (ADRs), specs and notes. Unticked folders exist only on this machine, so nothing else holds a copy.
+4. Remove the rest: the symlinks, `.wolven-harness/`, `.wolven-harness.json`, the ignore lines and the harness block.
+5. To go back to a harness, run `wolven-harness setup` at the repository root again.
 
 Next, try the [Daily use](./cycle) example.

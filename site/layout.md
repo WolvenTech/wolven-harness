@@ -4,7 +4,22 @@ description: What setup installs, where harness files live, and what validate ch
 
 # Files and validation
 
-`wolven-harness setup` installs the harness in a consumer repository. It creates missing paths only and leaves `AGENTS.md` to you. The table shows the main paths and how `wolven-harness validate` treats them.
+`wolven-harness setup` installs the harness in a consumer repository. It creates missing paths only and leaves `AGENTS.md` to you.
+
+## Two layouts
+
+At a repository root, setup asks how much of the harness you want to version in git, and the quiet install is the default.
+
+| Layout | Description |
+| --- | --- |
+| Quiet install | The harness lives in `.wolven-harness/`, and git sees only what you pick. |
+| Full install | The harness sits at the repo root, and git tracks all of it. Only for repos you own. |
+
+A quiet install writes the harness into `.wolven-harness/`, plus `.wolven-harness.json` and one untracked symlink per runtime skills folder, such as `.claude/skills/harness-init`. `git status` shows those symlinks as untracked until you run the `harness-init` skill, which connects the rest and shows each diff before writing. The tables below describe the full install, where every path sits at the repo root; in a quiet install the same paths sit inside `.wolven-harness/`.
+
+Each worktree gets its copies of the local-only harness files when it is created. A rule you change later reaches only new worktrees, so copy the change into the others by hand.
+
+The table shows the main paths and how `wolven-harness validate` treats them.
 
 | Path | What it contains | Validation behavior |
 | --- | --- | --- |

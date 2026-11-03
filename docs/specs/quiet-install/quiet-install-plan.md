@@ -52,18 +52,18 @@ fails on any difference. Owns lists the template path only.
 | 10 | Bootstrap links and rerun | 09 | `src/setup/index.ts`, `src/setup/runtimes.ts`, `test/setup-quiet-install.test.ts` | `spawn` | sol | [x] Setup links `<skills folder>/harness-init` per runtime, unignored, and keeps an existing path. A rerun restores missing home files and links with the map applied and leaves edits alone. A fresh clone plus setup shows no drift (R4.1 bootstrap part; `proof-quiet-install-setup-rerun`) |
 | 11 | Setup summary and next steps | 10 | `src/setup/summary.ts`, `src/setup/ui.ts`, `test/setup-quiet-install.test.ts` (stdout snapshots) | `spawn` | sol | [x] stdout names the quiet install with its description and never prints `linked` or `home`. The next step is the wording table's, with the untracked-link and remove-instead lines and the `SKILL.md` path for a runtime with no skills folder. `package.json` is unchanged (`proof-quiet-install-setup-scope`, `-setup-wording`) |
 | 12 | **Wave 2 gate** | 11 | `docs/specs/quiet-install/quiet-install-spec.md` (Wave 2 boxes) | `inline` | — | [x] The same five gates exit 0; Wave 2 boxes ticked; wave 2's flip commit carries `BREAKING CHANGE:` naming the new default — **abort before Wave 3** |
-| 13 | Worktree parity hook | 12 | `templates/.agents/hooks/worktree-parity.mjs` (new), `test/worktree-parity.test.ts` (new), `test/setup-hook-wiring.test.ts` | `spawn` | sol | [ ] The hook exits 0 always and warns per missing entry point with a next step. Every install gets the script, and the root scaffold wires no `SessionStart` (`proof-quiet-install-parity-hook`, `-parity-wiring`) |
-| 14 | layout.md: quiet-install versioning and wiring | 12 | `templates/.agents/skills/harness-init/references/layout.md`, `test/harness-init-layout.test.ts` | `spawn` | sol | [ ] The quiet-install section states its place on both paths. It has the versioning question with six items and its footer, the ignore and wiring questions with one diff and one approval, the Claude entry-point table, and the hook paths, all in the wording table's text with both layout names (`proof-quiet-install-init-section`, `-init-version`, `-init-wire`, `-init-wording`, `-claude-entry`, `-hook-paths`) |
-| 15 | layout.md: occupied paths, wiring record, runtime table | 14 | `templates/.agents/skills/harness-init/references/layout.md`, `test/harness-init-layout.test.ts` | `spawn` | sol | [ ] The check before the diff keeps client paths and asks the three-way question; the kept-folder line and per-skill links are present. The wiring record has its fields and rerun rule. The eight runtime rows match the research note, each tracked-edit offer is in the wording table's text, and Codex's manual step is named (`proof-quiet-install-occupied`, `-wiring-record`, `-runtime-table`) |
-| 16 | layout.md: layout switch | 15 | `templates/.agents/skills/harness-init/references/layout.md`, `test/harness-init-layout.test.ts` | `spawn` | sol | [ ] The keep-or-switch question comes before the section. The switch diff carries edited and added files with the map reversed and removes owned wiring by the record. It checks for leftover links after the rerun. The confirm, blocked and unclear-entry messages are in the wording table's text (`proof-quiet-install-init-fork`, `-switch-keeps`, `-switch-unwires`) |
-| 17 | SKILL.md opening, paths and harness block | 12 | `templates/.agents/skills/harness-init/SKILL.md`, `references/lean-path.md`, `references/entry-modes.md`, `test/skill-harness-init.test.ts` | `spawn` | sol | [ ] The skill opens with the introduction and skips step 0 in a quiet install. Quick setup asks no goal; guided setup opens with repo and role and asks one step question per phase, with no checklist. The harness block is plain text of three lines at most, plus the `@` line only after Amp's offer, with Yes and No only (`proof-quiet-install-init-step0`, `-lean-path`, `-init-agents-conflict`) |
-| 18 | SKILL.md closing: one commit offer | 17 | `templates/.agents/skills/harness-init/SKILL.md`, `references/session-note-template.md`, `test/skill-harness-init.test.ts` | `spawn` | sol | [ ] One offer at the end, listing only trackable paths, with the branch and "Nothing is pushed". It shows the local-only and kept-path lines and the session-note rule, hands off to `code-commit`, uses the no-remote text, gives the packaging line by its `.dockerignore` condition, and states the worktree limit (`proof-quiet-install-init-statement`) |
-| 19 | Migration copy and checks question | 12 | `templates/.agents/skills/harness-init/references/{adr-migration,validate-wiring}.md`, `test/harness-init-migration.test.ts`, `test/skill-harness-init.test.ts` | `spawn` | sol | [ ] In a quiet install, migration copies and never moves, and asks in the wording table's text. The checks question offers "Only when I run it" first, then "On every pull request", plus Skip on guided setup (`proof-quiet-install-migration-copy`, `-checks-question`) |
-| 20 | Commit convention and staging in a quiet install | 12 | `templates/.agents/skills/harness-init/references/convention.md`, `templates/.agents/skills/{code-commit,code-pr}/SKILL.md`, `test/convention-skills.test.ts` | `spawn` | sol | [ ] The convention is recorded at the root with no `codeRepo` and applies to harness paths. Both skills stage a home path only when named, and never use `add -A` or `add .` (`proof-quiet-install-convention`, `-no-home-staging`) |
-| 21 | harness-doctor refresh uses the path map | 12 | `templates/.agents/skills/harness-doctor/SKILL.md`, `test/harness-doctor-skill.test.ts` | `spawn` | sol | [ ] The refresh step in a quiet install compares and rewrites through the fixed map, as R1.3 requires; a text check in `harness-doctor-skill.test.ts` passes |
-| 22 | Site guide, layout page and docs-root deferral | 12 | `site/install.md`, `site/layout.md`, `docs/deferrals/docs-root/docs-root-deferral.md` | `spawn` | sol | [ ] The uninstall guide keeps edited files and docs before removal. The layout page names the quiet install as the default and the full install by name. The deferral fixes the docs root at `<harnessHome>/docs/`. `pnpm docs:build` and validate exit 0 (`proof-quiet-install-uninstall-guide`, `-layout-page`, `-deferral`) |
-| 23 | Copy rules pass | 11, 13, 16, 18, 19, 22 | `test/quiet-install-copy.test.ts` (new); edits limited to the strings checked, in the files units 04–05, 11, 13–19 and 22 own | `inline` | — | [ ] Every question that writes outside the home names its tracked change. No "the Human" or glossary term is left in text people read, and the introduction comes first. Every stop says "Nothing changed." when true and names the next step, including wave 1–2 messages (`proof-quiet-install-tracked-changes`, `-terms-first`, `-next-step`) |
-| 24 | **Wave 3 gate** | 20, 21, 23 | `docs/specs/quiet-install/quiet-install-spec.md` (Wave 3 boxes) | `inline` | — | [ ] The five gates plus `pnpm docs:build` exit 0; Wave 3 boxes ticked — **abort before Wave 4** |
+| 13 | Worktree parity hook | 12 | `templates/.agents/hooks/worktree-parity.mjs` (new), `test/worktree-parity.test.ts` (new), `test/setup-hook-wiring.test.ts` | `spawn` | sol | [x] The hook exits 0 always and warns per missing entry point with a next step. Every install gets the script, and the root scaffold wires no `SessionStart` (`proof-quiet-install-parity-hook`, `-parity-wiring`) |
+| 14 | layout.md: quiet-install versioning and wiring | 12 | `templates/.agents/skills/harness-init/references/layout.md`, `test/harness-init-layout.test.ts` | `spawn` | sol | [x] The quiet-install section states its place on both paths. It has the versioning question with six items and its footer, the ignore and wiring questions with one diff and one approval, the Claude entry-point table, and the hook paths, all in the wording table's text with both layout names (`proof-quiet-install-init-section`, `-init-version`, `-init-wire`, `-init-wording`, `-claude-entry`, `-hook-paths`) |
+| 15 | layout.md: occupied paths, wiring record, runtime table | 14 | `templates/.agents/skills/harness-init/references/layout.md`, `test/harness-init-layout.test.ts` | `spawn` | sol | [x] The check before the diff keeps client paths and asks the three-way question; the kept-folder line and per-skill links are present. The wiring record has its fields and rerun rule. The eight runtime rows match the research note, each tracked-edit offer is in the wording table's text, and Codex's manual step is named (`proof-quiet-install-occupied`, `-wiring-record`, `-runtime-table`) |
+| 16 | layout.md: layout switch | 15 | `templates/.agents/skills/harness-init/references/layout.md`, `test/harness-init-layout.test.ts` | `spawn` | sol | [x] The keep-or-switch question comes before the section. The switch diff carries edited and added files with the map reversed and removes owned wiring by the record. It checks for leftover links after the rerun. The confirm, blocked and unclear-entry messages are in the wording table's text (`proof-quiet-install-init-fork`, `-switch-keeps`, `-switch-unwires`) |
+| 17 | SKILL.md opening, paths and harness block | 12 | `templates/.agents/skills/harness-init/SKILL.md`, `references/lean-path.md`, `references/entry-modes.md`, `test/skill-harness-init.test.ts` | `spawn` | sol | [x] The skill opens with the introduction and skips step 0 in a quiet install. Quick setup asks no goal; guided setup opens with repo and role and asks one step question per phase, with no checklist. The harness block is plain text of three lines at most, plus the `@` line only after Amp's offer, with Yes and No only (`proof-quiet-install-init-step0`, `-lean-path`, `-init-agents-conflict`) |
+| 18 | SKILL.md closing: one commit offer | 17 | `templates/.agents/skills/harness-init/SKILL.md`, `references/session-note-template.md`, `test/skill-harness-init.test.ts` | `spawn` | sol | [x] One offer at the end, listing only trackable paths, with the branch and "Nothing is pushed". It shows the local-only and kept-path lines and the session-note rule, hands off to `code-commit`, uses the no-remote text, gives the packaging line by its `.dockerignore` condition, and states the worktree limit (`proof-quiet-install-init-statement`) |
+| 19 | Migration copy and checks question | 12 | `templates/.agents/skills/harness-init/references/{adr-migration,validate-wiring}.md`, `test/harness-init-migration.test.ts`, `test/skill-harness-init.test.ts` | `spawn` | sol | [x] In a quiet install, migration copies and never moves, and asks in the wording table's text. The checks question offers "Only when I run it" first, then "On every pull request", plus Skip on guided setup (`proof-quiet-install-migration-copy`, `-checks-question`) |
+| 20 | Commit convention and staging in a quiet install | 12 | `templates/.agents/skills/harness-init/references/convention.md`, `templates/.agents/skills/{code-commit,code-pr}/SKILL.md`, `test/convention-skills.test.ts` | `spawn` | sol | [x] The convention is recorded at the root with no `codeRepo` and applies to harness paths. Both skills stage a home path only when named, and never use `add -A` or `add .` (`proof-quiet-install-convention`, `-no-home-staging`) |
+| 21 | harness-doctor refresh uses the path map | 12 | `templates/.agents/skills/harness-doctor/SKILL.md`, `test/harness-doctor-skill.test.ts` | `spawn` | sol | [x] The refresh step in a quiet install compares and rewrites through the fixed map, as R1.3 requires; a text check in `harness-doctor-skill.test.ts` passes |
+| 22 | Site guide, layout page and docs-root deferral | 12 | `site/install.md`, `site/layout.md`, `docs/deferrals/docs-root/docs-root-deferral.md` | `spawn` | sol | [x] The uninstall guide keeps edited files and docs before removal. The layout page names the quiet install as the default and the full install by name. The deferral fixes the docs root at `<harnessHome>/docs/`. `pnpm docs:build` and validate exit 0 (`proof-quiet-install-uninstall-guide`, `-layout-page`, `-deferral`) |
+| 23 | Copy rules pass | 11, 13, 16, 18, 19, 22 | `test/quiet-install-copy.test.ts` (new); edits limited to the strings checked, in the files units 04–05, 11, 13–19 and 22 own | `inline` | — | [x] Every question that writes outside the home names its tracked change. No "the Human" or glossary term is left in text people read, and the introduction comes first. Every stop says "Nothing changed." when true and names the next step, including wave 1–2 messages (`proof-quiet-install-tracked-changes`, `-terms-first`, `-next-step`) |
+| 24 | **Wave 3 gate** | 20, 21, 23 | `docs/specs/quiet-install/quiet-install-spec.md` (Wave 3 boxes) | `inline` | — | [x] The five gates plus `pnpm docs:build` exit 0; Wave 3 boxes ticked — **abort before Wave 4** |
 | 25 | Desktop worktree proof run | 24 | `docs/notes/quiet-install-proof/quiet-install-proof-note.md` (new) | `inline` | — | [ ] With the Human watching, a fixture made by the built setup and a harness-init run loads skills, `AGENTS.md`, rules and the guard in a desktop worktree. A home ADR stays untracked with no prompt, root `git status` is empty, and deleting `CLAUDE.local.md` shows the parity warning. Cursor and other runtimes are probed where at hand (`proof-quiet-install-worktree-run`, `-worktree-warning`) |
 | 26 | **Ship gate** | 25 | `docs/specs/quiet-install/quiet-install-spec.md` (Wave 4 boxes) | `inline` | — | [ ] Every acceptance box ticked; the breaking-marker gate exits 0; `node dist/cli.js validate` PASS — hand off to `code-pr` only on the Human's ask |
 
@@ -298,3 +298,66 @@ runtime-loading result is claimed by these tests.
 
 STOP at unit 12. Next frontier: Wave 3 (units 13, 14, 17, 19, 20, 21, 22),
 only after the Human resumes it. Nothing is pushed; no PR is opened.
+
+### Wave 3 batch
+
+The Human resumed Wave 3 in Claude Code on 2026-11-03 and chose the builder
+model there. Claude Code cannot dispatch Sol, so every Wave 3 builder runs
+on Claude Sonnet (`sonnet`), in place of the Model column's `sol`. Inline
+units run in the executing session on Claude Opus 5.5. Commit cadence is
+unchanged: `autocommit: true`, `autocommit-rule: wave`, both from
+`.agents/code-commit.config.yml`. Active batch: Wave 3, units 13–24. Stop
+after unit 24; no push or PR.
+
+Units 17–18 and unit 19 share `test/skill-harness-init.test.ts`, so unit
+19 runs after unit 18 rather than in parallel with 17. Every other Wave 3
+lane has disjoint Owns. The parent owns `known-forms.json` and
+`scripts/known-forms.mjs` regeneration for the new hook template, as it did
+for the Wave 2 template.
+
+| Field | Value |
+|-------|-------|
+| Unit identifier | 13, 14, 17, 20, 21, 22 — first Wave 3 frontier; 15 → 16 after 14; 18 → 19 after 17; 23 inline after all copy units; 24 gate |
+| Spec/plan paths | `docs/specs/quiet-install/quiet-install-spec.md` / `docs/specs/quiet-install/quiet-install-plan.md` |
+| Obligation / proof status | R5.1–R5.15, R6.1–R6.3, R7.1–R7.2, R8.1–R8.2, R9.1–R9.3, R11.1–R11.3 — done; Wave 3 gate PASS |
+| `HEAD` commit | `8ddb866` |
+| `git status` summary | clean at batch start; this plan file is the only dirt before builders start |
+| Intended diff scope | Each unit's Owns from the Work units table, each template skill edit mirrored into `.agents/skills/`, plus parent-owned `known-forms.json` regeneration |
+| Decision on every discrepancy | Resolved: builder model is `sonnet` by the Human's choice, not `sol`; unit 19 serialized after 18 on the shared test file; older resume rows are historical snapshots, superseded by this record |
+
+### Unit 23 — Copy rules pass
+
+| Field | Value |
+|-------|-------|
+| Unit identifier | 23 — Copy rules pass; inline, after units 13–22 returned complete |
+| Spec/plan paths | `docs/specs/quiet-install/quiet-install-spec.md` / `docs/specs/quiet-install/quiet-install-plan.md` |
+| Obligation / proof status | R11.1–R11.3 — done; Wave 3 gate PASS |
+| `HEAD` commit | `8ddb866` |
+| `git status` summary | dirty — Wave 3 builder Owns, their skill mirrors, `known-forms.json`, and parent follow-ups listed below; no unrelated paths |
+| Intended diff scope | `test/quiet-install-copy.test.ts` (new); string edits only in files units 04–05, 11, 13–19 and 22 own |
+| Decision on every discrepancy | Resolved: the parent took follow-ups the builders reported outside their Owns, each forced by a Wave 3 behavior change. The new hook needed `templates/.agents/hooks/README.md` and the path lists in `test/setup-surfaces.test.ts` and `test/seed-extract.test.ts`. The single commit offer and the Quick/Guided paths needed `README.md`, `site/install.md`, `references/stub-template.md`, `references/lean-path.md`, `test/harness-init-note.test.ts`, `test/harness-init-stub.test.ts`, `test/harness-init-set.test.ts`, `test/readme-install.test.ts` and `proof-basics-writes`. `known-forms.json` was regenerated with `pnpm gen:known-forms`. Each assertion was rewritten to the new text, not loosened |
+
+### Wave 3 evidence and next frontier
+
+On 2026-11-03, `pnpm build`, `pnpm test` (1,111 passed, zero failed),
+`pnpm lint`, `pnpm comments`, `node dist/cli.js validate` and
+`pnpm docs:build` all exited 0 on the final code. Comments reported zero
+findings; validate reported 66 valid claims and zero failures. Every builder
+returned complete with its own comments and validate outputs, and the parent
+re-ran the whole gate over the full repo after unit 23.
+
+Unit 23 added `test/quiet-install-copy.test.ts`. To meet R11.1, it named the
+tracked change in the full-install questions: the `AGENTS.md` mode, the
+`CLAUDE.md` import, re-include rules, CI and script wiring, and the decision
+record move. To meet R11.2, it switched the rendered stub to "you". To meet
+R11.3, it gave the credential, layout-switch and no-moves stops their next
+step. Wave 1–2 doctor and validate messages already met R11.3 and needed no
+edit.
+
+Builders 13–22 used Claude Sonnet (`sonnet`) in place of `sol`, at the
+Human's direction; units 23 and 24 ran inline on Claude Opus 5.5. No desktop
+runtime-loading result is claimed by these text and filesystem tests.
+
+One local wave commit carries units 13–24 and their acceptance marks. STOP
+at unit 24. Next frontier: Wave 4 (unit 25, the desktop worktree proof),
+only with the Human watching. Nothing is pushed; no PR is opened.

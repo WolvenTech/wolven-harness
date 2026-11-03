@@ -1,7 +1,7 @@
 # Hooks
 
-Hook scripts that agent runtimes run before a tool call. Each needs only
-Node, with no packages to install.
+Hook scripts that agent runtimes run before a tool call or at session start.
+Each needs only Node, with no packages to install.
 
 ## secret-path-guard.mjs
 
@@ -60,3 +60,15 @@ Other runtimes have no hook wired yet and rely on the
 The shared pattern list: `isSecretPath` classifies one path and
 `commandTouchesSecret` classifies a shell command. Change the list here, and
 keep `.agents/rules/secrets.md` in step with it.
+
+## worktree-parity.mjs
+
+Runs when a Claude Code session starts in a quiet install, and warns when
+the session's folder lacks the `CLAUDE.local.md` symlink or the
+`.claude/rules/` folder, which a new worktree can miss. Each warning says
+nothing changed and names the next step. It always exits 0, so it never
+blocks the session.
+
+`wolven-harness setup` copies it into every install but wires it nowhere.
+The `harness-init` skill adds it to `.claude/settings.local.json` under
+`SessionStart` when it sets up a quiet install.

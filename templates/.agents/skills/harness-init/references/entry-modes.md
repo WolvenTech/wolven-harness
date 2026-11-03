@@ -11,13 +11,18 @@ Both modes write the harness section between
 later run can find the section and refresh it instead of folding a second
 one.
 
+Everything below, up to the quiet-install section at the end, is for a full
+install. A quiet install skips step 0 and uses
+[Harness block in a quiet install](#harness-block-in-a-quiet-install).
+
 **Contents:** [Full](#full) · [Light](#light) ·
 [Rules for `codex`](#rules-for-codex) · [Rules for `amp`](#rules-for-amp) ·
 [Deletion rule](#deletion-rule) ·
 [Already integrated](#already-integrated) ·
 [Recommending a mode](#recommending-a-mode) ·
 [Before writing](#before-writing) (the five checks) ·
-[Re-include rules](#re-include-rules)
+[Re-include rules](#re-include-rules) ·
+[Harness block in a quiet install](#harness-block-in-a-quiet-install)
 
 ## Full
 
@@ -199,8 +204,8 @@ mode first with the reason, and the other mode as the remaining option. Mode
 names are supporting references, never unexplained jargon. Never pick a mode
 silently, even when one recommendation looks obvious.
 
-Ask it as "How much should we change your current AGENTS.md?", with two
-answers named for what they do:
+Ask it as "How much should we change your current AGENTS.md? Tracked
+change: `AGENTS.md`.", with two answers named for what they do:
 
 - **A short section** (light): adds a brief summary of where skills and
   rules live; the Human's own text stays untouched.
@@ -222,7 +227,8 @@ to the Human when it finds something — never a silent write.
    never merged or dropped on the agent's own judgment — each overlap
    becomes its own question to the Human, one at a time.
 3. **`CLAUDE.md` import offer.** When a `CLAUDE.md` exists and does not
-   import `AGENTS.md`, the agent offers to add an `@AGENTS.md` line to it.
+   import `AGENTS.md`, the agent offers to add an `@AGENTS.md` line to it,
+   naming it as "Tracked change: `CLAUDE.md`".
    The Human's no leaves `CLAUDE.md` untouched.
 4. **Harness paths must reach other clones.** `harness:validate` fails
    with `harness-ignored` for each harness path an ignore rule excludes —
@@ -234,7 +240,8 @@ to the Human when it finds something — never a silent write.
    folders on purpose, since personal assistant settings live there too,
    so never delete its ignore lines. Propose re-include rules appended
    after them — they share the harness paths and keep everything else in
-   those folders ignored — show the diff, and write them only on the
+   those folders ignored — show the diff with "Tracked change: `<file>`"
+   for the ignore file it edits, and write them only on the
    Human's yes. If the Human declines, say plainly that `harness:validate`
    stays red until those paths are shared. See "Re-include rules" below.
 5. **Existing doc folders.** List any content the harness did not write
@@ -272,3 +279,44 @@ trailing slash on purpose: it is a symlink, which git matches as a file.
 A rule from a personal excludes file (`.git/info/exclude`, or the global
 excludes file) lives on the Human's machine, not in the repo: point it out
 rather than editing it.
+
+## Harness block in a quiet install
+
+In a quiet install, setup never creates or edits the client's root
+`AGENTS.md` or `CLAUDE.md`. The quiet-install section of
+[layout.md](layout.md) adds the harness block instead, with the smallest
+edit that works, as part of its one wiring diff.
+
+The block is the same lean marked block in both files, at most three lines
+of plain text between the markers:
+
+```markdown
+<!-- wolven-harness:start -->
+This repo uses the Wolven harness.
+Its instructions are in `.wolven-harness/AGENTS.md`.
+Harness docs go under `.wolven-harness/docs/`.
+<!-- wolven-harness:end -->
+```
+
+- **Fourth line.** Only after a yes to Amp's tracked-edit offer, the block
+  gains a fourth line, `@.wolven-harness/AGENTS.md`. Otherwise it is text,
+  never an `@` import: an import of an ignored file does not expand in a
+  worktree, and `CLAUDE.local.md` stays Claude Code's loader, so the
+  harness `AGENTS.md` loads once.
+- **Where it goes.** Into each root `AGENTS.md` or `CLAUDE.md` the client
+  has, appended after the existing content. When the block is already
+  there, refresh only the lines between the markers. No other line of the
+  file changes.
+- **Created file.** When a selected runtime reads `AGENTS.md` (Codex,
+  Cursor, Amp, opencode, Copilot, Antigravity) and the client has none,
+  create a root `AGENTS.md` that holds only the block.
+
+Ask it as one question: "Add the harness block to <file names>? (Tracked
+change; `AGENTS.md` is created if missing.)", naming each file as "Tracked
+change: `<path>`" or "New tracked file: `AGENTS.md`". The options are Yes
+and No only.
+
+On a No, nothing is written to those files. The runtimes that read that
+file stay not set up to read the harness, and `wolven-harness doctor` names
+them. Say so, and give the manual step: add the block's lines to that file
+by hand.

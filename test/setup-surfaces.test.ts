@@ -55,6 +55,7 @@ test('setup-surfaces: creates exactly the expected paths', async () => {
     '.agents/hooks/README.md',
     '.agents/hooks/secret-path-guard.mjs',
     '.agents/hooks/secret-paths.mjs',
+    '.agents/hooks/worktree-parity.mjs',
     'docs/WRITING-PROFILE.md',
     'docs/adrs/adr-000-record-architecture-decisions.md',
     'docs/prds/.gitkeep',

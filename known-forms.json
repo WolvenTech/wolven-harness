@@ -2,6 +2,7 @@
   "forms": {
     ".agents/hooks/README.md": [
       "03b312ba6a8d098ca1ba2d17219ce056814de26dc75e05506cce436c68103df3",
+      "2164fba324fb34d9e4827754222bf8478a00772797343c86729dc5bc2811e745",
       "528bcb7f9f829b3efdd021f491175c39c7a15c0e5df1df5e9917791399372e3d",
       "d82222e24da4c4a66cc85a037136b6860ef03dd655c76608f52cc642370ceb40"
     ],
@@ -10,6 +11,9 @@
     ],
     ".agents/hooks/secret-paths.mjs": [
       "db636c3d5087c713727b89e5f583a188c4ad7b76e039f49cb701ef61bd4f3213"
+    ],
+    ".agents/hooks/worktree-parity.mjs": [
+      "6c55371f910770dcdcab163ffd3827758ff74c7d800be3f20774b47c0a43a854"
     ],
     ".agents/rules/comments.md": [
       "cb99e8ebf9d24cd02120d349e816e6513a4ee8b4535991ad35564a78c24107ca"
@@ -48,6 +52,7 @@
     ".agents/skills/code-commit/SKILL.md": [
       "43e6d48833e0bf08ed9b35cd1151b7d33cdda6162245e681cd5aa38a30ee9c42",
       "453b96e5bd2e779ec0e99cf61bfaf35d0f3424f50d0e495d01cda71789eb448e",
+      "55ffbdf8c5da406b4d8f48a53a594fae7d0ce8bdb76667a0361a77779f9acfd6",
       "83b924f46e9e479c81fe5be044ce34f99ace21edebf495261a9202329f56b93f",
       "b13f96cda6f01f242d595fe4d92774e30154357b1bdab40d7410a3c1ae3fb5e1",
       "ec5c4fa839c260e6cae08b09e55e40ed089bdb0c8b62b3d4db9a7ac27d8b23df"
@@ -86,6 +91,7 @@
     ],
     ".agents/skills/code-pr/SKILL.md": [
       "2907af7f0e283ed3119b90a8060283a99fe703c14eb965c16a0784d619171f79",
+      "41eb963d8fa818b4f68e560098b496d87ffecce193060f167a76c9dfb2e6af9e",
       "c9de58d8f78bfd4be844fc0825db6177c5afac0d75dabe70eebfa8ded58f6d97",
       "caf57faf933d5b06619f9606efb72df13cb758a74f1a15179f73f24559f94a7d",
       "df68827c2478253bc434229e164330283b6596baf02bfe0fbdaf0ff06cb8d999",
@@ -159,23 +165,29 @@
     ],
     ".agents/skills/harness-doctor/SKILL.md": [
       "27d30e039255e39c1ba9961c231da6930325b07e20a8074f7e37f80b17185423",
+      "39196864c18058fa452aba0c8634000fae6e15e026e0a6d80b32cfe319a15e28",
       "6ed130bede4f1a93c3496700697b43e31db753931e4271f09420386d64766c75"
     ],
     ".agents/skills/harness-init/SKILL.md": [
       "038f56ac8a73c8c5607988a22a3696d4ca1baa82db9faa2b9a9b7cd97263dd6a",
+      "329cc9f3dfc0babd4b1f68b7267ea5f54579295781944f844f57c27221fb6835",
       "46e7d9466b33da6cef50add337ee5dbbac64d50ccd218d852f2a2afcf5963bdd",
       "6bff09b8c3559302a917670bdbd1b717521a87b272898c3f0c719cab125a89dd",
+      "9f5af2f440f7bf3f6a1b6d35b1746b7cc7d6741655dd9a5f9f709fe161ff145f",
       "a3c4bc7e0da7e746e89edae346cb6c6dfdd2304379a11befdc735c97cd81078f",
       "a9d7567791e75d69f58a95a607f7c6038d07029e420b0d13cded7dc14dacdc64",
       "e9664f2b3443d320365cb34d93fc1b2b4dfe743d306b8ac71cff7e26ddb1fbcd"
     ],
     ".agents/skills/harness-init/references/adr-migration.md": [
+      "6a83b67d8283ff147a97faa031b05f98d514047cf7405fb48c2c41250f8bfa16",
       "7dd16c20d32e62f046c6e096c838de01e4e0a05fcd127a3bbde4d9771b1cf76c",
       "8be053c690666ef2c58b076c4216648b0392372c4ef24e1dd38d63eb957097f0",
-      "9e555f8cbcc99348f90a405093999441880eaa50195dc8cf50835a136647c427"
+      "9e555f8cbcc99348f90a405093999441880eaa50195dc8cf50835a136647c427",
+      "e6ca2677b8fa3a7bf3aebf476ed63f0cb949f42b95a7d8100904d7110736b84d"
     ],
     ".agents/skills/harness-init/references/convention.md": [
-      "43dbc71a8709ea11f78f991469f8d68b3541db2ba24915973468f250c7de26fb"
+      "43dbc71a8709ea11f78f991469f8d68b3541db2ba24915973468f250c7de26fb",
+      "cdc777adfdb5769f90d047585fea131eacb250abb0d14fb1330bd58a5675bf1e"
     ],
     ".agents/skills/harness-init/references/discovery.md": [
       "5c04548656444553512f9a89c35f8affa26fbd2b34595d3d66220c6924416e8e",
@@ -188,6 +200,8 @@
       "41226c55aca1752bc4c6a200c31aaee1a51cdf1c13aadde364089cd96c5b5ce5",
       "865111ec7bb710a8a8d3ad052c70e68e14f38ed9938112c3ee727ffd1b0686e3",
       "88168d6bacbdd552987fe9b14242c79c04115213f55a17a6983da8a48b2f890c",
+      "be70d9b4cde80dfebe18805dd62ca0bcded8dd5a37bf67319c41321e9266a291",
+      "e6bcb9701028f56366bd790965c91097a13ac070469f68b60083b84644d30ee9",
       "e9b414dacee01e84f379f371be725a5dee76be340d30ceffdf709472c4efdeab"
     ],
     ".agents/skills/harness-init/references/harness-score.md": [
@@ -197,28 +211,36 @@
       "68a0dd286834d101a63139b68ba5a8968b3367cebcb6c6377a4fa204655f66c8"
     ],
     ".agents/skills/harness-init/references/layout.md": [
+      "580decec6724bb72cba94f5dbe99d65a8b83060de222cc3b5167d8f1174002e9",
       "81fd2b5e0b0db31c85b4214740462afc333621470e1f2c377f8167708ed05134",
+      "b975fe42ffca3c6f6ebfb8764099b98506fbbca7b18735b76516a4a586e623a0",
       "ed326950e7f1d6960f170f8262d1a7ee28dbd73cbaff9c9633604a24e4611de2"
     ],
     ".agents/skills/harness-init/references/lean-path.md": [
       "06e9e8bc33549f6bff37df43741a2ae1dc36249499191d12906d0b12d1b4e8ce",
-      "8267ae7087547ae7ff6253b6a693ab656913640359bb9eec93e6824436a3cc92"
+      "8267ae7087547ae7ff6253b6a693ab656913640359bb9eec93e6824436a3cc92",
+      "9c2c664845913be04af0d0686df47ad1fc97cc22113e54f26d9b501fc2a33c68"
     ],
     ".agents/skills/harness-init/references/session-note-template.md": [
       "3978a0129dba81ebaa83e3b5cb304259d1792c417ad2144d995c7ff2bc67c7a2",
       "56b4483a34c26379d740bd2cf0534f4c87ea216a8ddadcde01d478af25aebbe8",
       "6f9cc49e00265155f23d295c6b7aae1e2763e600e6962058638fa1d61a856ab9",
       "7908ed2325d17d7eb4569824d3d43dc17b40eb6c9fe5f1cd0a4f664586bdeefe",
-      "a95abf72e9777f20586adf2dcbcf1b3592958a1db7335508650cfdc49a55cd0b"
+      "a95abf72e9777f20586adf2dcbcf1b3592958a1db7335508650cfdc49a55cd0b",
+      "c8c848aa16e420d4ae1ed213ee91e392f46467855713c17036367890015ae6b1"
     ],
     ".agents/skills/harness-init/references/stub-template.md": [
+      "27e7b9c39eb064529cb5c0b5e4051dc8e91cdf63d3349e7325addfa7f989123b",
       "947f708964bbe62f3babba9c09fe029b1c1f03cc943342b251c93c27e3fc7288",
+      "acb1d7f098ff5f45c7cd5a073f020704728fd3398eb214439d0e70b0b5a25326",
       "c6570b257b5e1094a02d244547ffbaea9695f8c2017d56cff0423804b8b7129d",
       "ce62e076472ad316723007e1fcdc7e354c6335b299c8b7df84bd97692b92af62"
     ],
     ".agents/skills/harness-init/references/validate-wiring.md": [
+      "01853dbe3fc6f1fb8df74cb519ff7391ee2259fef2ca2b1192148d985d5f96a9",
       "2d01c484b11fd7b7c756912a2c52ea6abec5b3fbd04d94ca79cb4cc381873b0c",
       "741e4a887d32aa0a027c1ccf067971b01f0b91a97525e3a09003360427be6a02",
+      "8c8f60443abc7f5443aa34381b48e68debbaaa2271c6112e0f8f5eacee654508",
       "c2eb4c31fcb32f44c70c0f77fce769a4af1a434667478d12b2c020a3d0d01b37"
     ],
     ".agents/skills/journey-map/SKILL.md": [

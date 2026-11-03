@@ -76,16 +76,16 @@ test('stub-template: harness:validate warns skill-stub-open until the marker is 
   assert.match(flat, /only if the human wants the skill model-invocable/i);
 });
 
-test("stub-template: every stub lands in the setup phase's single commit offer, never one per stub", async () => {
+test("stub-template: every stub is listed in the run's one commit offer, never one per stub", async () => {
   const flat = flatten(await readReference());
-  assert.match(flat, /setup phase's single commit offer/i);
+  assert.match(flat, /listed in the run's one commit offer at the end/i);
   assert.match(flat, /never a commit per stub/i);
 });
 
 test('stub-template: ends with the hand-back line — define each stub, then remove the marker', async () => {
   const raw = await readReference();
   const trimmed = raw.trimEnd();
-  assert.match(trimmed, /hand back to the human: define each stub, then remove the marker\.$/i);
+  assert.match(trimmed, /hand back with your next step: define each stub, then remove the marker\.$/i);
 });
 
 test('stub-template: renders a SKILL.md stub whose frontmatter carries the stub marker and ask-only flag', async () => {
@@ -118,7 +118,8 @@ test('stub-template: renders cited evidence, a generated-against stamp, and a st
   assert.match(skillMd, /### 2\. Conventions/);
   assert.match(skillMd, /### 3\. Workflow/);
   assert.match(skillMd, /### 4\. Verify/);
-  assert.equal((skillMd.match(/^Ask the Human/gm) ?? []).length, 4);
+  assert.equal((skillMd.match(/^Ask (what|for)\b/gm) ?? []).length, 4);
+  assert.doesNotMatch(skillMd, /the Human/);
 
   const steps = skillMd.split(/^## Steps/m)[1] ?? '';
   assert.equal((steps.match(/^Done when:/gm) ?? []).length, 4);
@@ -144,7 +145,7 @@ test('stub-template: a cited skill that conflicts with a local ADR or workflow i
     /when a cited skill conflicts with a stable ADR or an existing workflow in this repo, record the conflict here and follow the local decision/i,
   );
   assert.match(flat, /the conflicting step stays out of this skill/i);
-  assert.match(flat, /step 3 stays a prompt until the Human fills it/);
+  assert.match(flat, /step 3 stays a prompt until you fill it/);
   assert.doesNotMatch(raw, /ADR-002/);
   assert.doesNotMatch(raw, /release\.yml/);
 });
