@@ -165,7 +165,7 @@ wolven-harness validate [--verbose]
 Run validation from anywhere inside a Git repository. It scans tracked files, except paths excluded by valid `ignore` entries, and reports findings from four areas:
 
 1. **Document profile:** ADR naming and layout; required frontmatter; document type, slug folder, and status; required main documents; deprecated ADR successors.
-2. **ADR claims:** References such as `ADR-006` must resolve to one valid, stable ADR. A claim that points to a draft, deprecated, invalid, missing, duplicate, or slug-mismatched decision fails.
+2. **ADR claims:** References such as `ADR-007` must resolve to one valid, stable ADR. A claim that points to a draft, deprecated, invalid, missing, duplicate, or slug-mismatched decision fails.
 3. **Legacy decisions:** ADRs outside `docs/adrs/` and decision folders the harness cannot interpret are reported as warnings so they can be migrated.
 4. **Harness structure:** Skill frontmatter, cited rules, the `AGENTS.md` harness section marker, and whether required harness paths are hidden by Git ignore rules.
 
