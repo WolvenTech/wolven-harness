@@ -45,9 +45,12 @@ not add a layout value.
 - **G1 Small footprint.** The client's git sees only the harness paths the
   person picks — success signal: on a fresh client repo, after `setup` and
   `harness-init` with the defaults, `git status --porcelain` lists only
-  `.wolven-harness/.gitignore` and the ticked paths under
-  `.wolven-harness/`, plus the root `.gitignore` when the person put the
-  entry-point ignore lines there.
+  `.wolven-harness.json`, `.wolven-harness/.gitignore`,
+  `.wolven-harness/AGENTS.md` and the ticked paths under
+  `.wolven-harness/`, plus each tracked client file the person said yes
+  to changing: the root `.gitignore` when the entry-point ignore lines
+  went there, the harness block in `AGENTS.md` or `CLAUDE.md`, and the
+  `.dockerignore` line.
 - **G2 Worktree parity in Claude Code.** A desktop worktree session gets
   what a session in the main checkout gets — success signal: the fourth
   proof run's checks repeat on a fixture made by the shipped `setup` and
@@ -100,9 +103,11 @@ Traces to goal: G5, G1
 **When** the person runs `wolven-harness setup` at its root
 **Then** setup writes `.wolven-harness/.gitignore` first, then the harness
 inside `.wolven-harness/`, plus a `.wolven-harness.json` recording
-`layout: "linked"` and `harnessHome: ".wolven-harness"`. It changes no other
-path in the repo and prints one next step: open the agent and run
-`harness-init`.
+`layout: "linked"` and `harnessHome: ".wolven-harness"`, then a link to
+the `harness-init` skill in each chosen runtime's skills folder. It changes
+no other path in the repo. Git shows that link as untracked on purpose,
+until `harness-init` ignores it, and setup prints one next step: open the
+agent and run `harness-init`, or remove the harness.
 
 #### AC-1.2: An install that already records its layout
 
