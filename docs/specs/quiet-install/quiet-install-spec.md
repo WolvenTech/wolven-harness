@@ -2,7 +2,7 @@
 type: spec
 title: Quiet install
 description: Make setup at a repository root write the harness into .wolven-harness/, teach validate and doctor to read that home, and give harness-init the layout switch and the quiet-install versioning and wiring steps.
-status: draft
+status: stable
 ---
 
 # Quiet install
