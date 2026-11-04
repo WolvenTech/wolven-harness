@@ -227,7 +227,7 @@ test('doctor: the default run wires the three check modules in order', () => {
 });
 
 test('doctor: a claude-and-codex install fails when a runtime entry or skill is missing', async () => {
-  const dir = await makeRepo({}, { git: true });
+  const dir = await makeRepo({}, { git: true, layout: 'home' });
   const setup = await run(['setup', '--git-host', 'gh', '--runtimes', 'claude,codex'], { cwd: dir });
   assert.equal(setup.code, 0, setup.stderr);
 
@@ -272,7 +272,7 @@ test('doctor: a claude-and-codex install fails when a runtime entry or skill is 
 });
 
 test('proof-install-experience-doctor-gemini: a gemini-and-codex install passes until GEMINI.md is removed', async () => {
-  const dir = await makeRepo({}, { git: true });
+  const dir = await makeRepo({}, { git: true, layout: 'home' });
   const setup = await run(['setup', '--git-host', 'gh', '--runtimes', 'gemini,codex'], { cwd: dir });
   assert.equal(setup.code, 0, setup.stderr);
 

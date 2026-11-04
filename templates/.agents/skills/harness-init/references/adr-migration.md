@@ -6,7 +6,7 @@ clean. The `adr` skill creates, promotes, and supersedes profile ADRs — it
 explicitly leaves migrating an older decision record out of scope, which is
 what this reference covers instead.
 
-**Contents:** [Rules](#rules) · [Status mapping](#status-mapping) ·
+**Contents:** [Rules](#rules) · [In a quiet install](#in-a-quiet-install) · [Status mapping](#status-mapping) ·
 [Before writing a status other than `stable`](#before-writing-a-status-other-than-stable) ·
 [Closure](#closure) · [Worked example](#worked-example) (one
 migration, before and after) · [Anti-patterns](#anti-patterns)
@@ -27,12 +27,25 @@ diff before it's written:
    around it.
 3. **Move it.** `git mv` the file to `docs/adrs/adr-NNN-<slug>.md`, keeping
    `NNN` from rule 1. Derive `<slug>` from the ADR's title, kebab-cased.
+   The diff names it as "Tracked change: `<legacy path>` moves to
+   `docs/adrs/adr-NNN-<slug>.md`".
 4. **Prepend frontmatter, keep the body verbatim.** Add a frontmatter block
    ahead of the existing content: `type: adr`, `title`, a one-sentence
    `description`, `status` (mapped from the legacy status — see below), and
    anything else the writing profile requires (`superseded_by` once
    `status` is `deprecated`). The body below the frontmatter — headings,
    sections, prose — is not rewritten; it moves across unchanged.
+
+### In a quiet install
+
+A quiet install keeps the client's own files untouched, so migration copies
+and never moves. For each legacy decision record, ask: "Copy `<file>` into
+the harness as a decision record? Your file is not changed." On a yes, write
+the copy to `.wolven-harness/docs/adrs/adr-NNN-<slug>.md` in harness format
+(rules 1, 2 and 4 still apply, and so does the status mapping below). Never
+`git mv`, rename, rewrite or delete the client's file, and never rewrite a
+link or claim inside a client file; rule 3 and the closure steps that edit
+client files (link recompute, claim repointing) do not apply.
 
 ### Status mapping
 

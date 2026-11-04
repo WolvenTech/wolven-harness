@@ -1,13 +1,15 @@
 ---
 type: deferral
 title: Configurable docs root
-description: A docsDir config key that moves the harness doc folders out of docs/ waits until a consumer demonstrates a collision with the governed folders or its documentation site.
+description: A docsDir config key that moves the harness docs root waits until a consumer demonstrates a collision; the root itself is fixed at the harness home's docs folder.
 status: stable
 ---
 
 # Configurable docs root
 
 **Deferred:** a `setup --docs-dir <path>` flag, saved as `docsDir` in `.wolven-harness.json`, that moves the harness doc folders out of `docs/`.
+
+**Fixed today:** the harness docs root is `<harnessHome>/docs/`. A full install keeps it at `docs/` in the repo root, and a quiet install keeps it at `.wolven-harness/docs/`. It is not configurable.
 
 **Why:** `docs/` is the harness's most invasive path, but it only collides through the folders the writing profile governs: `docs/adrs/`, `docs/prds/`, `docs/specs/`, `docs/notes/`, `docs/deferrals/` and, since [PR #57](https://github.com/WolvenTech/wolven-harness/pull/57), warning-only `docs/maps/`. Other content, such as `docs/getting-started.md` or `docs/api/**`, is left alone. No consumer has reported a collision it could not resolve in the reviewed evidence.
 
@@ -20,7 +22,7 @@ status: stable
 
 ## Contract impact
 
-A new optional config key and a new `setup` flag are both additive under [ADR-006](../../adrs/adr-006-install-check-and-repair-contract.md). The `ignore` rule's ban on `docs` would have to follow `docsDir`, which changes a frozen rule. Write it down as an amendment, not a side effect.
+A new optional config key and a new `setup` flag are both additive under [ADR-007](../../adrs/adr-007-quiet-install-contract.md). The `ignore` rule's ban on `docs` would have to follow `docsDir`, which changes a frozen rule. Write it down as an amendment, not a side effect.
 
 ## Triggers
 

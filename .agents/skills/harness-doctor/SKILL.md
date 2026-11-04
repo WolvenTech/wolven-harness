@@ -58,8 +58,8 @@ finding.
 | --- | --- | --- |
 | `doctor-config` | error | Run `wolven-harness setup`, or fix the key the message names in `.wolven-harness.json`. |
 | `doctor-entry` | error | A mention-only entry file goes through step 4 below. Any other broken chain: re-run `wolven-harness setup` to restore the runtime's import file, then `harness-init` when the harness section is still missing. |
-| `doctor-rules` | error | Re-run `wolven-harness setup` to restore the runtime's rules wiring (the `.claude/rules` link, generated rule files, or `opencode.json`). For an inline rules block, use `harness-init` to rebuild the block between its markers. |
-| `doctor-rules-stale` | error | Review the diff and follow step 4 below to refresh the stale rule copy or inline block. |
+| `doctor-rules` | error | Re-run `wolven-harness setup` to restore the runtime's rules wiring (the `.claude/rules` link, generated rule files, or `opencode.json`). In a quiet install, `setup` does not write the generated root files, so use `harness-init` for those. For an inline rules block, use `harness-init` to rebuild the block between its markers. |
+| `doctor-rules-stale` | error | Review the diff and follow step 4 below to refresh the stale rule copy or inline block. In a quiet install, a stale generated root file is deleted and recreated through `harness-init`. |
 | `doctor-skills` | error | Re-run `wolven-harness setup` to restore the runtime's skills path and the missing skill folders. |
 | `doctor-docs` | error | Commit the repository, or re-include `docs/` with rules appended after the broad ignore — never by deleting its ignore lines. |
 | `doctor-qmd` | error | Install `qmd`, then run `qmd update` and `qmd embed`; or create the index where the finding says it is missing. |
@@ -79,6 +79,11 @@ current templates. It does not rely on a recorded install inventory.
   which file will change and offer to replace that one file with the current
   template. Replace it only after a yes, then rerun `doctor` before proposing
   another refresh.
+- **In a quiet install**, the installed files hold the template text with a
+  fixed path map applied, and `doctor` compares them after that map. Refresh
+  one by deleting that one stale file after a yes, then running
+  `wolven-harness setup`, which recreates it with the map applied. Never write
+  the file or its paths yourself.
 - **`doctor-drift-edited`** — show the diff between the file and the current
   template, then change nothing. Never merge the two or overwrite the edit.
 - **`doctor-drift-missing`** — offer to create the missing file from its current
@@ -91,9 +96,12 @@ current rule, then ask before changing anything. On a no, leave it unchanged;
 the closing summary keeps the check failing. On a yes:
 
 - For a stale or orphan per-rule file, delete only that approved copy, then run
-  `wolven-harness setup` to recreate a stale copy from its current rule. If the
-  source rule no longer exists, explain that the orphan can only be deleted.
-  Handle and approve each copy separately.
+  `wolven-harness setup` to recreate a stale copy from its current rule. In a
+  quiet install, `setup` does not write the generated root files, such as
+  `.cursor/hooks.json` and the Cursor, Copilot, Kiro and Antigravity rule
+  copies, so recreate them through the `harness-init` skill's wiring step. If
+  the source rule no longer exists, explain that the orphan can only be
+  deleted. Handle and approve each copy separately.
 - For an inline block, replace only the text between
   `<!-- wolven-harness:rules:start -->` and
   `<!-- wolven-harness:rules:end -->` with the current rule bodies in file-name

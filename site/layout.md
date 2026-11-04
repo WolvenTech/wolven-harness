@@ -4,7 +4,26 @@ description: What setup installs, where harness files live, and what validate ch
 
 # Files and validation
 
-`wolven-harness setup` installs the harness in a consumer repository. It creates missing paths only and leaves `AGENTS.md` to you. The table shows the main paths and how `wolven-harness validate` treats them.
+`wolven-harness setup` installs the harness in a consumer repository. It creates missing paths only and leaves `AGENTS.md` to you.
+
+## Two layouts
+
+At a repository root, setup installs the quiet layout. It asks no layout question, and `harness-init` has none either.
+
+| Layout | Description |
+| --- | --- |
+| Quiet install | The harness lives in `.wolven-harness/`, and git sees only what you pick. |
+| Full install | The harness sits at the repo root, and git tracks all of it. Only for repos you own. Reached only by the route below. |
+
+A quiet install writes the harness into `.wolven-harness/`, plus `.wolven-harness.json` and one untracked symlink per runtime skills folder, such as `.claude/skills/harness-init`. `git status` shows those symlinks as untracked until you run the `harness-init` skill, which connects the rest and shows each diff before writing. Hooks are always tracked, so `.worktreeinclude` lists the hooks folder. The tables below describe the full install, where every path sits at the repo root; in a quiet install the same paths sit inside `.wolven-harness/`.
+
+### Full install guide
+
+Want git to track the whole harness? Follow the [uninstall steps](./install#uninstall-a-quiet-install), but keep `.wolven-harness.json`. In that file, set `layout` to `home` and remove `harnessHome`, then run `wolven-harness setup`.
+
+Each worktree gets its copies of the local-only harness files when it is created. A rule you change later reaches only new worktrees, so copy the change into the others by hand.
+
+The table shows the main paths and how `wolven-harness validate` treats them.
 
 | Path | What it contains | Validation behavior |
 | --- | --- | --- |
@@ -12,7 +31,7 @@ description: What setup installs, where harness files live, and what validate ch
 | `WOLVEN.md` | Harness instructions for your agent to integrate into `AGENTS.md`. | Referenced rule files must exist. A pending integration is a warning. |
 | `.agents/skills/` | Nine core skills plus optional `ship` and `discovery` skills. | Every skill folder needs a `SKILL.md` with non-empty `name` and `description` frontmatter. An unfinished marked stub is a warning. |
 | `.agents/rules/` | The standing `comments`, `qmd-first`, and `yagni-strict` rules. | Rules cited from `WOLVEN.md` or `AGENTS.md` must exist. |
-| `.agents/hooks/` | A placeholder note; setup installs no executable hooks. | The path must not be hidden by a repository ignore rule. |
+| `.agents/hooks/` | Setup copies the hook scripts in both layouts. A full install's setup wires the secret-path guard for Cursor and Claude Code; in a quiet install `harness-init` wires the hooks. | The path must not be hidden by a repository ignore rule. |
 | `docs/adrs/` | Flat profile decision records named `adr-NNN-<slug>.md`. | Frontmatter, filename, status, and supersession rules apply. ADR references must resolve to a unique stable decision. |
 | `docs/prds/<slug>/` | A PRD named `<slug>-prd.md`. | Required main document, frontmatter, slug, and type are checked. |
 | `docs/specs/<slug>/` | A spec named `<slug>-spec.md`, optionally with `<slug>-plan.md` and `<slug>-iteration-<N>-{spec,plan}.md`. | Required main document, frontmatter, slug, and type are checked; iteration docs only warn. |

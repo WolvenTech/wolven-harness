@@ -15,7 +15,7 @@ const repoTemplatesDir = path.join(repoRoot, 'templates');
 async function freshFixture(): Promise<string> {
   return makeRepo(
     { 'package.json': `${JSON.stringify({ name: 'consumer', version: '1.0.0' }, null, 2)}\n` },
-    { git: true },
+    { git: true, layout: 'home' },
   );
 }
 
