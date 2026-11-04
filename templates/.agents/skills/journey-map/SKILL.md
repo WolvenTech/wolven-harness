@@ -88,8 +88,14 @@ Drawing a journey:
 - A map with journey steps opens in step by step mode. "Next" and "Prev"
   move through the steps, the ⋯ menu holds the other views, and a mood
   timeline plots the steps walked so far.
-- Answers are not saved across reloads. The "Copy for agent" text is the
-  record.
+- Answers and pencil notes persist in the browser's `localStorage` for the
+  same map file. Saves skip an empty walk; typing in a note or text field
+  debounces ~300ms, and leaving the page flushes pending text so a quick
+  reload still restores it. Rebuilding the JSON changes a content hash, so an
+  old walk does not restore. **Start over** clears saved state. If storage is
+  blocked, the map still works for the current session only.
+- **Copy for agent** with no answers or notes opens the panel with a short
+  message instead of copying a header-only line.
 
 ## Feedback loop
 
