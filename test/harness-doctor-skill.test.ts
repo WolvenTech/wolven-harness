@@ -84,14 +84,12 @@ test('proof-install-experience-doctor-refresh: stale files are replaced one at a
   assert.doesNotMatch(completeSkill, /manifest/i);
 });
 
-test('proof-quiet-install-doctor-refresh-pathmap: a quiet install compares and rewrites a stale skill through the fixed path map', async () => {
+test('proof-quiet-install-doctor-refresh-pathmap: a quiet install refreshes a stale file by delete and rerun', async () => {
   const flat = flatten((await readSkill('harness-doctor')).body);
 
   assert.match(flat, /In a quiet install/);
-  assert.match(flat, /`\.\/docs\/` → `\.wolven-harness\/docs\/`/);
-  assert.match(flat, /`\.\/\.agents\/` → `\.wolven-harness\/\.agents\/`/);
-  assert.match(flat, /Compare an installed skill with the current template after applying that map/);
-  assert.match(flat, /write the template text with the map applied, never the raw template text/);
+  assert.match(flat, /wolven-harness setup/);
+  assert.doesNotMatch(flat, /write the template text/);
 });
 
 test('proof-install-experience-rules-refresh: stale copies and inline blocks refresh only after review and approval', async () => {

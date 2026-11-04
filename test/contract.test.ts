@@ -242,7 +242,7 @@ test('proof-quiet-install-contract: quiet install records its fixed map and setu
   assert.match(adr, /No deprecation-warning release/);
   assert.match(adr, /carries `BREAKING CHANGE:`/);
   assert.match(adr, /offers no separate choice to\s*commit them/);
-  assert.match(adr, /fixed map reversed/);
+  assert.match(adr, /offers no layout question and no switch/);
   assert.match(adr, /`\.wolven-harness\/wiring\.json`/);
   assert.match(adr, /not a config key/);
 });

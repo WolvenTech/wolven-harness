@@ -30,11 +30,10 @@ test('proof-quiet-install-parity-hook: a missing CLAUDE.local.md warns with a ne
   const dir = await folder({ rules: true });
   const result = runHook({ CLAUDE_PROJECT_DIR: dir });
   assert.equal(result.status, 0);
-  assert.match(result.out, /CLAUDE\.local\.md/);
-  assert.doesNotMatch(result.out, /\.claude\/rules/);
-  assert.match(result.out, /Nothing changed\. Next:/);
-  assert.match(result.out, /harness-init/);
-  assert.doesNotMatch(result.out, /entry point|the Human/);
+  assert.deepEqual(JSON.parse(result.out), {
+    systemMessage:
+      'This worktree is missing CLAUDE.local.md, so your agent may not have the harness here. Next: open a new worktree, or copy CLAUDE.local.md from your main checkout.',
+  });
 });
 
 test('proof-quiet-install-parity-hook: a missing .claude/rules/ warns and exits 0', async () => {
@@ -45,9 +44,11 @@ test('proof-quiet-install-parity-hook: a missing .claude/rules/ warns and exits 
   assert.doesNotMatch(result.out, /CLAUDE\.local\.md/);
 });
 
-test('proof-quiet-install-parity-hook: both missing warn once each, and cwd is the fallback', async () => {
+test('proof-quiet-install-parity-hook: both missing produce one message naming both, and cwd is the fallback', async () => {
   const dir = await folder({});
   const result = runHook({ CLAUDE_PROJECT_DIR: '' }, dir);
   assert.equal(result.status, 0);
-  assert.equal(result.out.trim().split('\n').length, 2);
+  assert.equal(result.out.trim().split('\n').length, 1);
+  const { systemMessage } = JSON.parse(result.out);
+  assert.match(systemMessage, /CLAUDE\.local\.md, \.claude\/rules\//);
 });

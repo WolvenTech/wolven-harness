@@ -156,7 +156,7 @@ export async function runDriftChecks(
       findings.push({
         level: 'warn',
         code: 'doctor-drift-stale',
-        message: `${installed} matches a previous template; run "harness-doctor" to refresh it`,
+        message: `${installed} matches a previous template; ask your agent to run the harness-doctor skill to refresh it`,
       });
     } else {
       findings.push({

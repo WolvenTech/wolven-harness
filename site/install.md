@@ -4,7 +4,7 @@ description: Connect the harness files to your repo’s existing instructions wi
 
 # Installation
 
-Install `@wolven-tech/harness` globally, then run `wolven-harness setup` at a Git repository's top level or in a folder outside every repository. In the latter case, setup installs the core skills and selected runtime links; ask your agent to run the `harness-init` skill there to finish. The command and the skill are separate: setup installs files, while the skill guides you through integrating them with your repository. It shows each diff and waits for your choice before writing.
+Install `@wolven-tech/harness` globally, then run `wolven-harness setup` at a Git repository's top level or in a folder outside every repository. At a top level, setup does a quiet install under `.wolven-harness/`; outside a repository, it installs the core skills and selected runtime links. Either way, ask your agent to run the `harness-init` skill there to finish. The command and the skill are separate: setup installs files, while the skill guides you through integrating them with your repository. It shows each diff and waits for your choice before writing.
 
 ## What happens
 
@@ -48,7 +48,7 @@ As its last step, either path offers a safety audit. The harness never reads you
 wolven-harness validate
 ```
 
-`setup` adds `harness:validate` as a package script for `wolven-harness validate` when that script is missing. In that case the `harness:validate` script runs the same check, whatever package manager the install recorded. Existing scripts are preserved.
+A full install also has `setup` add `harness:validate` as a package script for `wolven-harness validate` when that script is missing; it runs the same check, whatever package manager the install recorded. A quiet install adds no scripts. Existing scripts are preserved.
 
 Migration is complete when validation exits 0 with no legacy warnings left and no `adr-status-mismatch`. A superseded ADR is never kept `stable`: it gets a successor and is deprecated. References to decision records must resolve to a stable record in `docs/adrs/`; legacy records get migration warnings during the transition.
 
@@ -59,7 +59,11 @@ There is no uninstall command. Remove the harness by hand, in this order, so not
 1. List what setup and `harness-init` created: `.wolven-harness/`, `.wolven-harness.json`, and the symlinks that point into `.wolven-harness/`, such as `CLAUDE.local.md`, `.claude/skills/<name>`, `.claude/rules/<name>`, `.qmd` and `harness-init` in your runtime skills folders. `.wolven-harness/wiring.json` lists each one. Also look for the ignore lines `harness-init` added to `.gitignore` or `.git/info/exclude`, the `.claude/settings.local.json` and `.worktreeinclude` entries, a `.wolven-harness/` line in `.dockerignore`, and the harness block in `AGENTS.md` or `CLAUDE.md`.
 2. Keep a copy of any skill or rule you edited, such as a skill folder under `.wolven-harness/.agents/skills/` or a file under `.wolven-harness/.agents/rules/`.
 3. Move the harness docs you want to keep out of `.wolven-harness/docs/`, such as decision records (ADRs), specs and notes. Unticked folders exist only on this machine, so nothing else holds a copy.
-4. Remove the rest: the symlinks, `.wolven-harness/`, `.wolven-harness.json`, the ignore lines and the harness block.
-5. To go back to a harness, run `wolven-harness setup` at the repository root again.
+4. Remove the rest: the symlinks, `.wolven-harness/`, `.wolven-harness.json`, the ignore lines and the harness block. To switch to a full install, keep `.wolven-harness.json` instead; the next section says how.
+5. To go back to a quiet harness, run `wolven-harness setup` at the repository root again.
+
+## Full install
+
+Want git to track the whole harness? Follow the uninstall steps, but keep `.wolven-harness.json`. In that file, set `layout` to `home` and remove `harnessHome`, then run `wolven-harness setup`.
 
 Next, try the [Daily use](./cycle) example.

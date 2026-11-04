@@ -72,20 +72,20 @@ decision whenever Conflict names one.
 ### 1. Trigger
 
 Ask what this skill does and when an agent should reach for it, and
-write down your answer. Write both into `description`: what it does, in third person, then
+write down the person's answer. Write both into `description`: what it does, in third person, then
 `Use when …` with one distinct situation per branch.
 
 Done when: `description` opens with what the skill does, in third
 person, its `Use when` clause follows, and every branch is a situation
-you stated in this step.
+the person stated in this step.
 
 ### 2. Conventions
 
-Ask what you decided for <tool-or-field> — naming, layout, and the
-rules you already follow. Write each decision as its own bullet.
+Ask what the person decided for <tool-or-field> — naming, layout, and the
+rules they already follow. Write each decision as its own bullet.
 
-Done when: every bullet is a decision you stated, and a reader can
-point at your answer for each one.
+Done when: every bullet is a decision the person stated, and a reader can
+point at their answer for each one.
 
 ### 3. Workflow
 
@@ -95,7 +95,7 @@ that Local decision records as a conflict stays out.
 
 Done when: every step ends with a `Done when:` line whose result a later
 run can observe — a command's exit code, a file's contents, or a diff —
-and each step is one you stated.
+and each step is one the person stated.
 
 ### 4. Verify
 

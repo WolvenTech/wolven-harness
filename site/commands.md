@@ -22,7 +22,7 @@ Then run setup from the top level of a Git repository, or from a folder outside 
 wolven-harness setup --git-host gh --runtimes claude
 ```
 
-`setup` runs at a Git top level or outside any repository. At a top level it scaffolds the harness; outside one it writes the core skills and selected runtime links, then points to `harness-init` to finish the install there. A repository subfolder is not a setup location. Ask your coding agent to run the `harness-init` skill next; see [Installation](./install).
+`setup` runs at a Git top level or outside any repository. At a top level it installs the harness quietly under `.wolven-harness/`; outside one it writes the core skills and selected runtime links, then points to `harness-init` to finish the install there. A repository subfolder is not a setup location. Ask your coding agent to run the `harness-init` skill next; see [Installation](./install).
 
 Check the install at any time, and check the harness as you work:
 
@@ -62,7 +62,7 @@ The commands, flags, exit codes, finding codes, summary lines, and configuration
 wolven-harness doctor [--dir <path>]
 ```
 
-`doctor` is read-only. It checks the install from the current folder, or from the folder named by `--dir`, and prints each finding with its code. Error findings include a `fix:` line; warnings do not. It exits 1 when any error is present and 0 when only warnings or no findings remain. `doctor: ok` is the clean summary. The `harness-doctor` core skill explains the findings and proposes repairs one at a time, after asking.
+`doctor` is read-only. In a quiet install, refresh a stale file by deleting that one file and rerunning `wolven-harness setup`; the `harness-doctor` skill does this after your yes. It checks the install from the current folder, or from the folder named by `--dir`, and prints each finding with its code. Error findings include a `fix:` line; warnings do not. It exits 1 when any error is present and 0 when only warnings or no findings remain. `doctor: ok` is the clean summary. The `harness-doctor` core skill explains the findings and proposes repairs one at a time, after asking.
 
 | Code | Level | Meaning |
 | --- | --- | --- |
@@ -90,7 +90,7 @@ wolven-harness setup [options]
 
 `setup` adds the harness files that are missing, wires the runtimes you choose, and adds check scripts to an existing `package.json` when those scripts are absent.
 
-**Modes.** At a Git top level it scaffolds the full harness: the `.agents/` skills and rules tree, the document folders, `WOLVEN.md`, the local search index, `.harness-score.json`, each runtime's wiring, and the `harness:validate`, `harness:comments` and `harness:score` scripts in an existing `package.json`. Outside a Git top level, from a folder outside any repository, it writes only the core skills under `.agents/skills/`, each selected runtime's skills wiring, and `.wolven-harness.json`, then exits 0 and points at `harness-init`. A repository subfolder exits 1 without writing files. A minimal install writes no `docs/`, `WOLVEN.md`, `.agents/rules/`, `.qmd/`, `.harness-score.json` or `package.json` scripts.
+**Modes.** At a Git top level it installs quietly, and asks no package-manager question. The `.agents/` skills and rules tree, the document folders, the local search index and `.harness-score.json` go inside `.wolven-harness/`; `.wolven-harness.json` and one untracked link per runtime skills folder sit at the root. It adds no `package.json` scripts. A full install, with those paths at the repo root and the `harness:validate`, `harness:comments` and `harness:score` scripts added, comes only from the route in [Files and validation](./layout#two-layouts). Outside a Git top level, from a folder outside any repository, setup writes only the core skills under `.agents/skills/`, each selected runtime's skills wiring, and `.wolven-harness.json`, then exits 0 and points at `harness-init`. A repository subfolder exits 1 without writing files. A minimal install writes no `docs/`, `.agents/rules/`, `.qmd/`, `.harness-score.json` or `package.json` scripts.
 
 You can safely run setup again: it leaves existing files and scripts in place. It never creates or edits `AGENTS.md`, installs dependencies, or commits changes. After a successful run, `.wolven-harness.json` records your choices and the installed package version.
 
@@ -125,14 +125,14 @@ For the same setup trace in a script or CI, set `WOLVEN_HARNESS_DEBUG=1`.
 
 ### What setup writes
 
-At a Git top level:
+At a Git top level, a quiet install writes these inside `.wolven-harness/`, and a full install at the repo root:
 
-- The `.agents/` skills and rules tree, documentation folders, and `WOLVEN.md`.
+- The `.agents/` skills and rules tree and documentation folders; a full install also writes `WOLVEN.md`.
 - `.qmd/index.yml` and the local index ignore file.
 - `.harness-score.json`, the starter configuration for harness scoring.
 - `.wolven-harness.json`, with the resolved Git host, runtimes, selected skill sets, package manager and package version.
-- Missing `harness:validate`, `harness:comments`, and `harness:score` scripts in an existing `package.json`.
-- Each selected runtime's skills wiring and native rules wiring, created only if missing. See [Agent runtimes](./runtimes) for the paths.
+- In a full install, missing `harness:validate`, `harness:comments`, and `harness:score` scripts in an existing `package.json`.
+- Each selected runtime's skills wiring and native rules wiring, created only if missing; a quiet install links them into `.wolven-harness/`. See [Agent runtimes](./runtimes) for the paths.
 
 Outside any Git repository:
 
@@ -140,7 +140,7 @@ Outside any Git repository:
 - Each selected runtime's skills wiring.
 - `.wolven-harness.json`.
 
-Existing files and scripts are preserved. Setup does not install `harness-score`; when it is needed but absent, setup prints the command to add it, using the recorded package manager. If there is no `package.json`, no scripts are added.
+Existing files and scripts are preserved. Setup does not install `harness-score`. A quiet install prints the pinned `harness-score` command with `--config .wolven-harness/.harness-score.json`; a full install prints the command to add it when it is absent, using the recorded package manager. When setup runs from a local copy or a package-manager cache, it also prints the global install command. If there is no `package.json`, no scripts are added.
 
 ## `skills`
 
@@ -185,6 +185,7 @@ Every finding line has the form `level [code] path:line: message`; the path and 
 | `skill-frontmatter`, `rule-missing`, `harness-ignored` | Error | A skill is malformed, a cited rule is absent, or a required harness path is ignored. |
 | `claim-missing`, `claim-duplicate`, `claim-invalid` | Error | ADR claim has no unique valid target. |
 | `claim-draft`, `claim-deprecated`, `claim-slug-mismatch` | Error | ADR claim points to a decision that is not a matching stable record. |
+| `harness-misplaced` | Warning | In a quiet install, a harness document such as an ADR or spec sits outside `.wolven-harness/docs/` and is not validated; the message names where to move it. |
 | `skill-stub-open`, `step0-pending` | Warning | A skill stub still needs definition, or `AGENTS.md` lacks the harness section start marker. |
 | `adr-unrecognized`, `legacy-adr`, `adr-status-mismatch` | Warning | A decision record needs migration, uses an unrecognized folder, or its body contradicts its stable status. |
 | `legacy-claim` | Warning, verbose only | A claim resolves only to a legacy ADR outside `docs/adrs/`. |

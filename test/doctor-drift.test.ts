@@ -13,10 +13,12 @@ import type { DoctorContext } from '../src/doctor/index.js';
 import type { DoctorFinding } from '../src/doctor/report.js';
 import { isQuietMapped, selectTemplateFiles } from '../src/setup/apply.js';
 import { readConfig } from '../src/setup/config.js';
+import { runSetup } from '../src/setup/index.js';
 import { mapQuietInstallPaths } from '../src/setup/path-map.js';
 import { renderQmdIndex } from '../src/setup/render-wolven.js';
 import { type SkillSet, skillFolders } from '../src/setup/skill-sets.js';
 import { makeRepo, run } from './helpers/fixture.js';
+import { makeIo } from './helpers/io.js';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const templatesDir = path.join(repoRoot, 'templates');
@@ -257,4 +259,22 @@ test('proof-iter1-quiet-stale: a stale unedited quiet file is doctor-drift-stale
 
   await appendFile(file, '\nA local edit.\n');
   assert.deepEqual(codes(await runDriftChecks(ctx, table)), ['doctor-drift-edited']);
+});
+
+test('proof-iter1-refresh-rerun: deleting a stale quiet file and rerunning setup restores its mapped bytes', async () => {
+  const root = await makeRepo({ 'AGENTS.md': 'Client instructions.\n' }, { git: true });
+  await mkdir(path.join(root, 'docs'));
+  await writeFile(path.join(root, 'docs', 'client.md'), '# Client\n', 'utf8');
+  const flags = ['--git-host', 'gh', '--runtimes', 'claude', '--skills', 'none'];
+  assert.equal(await runSetup(flags, makeIo(root)), 0);
+
+  const rel = '.agents/rules/yagni-strict.md';
+  const file = path.join(root, '.wolven-harness', rel);
+  const expected = mapQuietInstallPaths(await readFile(path.join(templatesDir, rel), 'utf8'), 'linked');
+  assert.equal(await readFile(file, 'utf8'), expected);
+
+  await writeFile(file, `${expected}\nAn earlier line.\n`);
+  await rm(file);
+  assert.equal(await runSetup(flags, makeIo(root)), 0);
+  assert.equal(await readFile(file, 'utf8'), expected);
 });

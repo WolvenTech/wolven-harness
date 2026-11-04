@@ -46,7 +46,7 @@ two options, in this order:
 
 1. "Only when I run it (recommended): `wolven-harness validate`"
 2. "On every pull request: new tracked file `.github/workflows/<file>`, which
-   your client sees"
+   everyone with repo access sees"
 
 On guided setup it also offers "Skip it". "With your existing checks" is not
 offered. The second option writes a workflow that runs the globally installed

@@ -50,9 +50,7 @@ It asks no goal question, in either install.
 
 - In a full install, step 0, entry integration, with the diff shown and the
   Human's yes before anything is written.
-- In a quiet install, step 0 is skipped, and the run follows the
-  quiet-install section of [layout.md](layout.md) right after the path
-  question, then hands back.
+- In a quiet install, the questions above, then the hand-back.
 - The session note: `draft` at step 0 (or right after the path question in a
   quiet install), `stable` at hand-back.
 - The safety audit question from step 6 of `SKILL.md`, as the last step,

@@ -38,7 +38,15 @@ These rules hold across every step below.
 
 1. **`harness:validate` drives what comes next.** Read its output before
    deciding the next move — never guess at a status, a warning, or an exit
-   code it would have reported.
+   code it would have reported. In a quiet install the command is
+   `wolven-harness validate`. When the CLI is missing, stop and say:
+
+   > I can't find `wolven-harness` on this machine, so I can't check the
+   > setup. Next: install it with `<install command>`, then tell me to
+   > continue.
+
+   `<install command>` is the global install `setup` prints. Never hunt for
+   another build of the CLI.
 2. **One question at a time.** An ambiguity — an entry mode, an ADR status,
    a successor, anything the repo or the Human hasn't settled — becomes a
    single question to the Human, the recommended option listed first (see
@@ -88,7 +96,8 @@ already tracks it or `(new)` when the run created it. List only paths git
 would track, and never force-add one:
 
 - In a quiet install: `.wolven-harness/.gitignore`, `.wolven-harness/AGENTS.md`,
-  the ticked home folders, `.wolven-harness.json`, and each tracked root file
+  the ticked home folders, `.wolven-harness/.agents/hooks/`,
+  `.wolven-harness.json`, and each tracked root file
   the run created or edited with the Human's yes, such as the root
   `.gitignore`, `AGENTS.md`, `CLAUDE.md` or `.dockerignore`.
 - In a full install: every path the run created or changed that git would
@@ -120,11 +129,14 @@ On a yes, pass the listed paths by name to `code-commit`. When `code-commit`
 is not installed (no `.agents/skills/code-commit/`), make the commit with
 plain `git commit` of those paths. Never stage with `git add -A` or
 `git add .`. On a no, nothing is committed and the changes stay in the
-working tree.
+working tree. In a quiet install, a no also says the guard line: "Nothing is
+committed, so the secret guard won't reach new worktrees until you commit
+`.wolven-harness/.agents/hooks/`."
 
-When `git remote` prints nothing, make no offer. Say: "This repo has no
-remote, so there is nothing to commit for. Your changes stay in the working
-tree."
+When `git remote` prints nothing, make no commit offer, since there is no
+remote to share the commit with. Say: "This repo has no remote, so no commit
+was offered. Your changes stay in the working tree." In a quiet install, also
+say the guard line above.
 
 ## Re-run skips
 
@@ -148,8 +160,7 @@ A re-run does not redo what an earlier run already finished:
 The path question comes after the re-run checks above, and after the
 introduction at the top. Load
 [references/lean-path.md](references/lean-path.md) before step 0: it holds
-the resume check, the path question ("How much setup do you want right
-now?") and the whole lean path. When the Human picks "Quick setup", follow
+the resume check, the path question and the whole lean path. When the Human picks "Quick setup", follow
 it and skip the steps it leaves for later. When they pick "Guided setup",
 follow "Guided setup" below.
 
@@ -189,8 +200,9 @@ before the hand-back. The closing asks what to work on next.
 Skipped in a quiet install, the `.wolven-harness` folder inside the git
 top-level: setup already wrote `.wolven-harness/AGENTS.md`, and there is no
 `WOLVEN.md` to fold. The client's root `AGENTS.md` and `CLAUDE.md` get the
-harness block instead, in the wiring diff of the quiet-install section (see
-"Harness block in a quiet install" in
+harness block instead (a short note in them that points agents to
+`.wolven-harness/AGENTS.md`), in the wiring diff of the quiet-install
+section (see "Harness block in a quiet install" in
 [references/entry-modes.md](references/entry-modes.md)). The rest of this
 step is for a full install.
 
@@ -294,19 +306,22 @@ recommended option first. Nothing is written without the Human's yes. See
 Then, on both paths, offer the safety audit as the last step of setup, before
 the commit offer. Ask:
 
-> Last step: do you want a safety audit? The harness never reads your
-> passwords, keys or `.env` files, and it blocks your agent from opening them.
-> This audit checks that protection is in place: that git ignores those files
-> and that no key sits in a config file your agent loads. It reports file
-> names, never values.
+> Last step: do you want a safety audit? The harness never opens your `.env`
+> or key files, and it blocks your agent from opening them. This audit checks
+> that protection is in place: that git ignores your `.env` files, and that no
+> key was pasted into your MCP config or harness files, which your agent loads
+> anyway. It reports file names, never values.
 
 For a runtime with no secret guard hook, or when the wiring was declined, say
 "and its rules tell your agent not to open them" in place of "and it blocks
 your agent from opening them". Options: "Run the audit (recommended)" and
-"Skip it". Never run it unasked. On a yes, run `harness:score` and read only
-`HYG-03`, `HYG-04` and `HYG-06`. Never open a flagged file or a secret-shaped
-file yourself, and never print a value. When it finds nothing, say so in one
-line of the closing message. A finding never stops the run; say:
+"Skip it". Never run it unasked. On a yes, run the pinned `harness-score`
+command `setup` printed (in a quiet install it ends in
+`--config .wolven-harness/.harness-score.json`; in a full install it is
+`harness:score`) and read only `HYG-03`, `HYG-04` and `HYG-06`. Never open a
+`.env` or key file, a flagged file or a secret-shaped file yourself, and never
+print a value. When it finds nothing, say so in one line of the closing
+message. A finding never stops the run; say:
 
 > The safety audit found a gap: <file and check>. Setup didn't cause this, and
 > the audit changed nothing. Next: have git ignore that file, or move the key

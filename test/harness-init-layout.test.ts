@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { RUNTIME_REGISTRY } from '../src/setup/runtimes.js';
+import { quietGeneratedFiles, RUNTIME_REGISTRY, runtimeRow } from '../src/setup/runtimes.js';
 import { flatten } from './helpers/prose.js';
 import { assertSkillBasics, readSkill } from './helpers/skill-contract.js';
 
@@ -75,10 +75,7 @@ test('layout: the step forbids moves and writes nothing under codeRepo', async (
   const flat = flatten(await readLayout());
 
   assert.match(flat, /## No moves/);
-  assert.match(
-    flat,
-    /Apart from the confirmed switch to a full install above, it never moves, renames or deletes a folder or file to make a layout fit/,
-  );
+  assert.match(flat, /It never moves, renames or deletes a folder or file to make a layout fit/);
   assert.match(flat, /never writes under `codeRepo`/);
   assert.match(
     flat,
@@ -106,12 +103,11 @@ test('proof-quiet-install-init-wire: entry points stay ignored, and the diff exp
   );
 });
 
-test('proof-quiet-install-init-version: the versioning question has six items, defaults and a footer', async () => {
+test('proof-quiet-install-init-version: the versioning question has five items, defaults and a footer', async () => {
   const flat = flatten(await readLayout());
 
   assert.match(flat, /Which harness folders should git track\?/);
   assert.match(flat, /"Rules: instructions your agent always follows" \(ticked\)/);
-  assert.match(flat, /"Hooks: scripts Claude Code runs automatically" \(ticked\)/);
   assert.match(
     flat,
     /"Decision records \(ADRs\): why the code is the way it is\. They keep your agent's context accurate over the long run, so keep them current" \(ticked\)/,
@@ -125,13 +121,14 @@ test('proof-quiet-install-init-version: the versioning question has six items, d
   );
   assert.match(
     flat,
-    /"Keep the defaults \(recommended\): Rules, Hooks and Decision records \(ADRs\)" and "Choose the folders myself"/,
+    /"Keep the defaults \(recommended\): Rules and Decision records \(ADRs\)" and "Choose the folders myself"/,
   );
   assert.match(
     flat,
-    /Ticked folders get committed, and your client sees them\. Unticked ones stay on this machine and don't reach worktrees\./,
+    /Ticked folders get committed, and everyone with repo access sees them\. Unticked ones stay on this machine and don't reach worktrees\./,
   );
-  assert.match(flat, /is always tracked and is not a checkbox/);
+  assert.match(flat, /`AGENTS\.md` and `\.agents\/hooks\/` are always tracked and are not checkboxes/);
+  assert.doesNotMatch(flat, /Hooks: scripts/);
   assert.match(flat, /Edit only `\.wolven-harness\/\.gitignore`/);
 });
 
@@ -156,15 +153,11 @@ test('proof-quiet-install-init-wire: one diff, one approval, a decline path and 
   assert.match(flat, /It is text, never an `@` import/);
 });
 
-test('proof-quiet-install-init-wording: each question uses the wording table text and both layout names', async () => {
+test('proof-quiet-install-init-wording: each question uses the wording table text and the quiet install name', async () => {
   const flat = flatten(await readLayout());
 
   assert.match(flat, /Quiet install: The harness lives in `\.wolven-harness\/`, and git sees only what you pick\./);
-  assert.match(
-    flat,
-    /Full install: The harness sits at the repo root, and git tracks all of it\. Only for repos you own\./,
-  );
-  assert.match(flat, /"In `\.gitignore` \(tracked change your client sees\)"/);
+  assert.match(flat, /"In `\.gitignore` \(tracked change everyone with repo access sees\)"/);
   assert.match(flat, /"Only on this machine: `\.git\/info\/exclude` \(nothing tracked changes\)"/);
   assert.match(
     flat,
@@ -209,7 +202,6 @@ test('proof-quiet-install-claude-entry: the Claude Code table lists exactly the 
 test('proof-quiet-install-occupied: an occupied entry point keeps the client copy and asks three ways', async () => {
   const flat = flatten(await readLayout());
 
-  assert.match(flat, /Claude Code skills are always one symlink per skill/);
   assert.match(
     flat,
     /When `\.claude\/skills\/` is a real folder, keep it and add the symlinks beside the client's own skills/,
@@ -222,7 +214,6 @@ test('proof-quiet-install-occupied: an occupied entry point keeps the client cop
     flat,
     /"You already have `<path>`, and it stays as it is\. For the harness's `<name>`: merge it into yours \(tracked change when `<path>` is tracked\), save it next to yours as `wolven-<name>`, or skip it\?"/,
   );
-  assert.match(flat, /Options: "Merge into mine", "Save as wolven-<name>", "Skip it"/);
   assert.match(
     flat,
     /"Merge into mine": the wiring diff shows the merged text\. When `<path>` is tracked, the diff line says "Tracked change: `<path>`"/,
@@ -351,67 +342,24 @@ test('convention: step 2 reads 30 subjects, proposes at 80% and records both sha
   assert.match(flat, /Never pick a convention silently/);
 });
 
-test('proof-quiet-install-init-fork: the keep-or-switch question precedes the section body and the switch asks to confirm', async () => {
+test('proof-iter1-switch-cut: harness-init has no layout question, keep-or-switch or switch procedure', async () => {
   const flat = flatten(await readLayout());
-  const question = flat.indexOf('How much of the harness do you want to version in git?');
 
-  assert.ok(question > flat.indexOf('## Quiet install'));
-  assert.ok(question < flat.indexOf('**Place.**'));
-  assert.ok(question < flat.indexOf('### Versioning'));
-  assert.match(flat, /Options: "Quiet install" \(the default\) and "Full install"/);
-  assert.match(flat, /for a repository the person owns/);
-  assert.match(flat, /Move `\.wolven-harness\/docs\/` to the root `\.\/docs\/`/);
-  assert.match(flat, /Remove the rest of `\.wolven-harness\/`/);
-  assert.match(flat, /Rewrite `\.wolven-harness\.json` to `layout: "home"`/);
-  assert.match(flat, /Apply this switch\? It removes `\.wolven-harness\/` and adds tracked files at the root\./);
-  assert.ok(flat.indexOf('Apply this switch?') > flat.indexOf('Rewrite `.wolven-harness.json`'));
-  assert.match(flat, /apply the diff and rerun `setup`, which writes the root scaffold/);
-  assert.match(flat, /On a no, say "Nothing changed\." and the quiet install stays/);
-  assert.match(
-    flat,
-    /Can't switch to a full install: `<path>` already exists at the repo root\. Nothing changed\. Move or rename it, then ask again\./,
-  );
-  assert.ok(flat.indexOf('already exists at the repo root') < flat.indexOf('Then show one diff'));
+  assert.doesNotMatch(flat, /Keep or switch|The switch|Apply this switch|Full install/);
+  assert.doesNotMatch(flat, /How much of the harness do you want to version in git\?/);
 });
 
-test('proof-quiet-install-switch-keeps: edited and added files are carried to the root with the map reversed', async () => {
+test('proof-iter1-hooks-tracked: .worktreeinclude lists the hooks folder', async () => {
   const flat = flatten(await readLayout());
 
-  assert.match(flat, /List every file under `\.wolven-harness\/\.agents\/`, ignored files included/);
-  assert.match(flat, /`doctor-drift-edited` \(edited since install\) and each one no template installed/);
-  assert.match(flat, /Move each to the same path at the root, with the map reversed on skill text/);
-  assert.match(flat, /`\.wolven-harness\/docs\/` back to `\.\/docs\/`/);
-  assert.match(flat, /`\.wolven-harness\/\.agents\/` back to `\.\/\.agents\/`/);
-  assert.match(flat, /Your edited or added files move to the root: `<paths>`\./);
-  assert.match(flat, /Unedited template files are dropped, and the setup rerun recreates them/);
-  assert.match(flat, /each carried file's root path/);
+  assert.match(flat, /\| `\.worktreeinclude` \| Lists [^|]*`\.wolven-harness\/\.agents\/hooks\/`/);
 });
 
-test('proof-quiet-install-switch-unwires: the switch removes owned wiring by the record and checks for leftovers', async () => {
-  const flat = flatten(await readLayout());
-
-  assert.match(flat, /Remove the quiet-install wiring the record names/);
-  assert.match(
-    flat,
-    /The harness symlinks, hooks, ignore lines and harness block for the quiet install are removed: `<paths>`\./,
-  );
-  for (const kind of [
-    'per-skill and per-rule symlinks',
-    '`CLAUDE.local.md`',
-    '`.qmd`',
-    'harness hook entries in `.claude/settings.local.json`',
-    'harness lines in `.worktreeinclude`',
-    'harness ignore lines in `.gitignore` or `.git/info/exclude`',
-    '`.dockerignore` line',
-    'bootstrap symlinks',
-    "harness block in the client's `AGENTS.md` and `CLAUDE.md`",
-  ]) {
-    assert.ok(flat.includes(kind), kind);
-  }
-  assert.match(flat, /Client content around them is kept, and kept client paths .* are not touched/);
-  assert.match(flat, /check that no symlink or entry still points into `\.wolven-harness\/`, and report any leftover/);
-  assert.match(
-    flat,
-    /An entry that points into `\.wolven-harness\/` and that the record does not name stops the switch with this message: "Can't switch to a full install: `<path>` points into `\.wolven-harness\/`, and it may not be the harness's\. Nothing changed\. Remove or keep it by hand, then ask again\."/,
-  );
+test('proof-iter1-cursor-guard: the Cursor hooks block equals what a quiet install renders', async () => {
+  const text = await readLayout();
+  const json = /```json\n([\s\S]*?)```/.exec(text.slice(text.indexOf('### Cursor hooks')))?.[1];
+  assert.ok(json);
+  const rendered = quietGeneratedFiles(runtimeRow('cursor'), [], '', '.wolven-harness').get('.cursor/hooks.json');
+  assert.ok(rendered);
+  assert.deepEqual(JSON.parse(json), JSON.parse(rendered));
 });

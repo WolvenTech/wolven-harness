@@ -7,7 +7,7 @@ import type { DoctorContext } from '../src/doctor/index.js';
 import { type DoctorFinding, formatFinding } from '../src/doctor/report.js';
 import { runRuntimeChecks } from '../src/doctor/runtime-checks.js';
 import { readConfig } from '../src/setup/config.js';
-import { runtimeRow } from '../src/setup/runtimes.js';
+import { quietGeneratedFiles, runtimeRow } from '../src/setup/runtimes.js';
 import { CORE_SKILLS } from '../src/setup/skill-sets.js';
 import type { Runtime } from '../src/setup/types.js';
 import { makeRepo, run } from './helpers/fixture.js';
@@ -404,6 +404,10 @@ test('doctor-linked: Cursor rules present only in harnessHome fail until linked 
 
   await mkdir(path.join(dir, '.cursor'), { recursive: true });
   await symlink('../harness/.cursor/rules', path.join(dir, '.cursor', 'rules'), 'dir');
+  await writeFile(
+    path.join(dir, '.cursor', 'hooks.json'),
+    quietGeneratedFiles(runtimeRow('cursor'), [], '', 'harness').get('.cursor/hooks.json') ?? '',
+  );
 
   const linkedRules = await runRuntimeChecks(await contextFor(dir));
   assert.equal(
@@ -509,6 +513,8 @@ test('proof-quiet-install-doctor-runtimes: seven automatic rows pass and Codex n
     if (runtime === 'cursor') {
       generated['.cursor/rules/wolven-example.mdc'] = '---\nalwaysApply: true\n---\n\n# Example\n';
       generated['.cursor/rules/wolven-agents.mdc'] = '---\nalwaysApply: true\n---\n\n# Harness\n';
+      generated['.cursor/hooks.json'] =
+        quietGeneratedFiles(row, [], '', '.wolven-harness').get('.cursor/hooks.json') ?? '';
     } else if (runtime === 'copilot') {
       generated['.github/instructions/wolven-example.instructions.md'] = '---\napplyTo: "**"\n---\n\n# Example\n';
     } else if (runtime === 'kiro') {
@@ -682,4 +688,48 @@ test('proof-iter1-doctor-voice: rendered findings drop the old phrases and keep 
   render(await runRuntimeChecks(await contextFor(mixed)));
   assert.ok(lines.length > 0);
   for (const line of lines) assert.doesNotMatch(line, banned);
+});
+
+test('proof-iter1-cursor-guard: a quiet install runs the Cursor guard from the home and doctor checks it', async () => {
+  const row = runtimeRow('cursor');
+  const guard = '.wolven-harness/.agents/hooks/secret-path-guard.mjs';
+  const hooks = quietGeneratedFiles(row, [], '', '.wolven-harness').get('.cursor/hooks.json');
+  assert.ok(hooks);
+  const parsed = JSON.parse(hooks) as { hooks: Record<string, { command: string }[]> };
+  assert.equal(parsed.hooks.beforeReadFile?.[0]?.command, `node ${guard}`);
+  assert.equal(parsed.hooks.beforeShellExecution?.[0]?.command, `node ${guard}`);
+
+  const full = row.hookConfig?.content ?? '';
+  assert.ok(full.includes('node .agents/hooks/secret-path-guard.mjs'));
+  assert.ok(!full.includes('.wolven-harness'));
+
+  const dir = await makeRepo({
+    '.wolven-harness.json': JSON.stringify({
+      version: 1,
+      gitHost: 'gh',
+      runtimes: ['cursor'],
+      layout: 'linked',
+      harnessHome: '.wolven-harness',
+    }),
+    '.wolven-harness/AGENTS.md': '# Harness\n',
+    '.wolven-harness/wiring.json': WIRED,
+    '.cursor/rules/wolven-agents.mdc': quietGeneratedFiles(row, [], '# Harness\n', '.wolven-harness').get(
+      '.cursor/rules/wolven-agents.mdc',
+    ) as string,
+  });
+  const forHooks = async () =>
+    (await runRuntimeChecks(await contextFor(dir))).filter((finding) => finding.message.includes('.cursor/hooks.json'));
+
+  const missing = await forHooks();
+  assert.equal(missing.length, 1, JSON.stringify(missing));
+  assert.equal(missing[0].code, 'doctor-rules');
+  assert.equal(missing[0].level, 'error');
+
+  await writeFile(path.join(dir, '.cursor/hooks.json'), `${hooks}\n`);
+  const different = await forHooks();
+  assert.equal(different.length, 1, JSON.stringify(different));
+  assert.equal(different[0].code, 'doctor-rules-stale');
+
+  await writeFile(path.join(dir, '.cursor/hooks.json'), hooks);
+  assert.deepEqual(await forHooks(), []);
 });

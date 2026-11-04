@@ -287,8 +287,9 @@ In a quiet install, setup never creates or edits the client's root
 [layout.md](layout.md) adds the harness block instead, with the smallest
 edit that works, as part of its one wiring diff.
 
-The block is the same lean marked block in both files, at most three lines
-of plain text between the markers:
+The block is a short note that points agents to the harness. It is the same
+marked block in both files, at most three lines of plain text between the
+markers:
 
 ```markdown
 <!-- wolven-harness:start -->
@@ -311,10 +312,7 @@ Harness docs go under `.wolven-harness/docs/`.
   Cursor, Amp, opencode, Copilot, Antigravity) and the client has none,
   create a root `AGENTS.md` that holds only the block.
 
-Ask it as one question: "Add the harness block to <file names>? (Tracked
-change; `AGENTS.md` is created if missing.)", naming each file as "Tracked
-change: `<path>`" or "New tracked file: `AGENTS.md`". The options are Yes
-and No only.
+[layout.md](layout.md) asks the question inside the wiring diff.
 
 On a No, nothing is written to those files. The runtimes that read that
 file stay not set up to read the harness, and `wolven-harness doctor` names

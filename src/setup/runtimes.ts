@@ -58,13 +58,17 @@ function jsonFile(value: unknown): string {
   return `${JSON.stringify(value, null, 2)}\n`;
 }
 
-const cursorHooksJson = jsonFile({
-  version: 1,
-  hooks: {
-    beforeReadFile: [{ command: `node ${GUARD_SCRIPT}` }],
-    beforeShellExecution: [{ command: `node ${GUARD_SCRIPT}` }],
-  },
-});
+function cursorHooks(script: string): string {
+  return jsonFile({
+    version: 1,
+    hooks: {
+      beforeReadFile: [{ command: `node ${script}` }],
+      beforeShellExecution: [{ command: `node ${script}` }],
+    },
+  });
+}
+
+const cursorHooksJson = cursorHooks(GUARD_SCRIPT);
 
 const claudeSettingsJson = jsonFile({
   hooks: {
@@ -562,6 +566,7 @@ export function quietGeneratedFiles(
       files.set(row.rules.pattern.replace('{rule}', rule.base), wrapRule(rule, row.rules.frontmatter));
     if (row.id === 'cursor')
       files.set('.cursor/rules/wolven-agents.mdc', wrapRule({ base: 'agents', body: agents }, 'alwaysApply: true'));
+    if (row.id === 'cursor') files.set('.cursor/hooks.json', cursorHooks(`${home}/${GUARD_SCRIPT}`));
   } else if (row.id === 'kiro') {
     files.set('.kiro/steering/wolven-harness.md', `---\ninclusion: always\n---\n\n#[[file:${home}/AGENTS.md]]\n`);
   } else if (row.id === 'antigravity') {

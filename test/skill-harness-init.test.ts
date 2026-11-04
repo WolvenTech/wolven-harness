@@ -282,7 +282,7 @@ test('proof-basics-path-question: the Human picks the path from one plain questi
 
   const fork = flatten(section(skill.body, '## Lean path'));
   assert.ok(skill.body.indexOf('## Re-run skips') < skill.body.indexOf('## Lean path'), 're-run skips come first');
-  assert.match(fork, /"How much setup do you want right now\?"/);
+  assert.match(fork, /holds the resume check, the path question and the whole lean path/);
 
   for (const rel of skill.files) {
     assert.doesNotMatch(await skill.read(rel), /thin-evidence/i, `${rel} still judges the path from the tree`);
@@ -350,15 +350,20 @@ test('proof-safety-audit-offered-last: every path asks first, promises secrets s
   const step6 = flatten((skill.body.split(/^### 6\. /m)[1]?.split(/^## /m)[0] ?? '').replace(/^> ?/gm, ''));
   assert.match(
     step6,
-    /Last step: do you want a safety audit\? The harness never reads your passwords, keys or `\.env` files, and it blocks your agent from opening them\./,
+    /Last step: do you want a safety audit\? The harness never opens your `\.env` or key files, and it blocks your agent from opening them\. This audit checks that protection is in place: that git ignores your `.env` files, and that no key was pasted into your MCP config or harness files, which your agent loads anyway\. It reports file names, never values\./,
   );
-  assert.match(step6, /This audit checks that protection is in place/);
-  assert.match(step6, /It reports file names, never values\./);
+  assert.match(
+    flatten(skill.body.replace(/^\s*> ?/gm, '')),
+    /I can't find `wolven-harness` on this machine, so I can't check the setup\. Next: install it with `<install command>`, then tell me to continue\./,
+  );
   assert.doesNotMatch(step6, /looks through this repo/);
   assert.match(step6, /"and its rules tell your agent not to open them"/);
   assert.match(step6, /"Run the audit \(recommended\)" and "Skip it"\. Never run it unasked/);
   assert.match(step6, /read only `HYG-03`, `HYG-04` and `HYG-06`/);
-  assert.match(step6, /Never open a flagged file or a secret-shaped file yourself, and never print a value/);
+  assert.match(
+    step6,
+    /Never open a `\.env` or key file, a flagged file or a secret-shaped file yourself, and never print a value/,
+  );
   assert.match(step6, /A finding never stops the run/);
   assert.match(step6, /Setup didn't cause this, and the audit changed nothing\. Next: have git ignore that file/);
   assert.match(step6, /Leave any path with a finding out of the commit offer/);
@@ -371,18 +376,13 @@ test('proof-safety-audit-offered-last: every path asks first, promises secrets s
   const score = flatten(
     section(await skill.read('references/harness-score.md'), '## Safety audit at the end of setup'),
   );
-  assert.match(score, /Every run offers the safety audit as its last step, before the commit offer/);
-  assert.match(score, /It runs only on a yes to the question in step 6/);
   assert.match(score, /`HYG-03` looks only at file names/);
   assert.match(score, /It never opens the file/);
   assert.match(score, /Never open a flagged file or a secret-shaped file to look closer/);
-  assert.match(score, /A finding never stops the run/);
   assert.match(
     score,
     /When the score is not covered this run, nothing else from the report is recorded or asked about/,
   );
-  assert.match(score, /If the Human declines the audit or the install, the run continues/);
-  assert.match(score, /"safety audit not run" under \*\*Left for later\*\*/);
 
   const runs = flatten(section(await skill.read(LEAN_PATH), '## What the lean path runs'));
   const check = runs.indexOf('The safety audit question');
@@ -446,7 +446,8 @@ test('proof-quiet-install-checks-question: a quiet install offers only-when-I-ru
   const ref = flatten(await (await readSkill('harness-init')).read('references/validate-wiring.md'));
   const section = ref.split(/### In a quiet install/)[1]?.split(/## What each answer does/)[0] ?? '';
   const first = '"Only when I run it (recommended): `wolven-harness validate`"';
-  const second = '"On every pull request: new tracked file `.github/workflows/<file>`, which your client sees"';
+  const second =
+    '"On every pull request: new tracked file `.github/workflows/<file>`, which everyone with repo access sees"';
 
   assert.ok(section.includes(first), 'first option text');
   assert.ok(section.includes(second), 'second option text');
@@ -516,7 +517,7 @@ test('proof-quiet-install-init-step0: the skill opens with the introduction and 
   const intro =
     'The harness is the set of instructions, rules and doc folders your coding agent follows. In a quiet install it lives in `.wolven-harness/`. Before anything outside that folder changes, you see the diff and say yes. Nothing is ever pushed.';
   assert.ok(flat.includes(intro), 'the introduction is quoted verbatim');
-  assert.ok(flat.indexOf(intro) < flat.indexOf('"How much setup do you want right now?"'), 'introduction comes first');
+  assert.ok(flat.indexOf(intro) < flat.indexOf('## Lean path'), 'introduction comes first');
   assert.ok(flat.indexOf(intro) < flat.indexOf('## Hard gates'), 'introduction precedes the gates');
 
   const step = flatten(skill.body.split(/^### 0\. /m)[1]?.split(/^### /m)[0] ?? '');
@@ -544,10 +545,7 @@ test('proof-quiet-install-lean-path: quick setup asks no goal, guided setup open
   assert.match(asks, /It asks no goal question, in either install/);
   assert.match(asks, /quiet-install section of \[layout\.md\]\(layout\.md\)/);
   const runs = flatten(section(lean, '## What the lean path runs'));
-  assert.match(
-    runs,
-    /follows the quiet-install section of \[layout\.md\]\(layout\.md\) right after the path question, then hands back/,
-  );
+  assert.match(runs, /In a quiet install, the questions above, then the hand-back/);
 
   const guided = flatten(section(skill.body, '## Guided setup'));
   assert.match(guided, /opens with one question, "What's this repo for, and what's your role in it\?"/);
@@ -583,12 +581,6 @@ test('proof-quiet-install-init-agents-conflict: the harness block is three lines
   assert.match(flat, /No other line of the file changes/);
   assert.match(flat, /create a root `AGENTS\.md` that holds only the block/);
   assert.match(flat, /Codex, Cursor, Amp, opencode, Copilot, Antigravity/);
-  assert.match(
-    flat,
-    /"Add the harness block to <file names>\? \(Tracked change; `AGENTS\.md` is created if missing\.\)"/,
-  );
-  assert.match(flat, /"Tracked change: `<path>`" or "New tracked file: `AGENTS\.md`"/);
-  assert.match(flat, /The options are Yes and No only/);
   assert.match(flat, /On a No, nothing is written to those files\. The runtimes that read that file stay not set up/);
   assert.match(flat, /`wolven-harness doctor` names them/);
   assert.match(flatten(skill.body), /"Harness block in a quiet install"/);
@@ -606,7 +598,7 @@ test('proof-quiet-install-init-statement: one commit offer at the end, listing o
   assert.match(offer, /List only paths git would track, and never force-add one/);
   assert.match(
     offer,
-    /`\.wolven-harness\/\.gitignore`, `\.wolven-harness\/AGENTS\.md`, the ticked home folders, `\.wolven-harness\.json`, and each tracked root file/,
+    /`\.wolven-harness\/\.gitignore`, `\.wolven-harness\/AGENTS\.md`, the ticked home folders, `\.wolven-harness\/\.agents\/hooks\/`, `\.wolven-harness\.json`, and each tracked root file/,
   );
   assert.match(offer, /root `\.gitignore`, `AGENTS\.md`, `CLAUDE\.md` or `\.dockerignore`/);
   assert.match(offer, /The session note is in the list only when the Notes folder is ticked/);
@@ -659,7 +651,7 @@ test('proof-quiet-install-init-statement: a yes goes to code-commit by path, no 
   assert.match(offer, /On a no, nothing is committed and the changes stay in the working tree/);
   assert.match(
     offer,
-    /When `git remote` prints nothing, make no offer\. Say: "This repo has no remote, so there is nothing to commit for\. Your changes stay in the working tree\."/,
+    /When `git remote` prints nothing, make no commit offer, since there is no remote to share the commit with\. Say: "This repo has no remote, so no commit was offered\. Your changes stay in the working tree\."/,
   );
   assert.match(
     offer,

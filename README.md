@@ -33,7 +33,7 @@ Then run setup from the top level of a Git repository, or from any folder near y
 wolven-harness setup
 ```
 
-The setup will guide you through the installation choices and then write the chosen skills, rules and commands, their runtime links, and record your choices. Then you can run your agent in that folder and ask for `harness-init`.
+At a repository root, setup does a quiet install: the harness lives in `.wolven-harness/`, with `.wolven-harness.json` and untracked runtime links beside it, so git sees only what you pick. Then you can run your agent in that folder and ask for `harness-init`. To have git track the whole harness, see [Files and validation](https://wolventech.github.io/wolven-harness/layout).
 
 Running `npx @wolven-tech/harness setup` works without a global install, but setup then recommends the global install so you can use other commands like `skills` and `validate`.
 
@@ -44,7 +44,7 @@ Run `wolven-harness doctor` to check a wired install. It reports findings and ex
 `setup` creates only paths that are missing. It never creates or edits `AGENTS.md`, and it never commits. It also:
 
 - wires each selected runtime's skills path, and its rules path where the runtime reads one natively;
-- adds missing `harness:validate`, `harness:comments` and `harness:score` scripts to an existing `package.json`, and writes a starter `.harness-score.json`;
+- in a full install, adds missing `harness:validate`, `harness:comments` and `harness:score` scripts to an existing `package.json`, and writes a starter `.harness-score.json`; a quiet install adds neither and keeps its score config in `.wolven-harness/`;
 - rewrites `.wolven-harness.json` on every run, with your setup choices and `packageVersion`.
 
 In an interactive terminal, `setup` asks for your Git host, runtimes, and optional skill sets. In scripts or CI, pass `--git-host`, `--runtimes`, and any optional flags; see [Commands](https://wolventech.github.io/wolven-harness/commands) for all options and detection rules.

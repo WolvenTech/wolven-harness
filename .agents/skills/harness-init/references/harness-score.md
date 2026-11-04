@@ -16,8 +16,15 @@ Run `harness:score` and read the whole report. When it cannot run because
 `harness-score` is not installed, run `wolven-harness setup` again: it
 creates only missing paths and prints the pinned install command. Show the
 Human that command, and score only after their yes and the install. A repo
-with no `package.json` has no `harness:score` script; use the install
-command `setup` prints instead.
+with no `package.json` has no `harness:score` script; use the pinned command
+`setup` prints instead.
+
+In a quiet install the score file is `.wolven-harness/.harness-score.json`,
+read through `--config`; nothing writes that file at the repo root. The pinned
+command `setup` prints already carries the flag. The file's keys are
+`extends` and `rules`. `harness-score` 1.6.5 exits 0 with the flag and no file
+there. It does not understand quiet installs, so its report may flag files the
+home holds; see `docs/deferrals/score-quiet/score-quiet-deferral.md`.
 
 Record the level and score in the note as the "before" figure.
 
@@ -28,10 +35,10 @@ each dimension with a failing check, ask one question in plain language:
 
 - **State what the repo lacks and what building it means.** Lead with the
   missing capability and the concrete work, not check acronyms. For example:
-  "There is no root README. Should creating one stay on the to-do list, or does
-  this repo not need one?" or "There is no script named `test` in `package.json`.
-  Should adding a unified test runner script stay on the to-do list, or does
-  this repo run its checks differently?"
+  "There is no root README. Should creating one stay on the to-do list, or
+  does this repo not need one?" or "There is no script named `test` in
+  `package.json`. Should adding a unified test runner script stay on the
+  to-do list, or does this repo run its checks differently?"
 - **Put check IDs after the question.** Check IDs (`SNS-01`, `SKL-03`, etc.)
   are references for `.harness-score.json`, never the subject or headline of
   the question. Place them in parentheses or a reference bullet after the
@@ -69,30 +76,29 @@ audit below covers them.
 
 ## Safety audit at the end of setup
 
-Every run offers the safety audit as its last step, before the commit offer,
-whichever path the Human picked and whether or not the score is covered this
-run. It runs only on a yes to the question in step 6 of `SKILL.md`. It checks
-that the protection around secrets is in place, and it never reads them:
+Step 6 of `SKILL.md` holds the audit's question, when it runs and how a
+finding is reported. The audit reads only these checks and never opens a
+secret:
 
 - `HYG-03` looks only at file names: whether an env file exists and git
   ignores it. It never opens the file.
 - `HYG-04` reads MCP config files for key-shaped text.
 - `HYG-06` reads harness files, the ones your agent loads anyway.
 
-Run `harness:score` and read only those three. The report names the file and
-the kind of match, never the value. Never open a flagged file or a
-secret-shaped file to look closer; `.agents/rules/secrets.md` holds for this
-step too. A finding never stops the run: report it with step 6's message.
+Run the pinned command from "Run it" above. The report names the file and the
+kind of match, never the value. Never open a flagged file or a secret-shaped
+file to look closer, and never open a `.env` or key file;
+`.agents/rules/secrets.md` holds for this step too.
 
 When the score is not covered this run, nothing else from the report is
 recorded or asked about. When `harness-score` is not installed, show the
-pinned install command as "Run it" above describes. If the Human declines
-the audit or the install, the run continues, and the hand-back and the note
-list "safety audit not run" under **Left for later**.
+pinned install command as "Run it" above describes. When `wolven-harness`
+itself is missing, stop with the Missing CLI row in `SKILL.md`. If the Human
+declines the install, the audit is not run (see step 6).
 
 ## Write and re-score
 
-Nothing is written without a yes: show the `.harness-score.json` diff, wait
+Nothing is written without a yes: show the score file's diff, wait
 for the Human's yes, then write. Run `harness:score` again and record the level
 and score as the "after" figure, with every dropped check and the reason the
 Human gave.

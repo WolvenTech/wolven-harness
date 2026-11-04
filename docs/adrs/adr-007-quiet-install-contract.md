@@ -17,7 +17,7 @@ it as its own git repository, loses the entry file and the rules in a Claude
 Code desktop worktree session, and the nested repository blocks harness doc
 writes from a worktree.
 
-The in-repo harness PRD (`docs/prds/quiet-install/quiet-install-prd.md`)
+The quiet-install PRD (`docs/prds/quiet-install/quiet-install-prd.md`)
 asks for a default that keeps the client's git down to the harness paths
 the person picks while every session, worktrees included, gets the whole
 harness. Four desktop proof runs on 2026-10-28
@@ -104,10 +104,14 @@ Modes:
     every harness path, `docs/` included, relative to that folder.
   - It writes `.wolven-harness/AGENTS.md` directly, with no `WOLVEN.md`.
     The nested `.gitignore` always re-includes this file.
-  - Skill text uses the fixed path map: `docs/` →
+  - Skill and rule text uses the fixed path map: `docs/` →
     `.wolven-harness/docs/` and `.agents/` → `.wolven-harness/.agents/`.
     A prefix is mapped only at a path-token start: a line start or after
-    whitespace, a backtick, a quote or `(`. No config key records the map.
+    whitespace, a backtick, a quote or `(`. Text that means a true root path
+    writes it as `./docs/` or `./.agents/`, so the map skips it. No config
+    key records the map.
+  - `.qmd/index.yml` is rendered with collection paths under
+    `./.wolven-harness/docs/`, so a client `docs/` is never indexed.
   - Outside `.wolven-harness/` it writes `.wolven-harness.json`, recording
     `layout: "linked"` and `harnessHome: ".wolven-harness"`, and one
     bootstrap link to the home's `harness-init` per selected runtime with
@@ -222,11 +226,14 @@ Rules and drift:
   `linked`, `merged`, `prefixed`, `skipped` or `unwired`. An entry recorded
   as `merged`, `prefixed` or `skipped` raises a warning under its wiring
   code, naming the kept client path and outcome, instead of an error.
-  A missing or dangling `linked` entry still fails. With no record, checks
-  follow the entry points above. A rerun asks again only for a missing
-  entry point with no recorded outcome.
-- File drift in a quiet install applies the fixed path map to skill
-  templates before comparing bytes; a hand edit still counts as edited.
+  A missing or dangling `linked` entry still fails. With no record, each
+  runtime gets one warning that it is not connected yet. Codex is a warning
+  that clears once the harness block is in the root `AGENTS.md`. A rerun
+  asks again only for a missing entry point with no recorded outcome.
+- File drift in a quiet install expects the bytes setup writes: the fixed
+  path map on skill and rule templates, and the rendered `.qmd/index.yml`.
+  Known forms hold those quiet forms too, so a stale file reports as stale
+  and a hand edit still counts as edited.
 - File drift compares current template bytes first, then known forms
   shipped with the package. Earlier installs need no adoption step or
   local write record. `WOLVEN.md` is not classified because initialization
@@ -469,10 +476,19 @@ number is not the guarantee. This policy is.
   config key is added.
 - Entry points remain ignored; harness-init offers no separate choice to
   commit them. Teammates run setup and harness-init to connect their copy.
-- A switch to the full install carries edited and added harness files to
-  the root with the fixed map reversed and removes only owned wiring
-  according to the record. Client paths are kept; ambiguous links block
-  the switch until resolved.
+- `harness-init` offers no layout question and no switch. Moving a quiet
+  install to a full install is the manual route in the guide: follow the
+  uninstall steps, keep `.wolven-harness.json`, set `layout` to `home`,
+  remove `harnessHome`, and run `setup`.
+  `docs/deferrals/quiet-to-full-switch/quiet-to-full-switch-deferral.md`
+  records the deferred procedure.
+- Hooks are always tracked and are never a choice, because a worktree
+  reaches them only through git. `.worktreeinclude` lists the hooks folder.
+  Until they are committed, the secret guard does not reach new worktrees,
+  and `harness-init` says so.
+- A quiet install's score file is `.wolven-harness/.harness-score.json`,
+  read with `harness-score --config`. Nothing writes that file at the
+  repository root.
 - Worktree parity in Claude Code rests on `.worktreeinclude` copying the
   entry-point links, which is undocumented. Which files wire it, including
   a `SessionStart` warning when a worktree lacks them, stays outside the

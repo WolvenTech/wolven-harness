@@ -13,8 +13,8 @@ the spec's three defaults and the commit cadence.
 
 ## Structural gate
 
-Every I row in the spec names one proof and has one acceptance box: 31 rows
-(I1.1–I7.2) against 31 boxes. All nine dimension landings are present, and the
+Every I row in the spec names one proof and has one acceptance box: 32 rows
+(I1.1–I7.2) against 32 boxes. All nine dimension landings are present, and the
 one `n/a` cites the unchanged `wiring.json` format.
 
 ## How this runs
@@ -48,14 +48,15 @@ one `n/a` cites the unchanged `wiring.json` format.
 | 08 | Setup's quiet output | 06 | `src/setup/index.ts`, `src/setup/summary.ts`, `src/setup/options.ts`, `test/setup-quiet-output.test.ts` (new) | `spawn` | sonnet | [x] A quiet run prints both hints, asks no package-manager question, and prints no literal backticks: `proof-iter1-quiet-hints`, `proof-iter1-no-pm-prompt`, `proof-iter1-terminal-text` |
 | 09 | Rerun link and setup voice | 06 | `src/setup/runtimes.ts`, `test/runtime-registry.test.ts` | `spawn` | sonnet | [x] A rerun counts its own link as wired, a foreign link stays occupied, and setup's strings say to ask your agent to run the `harness-init` skill: `proof-iter1-rerun-link` |
 | 10 | Wave 2 gate | 07–09 | Spec boxes, plan marks | `inline` | — | [x] The full gate exits 0, the diffs are read, and the wave is committed |
-| 11 | Cut the switch; always track hooks | 10 | `templates/.agents/skills/harness-init/SKILL.md`, `references/layout.md`, `references/lean-path.md`, `templates/.wolven-harness/`, `src/setup/runtimes.ts`, `docs/deferrals/quiet-to-full-switch/quiet-to-full-switch-deferral.md` (new), `test/harness-init-layout.test.ts` | `spawn` | sonnet | [ ] harness-init has no layout question or switch, hooks are not a checkbox, `.worktreeinclude` lists the hooks folder, and a declined commit gets the guard warning: `proof-iter1-switch-cut` (skill half), `proof-iter1-hooks-tracked` |
-| 12 | Audit, missing CLI and score file | 11 | `templates/.agents/skills/harness-init/SKILL.md`, `references/harness-score.md`, `references/lean-path.md`, `docs/deferrals/score-quiet/score-quiet-deferral.md` (new), `test/skill-harness-init.test.ts` | `spawn` | sonnet | [ ] The audit uses the spec's row and pinned command, a missing CLI stops with its row, and quiet scoring reads the home's config through `--config`: `proof-iter1-audit-wording`, `proof-iter1-missing-cli`, `proof-iter1-score-config` |
-| 13 | Voice and one home per passage | 12 | `templates/.agents/skills/harness-init/SKILL.md`, `references/{layout,entry-modes,harness-score,lean-path,stub-template}.md` | `spawn` | sonnet | [ ] Each T2 passage has one home, by grep count, and the listed voice lines read as the spec says: `proof-iter1-init-voice`, `proof-iter1-one-home` |
-| 14 | Refresh by delete and rerun | 10 | `templates/.agents/skills/harness-doctor/SKILL.md`, `test/doctor-drift.test.ts` | `spawn` | sonnet | [ ] Deleting a stale quiet file and rerunning setup restores its mapped bytes, and no skill text asks an agent to rewrite paths: `proof-iter1-refresh-rerun` |
-| 15 | Parity warning | 10 | `templates/.agents/hooks/worktree-parity.mjs`, its repo copy if one exists, `test/worktree-parity.test.ts` | `spawn` | sonnet | [ ] The hook prints `systemMessage` JSON with the spec's row: `proof-iter1-parity-message` |
-| 16 | Amend ADR-007 | 11, 12 | `docs/adrs/adr-007-quiet-install-contract.md`, `test/contract.test.ts` | `inline` | — | [ ] The `adr` skill lands each item in I5.2, and validate passes: `proof-iter1-adr` |
-| 17 | Guides | 11, 12 | `README.md`, `AGENTS.md`, `site/commands.md`, `site/install.md`, `site/layout.md`, `test/full-install-route.test.ts` (new) | `spawn` | sonnet | [ ] B10's lines match the shipped default, `harness-misplaced` is listed, and a test runs the **Full install guide** steps and validates: `proof-iter1-guides`, `proof-iter1-switch-cut` (guide half) |
-| 18 | Wave 3 gate | 13–17 | `known-forms.json`, spec boxes, plan marks | `inline` | — | [ ] `pnpm gen:known-forms` is run, the full gate exits 0, the diffs are read, and the wave is committed |
+| 11 | Cut the switch; always track hooks | 10 | `templates/.agents/skills/harness-init/SKILL.md`, `references/layout.md`, `references/lean-path.md`, `templates/.wolven-harness/`, `src/setup/runtimes.ts`, `docs/deferrals/quiet-to-full-switch/quiet-to-full-switch-deferral.md` (new), `test/harness-init-layout.test.ts` | `spawn` | sonnet | [x] harness-init has no layout question or switch, hooks are not a checkbox, `.worktreeinclude` lists the hooks folder, and a declined commit gets the guard warning: `proof-iter1-switch-cut` (skill half), `proof-iter1-hooks-tracked` |
+| 12 | Audit, missing CLI and score file | 11 | `templates/.agents/skills/harness-init/SKILL.md`, `references/harness-score.md`, `references/lean-path.md`, `docs/deferrals/score-quiet/score-quiet-deferral.md` (new), `test/skill-harness-init.test.ts` | `spawn` | sonnet | [x] The audit uses the spec's row and pinned command, a missing CLI stops with its row, and quiet scoring reads the home's config through `--config`: `proof-iter1-audit-wording`, `proof-iter1-missing-cli`, `proof-iter1-score-config` |
+| 13 | Voice and one home per passage | 12 | `templates/.agents/skills/harness-init/SKILL.md`, `references/{layout,entry-modes,harness-score,lean-path,stub-template}.md` | `spawn` | sonnet | [x] Each T2 passage has one home, by grep count, and the listed voice lines read as the spec says: `proof-iter1-init-voice`, `proof-iter1-one-home` |
+| 14 | Refresh by delete and rerun | 10 | `templates/.agents/skills/harness-doctor/SKILL.md`, `test/doctor-drift.test.ts` | `spawn` | sonnet | [x] Deleting a stale quiet file and rerunning setup restores its mapped bytes, and no skill text asks an agent to rewrite paths: `proof-iter1-refresh-rerun` |
+| 15 | Parity warning | 10 | `templates/.agents/hooks/worktree-parity.mjs`, its repo copy if one exists, `test/worktree-parity.test.ts` | `spawn` | sonnet | [x] The hook prints `systemMessage` JSON with the spec's row: `proof-iter1-parity-message` |
+| 16 | Amend ADR-007 | 11, 12 | `docs/adrs/adr-007-quiet-install-contract.md`, `test/contract.test.ts` | `inline` | — | [x] The `adr` skill lands each item in I5.2, and validate passes: `proof-iter1-adr` |
+| 17 | Guides | 11, 12 | `README.md`, `AGENTS.md`, `site/commands.md`, `site/install.md`, `site/layout.md`, `test/full-install-route.test.ts` (new) | `spawn` | sonnet | [x] B10's lines match the shipped default, `harness-misplaced` is listed, and a test runs the **Full install guide** steps and validates: `proof-iter1-guides`, `proof-iter1-switch-cut` (guide half) |
+| 17a | Cursor guard in a quiet install | 13 | `templates/.agents/skills/harness-init/references/layout.md`, `src/setup/runtimes.ts`, `src/doctor/runtime-checks.ts`, `test/doctor-runtime.test.ts`, `test/harness-init-layout.test.ts` | `spawn` | sonnet | [x] A quiet install's `.cursor/hooks.json` runs the guard from the home, `layout.md` gives its content, and doctor reports it missing or different, while a full install's config is unchanged: `proof-iter1-cursor-guard` |
+| 18 | Wave 3 gate | 13–17a | `known-forms.json`, spec boxes, plan marks | `inline` | — | [x] `pnpm gen:known-forms` is run, the full gate exits 0, the diffs are read, and the wave is committed |
 | 19 | One predicate and YAGNI cuts | 18 | `src/doctor/drift.ts`, `src/doctor/index.ts`, `src/setup/options.ts`, `src/setup/path-map.ts`, `src/setup/runtimes.ts`, `src/setup/apply.ts`, `src/validate/config.ts`, `templates/.agents/hooks/worktree-parity.mjs`, their tests | `spawn` | sonnet | [ ] One helper serves all four sites, and each I6.3 item is gone or its present caller is named in the unit's evidence: `proof-iter1-one-predicate`, `proof-iter1-yagni-cuts` |
 | 20 | Re-check `harness-misplaced` | 18 | `src/validate/spine.ts`, `src/validate/report.ts`, `test/validate-quiet-install.test.ts` | `spawn` | sonnet | [ ] The check catches a named real case with the fewest reads, or it is removed with the reason recorded: `proof-iter1-misplaced` |
 | 21 | Stale artifacts | 18 | The paths in I6.5 | `spawn` | sonnet | [ ] The listed files are gone, the three notes are `stable`, and validate passes: `proof-iter1-artifacts` |
@@ -95,6 +96,7 @@ with a proof name, commit or reason.
 | B9 | 07 | | |
 | B10 | 17 | | |
 | B11 | 11, 14 | | |
+| B12 | 17a, 24 | | |
 | C1 | 09 | | |
 | C2 | 11 | | |
 | C3 | 08 | | |
@@ -161,3 +163,17 @@ trimmed tests may touch. Wave 5 stays inline.
 | `git status` summary | clean before this section |
 | Intended diff scope | The Owns paths of units 07–09, plus the two allowances below, and this plan |
 | Decision on every discrepancy | Resolved: unit 07 also edits the "Nothing changed." line in `src/validate/spine.ts`, because I2.3 covers validate and that string lives there. Unit 09 also edits the Manual step cells in `layout.md` and its mirror, because a test holds them equal to `manualStep`. Wording rows print without their markdown backticks in the terminal, per I3.4. At gate 10: both "Nothing changed." lines left `spine.ts`; several lockfiles resolve to `none` in a quiet install, so it neither asks nor stops; the full branch's next steps lost their backticks too; the `pm-detect` tests moved to `layout: 'home'`, where the question still applies; pins in `test/setup-quiet-install.test.ts`, `test/setup-harness-score.test.ts` and `test/validate-quiet-install.test.ts` follow the new text |
+
+### Wave 3 — units 11–17, gate 18
+
+| Field | Value |
+|-------|-------|
+| Unit identifier | 11, 14, 15 in parallel; 12 after 11; 13 after 12; 16 and 17 after 12; 17a after 13; then gate 18 |
+| Spec/plan paths | `docs/specs/quiet-install/quiet-install-iteration-1-spec.md` / `docs/specs/quiet-install/quiet-install-iteration-1-plan.md` |
+| Obligation / proof status | I4.1–I4.10, I5.1, I5.2 — done; the live halves of I4.3, I4.5, I4.7 and I4.10 land at unit 24 |
+| `HEAD` commit | `3a2460c` |
+| `git status` summary | clean before this section |
+| Intended diff scope | The Owns paths of units 11–17, their `.agents/skills/` mirrors, `known-forms.json`, and this plan |
+| Decision on every discrepancy | Resolved: the Human added B12 and unit 17a, and narrowed the audit row. Owns widened by the parent for pinned tests in `test/path-map.test.ts`, `test/quiet-install-copy.test.ts`, `test/skill-harness-init.test.ts` and `test/harness-doctor-skill.test.ts`, for `validate-wiring.md`, for the `doctor-drift-stale` message in `src/doctor/drift.ts`, and for `templates/.agents/hooks/README.md`. ADR-007's no-record doctor sentence was corrected beside the I5.2 items. Unit 11 needed no edit to `lean-path.md`, `templates/.wolven-harness/` or `src/setup/runtimes.ts` |
+
+The Human narrowed the audit row on 2026-11-04: a traced `harness-score` run on a fixture with fake secrets opened no `.env` or key file, but `HYG-03` matches only `.env`, so "those files" overclaimed for key files. The spec's **Wording** row now says "your `.env` files".

@@ -35,6 +35,7 @@ a unit, and its closing unit reports each as `fixed`, `skipped` or
 | B9 | A fresh tree reports 52 errors with wrong fixes | `src/doctor/runtime-checks.ts:54,116` | I2.2 |
 | B10 | Stale guides | `README.md:36,44-47`, `site/commands.md:25,91-93,126-143`, `site/install.md:11,27,51`, `site/layout.md:11`, `AGENTS.md:31` | I5.1 |
 | B11 | Agent-applied rewrites contradict the base spec | `layout.md` switch, `harness-doctor/SKILL.md` refresh | I4.1, I4.2 |
+| B12 | A quiet install has no defined way to wire Cursor's secret guard: nothing gives `.cursor/hooks.json` its content, doctor never checks it, and the full-install config points at a path a quiet install lacks | `layout.md` Cursor row, `src/setup/runtimes.ts` `quietGeneratedFiles` | I4.10 |
 | C1 | A rerun treats its own link as an occupied path | `src/setup/runtimes.ts:453,466` | I3.2 |
 | C2 | A switch detail at `layout.md:142` is wrong | Moot once the switch is cut | I4.1 |
 | C3 | Setup prompts for a package manager in a quiet install | `src/setup/options.ts:467` | I3.3 |
@@ -73,6 +74,8 @@ Settled with the Human on 2026-11-04:
   docs may keep "client repo".
 - **"Nothing changed.": only where a write could happen.** It stays in
   harness-init stops and setup errors, and leaves doctor and validate.
+- **Cursor's guard in a quiet install: fix it here** (I4.10). Found during wave 3 and added by the Human on 2026-11-04.
+- **Audit row: narrowed to `.env` files.** `HYG-03` matches only `.env`, so "those files" overclaimed for key files.
 - **Scope: all four trims** (stale artifacts, prose-pinning tests, skill text,
   YAGNI code cuts), small correctness and voice nits included.
 
@@ -105,7 +108,7 @@ Every string is exact, except `<placeholders>`.
 
 | Where | Text |
 |-------|------|
-| Audit question (I4.4) | Last step: do you want a safety audit? The harness never opens your `.env` or key files, and it blocks your agent from opening them. This audit checks that protection is in place: that git ignores those files, and that no key was pasted into your MCP config or harness files, which your agent loads anyway. It reports file names, never values. |
+| Audit question (I4.4) | Last step: do you want a safety audit? The harness never opens your `.env` or key files, and it blocks your agent from opening them. This audit checks that protection is in place: that git ignores your `.env` files, and that no key was pasted into your MCP config or harness files, which your agent loads anyway. It reports file names, never values. |
 | Guard refusal (I1.4) | This file may hold secrets, so the harness blocked your agent from opening it. Open it yourself if you need to. |
 | Fresh tree, per runtime (I2.2) | `<runtime>` isn't connected yet. Ask your agent to run the `harness-init` skill. |
 | Codex warning (I2.1) | Codex reads only your `AGENTS.md`, so it won't load the harness on its own. Next: ask your agent to run the `harness-init` skill and add the harness lines to `AGENTS.md`, or ask Codex to read `.wolven-harness/AGENTS.md`. |
@@ -198,6 +201,7 @@ flowchart TD
 | I4.7 | The parity hook prints `systemMessage` JSON with the **Parity warning** row, with no internal prefix and no "symlink" | `proof-iter1-parity-message` | Test on the JSON; I7.1 live |
 | I4.8 | Text people read uses "Everyone with repo access". `stub-template.md` says "the person". "harness block" is explained where first used. The no-remote line follows from what precedes it | `proof-iter1-init-voice` | Review of the listed lines; grep |
 | I4.9 | Each repeated passage in T2 lives in one place and is linked from the others | `proof-iter1-one-home` | Grep counts |
+| I4.10 | A quiet install's `.cursor/hooks.json` runs the guard from the home. `layout.md` gives its content, `quietGeneratedFiles` renders it from `home`, and doctor reports it missing or different. A full install's config does not change | `proof-iter1-cursor-guard` | Test on the rendered file and both doctor states; I7.1 live |
 
 ### I5 — Guides and contract (wave 3)
 
@@ -220,7 +224,7 @@ flowchart TD
 
 | ID | Obligation | Named proof | Evidence shape |
 |----|------------|--------------|------------------|
-| I7.1 | In a fresh fixture built from this head, with the Human observing: the guard blocks `.env` in a worktree made **after** the commit; a worktree made **before** the commit shows what I4.3 promises; the person sees the parity warning; a missing CLI stops as I4.5 says; `.qmd` indexes only the home's docs. Results land in `quiet-install-proof-note.md` | `proof-iter1-live-worktree` | Proof note section, accepted by the Human |
+| I7.1 | In a fresh fixture built from this head, with the Human observing: the guard blocks `.env` in a worktree made **after** the commit; a worktree made **before** the commit shows what I4.3 promises; the person sees the parity warning; a missing CLI stops as I4.5 says; `.qmd` indexes only the home's docs; Cursor's guard blocks `.env`, if Cursor is at hand. Results land in `quiet-install-proof-note.md` | `proof-iter1-live-worktree` | Proof note section, accepted by the Human |
 | I7.2 | Every finding in **Findings** is reported `fixed`, `skipped` or `no_change_needed`, each with its evidence | `proof-iter1-findings-closed` | The plan's closing table |
 
 ## Nine-dimension landings
@@ -287,17 +291,18 @@ flowchart TD
 
 ### Wave 3
 
-- [ ] I4.1 `proof-iter1-switch-cut` PASS
-- [ ] I4.2 `proof-iter1-refresh-rerun` PASS
-- [ ] I4.3 `proof-iter1-hooks-tracked` PASS
-- [ ] I4.4 `proof-iter1-audit-wording` PASS
-- [ ] I4.5 `proof-iter1-missing-cli` PASS
-- [ ] I4.6 `proof-iter1-score-config` PASS
-- [ ] I4.7 `proof-iter1-parity-message` PASS
-- [ ] I4.8 `proof-iter1-init-voice` PASS
-- [ ] I4.9 `proof-iter1-one-home` PASS
-- [ ] I5.1 `proof-iter1-guides` PASS
-- [ ] I5.2 `proof-iter1-adr` PASS
+- [x] I4.1 `proof-iter1-switch-cut` PASS
+- [x] I4.2 `proof-iter1-refresh-rerun` PASS
+- [x] I4.3 `proof-iter1-hooks-tracked` PASS
+- [x] I4.4 `proof-iter1-audit-wording` PASS
+- [x] I4.5 `proof-iter1-missing-cli` PASS
+- [x] I4.6 `proof-iter1-score-config` PASS
+- [x] I4.7 `proof-iter1-parity-message` PASS
+- [x] I4.8 `proof-iter1-init-voice` PASS
+- [x] I4.9 `proof-iter1-one-home` PASS
+- [x] I4.10 `proof-iter1-cursor-guard` PASS
+- [x] I5.1 `proof-iter1-guides` PASS
+- [x] I5.2 `proof-iter1-adr` PASS
 
 ### Wave 4
 
