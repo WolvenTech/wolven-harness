@@ -3,6 +3,7 @@ import * as p from '@clack/prompts';
 import type { Io } from '../setup/types.js';
 import { discoverLandscape } from './discover.js';
 import { removeLandscapes } from './remove.js';
+import { offerSkillHandoff } from './skill-handoff.js';
 import type { DiscoveredInstall } from './types.js';
 
 const USAGE = [
@@ -227,6 +228,8 @@ export async function runUninstall(argv: string[], io: Io): Promise<number> {
       io.stdout.write(`  • ${file}\n`);
     }
   }
+
+  await offerSkillHandoff(targetDir, io);
 
   return allFailed.length > 0 ? 1 : 0;
 }

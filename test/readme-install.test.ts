@@ -92,8 +92,8 @@ test('readme-install: install guide pages describe doctor and harness-doctor', a
     assert.match(page, /harness-doctor/);
   }
   const skillPage = await readDoc('site/skills.md');
-  assert.equal(skillPage.match(/^\| `[^`]+`(?: \(ask-only\))? \|/gm)?.length, 21);
-  assert.match(skillPage, /ten core skills/);
+  assert.equal(skillPage.match(/^\| `[^`]+`(?: \(ask-only\))? \|/gm)?.length, 22);
+  assert.match(skillPage, /eleven core skills/);
 });
 
 test('readme-install: the runtimes page lists the nine registry runtimes and their wiring', async () => {
