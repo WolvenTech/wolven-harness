@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { runDriftChecks } from '../src/doctor/drift.js';
 import { execGit } from '../src/git.js';
 import { readConfig } from '../src/setup/config.js';
+import { HARNESS_SCORE_VERSION } from '../src/setup/harness-score.js';
 import { runSetup } from '../src/setup/index.js';
 import { RUNTIME_REGISTRY, setSymlinkImpl, wireQuietBootstrap } from '../src/setup/runtimes.js';
 import { quietNextSteps } from '../src/setup/summary.js';
@@ -236,15 +237,16 @@ test('proof-quiet-install-setup-wording / proof-quiet-install-setup-scope: plain
       `${own.name} ${own.version}`,
       '',
       '✔ Quiet install',
-      '✔ The harness lives in `.wolven-harness/`, and git sees only what you pick.',
+      '✔ The harness lives in .wolven-harness/, and git sees only what you pick.',
       '✔ Harness files for Claude Code in .wolven-harness/',
       '✔ harness-init symlink: .claude/skills/harness-init',
       '',
       'Next steps:',
-      '  1. Open your coding agent and run the `harness-init` skill to connect the harness.',
-      "  2. `git status` shows `.claude/skills/harness-init` as untracked until you do; that's expected.",
-      '  3. To drop the harness instead, remove `.wolven-harness/`, `.wolven-harness.json` and those links.',
-      '  4. Run `wolven-harness validate` any time to check the harness.',
+      '  1. Open your coding agent and ask it to run the harness-init skill to connect the harness.',
+      "  2. git status shows .claude/skills/harness-init as untracked until you do; that's expected.",
+      '  3. To drop the harness instead, remove .wolven-harness/, .wolven-harness.json and those links.',
+      '  4. Run wolven-harness validate any time to check the harness.',
+      `  5. Run npx harness-score@${HARNESS_SCORE_VERSION} --config .wolven-harness/.harness-score.json to see how mature the harness is.`,
       '',
     ].join('\n'),
   );
@@ -258,7 +260,7 @@ test('quiet setup prints the manual skill path when the bootstrap is occupied', 
   assert.equal(result.code, 0, result.stderr);
   assert.ok(
     result.stdout.includes(
-      'For Claude Code: ask your agent to read `.wolven-harness/.agents/skills/harness-init/SKILL.md` and follow it.',
+      'For Claude Code: ask your agent to read .wolven-harness/.agents/skills/harness-init/SKILL.md and follow it.',
     ),
   );
   assert.ok(result.stdout.includes('kept your existing .claude/skills/harness-init, left untouched'));
@@ -274,8 +276,8 @@ test('quiet next steps provide manual entry for a runtime without a skills folde
   });
   assert.ok(
     steps.includes(
-      'For Codex: ask your agent to read `.wolven-harness/.agents/skills/harness-init/SKILL.md` and follow it.',
+      'For Codex: ask your agent to read .wolven-harness/.agents/skills/harness-init/SKILL.md and follow it.',
     ),
   );
-  assert.ok(steps.includes('To drop the harness instead, remove `.wolven-harness/`, `.wolven-harness.json`.'));
+  assert.ok(steps.includes('To drop the harness instead, remove .wolven-harness/, .wolven-harness.json.'));
 });

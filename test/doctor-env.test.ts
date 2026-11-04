@@ -212,7 +212,7 @@ test('doctor-env: a nearer qmd index from another folder is an error', async () 
   const findings = await runEnvChecks(ctxFor(open, { harnessHome: home, env: { PATH: bin } }));
 
   assert.deepEqual(codes(findings), ['doctor-qmd']);
-  assert.match(findings[0].message, /does not belong to the harness home/);
+  assert.match(findings[0].message, /does not belong to the harness folder/);
   assert.match(findings[0].fix ?? '', /remove or move the nearer \.qmd/);
 });
 
@@ -402,7 +402,7 @@ test('proof-quiet-install-doctor-docs: checks only the ADR folder and names hidi
     else {
       assert.equal(docs.length, 1);
       assert.ok(docs[0].message.includes(ignore));
-      assert.match(docs[0].message, /Nothing changed\./);
+      assert.doesNotMatch(docs[0].message, /\t|Nothing changed/);
     }
   }
 });

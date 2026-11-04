@@ -57,8 +57,8 @@ test('harness-score: no package.json means no warning and no script', async () =
 
   assert.equal(result.code, 0, result.stderr);
   assert.doesNotMatch(result.stderr, /harness-score is not in your dependencies/);
-  assert.match(result.stdout, /`wolven-harness validate`/, 'names the bare harness binary');
-  assert.match(result.stdout, /`harness-score`/, 'names the bare score binary');
+  assert.match(result.stdout, /Run wolven-harness validate /, 'names the bare harness binary');
+  assert.match(result.stdout, /, and harness-score to see/, 'names the bare score binary');
 });
 
 test('harness-score: an existing .harness-score.json is kept', async () => {

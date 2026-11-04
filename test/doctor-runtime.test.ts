@@ -4,7 +4,7 @@ import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import type { DoctorContext } from '../src/doctor/index.js';
-import type { DoctorFinding } from '../src/doctor/report.js';
+import { type DoctorFinding, formatFinding } from '../src/doctor/report.js';
 import { runRuntimeChecks } from '../src/doctor/runtime-checks.js';
 import { readConfig } from '../src/setup/config.js';
 import { runtimeRow } from '../src/setup/runtimes.js';
@@ -357,6 +357,7 @@ test('doctor-linked: wiring under the open folder follows links into harnessHome
       2,
     )}\n`,
     'harness/AGENTS.md': AGENTS_SECTION,
+    'harness/wiring.json': WIRED,
     'CLAUDE.md': '@AGENTS.md\n',
     'harness/.agents/rules/qmd-first.md':
       '---\ndescription: Search first.\ntrigger: always_on\n---\n\n# QMD before web\n',
@@ -393,6 +394,7 @@ test('doctor-linked: Cursor rules present only in harnessHome fail until linked 
   });
   const sourceRules = await install('cursor');
   await mkdir(path.join(dir, 'harness'), { recursive: true });
+  await writeFile(path.join(dir, 'harness', 'wiring.json'), WIRED);
   await symlink(path.join(sourceRules, '.agents'), path.join(dir, 'harness', '.agents'), 'dir');
   await symlink('harness/.agents', path.join(dir, '.agents'), 'dir');
   await symlink(path.join(sourceRules, '.cursor'), path.join(dir, 'harness', '.cursor'), 'dir');
@@ -419,6 +421,7 @@ test('doctor-runtime: a linked layout that is missing the harness home reports f
       2,
     )}\n`,
     'AGENTS.md': AGENTS_SECTION,
+    'gone/wiring.json': WIRED,
   });
 
   const findings = await runRuntimeChecks(await contextFor(dir));
@@ -426,6 +429,8 @@ test('doctor-runtime: a linked layout that is missing the harness home reports f
   assertFinding(findings, 'doctor-rules', 'claude');
   assertFinding(findings, 'doctor-skills', 'claude');
 });
+
+const WIRED = JSON.stringify({ entries: [] });
 
 async function quietClaude(): Promise<string> {
   const dir = await makeRepo({
@@ -438,6 +443,7 @@ async function quietClaude(): Promise<string> {
       harnessHome: '.wolven-harness',
     }),
     '.wolven-harness/AGENTS.md': '# Harness\n',
+    '.wolven-harness/wiring.json': WIRED,
     '.wolven-harness/.agents/rules/example.md': '---\ndescription: Example\n---\n# Example\n',
     '.claude/skills/client/SKILL.md': '# Client\n',
   });
@@ -490,6 +496,7 @@ test('proof-quiet-install-doctor-runtimes: seven automatic rows pass and Codex n
         harnessHome: '.wolven-harness',
       }),
       '.wolven-harness/AGENTS.md': '# Harness\n',
+      '.wolven-harness/wiring.json': WIRED,
       '.wolven-harness/.agents/rules/example.md': '---\ndescription: Example\n---\n# Example\n',
     });
     for (const skill of CORE_SKILLS) {
@@ -524,9 +531,7 @@ test('proof-quiet-install-doctor-runtimes: seven automatic rows pass and Codex n
     if (runtime === 'codex') {
       assert.equal(findings.length, 1);
       assert.equal(findings[0].code, 'doctor-entry');
-      assert.equal(findings[0].level, 'error');
-      if (findings[0].level === 'error') assert.equal(findings[0].fix, wiring.manualStep);
-      assert.match(findings[0].message, /Nothing changed\./);
+      assert.equal(findings[0].level, 'warn');
     } else assert.deepEqual(findings, [], runtime);
     if (row.rules.kind === 'per-rule') {
       const orphan = row.rules.pattern.replace('{rule}', 'removed-source');
@@ -548,7 +553,7 @@ test('proof-quiet-install-doctor-runtimes: seven automatic rows pass and Codex n
       assert.equal(keptOrphan[0].level, 'warn');
       assert.match(keptOrphan[0].message, /prefixed/);
       await rm(path.join(dir, orphan));
-      await rm(path.join(dir, '.wolven-harness/wiring.json'));
+      await writeFile(path.join(dir, '.wolven-harness/wiring.json'), WIRED);
     }
     if (['cursor', 'copilot', 'kiro', 'antigravity'].includes(runtime)) {
       const file = Object.keys(generated)[0];
@@ -576,4 +581,105 @@ test('proof-quiet-install-doctor-runtimes: seven automatic rows pass and Codex n
       );
     }
   }
+});
+
+test('proof-iter1-codex-warning: Codex warns until the harness block is in the root AGENTS.md', async () => {
+  const dir = await makeRepo({
+    '.wolven-harness.json': JSON.stringify({
+      version: 1,
+      gitHost: 'gh',
+      runtimes: ['codex'],
+      layout: 'linked',
+      harnessHome: '.wolven-harness',
+    }),
+    '.wolven-harness/AGENTS.md': '# Harness\n',
+    '.wolven-harness/wiring.json': WIRED,
+  });
+  const entry = (findings: readonly DoctorFinding[]) => findings.filter((finding) => finding.code === 'doctor-entry');
+
+  const before = entry(await runRuntimeChecks(await contextFor(dir)));
+  assert.equal(before.length, 1);
+  assert.equal(before[0].level, 'warn');
+  assert.match(
+    before[0].message,
+    /won't load the harness on its own\. Next: ask your agent to run the harness-init skill/,
+  );
+
+  await writeFile(path.join(dir, 'AGENTS.md'), AGENTS_SECTION);
+  assert.deepEqual(entry(await runRuntimeChecks(await contextFor(dir))), []);
+});
+
+test('proof-iter1-fresh-tree: no wiring.json yields one finding per runtime', async () => {
+  const dir = await makeRepo({
+    '.wolven-harness.json': JSON.stringify({
+      version: 1,
+      gitHost: 'gh',
+      runtimes: ['claude', 'codex', 'cursor', 'amp'],
+      layout: 'linked',
+      harnessHome: '.wolven-harness',
+    }),
+    '.wolven-harness/AGENTS.md': '# Harness\n',
+  });
+  const findings = await runRuntimeChecks(await contextFor(dir));
+  assert.equal(findings.length, 4, JSON.stringify(findings));
+  assert.match(findings[2].message, /^Cursor isn't connected yet\. Ask your agent to run the harness-init skill\.$/);
+});
+
+test('proof-iter1-fresh-tree: once wired, a shared missing skill path reports once with a skill fix', async () => {
+  const dir = await makeRepo({
+    '.wolven-harness.json': JSON.stringify({
+      version: 1,
+      gitHost: 'gh',
+      runtimes: ['amp', 'opencode'],
+      layout: 'linked',
+      harnessHome: '.wolven-harness',
+    }),
+    '.wolven-harness/AGENTS.md': '# Harness\n',
+    '.wolven-harness/wiring.json': WIRED,
+  });
+  const findings = await runRuntimeChecks(await contextFor(dir));
+  const skill = `${runtimeRow('amp').quietInstall?.skillsPath}/${CORE_SKILLS[0]}`;
+  const reports = findings.filter((finding) => finding.code === 'doctor-skills' && finding.message.includes(skill));
+  assert.equal(reports.length, 1, JSON.stringify(findings));
+  assert.match(reports[0].level === 'error' ? reports[0].fix : '', /wolven-harness setup/);
+});
+
+test('proof-iter1-doctor-voice: rendered findings drop the old phrases and keep a next step', async () => {
+  const banned = /Nothing changed\.|harness home|does not resolve|run "harness-(init|doctor)"|run the "harness-init"/;
+  const lines: string[] = [];
+  const render = (findings: readonly DoctorFinding[]) => {
+    for (const finding of findings) {
+      lines.push(...formatFinding(finding));
+      if (finding.level === 'error') assert.ok(finding.fix.length > 0, finding.message);
+      else if (/isn't connected yet|won't load/.test(finding.message)) assert.match(finding.message, /ask your agent/i);
+    }
+  };
+  const fresh = await makeRepo({
+    '.wolven-harness.json': JSON.stringify({
+      version: 1,
+      gitHost: 'gh',
+      runtimes: ALL_RUNTIMES,
+      layout: 'linked',
+      harnessHome: '.wolven-harness',
+    }),
+    '.wolven-harness/AGENTS.md': '# Harness\n',
+  });
+  render(await runRuntimeChecks(await contextFor(fresh)));
+  const wired = await quietClaude();
+  await rm(path.join(wired, '.claude/rules/example.md'));
+  await rm(path.join(wired, '.claude/skills/code-commit'));
+  render(await runRuntimeChecks(await contextFor(wired)));
+  const mixed = await makeRepo({
+    '.wolven-harness.json': JSON.stringify({
+      version: 1,
+      gitHost: 'gh',
+      runtimes: ['codex', 'cursor'],
+      layout: 'linked',
+      harnessHome: '.wolven-harness',
+    }),
+    '.wolven-harness/wiring.json': WIRED,
+  });
+  render(await runRuntimeChecks(await contextFor(mixed)));
+  assert.ok(lines.length > 0);
+  for (const line of lines) assert.doesNotMatch(line, banned);
 });

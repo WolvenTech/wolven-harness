@@ -453,7 +453,8 @@ export async function resolveOptions(argv: string[], ctx: Context): Promise<Opti
     if (runtimes === undefined) runtimes = prompted.runtimes;
   }
 
-  const managerPrompter = interactive ? (ctx.io.prompts ?? clackPrompter(ctx.io)) : undefined;
+  // why: a quiet install asks no package-manager question, and it uses the answer only to word a hint.
+  const managerPrompter = interactive && !quiet ? (ctx.io.prompts ?? clackPrompter(ctx.io)) : undefined;
   let managerFlag: PackageManager | undefined;
   if (packageManagerFlag !== undefined) {
     managerFlag = parseOrAsk(
@@ -468,7 +469,11 @@ export async function resolveOptions(argv: string[], ctx: Context): Promise<Opti
   const packageManager = await resolvePackageManager(
     ctx.root,
     { flag: managerFlag, recorded: existing?.packageManager },
-    managerPrompter === undefined ? undefined : () => promptPackageManager(managerPrompter),
+    quiet
+      ? async () => 'none'
+      : managerPrompter === undefined
+        ? undefined
+        : () => promptPackageManager(managerPrompter),
   );
 
   const installed = await detectInstalledSets(

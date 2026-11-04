@@ -258,7 +258,7 @@ async function checkHarnessIgnored(ctx: RepoContext): Promise<Finding[]> {
       rule: 'harness-ignored',
       file: rel,
       message: ctx.homePrefix
-        ? `excluded by ignore rule "${pattern}" (${source}:${line}), so other clones and CI never get it. Nothing changed. Update that rule to let the versioned harness paths through.`
+        ? `excluded by ignore rule "${pattern}" (${source}:${line}), so other clones and CI never get it. Update that rule to let the versioned harness paths through.`
         : `excluded by ignore rule "${pattern}" (${source}:${line}), so other clones and CI never get it; add re-include rules after that line`,
     });
   }
@@ -292,7 +292,7 @@ async function checkHarnessMisplaced(ctx: RepoContext): Promise<Finding[]> {
       level: 'warn',
       rule: 'harness-misplaced',
       file: rel,
-      message: `harness document belongs under ${ctx.homePrefix}/docs/${folders[type]}/. Nothing changed. Move it there to include it in harness validation.`,
+      message: `harness document belongs under ${ctx.homePrefix}/docs/${folders[type]}/. Move it there to include it in harness validation.`,
     });
   }
   return findings;

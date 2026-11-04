@@ -34,19 +34,22 @@ async function traced<T>(io: Io, debug: boolean, name: string, fn: () => Promise
   return fn();
 }
 
+/** The `harness-score` run that needs no installed dependency or package script; `none` has no pin to give. */
+function pinnedScore(manager: PackageManager): string {
+  return executePackage(manager, manager === 'none' ? 'harness-score' : `harness-score@${HARNESS_SCORE_VERSION}`);
+}
+
 /** What the person runs after a full scaffold: commit, initialize with `harness-init`, then check. */
 function nextSteps(runtimes: Runtime[], hasScripts: boolean, manager: PackageManager): string[] {
   const names = joinNames(runtimes.map(runtimeName));
   const validate = hasScripts
     ? runScript(manager, 'harness:validate')
     : `${execBinary(manager, 'wolven-harness')} validate`;
-  const score = hasScripts
-    ? runScript(manager, 'harness:score')
-    : executePackage(manager, manager === 'none' ? 'harness-score' : `harness-score@${HARNESS_SCORE_VERSION}`);
+  const score = hasScripts ? runScript(manager, 'harness:score') : pinnedScore(manager);
   return [
     'Review and commit the new files (git status shows them all).',
     `Open a fresh ${names} session in this repo and run the "harness-init" skill. It integrates WOLVEN.md into AGENTS.md, migrates any legacy ADRs, scores the harness, and asks before anything ambiguous.`,
-    `Run \`${validate}\` any time to check the repo, and \`${score}\` to see how mature its harness is.`,
+    `Run ${validate} any time to check the repo, and ${score} to see how mature its harness is.`,
   ];
 }
 
@@ -142,7 +145,14 @@ export async function runSetup(argv: string[], io: Io, write?: TemplateWriter): 
           [...apply.skipped.map((file) => `.wolven-harness/${file}`), ...bootstrap.skipped],
         );
       }
-      ui.nextSteps(quietNextSteps(bootstrap));
+      const home = opts.quietConfig.harnessHome ?? '.wolven-harness';
+      const manager = opts.quietConfig.packageManager ?? 'none';
+      const hint = globalInstallHint(io.execPath, manager);
+      if (hint !== undefined) ui.warn(hint);
+      ui.nextSteps([
+        ...quietNextSteps(bootstrap),
+        `Run ${pinnedScore(manager)} --config ${home}/.harness-score.json to see how mature the harness is.`,
+      ]);
       return 0;
     }
     const outside = opts.mode === 'outside';

@@ -114,7 +114,11 @@ const homeDir = (env: RuntimeEnv): string | undefined => envDir(env, 'HOME');
 export const RUNTIME_REGISTRY: readonly RuntimeRegistryRow[] = [
   {
     id: 'claude',
-    quietInstall: { skillsPath: '.claude/skills', entryPoints: ['CLAUDE.local.md'], manualStep: 'run harness-init' },
+    quietInstall: {
+      skillsPath: '.claude/skills',
+      entryPoints: ['CLAUDE.local.md'],
+      manualStep: 'ask your agent to run the harness-init skill',
+    },
     name: 'Claude Code',
     machineMarkers: (env) => markerUnder(homeDir(env), '.claude'),
     folderMarkers: ['CLAUDE.md', '.claude'],
@@ -146,7 +150,7 @@ export const RUNTIME_REGISTRY: readonly RuntimeRegistryRow[] = [
         '.cursor/rules/wolven-agents.mdc',
         '.cursor/hooks.json',
       ],
-      manualStep: 'run "harness-init" to recreate the Cursor rules',
+      manualStep: 'ask your agent to run the harness-init skill to recreate the Cursor rules',
     },
     name: 'Cursor',
     machineMarkers: (env) => markerUnder(homeDir(env), '.cursor'),
@@ -191,7 +195,7 @@ export const RUNTIME_REGISTRY: readonly RuntimeRegistryRow[] = [
     quietInstall: {
       skillsPath: '.agents/skills',
       entryPoints: ['.agents/skills/<name>', '.github/instructions/wolven-<rule>.instructions.md'],
-      manualStep: 'run "harness-init" to recreate the Copilot instruction files',
+      manualStep: 'ask your agent to run the harness-init skill to recreate the Copilot instruction files',
       trackedEdit:
         'offer to commit the generated .github/instructions/wolven-<rule>.instructions.md files (new tracked files)',
     },
@@ -225,7 +229,7 @@ export const RUNTIME_REGISTRY: readonly RuntimeRegistryRow[] = [
     quietInstall: {
       skillsPath: '.kiro/skills',
       entryPoints: ['.kiro/skills/<name>', '.kiro/steering/wolven-harness.md'],
-      manualStep: 'run "harness-init" to recreate the Kiro steering file',
+      manualStep: 'ask your agent to run the harness-init skill to recreate the Kiro steering file',
       trackedEdit: 'where .gitignore is in agentIgnoreFiles, offer the steering file as a new tracked file',
     },
     name: 'Kiro',
@@ -239,7 +243,7 @@ export const RUNTIME_REGISTRY: readonly RuntimeRegistryRow[] = [
     quietInstall: {
       skillsPath: '.agents/skills',
       entryPoints: ['.agents/skills/<name>', '.agents/rules/wolven-harness.md'],
-      manualStep: 'run "harness-init" to recreate the Antigravity rule',
+      manualStep: 'ask your agent to run the harness-init skill to recreate the Antigravity rule',
     },
     name: 'Antigravity',
     // hazard: Antigravity documents no home directory, so it reports no machine marker.
@@ -432,6 +436,16 @@ async function bootstrapParentOccupied(root: string, skillsPath: string): Promis
   return false;
 }
 
+/** True when `full` is a symlink that resolves to the same place as `target` read from `fromDir`. */
+async function linksTo(full: string, fromDir: string, target: string): Promise<boolean> {
+  try {
+    const link = await fs.readlink(full);
+    return path.resolve(fromDir, link) === path.resolve(fromDir, target);
+  } catch {
+    return false;
+  }
+}
+
 /** Adds only per-skill bootstrap links, keeping client paths and symlink parents untouched. */
 export async function wireQuietBootstrap(opts: Options, ctx: Context, harnessHome: string): Promise<BootstrapResult> {
   const result: BootstrapResult = {
@@ -461,7 +475,9 @@ export async function wireQuietBootstrap(opts: Options, ctx: Context, harnessHom
         path.join(ctx.root, skillsPath),
         path.join(harnessHome, '.agents/skills/harness-init'),
       );
-      await createSymlink(ctx, rel, target, row.name, result.created, result.skipped);
+      if (!(await linksTo(path.join(ctx.root, ...rel.split('/')), path.join(ctx.root, skillsPath), target))) {
+        await createSymlink(ctx, rel, target, row.name, result.created, result.skipped);
+      }
     }
     if (result.skipped.includes(rel)) result.manualRuntimes.push(runtime);
   }

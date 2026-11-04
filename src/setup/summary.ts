@@ -218,7 +218,7 @@ export function buildSummary(
   return { done, kept, notes };
 }
 
-export const QUIET_INSTALL_DESCRIPTION = 'The harness lives in `.wolven-harness/`, and git sees only what you pick.';
+export const QUIET_INSTALL_DESCRIPTION = 'The harness lives in .wolven-harness/, and git sees only what you pick.';
 
 /** Reports the quiet scaffold and bootstrap links without implying runtime setup is complete. */
 export function quietSummary(apply: StepResult, bootstrap: BootstrapResult, runtimes: Runtime[]): Summary {
@@ -236,20 +236,18 @@ export function quietSummary(apply: StepResult, bootstrap: BootstrapResult, runt
 
 /** Hands setup over to harness-init and names the removable footprint and any manual entry. */
 export function quietNextSteps(bootstrap: BootstrapResult): string[] {
-  const steps = ['Open your coding agent and run the `harness-init` skill to connect the harness.'];
+  const steps = ['Open your coding agent and ask it to run the harness-init skill to connect the harness.'];
   if (bootstrap.created.length > 0) {
-    steps.push(
-      `\`git status\` shows ${bootstrap.created.map((file) => `\`${file}\``).join(', ')} as untracked until you do; that's expected.`,
-    );
+    steps.push(`git status shows ${bootstrap.created.join(', ')} as untracked until you do; that's expected.`);
   }
   steps.push(
-    `To drop the harness instead, remove \`.wolven-harness/\`, \`.wolven-harness.json\`${bootstrap.created.length > 0 ? ' and those links' : ''}.`,
+    `To drop the harness instead, remove .wolven-harness/, .wolven-harness.json${bootstrap.created.length > 0 ? ' and those links' : ''}.`,
   );
   if (bootstrap.manualRuntimes.length > 0) {
     steps.push(
-      `For ${joinNames(bootstrap.manualRuntimes.map(runtimeName))}: ask your agent to read \`${bootstrap.skillPath}\` and follow it.`,
+      `For ${joinNames(bootstrap.manualRuntimes.map(runtimeName))}: ask your agent to read ${bootstrap.skillPath} and follow it.`,
     );
   }
-  steps.push('Run `wolven-harness validate` any time to check the harness.');
+  steps.push('Run wolven-harness validate any time to check the harness.');
   return steps;
 }

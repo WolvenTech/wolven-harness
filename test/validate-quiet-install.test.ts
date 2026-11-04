@@ -172,7 +172,7 @@ test('proof-quiet-install-misplaced: one tracked profile document warns with its
   const warnings = result.stdout.split('\n').filter((line) => line.includes('[harness-misplaced]'));
   assert.equal(warnings.length, 1, result.stdout);
   assert.match(warnings[0], /warn \[harness-misplaced\] docs\/adrs\/stray-decision.md:/);
-  assert.match(warnings[0], /\.wolven-harness\/docs\/adrs\/.*Nothing changed\. Move it there/);
+  assert.match(warnings[0], /\.wolven-harness\/docs\/adrs\/.*Move it there/);
   assert.doesNotMatch(result.stdout, /profile-frontmatter|README.md/);
 });
 

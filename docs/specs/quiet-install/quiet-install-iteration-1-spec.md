@@ -277,13 +277,13 @@ flowchart TD
 
 ### Wave 2
 
-- [ ] I2.1 `proof-iter1-codex-warning` PASS
-- [ ] I2.2 `proof-iter1-fresh-tree` PASS
-- [ ] I2.3 `proof-iter1-doctor-voice` PASS
-- [ ] I3.1 `proof-iter1-quiet-hints` PASS
-- [ ] I3.2 `proof-iter1-rerun-link` PASS
-- [ ] I3.3 `proof-iter1-no-pm-prompt` PASS
-- [ ] I3.4 `proof-iter1-terminal-text` PASS
+- [x] I2.1 `proof-iter1-codex-warning` PASS
+- [x] I2.2 `proof-iter1-fresh-tree` PASS
+- [x] I2.3 `proof-iter1-doctor-voice` PASS
+- [x] I3.1 `proof-iter1-quiet-hints` PASS
+- [x] I3.2 `proof-iter1-rerun-link` PASS
+- [x] I3.3 `proof-iter1-no-pm-prompt` PASS
+- [x] I3.4 `proof-iter1-terminal-text` PASS
 
 ### Wave 3
 

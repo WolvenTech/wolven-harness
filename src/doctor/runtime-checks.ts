@@ -42,6 +42,7 @@ function keptEntry(record: WiringEntry[], file: string): WiringEntry | undefined
 async function quietClaudeFindings(ctx: DoctorContext, rules: Rule[]): Promise<DoctorFinding[]> {
   const row = runtimeRow('claude');
   const findings: DoctorFinding[] = [];
+  const home = path.relative(ctx.root, ctx.harnessHome).split(path.sep).join('/');
   const record = await readWiringRecord(ctx);
   const inspect = async (file: string, target: string, code: DoctorCode) => {
     const kept = keptEntry(record, file);
@@ -51,8 +52,8 @@ async function quietClaudeFindings(ctx: DoctorContext, rules: Rule[]): Promise<D
       findings.push({
         level: 'error',
         code,
-        message: `${row.name}: ${file} does not resolve to ${path.relative(ctx.root, target)}. Nothing changed.`,
-        fix: 'run "harness-init" in this folder to review and recreate this link',
+        message: `${row.name}: ${file} isn't connected to ${path.relative(ctx.root, target)}`,
+        fix: `ask your agent to run the harness-init skill to reconnect ${file}`,
       });
     }
   };
@@ -61,8 +62,8 @@ async function quietClaudeFindings(ctx: DoctorContext, rules: Rule[]): Promise<D
     findings.push({
       level: 'error',
       code: 'doctor-rules',
-      message: `${row.name}: no standing rules were found in the harness home`,
-      fix: 'run "harness-init" to install the standing rules',
+      message: `${row.name}: no standing rules were found in ${home}`,
+      fix: 'ask your agent to run the harness-init skill to install the standing rules',
     });
   }
   for (const rule of rules)
@@ -94,6 +95,7 @@ async function quietRuntimeFindings(
   row: RuntimeRegistryRow,
   ctx: DoctorContext,
   rules: Rule[],
+  seen: Set<string>,
 ): Promise<DoctorFinding[]> {
   const wiring = row.quietInstall;
   if (wiring === undefined) return [];
@@ -101,7 +103,15 @@ async function quietRuntimeFindings(
   const record = await readWiringRecord(ctx);
   const home = path.relative(ctx.root, ctx.harnessHome).split(path.sep).join('/');
   const agents = await readText(path.join(ctx.harnessHome, 'AGENTS.md'));
-  const inspect = async (file: string, code: DoctorCode, problem: () => Promise<string | undefined>) => {
+  const inspect = async (
+    file: string,
+    code: DoctorCode,
+    problem: () => Promise<string | undefined>,
+    fix: string = wiring.manualStep,
+  ) => {
+    // invariant: runtimes that share a path report it once, under the first runtime that reaches it.
+    if (seen.has(`${code}:${file}`)) return;
+    seen.add(`${code}:${file}`);
     const kept = keptEntry(record, file);
     if (kept !== undefined) {
       findings.push({ level: 'warn', code, message: `${row.name}: kept client path ${file} (${kept.outcome})` });
@@ -112,26 +122,40 @@ async function quietRuntimeFindings(
       findings.push({
         level: 'error',
         code,
-        message: `${row.name}: ${file} ${reason}. Nothing changed.`,
-        fix: wiring.manualStep,
+        message: `${row.name}: ${file} ${reason}`,
+        fix,
       });
   };
   for (const skill of skillFolders(ctx.config.skillSets ?? [])) {
     const file = `${wiring.skillsPath}/${skill}`;
-    await inspect(file, 'doctor-skills', async () => {
-      if (!(await resolvesTo(path.join(ctx.root, file), path.join(ctx.harnessHome, '.agents/skills', skill))))
-        return 'does not resolve to its harness skill';
-      return (await readText(path.join(ctx.root, file, 'SKILL.md'))) === undefined
-        ? 'has no readable SKILL.md'
-        : undefined;
-    });
+    await inspect(
+      file,
+      'doctor-skills',
+      async () => {
+        if (!(await resolvesTo(path.join(ctx.root, file), path.join(ctx.harnessHome, '.agents/skills', skill))))
+          return "isn't connected to its harness skill";
+        return (await readText(path.join(ctx.root, file, 'SKILL.md'))) === undefined
+          ? 'has no readable SKILL.md'
+          : undefined;
+      },
+      `run wolven-harness setup to restore ${file}`,
+    );
   }
   if (row.id === 'codex') {
-    await inspect(
-      'AGENTS.md',
-      'doctor-entry',
-      async () => 'cannot automatically load the harness instructions and rules',
-    );
+    const kept = keptEntry(record, 'AGENTS.md');
+    if (kept !== undefined) {
+      findings.push({
+        level: 'warn',
+        code: 'doctor-entry',
+        message: `${row.name}: kept client path AGENTS.md (${kept.outcome})`,
+      });
+    } else if (!(await readText(path.join(ctx.root, 'AGENTS.md')))?.includes(HARNESS_START)) {
+      findings.push({
+        level: 'warn',
+        code: 'doctor-entry',
+        message: `${row.name} reads only your AGENTS.md, so it won't load the harness on its own. Next: ask your agent to run the harness-init skill and add the harness lines to AGENTS.md, or ask ${row.name} to read ${home}/AGENTS.md.`,
+      });
+    }
     return findings;
   }
   const requirement = quietEntryRequirements(row, home);
@@ -160,14 +184,15 @@ async function quietRuntimeFindings(
     await inspect(file, file.includes('agents.mdc') ? 'doctor-entry' : 'doctor-rules', async () => {
       return (await readText(path.join(ctx.root, file))) === undefined ? 'is missing or unreadable' : undefined;
     });
-    if (!keptEntry(record, file)) {
+    if (!keptEntry(record, file) && !seen.has(`stale:${file}`)) {
+      seen.add(`stale:${file}`);
       const actual = await readText(path.join(ctx.root, file));
       if (actual !== undefined && actual !== expected)
         findings.push({
           level: 'error',
           code: 'doctor-rules-stale',
           message: `${row.name}: ${file} differs from the current harness source`,
-          fix: `run "harness-doctor" to refresh ${file}`,
+          fix: `ask your agent to run the harness-doctor skill to refresh ${file}`,
         });
     }
   }
@@ -192,7 +217,7 @@ async function quietRuntimeFindings(
               level: 'error',
               code: 'doctor-rules-stale',
               message: `${row.name}: ${file} has no current source rule`,
-              fix: `run "harness-doctor" to review ${file}`,
+              fix: `ask your agent to run the harness-doctor skill to review ${file}`,
             }
           : {
               level: 'warn',
@@ -202,13 +227,15 @@ async function quietRuntimeFindings(
       );
     }
   }
-  if (agents === undefined)
+  if (agents === undefined && !seen.has('missing-agents')) {
+    seen.add('missing-agents');
     findings.push({
       level: 'error',
       code: 'doctor-entry',
-      message: `${row.name}: ${home}/AGENTS.md is missing. Nothing changed.`,
+      message: `${row.name}: ${home}/AGENTS.md is missing`,
       fix: 'run "wolven-harness setup" to restore the harness instructions',
     });
+  }
   return findings;
 }
 
@@ -216,10 +243,10 @@ const HARNESS_START = '<!-- wolven-harness:start -->';
 const RULES_START = '<!-- wolven-harness:rules:start -->';
 const RULES_END = '<!-- wolven-harness:rules:end -->';
 
-const ENTRY_FIX = 'run the "harness-init" skill in this folder to write the harness section';
+const ENTRY_FIX = 'ask your agent to run the harness-init skill to write the harness section';
 const RULES_FIX = 're-run "wolven-harness setup" to recreate the rules wiring';
-const INLINE_FIX = 'run the "harness-init" skill to write the inline rules block';
-const RULES_INSTALL_FIX = 'run the "harness-init" skill to install the standing rules';
+const INLINE_FIX = 'ask your agent to run the harness-init skill to write the inline rules block';
+const RULES_INSTALL_FIX = 'ask your agent to run the harness-init skill to install the standing rules';
 const SKILLS_FIX = 're-run "wolven-harness setup" to recreate the skills path';
 
 /** One installed standing rule, read from `<harnessHome>/.agents/rules/<base>.md`. */
@@ -370,7 +397,7 @@ async function stalePerRuleFindings(
     level: 'error',
     code: 'doctor-rules-stale',
     message: `${row.name}: ${file} differs from a current rule or has no source rule`,
-    fix: `run "harness-doctor" to refresh ${file}`,
+    fix: `ask your agent to run the harness-doctor skill to refresh ${file}`,
   }));
 }
 
@@ -380,7 +407,7 @@ function staleInlineFinding(readers: string, reason: string): DoctorFinding {
     level: 'error',
     code: 'doctor-rules-stale',
     message: `${readers}: ${reason}`,
-    fix: `run "harness-doctor" to refresh the inline rules block for ${readers}`,
+    fix: `ask your agent to run the harness-doctor skill to refresh the inline rules block for ${readers}`,
   };
 }
 
@@ -400,7 +427,7 @@ async function nativeRulesProblem(
     case 'link':
       return (await resolvesTo(path.join(ctx.root, wiring.path), path.join(ctx.harnessHome, '.agents', 'rules')))
         ? undefined
-        : `${wiring.path} does not resolve to the harness's .agents/rules`;
+        : `${wiring.path} isn't connected to the harness's .agents/rules`;
 
     case 'per-rule': {
       const files = rules.map((rule) => wiring.pattern.replace('{rule}', rule.base));
@@ -454,7 +481,7 @@ async function skillsProblem(row: RuntimeRegistryRow, ctx: DoctorContext): Promi
   const rowPath = path.join(ctx.root, row.skills.path);
 
   if (row.skills.kind === 'symlink' && !(await resolvesTo(rowPath, path.join(ctx.harnessHome, '.agents', 'skills')))) {
-    return `${row.skills.path} does not resolve to the harness's .agents/skills`;
+    return `${row.skills.path} isn't connected to the harness's .agents/skills`;
   }
 
   const installed = skillFolders(ctx.config.skillSets ?? []);
@@ -505,13 +532,22 @@ export async function runRuntimeChecks(ctx: DoctorContext): Promise<DoctorFindin
   const rows = ids.map(runtimeRow);
   const inline = rulesMode(ids) === 'inline' && !isQuietInstall(ctx);
 
+  // why: wiring.json is written by harness-init, so its absence means nothing is connected yet and per-path errors would mislead.
+  if (isQuietInstall(ctx) && (await readText(path.join(ctx.harnessHome, 'wiring.json'))) === undefined)
+    return rows.map((row) => ({
+      level: 'warn',
+      code: 'doctor-entry',
+      message: `${row.name} isn't connected yet. Ask your agent to run the harness-init skill.`,
+    }));
+
+  const seen = new Set<string>();
   for (const row of rows) {
     if (isQuietInstall(ctx) && row.id === 'claude') {
       findings.push(...(await quietClaudeFindings(ctx, rules)));
       continue;
     }
     if (isQuietInstall(ctx)) {
-      findings.push(...(await quietRuntimeFindings(row, ctx, rules)));
+      findings.push(...(await quietRuntimeFindings(row, ctx, rules, seen)));
       continue;
     }
     const entry = await check('doctor-entry', row.name, ENTRY_FIX, () => entryProblem(row, ctx, agents));

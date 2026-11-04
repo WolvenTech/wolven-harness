@@ -42,16 +42,23 @@ async function checkDocs(ctx: DoctorContext): Promise<DoctorFinding[]> {
     const rel = `${path.relative(root, harnessHome)}/docs/adrs/`;
     if (!(await pathExists(path.join(root, rel)))) {
       return [
-        failed('doctor-docs', `${rel} is missing. Nothing changed.`, 'run "wolven-harness setup", then "harness-init"'),
+        failed(
+          'doctor-docs',
+          `${rel} is missing`,
+          'run "wolven-harness setup", then ask your agent to run the harness-init skill',
+        ),
       ];
     }
     try {
       const { stdout } = await execGit(root, ['check-ignore', '-v', '--no-index', '--', rel]);
-      if (stdout.trim() && !stdout.split('\t')[0]?.split(':').at(-1)?.startsWith('!')) {
+      const rule = /^(.*):(\d+):([^\t]*)\t/.exec(stdout.trim());
+      if (stdout.trim() && !rule?.[3].startsWith('!')) {
         return [
           failed(
             'doctor-docs',
-            `${rel} is ignored by ${stdout.trim()}. Nothing changed.`,
+            rule === null
+              ? `${rel} is hidden by an ignore rule`
+              : `${rel} is hidden by the rule "${rule[3]}" in ${rule[1]} (line ${rule[2]})`,
             'remove the ignore rule hiding this path, then run "wolven-harness doctor" again',
           ),
         ];
@@ -66,8 +73,8 @@ async function checkDocs(ctx: DoctorContext): Promise<DoctorFinding[]> {
     return [
       failed(
         'doctor-docs',
-        'docs/ is missing from the harness home',
-        'run "wolven-harness setup", then "harness-init"',
+        'docs/ is missing from the harness folder',
+        'run "wolven-harness setup", then ask your agent to run the harness-init skill',
       ),
     ];
   }
@@ -88,7 +95,7 @@ async function checkDocs(ctx: DoctorContext): Promise<DoctorFinding[]> {
       failed(
         'doctor-docs',
         'docs/ is not inside a git repository',
-        'run "git init" in the harness home and commit once',
+        'run "git init" in the harness folder and commit once',
       ),
     ];
   }
@@ -168,7 +175,7 @@ async function checkQmd(ctx: DoctorContext): Promise<DoctorFinding[]> {
       failed(
         'doctor-qmd',
         'qmd cannot find .qmd/index.yaml or .qmd/index.yml from the open folder',
-        'link .qmd from the harness home into the open folder, or run "qmd update" in the open folder',
+        'link .qmd from the harness folder into the open folder, or run "qmd update" in the open folder',
       ),
     );
   } else {
@@ -178,8 +185,8 @@ async function checkQmd(ctx: DoctorContext): Promise<DoctorFinding[]> {
         findings.push(
           failed(
             'doctor-qmd',
-            'qmd finds a .qmd index that does not belong to the harness home',
-            'remove or move the nearer .qmd folder, then link .qmd from the harness home into the open folder',
+            'qmd finds a .qmd index that does not belong to the harness folder',
+            'remove or move the nearer .qmd folder, then link .qmd from the harness folder into the open folder',
           ),
         );
       }
@@ -188,7 +195,7 @@ async function checkQmd(ctx: DoctorContext): Promise<DoctorFinding[]> {
         failed(
           'doctor-qmd',
           'qmd cannot resolve the .qmd index from the open folder',
-          'link .qmd from the harness home into the open folder, then run "qmd update"',
+          'link .qmd from the harness folder into the open folder, then run "qmd update"',
         ),
       );
     }
@@ -257,7 +264,7 @@ async function checkCodeRepo(ctx: DoctorContext): Promise<DoctorFinding[]> {
     failed(
       'doctor-code-repo',
       `a harness path exists inside the code repository: ${rel}`,
-      `move ${rel} out of ${codeRepo}; the harness home must sit outside it`,
+      `move ${rel} out of ${codeRepo}; the harness folder must sit outside it`,
     ),
   );
 }
