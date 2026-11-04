@@ -16,6 +16,7 @@ export const CORE_SKILLS: readonly string[] = [
   'code-plan',
   'code-execute',
   'harness-doctor',
+  'harness-remove',
 ];
 
 /**
