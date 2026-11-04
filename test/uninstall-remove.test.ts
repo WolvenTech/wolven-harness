@@ -4,6 +4,7 @@ import { mkdir, mkdtemp, readdir, readFile, rm, symlink, writeFile } from 'node:
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
+import { fileURLToPath } from 'node:url';
 import { pathExists } from '../src/path-exists.js';
 import { removeHarnessInstall, removeLandscapes } from '../src/uninstall/remove.js';
 import type { DiscoveredInstall } from '../src/uninstall/types.js';
@@ -20,6 +21,13 @@ async function makeFixtureDir(files: Record<string, string>, baseDir?: string): 
     await writeFile(full, content, 'utf8');
   }
   return dir;
+}
+
+const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+
+/** Reads a shipped template SKILL.md so a fixture skill matches this package's copy. */
+async function shippedSkill(name: string): Promise<string> {
+  return readFile(path.join(repoRoot, 'templates', '.agents', 'skills', name, 'SKILL.md'), 'utf8');
 }
 
 /**
@@ -468,10 +476,10 @@ test('proof-uninstall-remove-global-skills: confirmed removal removes standalone
     'package.json': '{"name": "app-without-local-harness"}\n',
   });
   const fakeHome = await makeFixtureDir({
-    '.claude/skills/adr/SKILL.md': '# global adr\n',
-    '.claude/skills/grilling/SKILL.md': '# global grilling\n',
+    '.claude/skills/adr/SKILL.md': await shippedSkill('adr'),
+    '.claude/skills/grilling/SKILL.md': await shippedSkill('grilling'),
     '.claude/skills/personal-custom-skill/SKILL.md': '# user private skill\n',
-    '.agents/skills/code-review/SKILL.md': '# global code-review\n',
+    '.agents/skills/code-review/SKILL.md': await shippedSkill('code-review'),
     '.agents/skills/another-user-skill/SKILL.md': '# another private skill\n',
   });
 
@@ -494,6 +502,56 @@ test('proof-uninstall-remove-global-skills: confirmed removal removes standalone
   } finally {
     await rm(root, { recursive: true, force: true });
     await rm(fakeHome, { recursive: true, force: true });
+  }
+});
+
+test('proof-uninstall-iter1-real-rules-dir: a real .claude/rules directory survives removal', async () => {
+  const root = await makeFixtureDir({
+    '.wolven-harness.json': JSON.stringify({
+      version: 1,
+      gitHost: 'gh',
+      runtimes: ['claude'],
+      layout: 'linked',
+      harnessHome: '.wolven-harness',
+    }),
+    '.wolven-harness/.agents/skills/harness-init/SKILL.md': '# init\n',
+    '.wolven-harness/.qmd/index.yml': 'title: QMD\n',
+    '.claude/rules/my-rule.md': '# my rule\n',
+    'package.json': '{"name":"quiet-rules-app"}\n',
+  });
+  try {
+    const result = await run(['uninstall', '--yes'], { cwd: root });
+    assert.equal(result.code, 0);
+    assert.equal(await pathExists(path.join(root, '.claude/rules/my-rule.md')), true);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test('proof-uninstall-iter1-hook-configs: a shared hook config with user content survives as intertwined', async () => {
+  const root = await makeFixtureDir({
+    '.wolven-harness.json': JSON.stringify({
+      version: 1,
+      gitHost: 'gh',
+      runtimes: ['claude'],
+      layout: 'linked',
+      harnessHome: '.wolven-harness',
+    }),
+    '.wolven-harness/.agents/skills/harness-init/SKILL.md': '# init\n',
+    '.wolven-harness/.qmd/index.yml': 'title: QMD\n',
+    '.claude/settings.json': JSON.stringify({
+      permissions: { allow: ['Bash'] },
+      hooks: { PreToolUse: [{ matcher: 'Bash', hooks: [{ command: 'node .agents/hooks/secret-path-guard.mjs' }] }] },
+    }),
+    'package.json': '{"name":"quiet-hook-app"}\n',
+  });
+  try {
+    const result = await run(['uninstall', '--yes'], { cwd: root });
+    assert.equal(result.code, 0);
+    assert.equal(await pathExists(path.join(root, '.claude/settings.json')), true);
+    assert.match(result.stdout, /intertwined|left untouched/i);
+  } finally {
+    await rm(root, { recursive: true, force: true });
   }
 });
 

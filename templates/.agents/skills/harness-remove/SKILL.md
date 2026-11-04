@@ -1,6 +1,7 @@
 ---
 name: harness-remove
 description: Guides thorough removal of remaining harness edits and configuration while preserving docs/
+disable-model-invocation: true
 ---
 
 # Harness Remove

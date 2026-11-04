@@ -49,6 +49,24 @@ export function isKnownHarnessSkill(name: string): boolean {
   }
 }
 
+/** Extracts the name and description scalars from a SKILL.md frontmatter for identity comparison. */
+function skillIdentity(raw: string): { name?: string; description?: string } {
+  const name = /^name:\s*(.+?)\s*$/m.exec(raw)?.[1];
+  const description = /^description:\s*(.+?)\s*$/m.exec(raw)?.[1];
+  return { name, description };
+}
+
+/** True when a skill directory is this package's shipped copy, by frontmatter identity. */
+async function isShippedHarnessSkill(dir: string, name: string): Promise<boolean> {
+  if (!KNOWN_HARNESS_SKILLS.has(name)) return false;
+  const candidate = await safeReadFile(path.join(dir, name, 'SKILL.md'));
+  const template = await safeReadFile(path.join(resolveTemplatesSkillsDir(), name, 'SKILL.md'));
+  if (!candidate || !template) return false;
+  const candidateId = skillIdentity(candidate);
+  const templateId = skillIdentity(template);
+  return candidateId.name === templateId.name && candidateId.description === templateId.description;
+}
+
 /** True when text content contains harness-related keywords or markers. */
 export function hasHarnessReferences(content: string): boolean {
   return /wolven|\bharness\b|\.wolven-harness|\.agents|\.qmd|@AGENTS\.md/i.test(content);
@@ -107,7 +125,11 @@ async function getRuntimeRuleArtifacts(baseDir: string): Promise<string[]> {
   const artifacts: string[] = [];
   for (const row of RUNTIME_REGISTRY) {
     if (row.rules.kind === 'link') {
-      artifacts.push(path.join(baseDir, ...row.rules.path.split('/')));
+      const linkPath = path.join(baseDir, ...row.rules.path.split('/'));
+      const link = await safeReadlink(linkPath);
+      if (link && (link.includes('.agents/skills') || link.includes('.agents/rules'))) {
+        artifacts.push(linkPath);
+      }
     } else if (row.rules.kind === 'per-rule') {
       const parts = row.rules.pattern.split('{rule}');
       const prefix = parts[0] ?? '';
@@ -147,6 +169,16 @@ function getQuietGeneratedFiles(baseDir: string, home: string): string[] {
   return [...new Set(files)];
 }
 
+/** True when a .wolven-harness directory holds anything besides preserved docs. */
+async function quietDirHasHarnessArtifacts(quietDir: string): Promise<boolean> {
+  try {
+    const entries = await readdir(quietDir, { withFileTypes: true });
+    return entries.some((entry) => entry.name !== 'docs');
+  } catch {
+    return false;
+  }
+}
+
 /**
  * Inspects a single directory for harness installation artifacts, configuration,
  * preserved documentation, and intertwined shared files.
@@ -178,7 +210,7 @@ async function inspectDirectory(
   }
 
   const quietDir = path.join(resolvedDir, '.wolven-harness');
-  const hasQuietDir = await pathExists(quietDir);
+  const hasQuietDir = (await pathExists(quietDir)) && (await quietDirHasHarnessArtifacts(quietDir));
   const wolvenMd = path.join(resolvedDir, 'WOLVEN.md');
   const hasWolvenMd = await pathExists(wolvenMd);
   const qmdDir = path.join(resolvedDir, '.qmd');
@@ -259,8 +291,10 @@ async function inspectDirectory(
     }
 
     const homeRel = path.relative(resolvedDir, harnessHome).split(path.sep).join('/');
+    const hookConfigPaths = new Set(getRuntimeHookConfigs(resolvedDir));
     const generated = getQuietGeneratedFiles(resolvedDir, homeRel);
     for (const genFile of generated) {
+      if (hookConfigPaths.has(genFile)) continue;
       if ((await pathExists(genFile)) && !artifacts.includes(genFile)) {
         artifacts.push(genFile);
       }
@@ -270,16 +304,6 @@ async function inspectDirectory(
     for (const rulePath of ruleArtifacts) {
       if ((await pathExists(rulePath)) && !artifacts.includes(rulePath)) {
         artifacts.push(rulePath);
-      }
-    }
-
-    const hookConfigs = getRuntimeHookConfigs(resolvedDir);
-    for (const hookFile of hookConfigs) {
-      if (await pathExists(hookFile)) {
-        const content = await safeReadFile(hookFile);
-        if (content && hasHarnessReferences(content) && !artifacts.includes(hookFile)) {
-          artifacts.push(hookFile);
-        }
       }
     }
 
@@ -342,16 +366,6 @@ async function inspectDirectory(
           if (link && (link.includes('.agents/skills') || link.includes('.agents/rules'))) {
             if (!artifacts.includes(stub)) artifacts.push(stub);
           }
-        }
-      }
-    }
-
-    const hookConfigs = getRuntimeHookConfigs(resolvedDir);
-    for (const hookFile of hookConfigs) {
-      if (await pathExists(hookFile)) {
-        const content = await safeReadFile(hookFile);
-        if (content && hasHarnessReferences(content) && !artifacts.includes(hookFile)) {
-          artifacts.push(hookFile);
         }
       }
     }
@@ -436,6 +450,15 @@ async function inspectDirectory(
     }
   }
 
+  for (const hookFile of getRuntimeHookConfigs(resolvedDir)) {
+    if (await pathExists(hookFile)) {
+      const content = await safeReadFile(hookFile);
+      if (content && hasHarnessReferences(content) && !intertwinedFiles.includes(hookFile)) {
+        intertwinedFiles.push(hookFile);
+      }
+    }
+  }
+
   return {
     kind,
     root: resolvedDir,
@@ -493,7 +516,7 @@ export async function discoverLandscape(
         try {
           const entries = await readdir(sDir, { withFileTypes: true });
           for (const entry of entries) {
-            if (isKnownHarnessSkill(entry.name)) {
+            if (await isShippedHarnessSkill(sDir, entry.name)) {
               localStandalone.push(path.join(sDir, entry.name));
             }
           }
@@ -583,7 +606,7 @@ export async function discoverLandscape(
         try {
           const entries = await readdir(gDir, { withFileTypes: true });
           for (const entry of entries) {
-            if (isKnownHarnessSkill(entry.name)) {
+            if (await isShippedHarnessSkill(gDir, entry.name)) {
               globalArtifacts.push(path.join(gDir, entry.name));
             }
           }

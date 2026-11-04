@@ -51,13 +51,6 @@ for (const name of EXPECTED_SKILLS) {
     test(`ask-only: ${name} is ask-only in both runtimes`, async () => {
       const skill = await readSkill(name);
 
-      if (name === 'harness-remove') {
-        // why: harness-remove is an ask-only template installed during uninstall;
-        // its ask-only contract is enforced by its instructions and hard gates.
-        assert.match(skill.body, /Ask-only/i);
-        return;
-      }
-
       assert.equal(
         skill.frontmatter['disable-model-invocation'],
         true,

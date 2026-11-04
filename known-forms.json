@@ -313,7 +313,12 @@
     ],
     ".agents/skills/harness-remove/SKILL.md": [
       "02c27e0db24665992087ed615c1b9c980bcc1a03d54005c4b2be0ada77480cdc",
-      "37d12d7a9f5451affc0bf9cad476e4408f0347e9c2a97ec5b379216301c805a8"
+      "37d12d7a9f5451affc0bf9cad476e4408f0347e9c2a97ec5b379216301c805a8",
+      "94904d60965906ff218d3d9656ce9f3ab8464a121f54fe753fa4f39147128597",
+      "a63639d6ff29d72085af3bd93a7d14f10c32980e08ae5d9c69bb5e2cf04bb8c7"
+    ],
+    ".agents/skills/harness-remove/agents/openai.yaml": [
+      "8984d790913e2693b6e90e09053ba901e4397dabadeb86fc4873bb94be88014b"
     ],
     ".agents/skills/journey-map/SKILL.md": [
       "1f7304e17c73f7a95372732275333ec3b1307f984cea4ea00fc3af58ff5411e2",

@@ -1,8 +1,9 @@
 import assert from 'node:assert/strict';
-import { mkdir, mkdtemp, rm, symlink, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rm, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
+import { fileURLToPath } from 'node:url';
 import { discoverLandscape, isKnownHarnessSkill } from '../src/uninstall/discover.js';
 
 /**
@@ -16,6 +17,13 @@ async function makeFixtureDir(files: Record<string, string>, baseDir?: string): 
     await writeFile(full, content, 'utf8');
   }
   return dir;
+}
+
+const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+
+/** Reads a shipped template SKILL.md so a fixture skill matches this package's copy. */
+async function shippedSkill(name: string): Promise<string> {
+  return readFile(path.join(repoRoot, 'templates', '.agents', 'skills', name, 'SKILL.md'), 'utf8');
 }
 
 test('proof-uninstall-discover-new-landscape: quiet install with .wolven-harness, linked layout, bootstrap symlinks, preserved docs, and intertwined files', async () => {
@@ -248,10 +256,10 @@ test('proof-uninstall-discover-global-skills: standalone skills in global skill 
     'package.json': '{"name": "clean-app"}\n',
   });
   const fakeHome = await makeFixtureDir({
-    '.claude/skills/adr/SKILL.md': '# adr\n',
-    '.claude/skills/grilling/SKILL.md': '# grilling\n',
+    '.claude/skills/adr/SKILL.md': await shippedSkill('adr'),
+    '.claude/skills/grilling/SKILL.md': await shippedSkill('grilling'),
     '.claude/skills/personal-custom-skill/SKILL.md': '# custom\n',
-    '.agents/skills/code-review/SKILL.md': '# code-review\n',
+    '.agents/skills/code-review/SKILL.md': await shippedSkill('code-review'),
     '.agents/skills/another-custom-skill/SKILL.md': '# another custom\n',
   });
 
@@ -277,7 +285,7 @@ test('proof-uninstall-discover-global-skills: standalone skills in global skill 
 
     // why: test project-level standalone skills when repo has no harness config.
     const standaloneRoot = await makeFixtureDir({
-      '.claude/skills/adr/SKILL.md': '# adr\n',
+      '.claude/skills/adr/SKILL.md': await shippedSkill('adr'),
     });
     try {
       const localStandalone = await discoverLandscape(standaloneRoot, {});
@@ -321,6 +329,31 @@ test('proof-uninstall-discover-empty: clean directory returns empty results arra
   } finally {
     await rm(root, { recursive: true, force: true });
     await rm(fakeHome, { recursive: true, force: true });
+  }
+});
+
+test('proof-uninstall-iter1-third-party-skill: a colliding-name skill is not this package copy', async () => {
+  const root = await makeFixtureDir({ 'package.json': '{"name":"app"}\n' });
+  const fakeHome = await makeFixtureDir({
+    '.claude/skills/qmd/SKILL.md': '---\nname: qmd\ndescription: not wolven\n---\n# not wolven\n',
+  });
+  try {
+    assert.deepEqual(await discoverLandscape(root, { HOME: fakeHome }), []);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+    await rm(fakeHome, { recursive: true, force: true });
+  }
+});
+
+test('proof-uninstall-iter1-idempotent: a .wolven-harness holding only docs is not an install', async () => {
+  const root = await makeFixtureDir({
+    '.wolven-harness/docs/adrs/adr-001.md': '# ADR 001\n',
+    'package.json': '{"name":"post-uninstall-app"}\n',
+  });
+  try {
+    assert.deepEqual(await discoverLandscape(root, {}), []);
+  } finally {
+    await rm(root, { recursive: true, force: true });
   }
 });
 
