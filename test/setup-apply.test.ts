@@ -118,7 +118,7 @@ test('setup-skip: closing line names harness-init, and pre-existing files stay b
       '.claude/skills/foo.md': 'SKILL CONTENT\n',
       'package.json': `${JSON.stringify({ name: 'consumer', version: '1.0.0', scripts: { build: 'tsc' } }, null, 2)}\n`,
     },
-    { git: true },
+    { git: true, layout: 'home' },
   );
 
   const result = await run(['setup', '--git-host', 'gh', '--runtimes', 'claude'], { cwd: dir });
@@ -146,7 +146,7 @@ test('setup-skip: second `setup` run creates nothing further', async () => {
       'AGENTS.md': 'AGENTS CONTENT\n',
       'package.json': `${JSON.stringify({ name: 'consumer', version: '1.0.0' }, null, 2)}\n`,
     },
-    { git: true },
+    { git: true, layout: 'home' },
   );
 
   const firstRun = await run(['setup', '--git-host', 'gh', '--runtimes', 'codex'], { cwd: dir });

@@ -3,7 +3,7 @@ import path from 'node:path';
 import { gitOriginUrl, gitTopLevel } from '../git.js';
 import { pathExists } from '../path-exists.js';
 import type { Config, PackageManager } from './config.js';
-import { isGitHost, isPackageManager, isRuntime, readConfig, writeConfig } from './config.js';
+import { homeInsideRoot, isGitHost, isPackageManager, isRuntime, readConfig, writeConfig } from './config.js';
 import { resolveOwnPackage } from './own-package.js';
 import { resolvePackageManager } from './package-manager.js';
 import { RUNTIME_REGISTRY, type RuntimeEnv } from './runtimes.js';
@@ -378,12 +378,13 @@ export function canPrompt(io: Io): boolean {
  * (before any prompt or write); then flags override `.wolven-harness.json`
  * defaults, which override interactive prompts (TTY only — no TTY with a
  * value still missing is a named-flag `SetupError`; a cancelled prompt is `SetupCancelled`). The resolved options
- * are written back to `.wolven-harness.json` on every run, refreshing
+ * are persisted immediately except for quiet installs, whose caller writes
+ * the returned `quietConfig` after the scaffold, refreshing
  * `packageVersion` to this running package's own version and carrying
  * every other existing key (`ignore`, `comments`, and any unknown key)
  * forward untouched.
  */
-export async function resolveOptions(argv: string[], ctx: Context): Promise<Options> {
+export async function resolveOptions(argv: string[], ctx: Context): Promise<Options & { quietConfig?: Config }> {
   const toplevel = await gitTopLevelFor(ctx.io);
   const mode: SetupMode = toplevel === undefined ? 'outside' : 'root';
   if (toplevel !== undefined && !(await isGitTopLevel(ctx.io, toplevel))) {
@@ -395,6 +396,11 @@ export async function resolveOptions(argv: string[], ctx: Context): Promise<Opti
 
   const flags = parseFlags(argv);
   const existing = await readConfig(ctx.root);
+  const quiet =
+    mode === 'root' &&
+    (existing === undefined ||
+      (existing.layout === 'linked' &&
+        homeInsideRoot(ctx.root, path.resolve(ctx.root, existing.harnessHome ?? '.')) !== undefined));
 
   const interactive = canPrompt(ctx.io);
   const notes: Notes = {};
@@ -443,7 +449,8 @@ export async function resolveOptions(argv: string[], ctx: Context): Promise<Opti
     if (runtimes === undefined) runtimes = prompted.runtimes;
   }
 
-  const managerPrompter = interactive ? (ctx.io.prompts ?? clackPrompter(ctx.io)) : undefined;
+  // why: a quiet install asks no package-manager question, and it uses the answer only to word a hint.
+  const managerPrompter = interactive && !quiet ? (ctx.io.prompts ?? clackPrompter(ctx.io)) : undefined;
   let managerFlag: PackageManager | undefined;
   if (packageManagerFlag !== undefined) {
     managerFlag = parseOrAsk(
@@ -458,10 +465,16 @@ export async function resolveOptions(argv: string[], ctx: Context): Promise<Opti
   const packageManager = await resolvePackageManager(
     ctx.root,
     { flag: managerFlag, recorded: existing?.packageManager },
-    managerPrompter === undefined ? undefined : () => promptPackageManager(managerPrompter),
+    quiet
+      ? async () => 'none'
+      : managerPrompter === undefined
+        ? undefined
+        : () => promptPackageManager(managerPrompter),
   );
 
-  const installed = await detectInstalledSets(ctx.root);
+  const installed = await detectInstalledSets(
+    quiet ? path.resolve(ctx.root, existing?.harnessHome ?? '.wolven-harness') : ctx.root,
+  );
   let skillSets: SkillSet[] | undefined =
     skillsFlag !== undefined
       ? parseOrAsk(
@@ -495,7 +508,19 @@ export async function resolveOptions(argv: string[], ctx: Context): Promise<Opti
     packageManager,
   };
 
-  await writeConfig(ctx.root, config);
+  if (quiet) {
+    config.layout = 'linked';
+    config.harnessHome = existing?.harnessHome ?? '.wolven-harness';
+  } else {
+    await writeConfig(ctx.root, config);
+  }
 
-  return { gitHost: resolvedGitHost, runtimes: resolvedRuntimes, skillSets: orderSets(chosenSets), keptSets, mode };
+  return {
+    gitHost: resolvedGitHost,
+    runtimes: resolvedRuntimes,
+    skillSets: orderSets(chosenSets),
+    keptSets,
+    mode,
+    ...(quiet ? { quietConfig: config } : {}),
+  };
 }

@@ -6,7 +6,7 @@ import { pathExists } from '../path-exists.js';
 import { globalInstallHint } from '../setup/index.js';
 import { recordedPackageManager } from '../setup/package-manager.js';
 import { RUNTIME_REGISTRY } from '../setup/runtimes.js';
-import type { DoctorContext } from './index.js';
+import { type DoctorContext, isQuietInstall } from './index.js';
 import type { DoctorCode, DoctorFinding } from './report.js';
 
 /** The harness's own files; runtime wiring comes from the registry. */
@@ -36,14 +36,45 @@ async function findOnPath(name: string, env: Record<string, string | undefined>)
 }
 
 /** `doctor-docs`: `docs/` is a committed, unignored path inside a git repository. */
-async function checkDocs(harnessHome: string): Promise<DoctorFinding[]> {
+async function checkDocs(ctx: DoctorContext): Promise<DoctorFinding[]> {
+  const { harnessHome, root } = ctx;
+  if (isQuietInstall(ctx)) {
+    const rel = `${path.relative(root, harnessHome)}/docs/adrs/`;
+    if (!(await pathExists(path.join(root, rel)))) {
+      return [
+        failed(
+          'doctor-docs',
+          `${rel} is missing`,
+          'run "wolven-harness setup", then ask your agent to run the harness-init skill',
+        ),
+      ];
+    }
+    try {
+      const { stdout } = await execGit(root, ['check-ignore', '-v', '--no-index', '--', rel]);
+      const rule = /^(.*):(\d+):([^\t]*)\t/.exec(stdout.trim());
+      if (stdout.trim() && !rule?.[3].startsWith('!')) {
+        return [
+          failed(
+            'doctor-docs',
+            rule === null
+              ? `${rel} is hidden by an ignore rule`
+              : `${rel} is hidden by the rule "${rule[3]}" in ${rule[1]} (line ${rule[2]})`,
+            'remove the ignore rule hiding this path, then run "wolven-harness doctor" again',
+          ),
+        ];
+      }
+    } catch {
+      // why: check-ignore exits 1 for an unignored path.
+    }
+    return [];
+  }
   const docs = path.join(harnessHome, 'docs');
   if (!(await pathExists(docs))) {
     return [
       failed(
         'doctor-docs',
-        'docs/ is missing from the harness home',
-        'run "wolven-harness setup", then "harness-init"',
+        'docs/ is missing from the harness folder',
+        'run "wolven-harness setup", then ask your agent to run the harness-init skill',
       ),
     ];
   }
@@ -64,7 +95,7 @@ async function checkDocs(harnessHome: string): Promise<DoctorFinding[]> {
       failed(
         'doctor-docs',
         'docs/ is not inside a git repository',
-        'run "git init" in the harness home and commit once',
+        'run "git init" in the harness folder and commit once',
       ),
     ];
   }
@@ -144,7 +175,7 @@ async function checkQmd(ctx: DoctorContext): Promise<DoctorFinding[]> {
       failed(
         'doctor-qmd',
         'qmd cannot find .qmd/index.yaml or .qmd/index.yml from the open folder',
-        'link .qmd from the harness home into the open folder, or run "qmd update" in the open folder',
+        'link .qmd from the harness folder into the open folder, or run "qmd update" in the open folder',
       ),
     );
   } else {
@@ -154,8 +185,8 @@ async function checkQmd(ctx: DoctorContext): Promise<DoctorFinding[]> {
         findings.push(
           failed(
             'doctor-qmd',
-            'qmd finds a .qmd index that does not belong to the harness home',
-            'remove or move the nearer .qmd folder, then link .qmd from the harness home into the open folder',
+            'qmd finds a .qmd index that does not belong to the harness folder',
+            'remove or move the nearer .qmd folder, then link .qmd from the harness folder into the open folder',
           ),
         );
       }
@@ -164,7 +195,7 @@ async function checkQmd(ctx: DoctorContext): Promise<DoctorFinding[]> {
         failed(
           'doctor-qmd',
           'qmd cannot resolve the .qmd index from the open folder',
-          'link .qmd from the harness home into the open folder, then run "qmd update"',
+          'link .qmd from the harness folder into the open folder, then run "qmd update"',
         ),
       );
     }
@@ -233,7 +264,7 @@ async function checkCodeRepo(ctx: DoctorContext): Promise<DoctorFinding[]> {
     failed(
       'doctor-code-repo',
       `a harness path exists inside the code repository: ${rel}`,
-      `move ${rel} out of ${codeRepo}; the harness home must sit outside it`,
+      `move ${rel} out of ${codeRepo}; the harness folder must sit outside it`,
     ),
   );
 }
@@ -257,7 +288,7 @@ async function checkNotGlobal(ctx: DoctorContext): Promise<DoctorFinding[]> {
  * tool or unreadable path is a finding, never a throw.
  */
 export async function runEnvChecks(ctx: DoctorContext): Promise<DoctorFinding[]> {
-  const docs = await checkDocs(ctx.harnessHome);
+  const docs = await checkDocs(ctx);
   const qmd = await checkQmd(ctx);
   const codeRepo = await checkCodeRepo(ctx);
   const notGlobal = await checkNotGlobal(ctx);

@@ -212,7 +212,7 @@ test('doctor-env: a nearer qmd index from another folder is an error', async () 
   const findings = await runEnvChecks(ctxFor(open, { harnessHome: home, env: { PATH: bin } }));
 
   assert.deepEqual(codes(findings), ['doctor-qmd']);
-  assert.match(findings[0].message, /does not belong to the harness home/);
+  assert.match(findings[0].message, /does not belong to the harness folder/);
   assert.match(findings[0].fix ?? '', /remove or move the nearer \.qmd/);
 });
 
@@ -383,4 +383,40 @@ test('doctor-env: every error carries a non-empty fix and every warning omits on
     if (finding.level === 'error') assert.ok(finding.fix.length > 0, `${finding.code} has a fix`);
     else assert.equal('fix' in finding, false, `${finding.code} has no fix`);
   }
+});
+
+test('proof-quiet-install-doctor-docs: checks only the ADR folder and names hiding rules', async () => {
+  for (const ignore of ['.wolven-harness/', '.wolven-harness/docs/adrs/', '.wolven-harness/docs/notes/']) {
+    const dir = await makeRepo(
+      { '.gitignore': ignore, '.wolven-harness/docs/adrs/example.md': '# Decision\n' },
+      { git: true },
+    );
+    const findings = await runEnvChecks(
+      ctxFor(dir, {
+        harnessHome: path.join(dir, '.wolven-harness'),
+        config: { ...CONFIG, layout: 'linked', harnessHome: '.wolven-harness' },
+      }),
+    );
+    const docs = findings.filter((finding) => finding.code === 'doctor-docs');
+    if (ignore.endsWith('notes/')) assert.deepEqual(docs, []);
+    else {
+      assert.equal(docs.length, 1);
+      assert.ok(docs[0].message.includes(ignore));
+      assert.doesNotMatch(docs[0].message, /\t|Nothing changed/);
+    }
+  }
+});
+
+test('proof-quiet-install-no-code-repo: no codeRepo means no code-repository findings', async () => {
+  const dir = await makeRepo({ '.wolven-harness/docs/adrs/example.md': '# Decision\n' }, { git: true });
+  const findings = await runEnvChecks(
+    ctxFor(dir, {
+      harnessHome: path.join(dir, '.wolven-harness'),
+      config: { ...CONFIG, layout: 'linked', harnessHome: '.wolven-harness' },
+    }),
+  );
+  assert.equal(
+    findings.some((finding) => finding.code === 'doctor-code-repo'),
+    false,
+  );
 });

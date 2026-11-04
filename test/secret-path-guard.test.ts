@@ -22,9 +22,13 @@ function assertDenied(result: ReturnType<typeof runHook>) {
   const out = JSON.parse(result.stdout);
   assert.equal(out.permission, 'deny');
   assert.equal(out.hookSpecificOutput.permissionDecision, 'deny');
-  assert.match(out.agentMessage, /secrets\.md/);
-  assert.match(out.hookSpecificOutput.permissionDecisionReason, /secrets\.md/);
-  assert.match(result.stderr, /secrets\.md/);
+  assert.equal(
+    out.agentMessage,
+    'This file may hold secrets, so the harness blocked your agent from opening it. Open it yourself if you need to.',
+  );
+  assert.equal(out.userMessage, out.agentMessage);
+  assert.equal(out.hookSpecificOutput.permissionDecisionReason, out.agentMessage);
+  assert.equal(result.stderr, `${out.agentMessage}\n`);
   return out;
 }
 
@@ -127,10 +131,7 @@ test('proof-secret-path-guard-deny-read-pem: a Read of a .pem is denied citing s
 });
 
 test('proof-secret-path-guard-deny-shell-cat: cat on id_rsa is denied before it runs', () => {
-  const out = assertDenied(
-    runHook(JSON.stringify({ tool_name: 'Bash', tool_input: { command: 'cat ./secrets/id_rsa' } })),
-  );
-  assert.match(out.userMessage, /id_rsa/);
+  assertDenied(runHook(JSON.stringify({ tool_name: 'Bash', tool_input: { command: 'cat ./secrets/id_rsa' } })));
   assertDenied(runHook(JSON.stringify({ hook_event_name: 'beforeShellExecution', command: 'cat ./secrets/id_rsa' })));
 });
 

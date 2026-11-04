@@ -288,7 +288,7 @@ test('harness-ignored: no ignore rules over harness paths raise nothing', async 
 // --- step0-pending ---
 
 test('step0-pending: fresh init warns, and a plain AGENTS.md mention does not clear it', async () => {
-  const dir = await makeRepo({}, { git: true });
+  const dir = await makeRepo({}, { git: true, layout: 'home' });
 
   const initResult = await run(['setup', '--git-host', 'gh', '--runtimes', 'codex'], { cwd: dir });
   assert.equal(initResult.code, 0);

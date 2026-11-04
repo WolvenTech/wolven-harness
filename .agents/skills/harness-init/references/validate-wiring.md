@@ -24,10 +24,13 @@ found and what each choice means in practice:
 1. **On every pull request** (a CI job) — run validation automatically on every
    pull request so doc formatting issues or broken ADR references are caught
    before merge. Recommended when a CI config exists or the repo is hosted on
-   a platform that provides one.
+   a platform that provides one. Name the file: "New tracked file:
+   `<workflow path>`", or "Tracked change: `<workflow path>`" when it extends
+   an existing one.
 2. **With your existing checks** (chained into the existing script) — run validation whenever the
    existing `validate` or `test` script runs; name the script and current
-   command. Offered when a `validate` or `test` script exists.
+   command, with "Tracked change: `package.json`". Offered when a `validate`
+   or `test` script exists.
 3. **Only when I run it** (local only) — run validation by hand only when invoked; nothing is
    added to CI or package scripts.
 
@@ -35,6 +38,20 @@ List (b) only when there is a script to chain, and put whichever option the
 evidence supports best first. Lead with what the choice does in everyday
 workflow; the option letters (a, b, c) are supporting references, never the
 headline of the question.
+
+### In a quiet install
+
+A quiet install adds no `package.json` script, so the question offers exactly
+two options, in this order:
+
+1. "Only when I run it (recommended): `wolven-harness validate`"
+2. "On every pull request: new tracked file `.github/workflows/<file>`, which
+   everyone with repo access sees"
+
+On guided setup it also offers "Skip it". "With your existing checks" is not
+offered. The second option writes a workflow that runs the globally installed
+`wolven-harness validate` (the `none` row below), and only after the diff and
+a yes.
 
 ## What each answer does
 
