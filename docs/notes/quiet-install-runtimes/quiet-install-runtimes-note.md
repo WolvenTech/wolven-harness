@@ -11,7 +11,7 @@ status: stable
 
 The quiet install keeps the harness in `.wolven-harness/` and wires each
 runtime through ignored paths at the repository root
-(`docs/specs/quiet-install/quiet-install-spec.md`, R6.2). For each registry
+(`docs/specs/archived/quiet-install/quiet-install-spec.md`, R6.2). For each registry
 runtime other than Claude Code, this note asks four things:
 
 - Which documented paths load skills, instructions, rules and hooks?

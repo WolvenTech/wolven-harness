@@ -17,7 +17,7 @@ it as its own git repository, loses the entry file and the rules in a Claude
 Code desktop worktree session, and the nested repository blocks harness doc
 writes from a worktree.
 
-The quiet-install PRD (`docs/prds/quiet-install/quiet-install-prd.md`)
+The quiet-install PRD (`docs/prds/archived/quiet-install/quiet-install-prd.md`)
 asks for a default that keeps the client's git down to the harness paths
 the person picks while every session, worktrees included, gets the whole
 harness. Four desktop proof runs on 2026-10-28

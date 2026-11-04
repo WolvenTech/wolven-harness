@@ -8,7 +8,7 @@ status: stable
 # Quiet install desktop proof
 
 Run on 2026-11-03 with Claude Code 2.1.312, and observed by the Human. It
-covers R10.1 and R10.2 of `docs/specs/quiet-install/quiet-install-spec.md`.
+covers R10.1 and R10.2 of `docs/specs/archived/quiet-install/quiet-install-spec.md`.
 
 The Human accepted this proof on 2026-11-03, including the limits below. The
 iteration-1 live check at the end of this note is a second run, on 2026-11-04.
@@ -102,7 +102,7 @@ branch's build passes with `.qmd` ignored, so this came from the proof setup.
 Run on 2026-11-04 with Claude Code 2.1.318 and Cursor 3.28.7, and observed by
 the Human, in a fixture built from `0a2d941`. The Human accepted this run on
 2026-11-04, including the limits below. It covers I7.1 of
-`docs/specs/quiet-install/quiet-install-iteration-1-spec.md`. Every Claude Code
+`docs/specs/archived/quiet-install/quiet-install-iteration-1-spec.md`. Every Claude Code
 step ran in a terminal, not the desktop app. Cursor was opened from the Dock.
 
 | Check | Observed | Result |

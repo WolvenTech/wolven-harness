@@ -2,7 +2,7 @@
 type: spec
 title: Quiet install — iteration 1
 description: Delta obligations that close the independent review of the quiet-install pull request, covering installed text, doctor, setup, harness-init, docs, trims and a live worktree check.
-status: stable
+status: deprecated
 ---
 
 # Quiet install — iteration 1
@@ -218,7 +218,7 @@ flowchart TD
 | I6.2 | One helper decides whether an install is quiet, and all four sites call it | `proof-iter1-one-predicate` | Grep; `pnpm test` |
 | I6.3 | These go, unless a present caller is found and named in the evidence: `unmapQuietInstallPaths`, the `layout` argument of `mapQuietInstallPaths`, `trackedEdit`, unused `entryPoints`, Claude's `manualStep`, the optional `quietInstall` at `runtimes.ts:447`, the unused export at `worktree-parity.mjs:12`, and `TemplateWriter`. Unused `wiring.json` outcomes are removed from the type only | `proof-iter1-yagni-cuts` | Grep; `pnpm build` |
 | I6.4 | `harness-misplaced` is re-checked now that rules are mapped: it stays only if it still catches a real case, and it reads no more files than that case needs | `proof-iter1-misplaced` | Test, or its removal with the reason |
-| I6.5 | Deleted: the three `*-map.html` files under `docs/notes/in-repo-harness-m/`, `docs/notes/jury-verdict-journeys/` and `docs/specs/quiet-install/`, `in-repo-harness-m-map.json`, and `gitignored-harness-access/probe.sh` with the note's evidence row updated. `stable`: the `in-repo-harness-m`, `gitignored-harness-access` and `quiet-install-runtimes` notes | `proof-iter1-artifacts` | `ls`; validate |
+| I6.5 | Deleted: the three `*-map.html` files under `docs/notes/in-repo-harness-m/`, `docs/notes/jury-verdict-journeys/` and `docs/specs/archived/quiet-install/`, `in-repo-harness-m-map.json`, and `gitignored-harness-access/probe.sh` with the note's evidence row updated. `stable`: the `in-repo-harness-m`, `gitignored-harness-access` and `quiet-install-runtimes` notes | `proof-iter1-artifacts` | `ls`; validate |
 
 ### I7 — Live check and close (wave 5)
 
@@ -253,8 +253,8 @@ flowchart TD
 ## Out of scope
 
 - Pre-merge closure: it runs on the Human's ask once CI is green, and it archives
-  `docs/specs/quiet-install/` (with `quiet-install-map.json`),
-  `docs/prds/quiet-install/`, and the `install-copy-review` and
+  `docs/specs/archived/quiet-install/` (with `quiet-install-map.json`),
+  `docs/prds/archived/quiet-install/`, and the `install-copy-review` and
   `quiet-install-fixture-walk` notes.
 - A `setup --layout` flag or any new CLI surface for a full install.
 - Making `harness-score` understand quiet installs.

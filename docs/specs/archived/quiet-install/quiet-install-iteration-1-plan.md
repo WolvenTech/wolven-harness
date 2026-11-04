@@ -2,12 +2,12 @@
 type: spec
 title: Quiet install — iteration 1 plan
 description: Work units that close the independent review of the quiet-install pull request in five waves, run by an Opus orchestrator with Sonnet implementers, with a finding-to-unit map and a closing report.
-status: stable
+status: deprecated
 ---
 
 # Quiet install — iteration 1 plan
 
-**Spec:** `docs/specs/quiet-install/quiet-install-iteration-1-spec.md` (status
+**Spec:** `docs/specs/archived/quiet-install/quiet-install-iteration-1-spec.md` (status
 `stable`). The Human approved the spec and this plan on 2026-11-04, including
 the spec's three defaults and the commit cadence.
 
@@ -145,7 +145,7 @@ trimmed tests may touch. Wave 5 stays inline.
 | Field | Value |
 |-------|-------|
 | Unit identifier | 01, 02, 03, 04 in parallel, then 05, then gate 06 |
-| Spec/plan paths | `docs/specs/quiet-install/quiet-install-iteration-1-spec.md` / `docs/specs/quiet-install/quiet-install-iteration-1-plan.md` |
+| Spec/plan paths | `docs/specs/archived/quiet-install/quiet-install-iteration-1-spec.md` / `docs/specs/archived/quiet-install/quiet-install-iteration-1-plan.md` |
 | Obligation / proof status | I1.1–I1.6 — done; I1.1's green checks land at the push |
 | `HEAD` commit | `e379a41` |
 | `git status` summary | clean before this section |
@@ -157,7 +157,7 @@ trimmed tests may touch. Wave 5 stays inline.
 | Field | Value |
 |-------|-------|
 | Unit identifier | 07, 08, 09 in parallel, then gate 10 |
-| Spec/plan paths | `docs/specs/quiet-install/quiet-install-iteration-1-spec.md` / `docs/specs/quiet-install/quiet-install-iteration-1-plan.md` |
+| Spec/plan paths | `docs/specs/archived/quiet-install/quiet-install-iteration-1-spec.md` / `docs/specs/archived/quiet-install/quiet-install-iteration-1-plan.md` |
 | Obligation / proof status | I2.1–I2.3, I3.1–I3.4 — done |
 | `HEAD` commit | `3084d16` |
 | `git status` summary | clean before this section |
@@ -169,7 +169,7 @@ trimmed tests may touch. Wave 5 stays inline.
 | Field | Value |
 |-------|-------|
 | Unit identifier | 11, 14, 15 in parallel; 12 after 11; 13 after 12; 16 and 17 after 12; 17a after 13; then gate 18 |
-| Spec/plan paths | `docs/specs/quiet-install/quiet-install-iteration-1-spec.md` / `docs/specs/quiet-install/quiet-install-iteration-1-plan.md` |
+| Spec/plan paths | `docs/specs/archived/quiet-install/quiet-install-iteration-1-spec.md` / `docs/specs/archived/quiet-install/quiet-install-iteration-1-plan.md` |
 | Obligation / proof status | I4.1–I4.10, I5.1, I5.2 — done; the live halves of I4.3, I4.5, I4.7 and I4.10 land at unit 24 |
 | `HEAD` commit | `3a2460c` |
 | `git status` summary | clean before this section |
@@ -183,7 +183,7 @@ The Human narrowed the audit row on 2026-11-04: a traced `harness-score` run on 
 | Field | Value |
 |-------|-------|
 | Unit identifier | 19, 20, 21 in parallel; 22 after 19 and 20; then gate 23 |
-| Spec/plan paths | `docs/specs/quiet-install/quiet-install-iteration-1-spec.md` / `docs/specs/quiet-install/quiet-install-iteration-1-plan.md` |
+| Spec/plan paths | `docs/specs/archived/quiet-install/quiet-install-iteration-1-spec.md` / `docs/specs/archived/quiet-install/quiet-install-iteration-1-plan.md` |
 | Obligation / proof status | I6.1–I6.5 — done. I6.1 evidence: the three test files went from 1165 to 829 lines, 336 fewer. `proof-full-step1-covered`, `proof-basics-skips` and `proof-basics-writes` went, and no spec names them |
 | `HEAD` commit | `4ec616e` |
 | `git status` summary | clean before this section |

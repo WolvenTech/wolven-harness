@@ -2,7 +2,7 @@
 type: prd
 title: In-repo harness install
 description: Make the linked layout with its harness home at .wolven-harness/ the default at a repository root, so a client repo versions only the harness paths the person picks while every session, worktrees included, gets the whole harness.
-status: stable
+status: deprecated
 ---
 
 # In-repo harness install

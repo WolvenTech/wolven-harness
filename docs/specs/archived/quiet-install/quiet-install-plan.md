@@ -2,12 +2,12 @@
 type: spec
 title: Quiet install — plan
 description: Work-unit plan for the quiet install, in four waves (validate and doctor, setup, harness-init and guides, desktop proof), with an explicit subagent model per unit.
-status: stable
+status: deprecated
 ---
 
 # Quiet install — plan
 
-**Spec:** `docs/specs/quiet-install/quiet-install-spec.md` (status `stable`)
+**Spec:** `docs/specs/archived/quiet-install/quiet-install-spec.md` (status `stable`)
 
 ## Structural gate
 
@@ -47,11 +47,11 @@ fails on any difference. Owns lists the template path only.
 | 05 | Doctor docs, Claude wiring, `codeRepo` and the wiring record | — | `src/doctor/{index,env-checks,runtime-checks}.ts`, `test/doctor-env.test.ts`, `test/doctor-runtime.test.ts` | `spawn` | sol | [x] `doctor-docs` checks `.wolven-harness/docs/adrs/`. The per-skill and per-rule Claude links satisfy the runtime checks, and `doctor-code-repo` is skipped. A recorded `skipped`, `merged` or `prefixed` entry warns instead of erroring (`proof-quiet-install-doctor-docs`, `-doctor-claude`, `-no-code-repo`, `-doctor-record`) |
 | 06 | Quiet-install rows in the registry, and doctor per runtime | 05 | `src/setup/runtimes.ts`, `src/doctor/runtime-checks.ts`, `test/doctor-runtime.test.ts`, `test/runtime-registry.test.ts` | `spawn` | sol | [x] Each non-Claude registry row carries its quiet-install entry points, tracked-edit offer and manual step, copied from `docs/notes/quiet-install-runtimes/quiet-install-runtimes-note.md`. Doctor passes a fixture wired per row, and fails an unwired Codex with the manual step as `fix:` (`proof-quiet-install-doctor-runtimes`) |
 | 07 | Drift applies the path map | 02 | `src/doctor/drift.ts`, `test/doctor-drift.test.ts` | `spawn` | sol | [x] A mapped skill is not reported as edited; mapped plus hand-edited is `doctor-drift-edited` (`proof-quiet-install-drift-pathmap`) |
-| 08 | **Wave 1 gate** | 01, 03, 04, 06, 07 | `docs/specs/quiet-install/quiet-install-spec.md` (Wave 1 boxes) | `inline` | — | [x] `pnpm build`, `pnpm test`, `pnpm lint`, `pnpm comments` and `node dist/cli.js validate` exit 0; Wave 1 boxes ticked with evidence — **abort before Wave 2** |
+| 08 | **Wave 1 gate** | 01, 03, 04, 06, 07 | `docs/specs/archived/quiet-install/quiet-install-spec.md` (Wave 1 boxes) | `inline` | — | [x] `pnpm build`, `pnpm test`, `pnpm lint`, `pnpm comments` and `node dist/cli.js validate` exit 0; Wave 1 boxes ticked with evidence — **abort before Wave 2** |
 | 09 | Setup writes the quiet-install scaffold | 08 | `src/setup/{options,index,apply,render-wolven}.ts`, `templates/.wolven-harness/gitignore` (new), `test/setup-quiet-install.test.ts` (new), `test/setup-layout.test.ts` | `spawn` | sol | [x] At a top-level with no config, setup writes the nested `.gitignore` first, then the home with the map applied, the home `AGENTS.md` (no `WOLVEN.md`), and the config. A `home` config keeps today's scaffold (`proof-quiet-install-setup-default`, `-nested-gitignore`, `-render`, `-setup-unchanged`) |
 | 10 | Bootstrap links and rerun | 09 | `src/setup/index.ts`, `src/setup/runtimes.ts`, `test/setup-quiet-install.test.ts` | `spawn` | sol | [x] Setup links `<skills folder>/harness-init` per runtime, unignored, and keeps an existing path. A rerun restores missing home files and links with the map applied and leaves edits alone. A fresh clone plus setup shows no drift (R4.1 bootstrap part; `proof-quiet-install-setup-rerun`) |
 | 11 | Setup summary and next steps | 10 | `src/setup/summary.ts`, `src/setup/ui.ts`, `test/setup-quiet-install.test.ts` (stdout snapshots) | `spawn` | sol | [x] stdout names the quiet install with its description and never prints `linked` or `home`. The next step is the wording table's, with the untracked-link and remove-instead lines and the `SKILL.md` path for a runtime with no skills folder. `package.json` is unchanged (`proof-quiet-install-setup-scope`, `-setup-wording`) |
-| 12 | **Wave 2 gate** | 11 | `docs/specs/quiet-install/quiet-install-spec.md` (Wave 2 boxes) | `inline` | — | [x] The same five gates exit 0; Wave 2 boxes ticked; wave 2's flip commit carries `BREAKING CHANGE:` naming the new default — **abort before Wave 3** |
+| 12 | **Wave 2 gate** | 11 | `docs/specs/archived/quiet-install/quiet-install-spec.md` (Wave 2 boxes) | `inline` | — | [x] The same five gates exit 0; Wave 2 boxes ticked; wave 2's flip commit carries `BREAKING CHANGE:` naming the new default — **abort before Wave 3** |
 | 13 | Worktree parity hook | 12 | `templates/.agents/hooks/worktree-parity.mjs` (new), `test/worktree-parity.test.ts` (new), `test/setup-hook-wiring.test.ts` | `spawn` | sol | [x] The hook exits 0 always and warns per missing entry point with a next step. Every install gets the script, and the root scaffold wires no `SessionStart` (`proof-quiet-install-parity-hook`, `-parity-wiring`) |
 | 14 | layout.md: quiet-install versioning and wiring | 12 | `templates/.agents/skills/harness-init/references/layout.md`, `test/harness-init-layout.test.ts` | `spawn` | sol | [x] The quiet-install section states its place on both paths. It has the versioning question with six items and its footer, the ignore and wiring questions with one diff and one approval, the Claude entry-point table, and the hook paths, all in the wording table's text with both layout names (`proof-quiet-install-init-section`, `-init-version`, `-init-wire`, `-init-wording`, `-claude-entry`, `-hook-paths`) |
 | 15 | layout.md: occupied paths, wiring record, runtime table | 14 | `templates/.agents/skills/harness-init/references/layout.md`, `test/harness-init-layout.test.ts` | `spawn` | sol | [x] The check before the diff keeps client paths and asks the three-way question; the kept-folder line and per-skill links are present. The wiring record has its fields and rerun rule. The eight runtime rows match the research note, each tracked-edit offer is in the wording table's text, and Codex's manual step is named (`proof-quiet-install-occupied`, `-wiring-record`, `-runtime-table`) |
@@ -63,9 +63,9 @@ fails on any difference. Owns lists the template path only.
 | 21 | harness-doctor refresh uses the path map | 12 | `templates/.agents/skills/harness-doctor/SKILL.md`, `test/harness-doctor-skill.test.ts` | `spawn` | sol | [x] The refresh step in a quiet install compares and rewrites through the fixed map, as R1.3 requires; a text check in `harness-doctor-skill.test.ts` passes |
 | 22 | Site guide, layout page and docs-root deferral | 12 | `site/install.md`, `site/layout.md`, `docs/deferrals/docs-root/docs-root-deferral.md` | `spawn` | sol | [x] The uninstall guide keeps edited files and docs before removal. The layout page names the quiet install as the default and the full install by name. The deferral fixes the docs root at `<harnessHome>/docs/`. `pnpm docs:build` and validate exit 0 (`proof-quiet-install-uninstall-guide`, `-layout-page`, `-deferral`) |
 | 23 | Copy rules pass | 11, 13, 16, 18, 19, 22 | `test/quiet-install-copy.test.ts` (new); edits limited to the strings checked, in the files units 04–05, 11, 13–19 and 22 own | `inline` | — | [x] Every question that writes outside the home names its tracked change. No "the Human" or glossary term is left in text people read, and the introduction comes first. Every stop says "Nothing changed." when true and names the next step, including wave 1–2 messages (`proof-quiet-install-tracked-changes`, `-terms-first`, `-next-step`) |
-| 24 | **Wave 3 gate** | 20, 21, 23 | `docs/specs/quiet-install/quiet-install-spec.md` (Wave 3 boxes) | `inline` | — | [x] The five gates plus `pnpm docs:build` exit 0; Wave 3 boxes ticked — **abort before Wave 4** |
+| 24 | **Wave 3 gate** | 20, 21, 23 | `docs/specs/archived/quiet-install/quiet-install-spec.md` (Wave 3 boxes) | `inline` | — | [x] The five gates plus `pnpm docs:build` exit 0; Wave 3 boxes ticked — **abort before Wave 4** |
 | 25 | Desktop worktree proof run | 24 | `docs/notes/quiet-install-proof/quiet-install-proof-note.md` (new) | `inline` | — | [x] With the Human watching, a fixture made by the built setup and a harness-init run loads skills, `AGENTS.md`, rules and the guard in a desktop worktree. A home ADR stays untracked with no prompt, root `git status` is empty, and deleting `CLAUDE.local.md` shows the parity warning. Cursor and other runtimes are probed where at hand (`proof-quiet-install-worktree-run`, `-worktree-warning`) |
-| 26 | **Ship gate** | 25 | `docs/specs/quiet-install/quiet-install-spec.md` (Wave 4 boxes) | `inline` | — | [x] Every acceptance box ticked; the breaking-marker gate exits 0; `node dist/cli.js validate` PASS — hand off to `code-pr` only on the Human's ask |
+| 26 | **Ship gate** | 25 | `docs/specs/archived/quiet-install/quiet-install-spec.md` (Wave 4 boxes) | `inline` | — | [x] Every acceptance box ticked; the breaking-marker gate exits 0; `node dist/cli.js validate` PASS — hand off to `code-pr` only on the Human's ask |
 
 Unit 23 is `inline` although its strings are copy. It edits strings
 across files that eight earlier units own, so it must share the session
@@ -122,7 +122,7 @@ Commit cadence: `autocommit: true`, `autocommit-rule: wave`, both from
 | Field | Value |
 |-------|-------|
 | Unit identifier | 01 — Amend ADR-007 in place; Wave 1 frontier |
-| Spec/plan paths | `docs/specs/quiet-install/quiet-install-spec.md` / `docs/specs/quiet-install/quiet-install-plan.md` |
+| Spec/plan paths | `docs/specs/archived/quiet-install/quiet-install-spec.md` / `docs/specs/archived/quiet-install/quiet-install-plan.md` |
 | Obligation / proof status | R1.2 / proof-quiet-install-contract — done; Human confirmed amendment on 2026-11-03; contract tests and Wave 1 gate PASS |
 | `HEAD` commit | `e8a5878` |
 | `git status` summary | dirty — proven Wave 1 Owns, spec acceptance and plan only; reconciled at gate before commit |
@@ -134,7 +134,7 @@ Commit cadence: `autocommit: true`, `autocommit-rule: wave`, both from
 | Field | Value |
 |-------|-------|
 | Unit identifier | 02 — Fixed path map; Wave 1 frontier |
-| Spec/plan paths | `docs/specs/quiet-install/quiet-install-spec.md` / `docs/specs/quiet-install/quiet-install-plan.md` |
+| Spec/plan paths | `docs/specs/archived/quiet-install/quiet-install-spec.md` / `docs/specs/archived/quiet-install/quiet-install-plan.md` |
 | Obligation / proof status | R1.1, R1.3 — done; Wave 1 gate PASS |
 | `HEAD` commit | `e8a5878` |
 | `git status` summary | dirty — proven Wave 1 Owns, spec acceptance and plan only; reconciled at gate before commit |
@@ -146,7 +146,7 @@ Commit cadence: `autocommit: true`, `autocommit-rule: wave`, both from
 | Field | Value |
 |-------|-------|
 | Unit identifier | 03 — Validate roots a quiet install at its home; Wave 1 frontier |
-| Spec/plan paths | `docs/specs/quiet-install/quiet-install-spec.md` / `docs/specs/quiet-install/quiet-install-plan.md` |
+| Spec/plan paths | `docs/specs/archived/quiet-install/quiet-install-spec.md` / `docs/specs/archived/quiet-install/quiet-install-plan.md` |
 | Obligation / proof status | R2.1–R2.4, R2.6–R2.7 — done; Wave 1 gate PASS |
 | `HEAD` commit | `e8a5878` |
 | `git status` summary | dirty — proven Wave 1 Owns, spec acceptance and plan only; reconciled at gate before commit |
@@ -158,7 +158,7 @@ Commit cadence: `autocommit: true`, `autocommit-rule: wave`, both from
 | Field | Value |
 |-------|-------|
 | Unit identifier | 05 — Doctor quiet install; Wave 1 frontier |
-| Spec/plan paths | `docs/specs/quiet-install/quiet-install-spec.md` / `docs/specs/quiet-install/quiet-install-plan.md` |
+| Spec/plan paths | `docs/specs/archived/quiet-install/quiet-install-spec.md` / `docs/specs/archived/quiet-install/quiet-install-plan.md` |
 | Obligation / proof status | R3.1, R3.2, R3.5, R3.6 — done; Wave 1 gate PASS |
 | `HEAD` commit | `e8a5878` |
 | `git status` summary | dirty — proven Wave 1 Owns, spec acceptance and plan only; reconciled at gate before commit |
@@ -170,7 +170,7 @@ Commit cadence: `autocommit: true`, `autocommit-rule: wave`, both from
 | Field | Value |
 |-------|-------|
 | Unit identifier | 07 — Drift applies the path map; after 02 |
-| Spec/plan paths | `docs/specs/quiet-install/quiet-install-spec.md` / `docs/specs/quiet-install/quiet-install-plan.md` |
+| Spec/plan paths | `docs/specs/archived/quiet-install/quiet-install-spec.md` / `docs/specs/archived/quiet-install/quiet-install-plan.md` |
 | Obligation / proof status | R3.4 / proof-quiet-install-drift-pathmap — done; Wave 1 gate PASS |
 | `HEAD` commit | `e8a5878` |
 | `git status` summary | dirty — proven Wave 1 Owns, spec acceptance and plan only; reconciled at gate before commit |
@@ -182,7 +182,7 @@ Commit cadence: `autocommit: true`, `autocommit-rule: wave`, both from
 | Field | Value |
 |-------|-------|
 | Unit identifier | 04 — Ignored scope and misplaced docs; after 03 |
-| Spec/plan paths | `docs/specs/quiet-install/quiet-install-spec.md` / `docs/specs/quiet-install/quiet-install-plan.md` |
+| Spec/plan paths | `docs/specs/archived/quiet-install/quiet-install-spec.md` / `docs/specs/archived/quiet-install/quiet-install-plan.md` |
 | Obligation / proof status | R2.5, R2.8 — done; Wave 1 gate PASS |
 | `HEAD` commit | `e8a5878` |
 | `git status` summary | dirty — proven Wave 1 Owns, spec acceptance and plan only; reconciled at gate before commit |
@@ -194,7 +194,7 @@ Commit cadence: `autocommit: true`, `autocommit-rule: wave`, both from
 | Field | Value |
 |-------|-------|
 | Unit identifier | 06 — Registry and doctor per runtime; after 05 |
-| Spec/plan paths | `docs/specs/quiet-install/quiet-install-spec.md` / `docs/specs/quiet-install/quiet-install-plan.md` |
+| Spec/plan paths | `docs/specs/archived/quiet-install/quiet-install-spec.md` / `docs/specs/archived/quiet-install/quiet-install-plan.md` |
 | Obligation / proof status | R3.3 / proof-quiet-install-doctor-runtimes — done; Wave 1 gate PASS |
 | `HEAD` commit | `e8a5878` |
 | `git status` summary | dirty — proven Wave 1 Owns, spec acceptance and plan only; reconciled at gate before commit |
@@ -206,11 +206,11 @@ Commit cadence: `autocommit: true`, `autocommit-rule: wave`, both from
 | Field | Value |
 |-------|-------|
 | Unit identifier | 08 — Wave 1 gate; STOP before Wave 2 |
-| Spec/plan paths | `docs/specs/quiet-install/quiet-install-spec.md` / `docs/specs/quiet-install/quiet-install-plan.md` |
+| Spec/plan paths | `docs/specs/archived/quiet-install/quiet-install-spec.md` / `docs/specs/archived/quiet-install/quiet-install-plan.md` |
 | Obligation / proof status | Wave 1 acceptance boxes — done; Wave 1 gate PASS |
 | `HEAD` commit | `e8a5878` |
 | `git status` summary | dirty — proven Wave 1 Owns, spec acceptance and plan only; reconciled at gate before commit |
-| Intended diff scope | `docs/specs/quiet-install/quiet-install-spec.md` Wave 1 acceptance; plan marks in same wave commit |
+| Intended diff scope | `docs/specs/archived/quiet-install/quiet-install-spec.md` Wave 1 acceptance; plan marks in same wave commit |
 | Decision on every discrepancy | Resolved: Codex skills are checked, but its instruction row has no automatic wiring; doctor-entry reports its manual step. All seven other non-Claude runtimes receive passing wired fixtures. No Wave 2 work authorized in this batch. |
 
 ### Wave 1 evidence and next frontier
@@ -235,7 +235,7 @@ in one local commit. STOP at unit 08. Wave 2 was resumed by the Human on 2026-11
 | Field | Value |
 |-------|-------|
 | Unit identifier | 09 — Setup writes the quiet-install scaffold; first Wave 2 frontier |
-| Spec/plan paths | `docs/specs/quiet-install/quiet-install-spec.md` / `docs/specs/quiet-install/quiet-install-plan.md` |
+| Spec/plan paths | `docs/specs/archived/quiet-install/quiet-install-spec.md` / `docs/specs/archived/quiet-install/quiet-install-plan.md` |
 | Obligation / proof status | R4.1 scaffold, R4.2, R4.4, R4.6 — done; Wave 2 gate PASS |
 | `HEAD` commit | `ea1a4a2` |
 | `git status` summary | dirty — proven Wave 2 paths and plan only; clean at batch start |
@@ -247,7 +247,7 @@ in one local commit. STOP at unit 08. Wave 2 was resumed by the Human on 2026-11
 | Field | Value |
 |-------|-------|
 | Unit identifier | 10 — Bootstrap links and rerun; after 09 focused proofs |
-| Spec/plan paths | `docs/specs/quiet-install/quiet-install-spec.md` / `docs/specs/quiet-install/quiet-install-plan.md` |
+| Spec/plan paths | `docs/specs/archived/quiet-install/quiet-install-spec.md` / `docs/specs/archived/quiet-install/quiet-install-plan.md` |
 | Obligation / proof status | R4.1 bootstrap, R4.5 — done; Wave 2 gate PASS |
 | `HEAD` commit | `ea1a4a2` |
 | `git status` summary | dirty — unit 09 source, template, tests and plan; parent owns explicit-home regression fixtures |
@@ -259,7 +259,7 @@ in one local commit. STOP at unit 08. Wave 2 was resumed by the Human on 2026-11
 | Field | Value |
 |-------|-------|
 | Unit identifier | 11 — Setup summary and next steps; after 10 focused proofs |
-| Spec/plan paths | `docs/specs/quiet-install/quiet-install-spec.md` / `docs/specs/quiet-install/quiet-install-plan.md` |
+| Spec/plan paths | `docs/specs/archived/quiet-install/quiet-install-spec.md` / `docs/specs/archived/quiet-install/quiet-install-plan.md` |
 | Obligation / proof status | R4.3, R4.7 — done; Wave 2 gate PASS |
 | `HEAD` commit | `ea1a4a2` |
 | `git status` summary | dirty — units 09–10 plus explicit-home regression fixtures and known-forms generation |
@@ -271,11 +271,11 @@ in one local commit. STOP at unit 08. Wave 2 was resumed by the Human on 2026-11
 | Field | Value |
 |-------|-------|
 | Unit identifier | 12 — Wave 2 gate; STOP before Wave 3 |
-| Spec/plan paths | `docs/specs/quiet-install/quiet-install-spec.md` / `docs/specs/quiet-install/quiet-install-plan.md` |
+| Spec/plan paths | `docs/specs/archived/quiet-install/quiet-install-spec.md` / `docs/specs/archived/quiet-install/quiet-install-plan.md` |
 | Obligation / proof status | Wave 2 acceptance boxes — done; Wave 2 gate PASS |
 | `HEAD` commit | `ea1a4a2` |
 | `git status` summary | dirty — Wave 2 Owns, explicit-home regression fixture migrations, generated template forms and plan |
-| Intended diff scope | `docs/specs/quiet-install/quiet-install-spec.md` Wave 2 acceptance, plan completion marks, atomic wave commit with breaking footer |
+| Intended diff scope | `docs/specs/archived/quiet-install/quiet-install-spec.md` Wave 2 acceptance, plan completion marks, atomic wave commit with breaking footer |
 | Decision on every discrepancy | Resolved: full-install fixtures opt into home so original assertions remain; prompt/invalid/new-default tests remain config-free. The template mapping is mirrored in `scripts/known-forms.mjs`, its test and generated `known-forms.json`. Index orchestration and config writer seam are recorded under units 09 and 11. |
 
 ### Wave 2 evidence and next frontier
@@ -318,7 +318,7 @@ for the Wave 2 template.
 | Field | Value |
 |-------|-------|
 | Unit identifier | 13, 14, 17, 20, 21, 22 — first Wave 3 frontier; 15 → 16 after 14; 18 → 19 after 17; 23 inline after all copy units; 24 gate |
-| Spec/plan paths | `docs/specs/quiet-install/quiet-install-spec.md` / `docs/specs/quiet-install/quiet-install-plan.md` |
+| Spec/plan paths | `docs/specs/archived/quiet-install/quiet-install-spec.md` / `docs/specs/archived/quiet-install/quiet-install-plan.md` |
 | Obligation / proof status | R5.1–R5.15, R6.1–R6.3, R7.1–R7.2, R8.1–R8.2, R9.1–R9.3, R11.1–R11.3 — done; Wave 3 gate PASS |
 | `HEAD` commit | `8ddb866` |
 | `git status` summary | clean at batch start; this plan file is the only dirt before builders start |
@@ -330,7 +330,7 @@ for the Wave 2 template.
 | Field | Value |
 |-------|-------|
 | Unit identifier | 23 — Copy rules pass; inline, after units 13–22 returned complete |
-| Spec/plan paths | `docs/specs/quiet-install/quiet-install-spec.md` / `docs/specs/quiet-install/quiet-install-plan.md` |
+| Spec/plan paths | `docs/specs/archived/quiet-install/quiet-install-spec.md` / `docs/specs/archived/quiet-install/quiet-install-plan.md` |
 | Obligation / proof status | R11.1–R11.3 — done; Wave 3 gate PASS |
 | `HEAD` commit | `8ddb866` |
 | `git status` summary | dirty — Wave 3 builder Owns, their skill mirrors, `known-forms.json`, and parent follow-ups listed below; no unrelated paths |
@@ -370,7 +370,7 @@ Active batch: Wave 4, units 25–26. Stop after unit 26; no push or PR.
 | Field | Value |
 |-------|-------|
 | Unit identifier | 25 — Desktop worktree proof run; Wave 4 frontier, inline |
-| Spec/plan paths | `docs/specs/quiet-install/quiet-install-spec.md` / `docs/specs/quiet-install/quiet-install-plan.md` |
+| Spec/plan paths | `docs/specs/archived/quiet-install/quiet-install-spec.md` / `docs/specs/archived/quiet-install/quiet-install-plan.md` |
 | Obligation / proof status | R10.1, R10.2 — done; Human accepted on 2026-11-03. `U-cursor-ignored-rules`, `U-runtimes-ignored-load` stay open: no other runtime was at hand |
 | `HEAD` commit | `dc00a35` |
 | `git status` summary | clean at unit start; this plan file is the only dirt before the proof note |
@@ -416,7 +416,7 @@ point to clear a failed check.
 | Field | Value |
 |-------|-------|
 | Unit identifier | 26 — Ship gate; STOP, inline |
-| Spec/plan paths | `docs/specs/quiet-install/quiet-install-spec.md` / `docs/specs/quiet-install/quiet-install-plan.md` |
+| Spec/plan paths | `docs/specs/archived/quiet-install/quiet-install-spec.md` / `docs/specs/archived/quiet-install/quiet-install-plan.md` |
 | Obligation / proof status | Wave 4 acceptance boxes — done; ship gate PASS |
 | `HEAD` commit | `dc00a35` |
 | `git status` summary | dirty — unit 25's note, the Human-directed skill changes and their mirrors, tests, `known-forms.json`, one deferral, spec and plan; no unrelated paths |

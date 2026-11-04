@@ -2,12 +2,12 @@
 type: spec
 title: Quiet install
 description: Make setup at a repository root write the harness into .wolven-harness/, teach validate and doctor to read that home, and give harness-init the layout switch and the quiet-install versioning and wiring steps.
-status: stable
+status: deprecated
 ---
 
 # Quiet install
 
-**Source:** `docs/prds/quiet-install/quiet-install-prd.md` (status `stable`).
+**Source:** `docs/prds/archived/quiet-install/quiet-install-prd.md` (status `stable`).
 **Contract:** ADR-007 (`docs/adrs/adr-007-quiet-install-contract.md`, `stable`), amended in place by wave 1 (see ADR).
 **Next:** After the Human approves → `code-plan` → `code-execute`, waves
 **1 → 2 → 3 → 4**, in one PR.
@@ -122,7 +122,7 @@ Glossary for text people read:
 | `.wolven-harness/wiring.json` (wiring record) | no | New; written by harness-init, read by doctor (R3.6, R5.15) |
 | `docs/notes/quiet-install-fixture-walk/quiet-install-fixture-walk-note.md` | yes | Twelve persona walks; R4.1, R4.3, R5.5, R5.6 and R5.12–R5.15 settle its findings F1–F8 |
 | `docs/notes/quiet-install-runtimes/quiet-install-runtimes-note.md` | yes | The source of R6.2's rows: each non-Claude runtime's documented entry points, its tracked-edit offer, and its manual step |
-| `docs/prds/quiet-install/quiet-install-prd.md` G1, AC-1.1 | yes | Amended with the Human's yes on 2026-11-03 to match R4.1's footprint: the root config, the home `AGENTS.md`, approved tracked client edits and the untracked bootstrap links |
+| `docs/prds/archived/quiet-install/quiet-install-prd.md` G1, AC-1.1 | yes | Amended with the Human's yes on 2026-11-03 to match R4.1's footprint: the root config, the home `AGENTS.md`, approved tracked client edits and the untracked bootstrap links |
 | `templates/.agents/hooks/worktree-parity.mjs` | no | New `SessionStart` check |
 | `site/layout.md`, `site/install.md` | yes | Gain the quiet-install layout and the uninstall guide |
 | `docs/deferrals/docs-root/docs-root-deferral.md` | yes | Its trigger fires with a fixed path; narrowed by this initiative |
