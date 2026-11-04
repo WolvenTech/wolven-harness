@@ -2,7 +2,7 @@
 type: prd
 title: Harness uninstall and agentic removal
 description: Add a wolven-harness uninstall CLI command that discovers, lists, and after confirmation removes harness installs across local repositories and nearby folders while preserving docs/, then offers to install a harness-remove skill into a chosen runtime for thorough agent-assisted cleanup.
-status: draft
+status: stable
 ---
 
 # Harness uninstall and agentic removal
