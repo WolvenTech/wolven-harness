@@ -729,6 +729,11 @@ test('proof-iter1-cursor-guard: a quiet install runs the Cursor guard from the h
   const different = await forHooks();
   assert.equal(different.length, 1, JSON.stringify(different));
   assert.equal(different[0].code, 'doctor-rules-stale');
+  for (const finding of [missing[0], different[0]]) {
+    const fix = finding.level === 'error' ? finding.fix : '';
+    assert.match(fix, /harness-init/);
+    assert.doesNotMatch(fix, /wolven-harness setup/);
+  }
 
   await writeFile(path.join(dir, '.cursor/hooks.json'), hooks);
   assert.deepEqual(await forHooks(), []);

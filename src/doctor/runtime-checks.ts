@@ -192,7 +192,7 @@ async function quietRuntimeFindings(
           level: 'error',
           code: 'doctor-rules-stale',
           message: `${row.name}: ${file} differs from the current harness source`,
-          fix: `ask your agent to run the harness-doctor skill to refresh ${file}`,
+          fix: `review ${file}, then delete it and ask your agent to run the harness-init skill to recreate it`,
         });
     }
   }

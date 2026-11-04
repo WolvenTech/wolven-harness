@@ -62,7 +62,7 @@ The commands, flags, exit codes, finding codes, summary lines, and configuration
 wolven-harness doctor [--dir <path>]
 ```
 
-`doctor` is read-only. In a quiet install, refresh a stale file by deleting that one file and rerunning `wolven-harness setup`; the `harness-doctor` skill does this after your yes. It checks the install from the current folder, or from the folder named by `--dir`, and prints each finding with its code. Error findings include a `fix:` line; warnings do not. It exits 1 when any error is present and 0 when only warnings or no findings remain. `doctor: ok` is the clean summary. The `harness-doctor` core skill explains the findings and proposes repairs one at a time, after asking.
+`doctor` is read-only. In a quiet install, refresh a stale file in the harness folder by deleting that one file and rerunning `wolven-harness setup`. For a generated root file such as `.cursor/hooks.json`, delete it and ask your agent to run the `harness-init` skill, because `setup` does not write those. The `harness-doctor` skill does either after your yes. It checks the install from the current folder, or from the folder named by `--dir`, and prints each finding with its code. Error findings include a `fix:` line; warnings do not. It exits 1 when any error is present and 0 when only warnings or no findings remain. `doctor: ok` is the clean summary. The `harness-doctor` core skill explains the findings and proposes repairs one at a time, after asking.
 
 | Code | Level | Meaning |
 | --- | --- | --- |
