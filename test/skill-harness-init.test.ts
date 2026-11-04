@@ -234,8 +234,9 @@ test('proof-safety-audit-offered-last: every path asks first, promises secrets s
   );
   assert.match(
     flatten(skill.body.replace(/^\s*> ?/gm, '')),
-    /I can't find `wolven-harness` on this machine, so I can't check the setup\. Next: install it with `<install command>`, then tell me to continue\./,
+    /I can't find `wolven-harness` on this machine, so I can't check the setup\. Next: install it with `npm install -g @wolven-tech\/harness`, then tell me to continue\./,
   );
+  assert.doesNotMatch(skill.body, /<install command>/);
   assert.match(step6, /"Run the audit \(recommended\)" and "Skip it"\. Never run it unasked/);
   assert.match(step6, /read only `HYG-03`, `HYG-04` and `HYG-06`/);
   assert.match(

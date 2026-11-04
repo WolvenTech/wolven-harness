@@ -42,11 +42,10 @@ These rules hold across every step below.
    `wolven-harness validate`. When the CLI is missing, stop and say:
 
    > I can't find `wolven-harness` on this machine, so I can't check the
-   > setup. Next: install it with `<install command>`, then tell me to
-   > continue.
+   > setup. Next: install it with `npm install -g @wolven-tech/harness`, then
+   > tell me to continue.
 
-   `<install command>` is the global install `setup` prints. Never hunt for
-   another build of the CLI.
+   Never hunt for another build of the CLI.
 2. **One question at a time.** An ambiguity — an entry mode, an ADR status,
    a successor, anything the repo or the Human hasn't settled — becomes a
    single question to the Human, the recommended option listed first (see
