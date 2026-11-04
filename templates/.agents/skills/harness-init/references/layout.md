@@ -220,8 +220,9 @@ root, the one the client would see. `outcome` is one of:
   set up. `doctor` still reports it with the manual step.
 
 On a rerun, read the record first. Ask again only for an entry point that is
-missing and has no recorded outcome. A `linked` entry whose symlink is gone
-goes into the diff to be recreated, without a question. The nested
+missing and has no recorded outcome. A `linked` entry whose symlink or generated
+file is gone, such as `.cursor/hooks.json` or a quiet rule copy, goes into the
+diff to be recreated, without a question. The nested
 `.gitignore` ignores `wiring.json`, so it never reaches the commit list.
 
 ### Harness block
