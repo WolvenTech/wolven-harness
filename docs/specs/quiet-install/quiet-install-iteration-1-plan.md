@@ -62,7 +62,7 @@ one `n/a` cites the unchanged `wiring.json` format.
 | 21 | Stale artifacts | 18 | The paths in I6.5 | `spawn` | sonnet | [x] The listed files are gone, the three notes are `stable`, and validate passes: `proof-iter1-artifacts` |
 | 22 | Trim prose-pinning tests | 19, 20 | `test/harness-init-layout.test.ts`, `test/skill-harness-init.test.ts`, `test/quiet-install-copy.test.ts` | `spawn` | sonnet | [x] Through `test-sync`: order, option, gate and mapped-output checks stay, each kept wording row has at most one test, and the lines removed are in the evidence: `proof-iter1-test-trim` |
 | 23 | Wave 4 gate | 19–22 | Spec boxes, plan marks | `inline` | — | [x] The full gate exits 0, the diffs are read, and the wave is committed |
-| 24 | Live worktree check | 23 | `docs/notes/quiet-install-proof/quiet-install-proof-note.md` | `inline` | — | [ ] STOP for the Human. Every check in I7.1 is observed in a fixture built from this head, `U-worktree-untracked-hooks` is answered, and the Human accepts the note: `proof-iter1-live-worktree` |
+| 24 | Live worktree check | 23 | `docs/notes/quiet-install-proof/quiet-install-proof-note.md` | `inline` | — | [x] STOP for the Human. Every check in I7.1 is observed in a fixture built from this head, `U-worktree-untracked-hooks` is answered, and the Human accepts the note: `proof-iter1-live-worktree` |
 | 25 | Close the findings | 24 | This plan's closing table, spec boxes | `inline` | — | [x] Every row below has an outcome and evidence: `proof-iter1-findings-closed`. STOP: `Package` and `CI` turn green only after a push, which waits for the Human's ask through `code-pr` |
 
 ## Wave stops

@@ -100,7 +100,8 @@ branch's build passes with `.qmd` ignored, so this came from the proof setup.
 ## Iteration-1 live check
 
 Run on 2026-11-04 with Claude Code 2.1.318 and Cursor 3.28.7, and observed by
-the Human, in a fixture built from `0a2d941`. It covers I7.1 of
+the Human, in a fixture built from `0a2d941`. The Human accepted this run on
+2026-11-04, including the limits below. It covers I7.1 of
 `docs/specs/quiet-install/quiet-install-iteration-1-spec.md`. Every Claude Code
 step ran in a terminal, not the desktop app. Cursor was opened from the Dock.
 

@@ -314,7 +314,7 @@ flowchart TD
 
 ### Wave 5
 
-- [ ] I7.1 `proof-iter1-live-worktree` PASS
+- [x] I7.1 `proof-iter1-live-worktree` PASS
 - [x] I7.2 `proof-iter1-findings-closed` PASS
 
 ## Eval / gates
