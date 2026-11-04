@@ -105,6 +105,7 @@ test('proof-secret-path-guard-manual-wiring-docs: hooks README documents the gua
   assert.deepEqual(hookFiles.sort(), [
     path.join('hooks', 'secret-path-guard.mjs'),
     path.join('hooks', 'secret-paths.mjs'),
+    path.join('hooks', 'worktree-parity.mjs'),
   ]);
   for (const rel of hookFiles)
     assert.ok(readme.content.includes(`## ${path.basename(rel)}`), `README documents ${rel}`);

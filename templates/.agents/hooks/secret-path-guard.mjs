@@ -3,7 +3,6 @@ import process from 'node:process';
 import { pathToFileURL } from 'node:url';
 import { commandTouchesSecret, isSecretPath } from './secret-paths.mjs';
 
-const RULE = '.agents/rules/secrets.md';
 const DENY_EXIT = 2;
 const STDIN_TIMEOUT_MS = 5000;
 const PATH_FIELDS = ['file_path', 'path'];
@@ -12,26 +11,24 @@ function isObject(value) {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
-function denied(target) {
+function denied() {
   return {
     decision: 'deny',
     message:
-      `secret-path-guard: blocked ${target}, which is secret-shaped and must stay out of the session (${RULE}). ` +
-      'This refusal is final: ask the Human for access instead of retrying another way.',
+      'This file may hold secrets, so the harness blocked your agent from opening it. Open it yourself if you need to.',
   };
 }
 
-/** The first secret-shaped target a payload's path, command or Glob pattern fields name, or undefined. */
-function secretTarget(payload) {
+/** True when a payload's path, command or Glob pattern fields name a secret-shaped target. */
+function namesSecret(payload) {
   const toolInput = isObject(payload.tool_input) ? payload.tool_input : {};
   for (const source of [payload, toolInput]) {
     for (const field of PATH_FIELDS) {
-      if (isSecretPath(source[field])) return `\`${source[field]}\``;
+      if (isSecretPath(source[field])) return true;
     }
-    if (commandTouchesSecret(source.command)) return `the command \`${source.command}\``;
+    if (commandTouchesSecret(source.command)) return true;
   }
-  if (payload.tool_name === 'Glob' && isSecretPath(toolInput.pattern)) return `the pattern \`${toolInput.pattern}\``;
-  return undefined;
+  return payload.tool_name === 'Glob' && isSecretPath(toolInput.pattern);
 }
 
 /**
@@ -43,11 +40,10 @@ export function decide(payload) {
   if (!isObject(payload)) {
     return {
       decision: 'deny',
-      message: `secret-path-guard: the hook payload was not a JSON object, so the tool call is denied (${RULE}).`,
+      message: 'secret-path-guard: the hook payload was not a JSON object, so the tool call is denied.',
     };
   }
-  const target = secretTarget(payload);
-  return target === undefined ? { decision: 'allow' } : denied(target);
+  return namesSecret(payload) ? denied() : { decision: 'allow' };
 }
 
 function respond(result) {

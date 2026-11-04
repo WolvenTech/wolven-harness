@@ -10,7 +10,7 @@ const execFileAsync = promisify(execFile);
 const ARGS = ['setup', '--git-host', 'gh', '--runtimes', 'codex'];
 
 test('setup-qmd-ignore: a fresh init writes .qmd/.gitignore and git ignores the local index', async () => {
-  const dir = await makeRepo({}, { git: true });
+  const dir = await makeRepo({}, { git: true, layout: 'home' });
 
   const result = await run(ARGS, { cwd: dir });
 
@@ -25,7 +25,7 @@ test('setup-qmd-ignore: a fresh init writes .qmd/.gitignore and git ignores the 
 });
 
 test('setup-qmd-ignore: an existing .qmd/.gitignore is kept and reported as kept', async () => {
-  const dir = await makeRepo({ '.qmd/.gitignore': 'mine\n' }, { git: true });
+  const dir = await makeRepo({ '.qmd/.gitignore': 'mine\n' }, { git: true, layout: 'home' });
 
   const result = await run(ARGS, { cwd: dir });
 

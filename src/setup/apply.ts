@@ -2,7 +2,8 @@ import type { Dirent } from 'node:fs';
 import { lstat, mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { pathExists } from '../path-exists.js';
-import { applySetMarkers, renderWolven } from './render-wolven.js';
+import { mapQuietInstallPaths } from './path-map.js';
+import { renderQmdIndex, renderWolven } from './render-wolven.js';
 import { SET_PATHS, SKILL_SETS, type SkillSet } from './skill-sets.js';
 import type { Context, StepResult } from './types.js';
 
@@ -18,7 +19,13 @@ const QMD_INDEX = '.qmd/index.yml';
 export const INSTALLED_AS: Record<string, string> = {
   '.qmd/gitignore': '.qmd/.gitignore',
   'docs/maps/gitignore': 'docs/maps/.gitignore',
+  '.wolven-harness/gitignore': '.gitignore',
 };
+
+/** True for installed files whose `docs/` and `.agents/` mentions a quiet install maps; hooks are not mapped. */
+export function isQuietMapped(installed: string): boolean {
+  return installed.startsWith('.agents/skills/') || installed.startsWith('.agents/rules/');
+}
 
 export function toPosix(relFsPath: string): string {
   return relFsPath.split(path.sep).join('/');
@@ -81,13 +88,14 @@ export async function selectTemplateFiles(
   templatesDir: string,
   skillFolders?: readonly string[],
   sets?: readonly SkillSet[],
-  options: { skillsOnly?: boolean } = {},
+  options: { skillsOnly?: boolean; quiet?: boolean } = {},
 ): Promise<SelectedTemplateFile[]> {
   const selected: SelectedTemplateFile[] = [];
 
   for (const relFsPath of await walkFiles(templatesDir)) {
     const source = toPosix(relFsPath);
-    const installed = INSTALLED_AS[source] ?? source;
+    if (source === '.wolven-harness/gitignore' && !options.quiet) continue;
+    const installed = options.quiet && source === WOLVEN_MD ? AGENTS_MD : (INSTALLED_AS[source] ?? source);
 
     if (options.skillsOnly === true && !installed.startsWith('.agents/skills/')) continue;
     const skillName = /^\.agents\/skills\/([^/]+)\//.exec(installed)?.[1];
@@ -104,13 +112,15 @@ export async function selectTemplateFiles(
   return selected;
 }
 
+export type TemplateWriter = (file: string, content: string) => Promise<void>;
+
 /**
  * Walks `ctx.templatesDir` and creates each template file at its matching
  * path under `ctx.root`, but only when that path (and every directory
  * component leading to it) is missing — an existing path, whatever it is,
  * is left byte-identical and reported under `skipped`. `AGENTS.md` is
- * hard-refused: never created or edited, even if the template manifest
- * carried one. A template listed in `INSTALLED_AS` is written under its mapped name. `WOLVEN.md`'s content comes from `renderWolven(ctx)` rather
+ * hard-refused in the template manifest; quiet installs render their own
+ * harness-owned `AGENTS.md` from `WOLVEN.md`. A template listed in `INSTALLED_AS` is written under its mapped name. `WOLVEN.md`'s content comes from `renderWolven(ctx)` rather
  * than being copied verbatim. When `skillFolders` is given, only those
  * skill folders under `.agents/skills/` are considered; the rest are neither
  * created nor reported. When `sets` is given, a template under a set's
@@ -123,16 +133,20 @@ export async function applyTemplates(
   ctx: Context,
   skillFolders?: readonly string[],
   sets?: readonly SkillSet[],
-  options: { skillsOnly?: boolean } = {},
+  options: { skillsOnly?: boolean; quiet?: boolean; write?: TemplateWriter } = {},
 ): Promise<StepResult> {
   const created: string[] = [];
   const skipped: string[] = [];
 
   const templateFiles = await selectTemplateFiles(ctx.templatesDir, skillFolders, sets, options);
 
+  if (options.quiet)
+    templateFiles.sort((a, b) => Number(b.installed === '.gitignore') - Number(a.installed === '.gitignore'));
+  const write = options.write ?? ((file, content) => writeFile(file, content, 'utf8'));
+
   for (const { source, installed: rel } of templateFiles) {
-    if (rel === AGENTS_MD) {
-      // invariant: setup never creates or edits AGENTS.md, even when a template lists it.
+    if (source === AGENTS_MD) {
+      // invariant: a template cannot replace client instructions; only the quiet router owns AGENTS.md.
       skipped.push(rel);
       continue;
     }
@@ -148,13 +162,14 @@ export async function applyTemplates(
 
     const raw = () => readFile(path.join(ctx.templatesDir, ...source.split('/')), 'utf8');
     const content =
-      rel === WOLVEN_MD
-        ? await renderWolven(ctx, skillFolders, sets)
+      source === WOLVEN_MD
+        ? await renderWolven(ctx, skillFolders, sets, options.quiet)
         : rel === QMD_INDEX
-          ? applySetMarkers(await raw(), sets)
+          ? renderQmdIndex(await raw(), sets, options.quiet)
           : await raw();
 
-    await writeFile(targetPath, content, 'utf8');
+    const mapped = options.quiet && isQuietMapped(rel) ? mapQuietInstallPaths(content) : content;
+    await write(targetPath, mapped);
     created.push(rel);
   }
 

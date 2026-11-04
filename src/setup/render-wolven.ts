@@ -2,6 +2,7 @@ import type { Dirent } from 'node:fs';
 import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { classifyFrontmatter, skillIdentity } from '../frontmatter.js';
+import { mapQuietInstallPaths } from './path-map.js';
 import { isSkillSet, type SkillSet } from './skill-sets.js';
 import type { Context } from './types.js';
 
@@ -56,6 +57,15 @@ export function applySetMarkers(text: string, sets?: readonly SkillSet[]): strin
 }
 
 /**
+ * Renders `.qmd/index.yml` from its template for setup, drift and known forms.
+ * A quiet install indexes `./.wolven-harness/docs/...`, so a client `docs/` is never a collection.
+ */
+export function renderQmdIndex(template: string, sets?: readonly SkillSet[], quiet = false): string {
+  const rendered = applySetMarkers(template, sets);
+  return quiet ? rendered.replace(/^(\s*path: )\.\/docs\//gm, '$1./.wolven-harness/docs/') : rendered;
+}
+
+/**
  * Walks `templatesDir/.agents/skills/*` for each skill folder's
  * `SKILL.md`, and returns every skill's frontmatter, sorted by name. A new
  * skill folder is picked up automatically — no code change needed here.
@@ -99,6 +109,7 @@ export async function renderWolven(
   ctx: Context,
   only?: readonly string[],
   sets?: readonly SkillSet[],
+  quiet = false,
 ): Promise<string> {
   const templatePath = path.join(ctx.templatesDir, 'WOLVEN.md');
   const template = await readFile(templatePath, 'utf8');
@@ -106,5 +117,10 @@ export async function renderWolven(
   const skills = await collectSkills(ctx.templatesDir, only);
   const table = renderSkillsTable(skills);
 
-  return applySetMarkers(template.split(SKILLS_TABLE_PLACEHOLDER).join(table), sets);
+  const rendered = applySetMarkers(template.split(SKILLS_TABLE_PLACEHOLDER).join(table), sets);
+  if (!quiet) return rendered;
+  return mapQuietInstallPaths(rendered.slice(rendered.indexOf('<!-- wolven-harness:start -->'))).replaceAll(
+    '`.harness-score.json`',
+    '`.wolven-harness/.harness-score.json`',
+  );
 }

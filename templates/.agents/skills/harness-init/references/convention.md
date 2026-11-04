@@ -3,7 +3,10 @@
 After the layout is settled, step 2 settles how the code repository writes
 commit subjects and records that answer in the harness home's
 `.wolven-harness.json`. The harness home keeps Conventional Commits; the
-recorded convention applies to `codeRepo` work.
+recorded convention applies to `codeRepo` work. In a quiet install there is
+no `codeRepo`: the convention is recorded at the root `.wolven-harness.json`
+with no `codeRepo`, and `code-commit` and `code-pr` apply it to every commit,
+harness paths included.
 
 Run it right after the layout step, before discovery. Ask one question at a
 time and show every diff before writing.
