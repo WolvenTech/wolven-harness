@@ -144,6 +144,13 @@ before choosing the subject:
   an example like `PROJ-123: fix the parser` means
   `PROJ-123: <summary>`.
 
+In a quiet install (`layout: "linked"` with `harnessHome` set to
+`.wolven-harness`) the config has no `codeRepo`: the root
+`.wolven-harness.json` records `commitConvention`, and it applies to every
+commit in the repository, harness paths included. Stage a path under
+`.wolven-harness/` only when you name it, and never stage with `git add -A`
+or `git add .`; add each path by name.
+
 With no config, no `codeRepo`, or no `commitConvention`, keep Conventional
 Commits. The convention changes the subject line only: staging, grouping,
 validation and the atomic plan-completion mark do not change.

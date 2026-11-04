@@ -2,7 +2,8 @@
 type: adr
 title: Extend the public contract with read-only installation checks
 description: Carry the wiring contract forward and add doctor, linked-layout configuration, stale-rule errors and offline classification of earlier template forms.
-status: stable
+status: deprecated
+superseded_by: adr-007-quiet-install-contract
 ---
 
 # Extend the public contract with read-only installation checks

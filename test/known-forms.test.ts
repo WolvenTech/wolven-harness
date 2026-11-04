@@ -36,6 +36,7 @@ function installedPath(template: string): string {
     (
       {
         '.qmd/gitignore': '.qmd/.gitignore',
+        '.wolven-harness/gitignore': '.gitignore',
         'docs/maps/gitignore': 'docs/maps/.gitignore',
       } as Record<string, string>
     )[template] ?? template

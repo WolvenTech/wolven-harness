@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { classifyFrontmatter } from '../src/frontmatter.js';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const RULES = ['comments.md', 'project-skill-precedence.md', 'qmd-first.md', 'yagni-strict.md'] as const;
+const RULES = ['comments.md', 'project-skill-precedence.md', 'qmd-first.md', 'secrets.md', 'yagni-strict.md'] as const;
 const RULE_DIRS = ['.agents/rules', 'templates/.agents/rules'] as const;
 
 async function frontmatterOf(rel: string): Promise<Record<string, unknown>> {

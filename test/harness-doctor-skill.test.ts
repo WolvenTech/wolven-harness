@@ -84,6 +84,14 @@ test('proof-install-experience-doctor-refresh: stale files are replaced one at a
   assert.doesNotMatch(completeSkill, /manifest/i);
 });
 
+test('proof-quiet-install-doctor-refresh-pathmap: a quiet install refreshes a stale file by delete and rerun', async () => {
+  const flat = flatten((await readSkill('harness-doctor')).body);
+
+  assert.match(flat, /In a quiet install/);
+  assert.match(flat, /wolven-harness setup/);
+  assert.doesNotMatch(flat, /write the template text/);
+});
+
 test('proof-install-experience-rules-refresh: stale copies and inline blocks refresh only after review and approval', async () => {
   const flat = flatten((await readSkill('harness-doctor')).body);
 

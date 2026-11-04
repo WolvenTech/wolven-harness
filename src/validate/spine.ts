@@ -2,9 +2,10 @@ import { execFile } from 'node:child_process';
 import type { Dirent } from 'node:fs';
 import { lstat, readdir, readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
-import { classifyFrontmatter, skillIdentity } from '../frontmatter.js';
+import { classifyFrontmatter, parseFrontmatter, skillIdentity } from '../frontmatter.js';
 import { runtimeRow } from '../setup/runtimes.js';
 import type { RepoContext } from './repo.js';
+import { buildRepoContext } from './repo.js';
 import type { Finding } from './report.js';
 
 const RULE_CITATION_RE = /\.agents\/rules\/[A-Za-z0-9._-]+\.md/g;
@@ -217,9 +218,27 @@ function gitCheckIgnore(root: string, paths: string[]): Promise<string> {
  * tracked files are never reported, since git applies ignore rules only to
  * untracked ones.
  */
-async function checkHarnessIgnored(root: string): Promise<Finding[]> {
+async function checkHarnessIgnored(ctx: RepoContext): Promise<Finding[]> {
+  const { root } = ctx;
+  let candidates = HARNESS_PATHS;
+  if (ctx.homePrefix) {
+    const nestedIgnore = await readOptional(path.join(root, '.gitignore'));
+    const included = (nestedIgnore ?? '')
+      .split('\n')
+      .map((line) => line.trim())
+      .filter((line) => line.startsWith('!'))
+      .map((line) =>
+        line
+          .slice(1)
+          .replace(/^\//, '')
+          .replace(/\/\*\*$/, '')
+          .replace(/\/$/, ''),
+      )
+      .filter((rel) => rel !== '' && !/[*?[\]{}]/.test(rel));
+    candidates = [...new Set(included)].filter((rel) => !included.some((other) => other.startsWith(`${rel}/`)));
+  }
   const present: string[] = [];
-  for (const rel of HARNESS_PATHS) {
+  for (const rel of candidates) {
     try {
       await lstat(path.join(root, rel));
       present.push(rel);
@@ -238,7 +257,44 @@ async function checkHarnessIgnored(root: string): Promise<Finding[]> {
       level: 'error',
       rule: 'harness-ignored',
       file: rel,
-      message: `excluded by ignore rule "${pattern}" (${source}:${line}), so other clones and CI never get it; add re-include rules after that line`,
+      message: ctx.homePrefix
+        ? `excluded by ignore rule "${pattern}" (${source}:${line}), so other clones and CI never get it. Update that rule to let the versioned harness paths through.`
+        : `excluded by ignore rule "${pattern}" (${source}:${line}), so other clones and CI never get it; add re-include rules after that line`,
+    });
+  }
+  return findings;
+}
+
+/** Warns about profile documents outside the quiet-install home without validating client content. */
+async function checkHarnessMisplaced(ctx: RepoContext): Promise<Finding[]> {
+  if (!ctx.homePrefix || !ctx.gitRoot) return [];
+  const client = await buildRepoContext(ctx.gitRoot, { ignoreEntries: [] });
+  const folders: Record<string, string> = {
+    adr: 'adrs',
+    prd: 'prds',
+    spec: 'specs',
+    note: 'notes',
+    deferral: 'deferrals',
+    map: 'maps',
+  };
+  const findings: Finding[] = [];
+  // why: a document lands here by habit or from a prior full install, only under the root docs folders; no other client file is opened.
+  const strayFolder = new RegExp(`^docs/(${Object.values(folders).join('|')})/.+\\.md$`);
+  for (const rel of client.files) {
+    if (rel.startsWith(`${ctx.homePrefix}/`) || !strayFolder.test(rel)) continue;
+    let content: string;
+    try {
+      content = await client.read(rel);
+    } catch {
+      continue;
+    }
+    const type = parseFrontmatter(content)?.type;
+    if (typeof type !== 'string' || !Object.hasOwn(folders, type)) continue;
+    findings.push({
+      level: 'warn',
+      rule: 'harness-misplaced',
+      file: rel,
+      message: `harness document belongs under ${ctx.homePrefix}/docs/${folders[type]}/. Move it there to include it in harness validation.`,
     });
   }
   return findings;
@@ -253,12 +309,20 @@ async function checkHarnessIgnored(root: string): Promise<Finding[]> {
  * and these checks must still see them.
  */
 export async function checkSpine(ctx: RepoContext): Promise<Finding[]> {
-  const [skills, ruleFindings, ignoredFindings, step0Findings] = await Promise.all([
+  const [skills, ruleFindings, ignoredFindings, step0Findings, misplacedFindings] = await Promise.all([
     checkSkills(ctx.root),
     checkRuleCitations(ctx.root),
-    checkHarnessIgnored(ctx.root),
+    checkHarnessIgnored(ctx),
     checkStep0Pending(ctx.root),
+    checkHarnessMisplaced(ctx),
   ]);
 
-  return [...skills.frontmatter, ...skills.stubs, ...ruleFindings, ...ignoredFindings, ...step0Findings];
+  return [
+    ...skills.frontmatter,
+    ...skills.stubs,
+    ...ruleFindings,
+    ...ignoredFindings,
+    ...step0Findings,
+    ...misplacedFindings,
+  ];
 }

@@ -5,7 +5,7 @@ import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import type { RuntimeEnv } from '../src/setup/runtimes.js';
-import { RUNTIME_REGISTRY, rulesMode, runtimeRow, wireRuntimes } from '../src/setup/runtimes.js';
+import { RUNTIME_REGISTRY, rulesMode, runtimeRow, wireQuietBootstrap, wireRuntimes } from '../src/setup/runtimes.js';
 import type { Context, Options, Runtime } from '../src/setup/types.js';
 
 const CONTRACT_IDS: readonly Runtime[] = [
@@ -184,6 +184,7 @@ test('proof-install-experience-registry-data', async () => {
       const expected = [
         ...(row.skills.kind === 'symlink' ? [row.skills.path] : []),
         ...(row.entryFile === undefined ? [] : [row.entryFile.path]),
+        ...(row.hookConfig === undefined ? [] : [row.hookConfig.path]),
       ];
       if (rulesMode([row.id]) === 'native') {
         if (row.rules.kind === 'link') expected.push(row.rules.path);
@@ -262,4 +263,37 @@ test('runtime-registry: runtimeRow finds every row', () => {
   for (const id of CONTRACT_IDS) {
     assert.equal(runtimeRow(id).id, id);
   }
+});
+
+test('quiet-install registry: all eight non-Claude rows name local entry points and a manual step', () => {
+  const rows = RUNTIME_REGISTRY.filter((row) => row.id !== 'claude');
+  assert.equal(rows.length, 8);
+  for (const row of rows) {
+    assert.ok(row.quietInstall, row.id);
+    assert.equal(row.quietInstall.skillsPath, row.id === 'kiro' ? '.kiro/skills' : '.agents/skills');
+    assert.ok(row.quietInstall.manualStep?.length, row.id);
+  }
+  assert.match(runtimeRow('codex').quietInstall?.manualStep ?? '', /~\/.codex\/AGENTS.md/);
+});
+
+test('proof-iter1-rerun-link: own bootstrap link counts as wired, a foreign link stays occupied', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'rerun-link-'));
+  const home = path.join(root, '.wolven-harness');
+  await fs.mkdir(path.join(home, '.agents/skills/harness-init'), { recursive: true });
+  await fs.mkdir(path.join(root, '.claude/skills'), { recursive: true });
+  const link = path.join(root, '.claude/skills/harness-init');
+  const opts = { gitHost: 'gh', runtimes: ['claude'], skillSets: [], keptSets: [], mode: 'root' } as Options;
+  const ctx = { root, templatesDir: '', io: {} } as unknown as Context;
+
+  await fs.symlink('../../.wolven-harness/.agents/skills/harness-init', link, 'dir');
+  const own = await wireQuietBootstrap(opts, ctx, home);
+  assert.deepEqual(own.skipped, []);
+  assert.deepEqual(own.manualRuntimes, []);
+
+  await fs.rm(link);
+  await fs.symlink('elsewhere', link, 'dir');
+  const foreign = await wireQuietBootstrap(opts, ctx, home);
+  assert.deepEqual(foreign.skipped, ['.claude/skills/harness-init']);
+  assert.deepEqual(foreign.manualRuntimes, ['claude']);
+  await fs.rm(root, { recursive: true, force: true });
 });

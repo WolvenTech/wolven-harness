@@ -61,7 +61,7 @@ async function assertAbsent(root: string, entries: string[]): Promise<void> {
 }
 
 test('native-wiring: claude CLI symlinks .claude/rules to ../.agents/rules', async () => {
-  const dir = await makeRepo({}, { git: true });
+  const dir = await makeRepo({}, { git: true, layout: 'home' });
 
   const result = await run(['setup', '--git-host', 'gh', '--runtimes', 'claude'], { cwd: dir });
   assert.equal(result.code, 0, result.stderr);
@@ -83,7 +83,7 @@ test('native-wiring: claude CLI symlinks .claude/rules to ../.agents/rules', asy
 });
 
 test('native-wiring: cursor CLI generates one always-applied .mdc per rule', async () => {
-  const dir = await makeRepo({}, { git: true });
+  const dir = await makeRepo({}, { git: true, layout: 'home' });
 
   const result = await run(['setup', '--git-host', 'gh', '--runtimes', 'cursor'], { cwd: dir });
   assert.equal(result.code, 0, result.stderr);
@@ -143,7 +143,7 @@ test('native-wiring: gemini imports AGENTS.md and every rule', async () => {
 
 test('proof-install-experience-gemini-entry', async () => {
   for (const runtimes of ['gemini,codex', 'gemini,antigravity']) {
-    const dir = await makeRepo({}, { git: true });
+    const dir = await makeRepo({}, { git: true, layout: 'home' });
     const result = await run(['setup', '--git-host', 'gh', '--runtimes', runtimes], { cwd: dir });
     assert.equal(result.code, 0, result.stderr);
     assert.equal(await readFile(path.join(dir, 'GEMINI.md'), 'utf8'), '@AGENTS.md\n');
@@ -158,7 +158,7 @@ test('proof-install-experience-shared-entry', async () => {
   assert.deepEqual(emptyRules.created, ['GEMINI.md']);
   assert.equal(await readFile(path.join(emptyRulesDir, 'GEMINI.md'), 'utf8'), '@AGENTS.md\n');
 
-  const dir = await makeRepo({}, { git: true });
+  const dir = await makeRepo({}, { git: true, layout: 'home' });
   const result = await run(['setup', '--git-host', 'gh', '--runtimes', 'gemini'], { cwd: dir });
   assert.equal(result.code, 0, result.stderr);
   const bases = await ruleBases(dir);
@@ -257,7 +257,7 @@ test('native-wiring: an existing opencode.json stays byte-identical and the summ
 });
 
 test('proof-install-experience-inline-rules', async () => {
-  const claudeDir = await makeRepo({}, { git: true });
+  const claudeDir = await makeRepo({}, { git: true, layout: 'home' });
   const claude = await run(['setup', '--git-host', 'gh', '--runtimes', 'claude,codex'], { cwd: claudeDir });
   assert.equal(claude.code, 0, claude.stderr);
   await assertAbsent(claudeDir, RULES_SURFACES);
@@ -266,7 +266,7 @@ test('proof-install-experience-inline-rules', async () => {
   assert.equal(await readFile(path.join(claudeDir, 'CLAUDE.md'), 'utf8'), '@AGENTS.md\n');
   assert.match(claude.stdout, /Rules are inlined in the harness section/);
 
-  const antigravityDir = await makeRepo({}, { git: true });
+  const antigravityDir = await makeRepo({}, { git: true, layout: 'home' });
   const antigravity = await run(['setup', '--git-host', 'gh', '--runtimes', 'claude,antigravity'], {
     cwd: antigravityDir,
   });
@@ -274,14 +274,15 @@ test('proof-install-experience-inline-rules', async () => {
   await assertAbsent(antigravityDir, RULES_SURFACES);
   assert.match(antigravity.stdout, /Rules are inlined in the harness section/);
 
-  const cursorDir = await makeRepo({}, { git: true });
+  const cursorDir = await makeRepo({}, { git: true, layout: 'home' });
   const cursor = await run(['setup', '--git-host', 'gh', '--runtimes', 'codex,cursor'], { cwd: cursorDir });
   assert.equal(cursor.code, 0, cursor.stderr);
-  await assertAbsent(cursorDir, ['.cursor']);
+  await assertAbsent(cursorDir, ['.cursor/rules']);
+  assert.ok((await lstat(path.join(cursorDir, '.cursor', 'hooks.json'))).isFile());
 });
 
 test('proof-install-experience-rules-create-only', async () => {
-  const dir = await makeRepo({}, { git: true });
+  const dir = await makeRepo({}, { git: true, layout: 'home' });
   const args = ['setup', '--git-host', 'gh', '--runtimes', 'claude,cursor'];
   const first = await run(args, { cwd: dir });
   assert.equal(first.code, 0, first.stderr);
@@ -309,7 +310,7 @@ test('proof-install-experience-rules-create-only', async () => {
 });
 
 test('native-wiring: a second run creates no new wiring', async () => {
-  const dir = await makeRepo({}, { git: true });
+  const dir = await makeRepo({}, { git: true, layout: 'home' });
   const args = ['setup', '--git-host', 'gh', '--runtimes', 'claude,cursor'];
   const first = await run(args, { cwd: dir });
   assert.equal(first.code, 0, first.stderr);

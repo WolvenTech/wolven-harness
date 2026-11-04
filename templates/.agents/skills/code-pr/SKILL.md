@@ -58,7 +58,12 @@ That run writes no deferral and no sentence claiming the guard ran.
    work, read the harness config's `commitConvention` first: a recorded
    `pattern` means write the title in that shape, using `example` as the
    model; `conventional` or no record keeps Conventional Commits. Work in the
-   harness home always keeps Conventional Commits. Make no other assumption
+   harness home always keeps Conventional Commits. In a quiet install
+   (`layout: "linked"` with `harnessHome` set to `.wolven-harness`) the root
+   `.wolven-harness.json` has no `codeRepo`, and its `commitConvention`
+   applies to every commit and the title, harness paths included. Stage a
+   path under `.wolven-harness/` only when you name it, and never stage with
+   `git add -A` or `git add .`. Make no other assumption
    about how a host merges.
 8. **Read before rewrite** — on amend, read the pull request's current
    title, body, and comments (read PR and diff) before replacing anything.
