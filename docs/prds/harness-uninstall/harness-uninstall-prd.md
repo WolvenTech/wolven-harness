@@ -10,15 +10,15 @@ status: draft
 ## Problem
 
 - **Who:** Anyone who has installed `wolven-harness` in one or more repositories, nearby folders, or global skill load paths and wants to remove it cleanly — whether to stop using the harness or to clear earlier installs before installing a new release.
-- **Pain:** Earlier and current installs scatter harness files, runtime wiring, and entry-file edits across repositories, parent or sibling folders (`home` and `linked` layouts), and global skill directories (`~/.claude/skills/`, `~/.agents/skills/`), with no teardown command and no guided removal skill. Removing them by hand across multiple folders is tedious and risks either leaving stale harness artifacts behind or deleting authored `docs/` history.
+- **Pain:** Earlier and current installs scatter harness files, runtime wiring, and entry-file edits across repositories (the current `.wolven-harness/` default and earlier in-repo roots), parent or sibling folders (`home` and `linked` layouts), and global skill directories (`~/.claude/skills/`, `~/.agents/skills/`), with no teardown command and no guided removal skill. Removing them by hand across multiple folders is tedious and risks either leaving stale harness artifacts behind or deleting authored `docs/` history.
 - **Why now:** Clean removal across local repositories and nearby folders is a blocker for the next release, because existing installs must be removed before the new version is installed.
 - **Evidence:**
-  - `setup` is strictly create-only ([ADR-006](../../adrs/adr-006-install-check-and-repair-contract.md)), so installing a newer release over an earlier install leaves obsolete files, rule copies, symlinks, hooks, and entry-file sections in place.
-  - Installs span in-repo roots, parent `home` folders (`layout: "home"` with `codeRepo`), sibling or parent `linked` folders (`layout: "linked"` with `harnessHome`), standalone `skills` copies (project and global scopes), and shared files edited during `harness-init` (`AGENTS.md`, `package.json`, `.gitignore`, and CI workflows).
+  - `setup` is strictly create-only ([ADR-007](../../adrs/adr-007-quiet-install-contract.md)), so installing a newer release over an earlier install leaves obsolete files, rule copies, symlinks, hooks, and entry-file sections in place.
+  - Installs span the current `.wolven-harness/` default home (a `linked` layout with `harnessHome: ".wolven-harness"`), earlier in-repo roots, parent `home` folders (`layout: "home"` with `codeRepo`), sibling or parent `linked` folders (`layout: "linked"` with `harnessHome`), standalone `skills` copies (project and global scopes), and shared files edited during `harness-init` (`AGENTS.md`, `package.json`, `.gitignore`, and CI workflows).
 
-The terms **harness home**, **code repository** (`codeRepo`), **linked layout**, **runtime**, and **load path** keep their meanings from [ADR-006](../../adrs/adr-006-install-check-and-repair-contract.md). This PRD introduces:
+The terms **harness home**, **code repository** (`codeRepo`), **linked layout**, **runtime**, and **load path** keep their meanings from [ADR-007](../../adrs/adr-007-quiet-install-contract.md). This PRD introduces:
 
-- **Local landscape:** the target folder (`--dir`, defaulting to the current working directory), its immediate parent, child or nested repositories beneath it, any `harnessHome` or `codeRepo` linked from discovered `.wolven-harness.json` files, and the global skill load paths (`~/.claude/skills/`, `~/.agents/skills/`).
+- **Local landscape:** the target folder (`--dir`, defaulting to the current working directory), its immediate parent, child or nested repositories beneath it, the default `.wolven-harness/` home and any `harnessHome` or `codeRepo` linked from discovered `.wolven-harness.json` files, and the global skill load paths (`~/.claude/skills/`, `~/.agents/skills/`).
 - **`harness-remove`:** an ask-only skill that guides an agent and the Human through inspecting and removing remaining or intertwined harness edits that require judgment (such as `AGENTS.md` sections, CI jobs, or customized files), while preserving `docs/`.
 
 ## Goals
