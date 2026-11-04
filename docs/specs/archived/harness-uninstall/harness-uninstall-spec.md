@@ -2,19 +2,19 @@
 type: spec
 title: Harness uninstall and agentic removal
 description: Freeze design and requirements for the wolven-harness uninstall CLI command and harness-remove skill across old and new application landscapes while preserving docs/.
-status: stable
+status: deprecated
 ---
 
 # Harness uninstall and agentic removal
 
-**Source:** `docs/prds/harness-uninstall/harness-uninstall-prd.md` (status `stable`)
+**Source:** `docs/prds/archived/harness-uninstall/harness-uninstall-prd.md` (status `stable`)
 **Next:** After the Human approves → `code-plan` → `code-execute`, waves **1 → 2 → 3**
 **Named proof (this spec's own structural gate):** `proof-harness-uninstall-spec-obligations`
 
 ## Terms
 
 - **Local landscape:** The target folder (`--dir`, defaulting to current working directory), its immediate parent, child or nested git repositories, any linked `harnessHome` or `codeRepo` paths, and global skill load paths (`~/.claude/skills/`, `~/.agents/skills/`).
-- **New landscape (quiet install / linked layout):** Installs following [ADR-007](../../adrs/adr-007-quiet-install-contract.md) where `.wolven-harness.json` records `layout: "linked"` and `harnessHome: ".wolven-harness"` (or custom path). Harness scaffolding lives inside `.wolven-harness/`, accompanied by root bootstrap links/symlinks.
+- **New landscape (quiet install / linked layout):** Installs following [ADR-007](../../../adrs/adr-007-quiet-install-contract.md) where `.wolven-harness.json` records `layout: "linked"` and `harnessHome: ".wolven-harness"` (or custom path). Harness scaffolding lives inside `.wolven-harness/`, accompanied by root bootstrap links/symlinks.
 - **Old landscape (full install / home layout / standalone skills):** Installs where `.wolven-harness.json` records `layout: "home"` or no layout, scaffolding harness directories (`.agents/`, `.qmd/`, `WOLVEN.md`, runtime wiring) directly in the repository root or parent folder, or standalone skill copies in global/project load paths.
 - **Intertwined edits:** Files shared between user code and harness configuration (`package.json`, root `AGENTS.md`, `.gitignore`, CI workflow files) that contain harness references alongside user-authored content.
 - **`harness-remove`:** An ask-only skill installed into a chosen runtime at the end of CLI uninstall to guide human-supervised removal of intertwined edits, cleaning up its own folder upon completion.
@@ -194,7 +194,7 @@ Traces to PRD US-2 (AC-2.1, AC-2.2) and US-3 (AC-3.1, AC-3.2).
 
 ## ADR
 
-A superseding ADR (`ADR-NNN` / `adr-NNN-uninstall-command-contract`) will be recorded to add `uninstall` to the public CLI contract commands established in [ADR-007](../../adrs/adr-007-quiet-install-contract.md).
+A superseding ADR (`ADR-NNN` / `adr-NNN-uninstall-command-contract`) will be recorded to add `uninstall` to the public CLI contract commands established in [ADR-007](../../../adrs/adr-007-quiet-install-contract.md).
 
 ## Section checklist
 

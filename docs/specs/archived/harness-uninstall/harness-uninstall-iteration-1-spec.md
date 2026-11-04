@@ -2,7 +2,7 @@
 type: spec
 title: Harness uninstall — iteration 1
 description: Delta obligations that close the Cursor review of the harness-uninstall pull request: skill-identity checks, shared-file boundaries, ask-only packaging, and post-uninstall idempotency.
-status: stable
+status: deprecated
 ---
 
 # Harness uninstall — iteration 1

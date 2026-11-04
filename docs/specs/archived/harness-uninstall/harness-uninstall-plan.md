@@ -2,12 +2,12 @@
 type: spec
 title: Harness uninstall and agentic removal — plan
 description: Work-unit index and wave stops for implementing the wolven-harness uninstall CLI command and harness-remove skill across old and new application landscapes.
-status: stable
+status: deprecated
 ---
 
 # Harness uninstall and agentic removal — plan
 
-**Spec:** `docs/specs/harness-uninstall/harness-uninstall-spec.md` (status `stable`)
+**Spec:** `docs/specs/archived/harness-uninstall/harness-uninstall-spec.md` (status `stable`)
 **Next:** Implementation complete across all 3 waves. Ready for commit and review.
 
 ## Execution / resume section
@@ -17,7 +17,7 @@ status: stable
 | Field | Value |
 |-------|-------|
 | Unit identifier | 11 — Wave 3 Final Ship Gate |
-| Spec/plan paths | `docs/specs/harness-uninstall/harness-uninstall-spec.md` / `docs/specs/harness-uninstall/harness-uninstall-plan.md` |
+| Spec/plan paths | `docs/specs/archived/harness-uninstall/harness-uninstall-spec.md` / `docs/specs/archived/harness-uninstall/harness-uninstall-plan.md` |
 | Obligation / proof status | All obligations R1.1–R4.4 fully implemented and verified with named proofs |
 | `HEAD` commit | `fa8af9b` |
 | `git status` summary | Wave 3 files in working tree ready to commit |
@@ -26,7 +26,7 @@ status: stable
 
 ## Structural gate
 
-Every obligation in `docs/specs/harness-uninstall/harness-uninstall-spec.md` maps directly to a named proof and verification test:
+Every obligation in `docs/specs/archived/harness-uninstall/harness-uninstall-spec.md` maps directly to a named proof and verification test:
 - R1.1–R1.5: `proof-uninstall-discover-*` → Units 01, 02
 - R2.1–R2.4: `proof-uninstall-cli-*` → Units 05, 06
 - R3.1–R3.6: `proof-uninstall-remove-*`, `proof-uninstall-preserve-*`, `proof-uninstall-leave-*` → Units 04, 06

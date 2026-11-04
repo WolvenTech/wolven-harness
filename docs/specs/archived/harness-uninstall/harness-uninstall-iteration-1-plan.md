@@ -2,12 +2,12 @@
 type: spec
 title: Harness uninstall — iteration 1 plan
 description: Work units that close the Cursor review of the harness-uninstall PR in one wave: five fixes, their proofs, and a closing gate.
-status: stable
+status: deprecated
 ---
 
 # Harness uninstall — iteration 1 plan
 
-**Spec:** `docs/specs/harness-uninstall/harness-uninstall-iteration-1-spec.md`.
+**Spec:** `docs/specs/archived/harness-uninstall/harness-uninstall-iteration-1-spec.md`.
 
 ## Structural gate
 
