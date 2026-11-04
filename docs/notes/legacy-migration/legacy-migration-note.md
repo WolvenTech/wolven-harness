@@ -21,7 +21,7 @@ What do the cited modernization skills, Fowler's strangler-fig essay, and this r
 - This repo already has the interview and the phased-plan shapes. `grilling` asks one question at a time until the frontier is empty and the Human confirms (`.claude/skills/grilling/SKILL.md`). `wayfinder` charts a decision too big for one session as `docs/maps/<slug>/` tickets (`research` / `prototype` / `grilling` / `task`), works one ticket per session, and hands settled decisions to a PRD or spec (`.claude/skills/wayfinder/SKILL.md`). `code-plan` turns a *locked spec* into ordered units with dependencies, owned paths, and an observable Done when; it refuses to invent proofs the spec does not name (`.claude/skills/code-plan/SKILL.md`).
 - `code-plan` is the wrong artifact for a migration that has no locked spec yet. `wayfinder` is the artifact this repo already uses for a large unknown that must be sliced before a PRD. A plan that then mutates production code is `code-spec` → `code-plan` → `code-execute`, each on its own ask.
 - `pragmatic-guard` and the standing YAGNI rule refuse additions whose complexity exceeds present need, and record refused work only under `docs/deferrals/<slug>/` (`.claude/skills/pragmatic-guard/SKILL.md`; `.agents/rules/yagni-strict.md`). A five-phase implementation orchestrator that stands up gateways and rewrites components is a new product, not a thin skill.
-- Optional-set membership is not contract (`docs/adrs/adr-004-standalone-skills-contract.md`). The current `discovery` set does not include a migration skill (`src/setup/skill-sets.ts`).
+- Optional-set membership is not contract (`docs/adrs/adr-007-quiet-install-contract.md`). The current `discovery` set does not include a migration skill (`src/setup/skill-sets.ts`).
 - 16 Oct 2026 Harness session named "legacy rescue" as coupling analysis and ADR generation from an undocumented codebase, then the existing PRD → spec → plan → execute lane ([Wolven Harness, 16 Oct 2026](https://notes.granola.ai/d/d2a65f61-9ce1-414f-8c6e-a05a36cea5d1)). 7 Aug 2026 audit: brownfield should be slower; generate docs via AI Q&A, engineers correct them, then small gated increments; architecture mapping before AI-assisted changes ([AI Adoption Audit, 7 Aug 2026](https://notes.granola.ai/d/6f807348-9cdc-48cf-8aa5-62ba6dc1a7cf)).
 - Fowler's first activity ("understand the outcomes you want") matches grilling the desired shape *before* exploring the tree. Exploring first would guess the destination the Human has not named.
 
@@ -38,7 +38,7 @@ What do the cited modernization skills, Fowler's strangler-fig essay, and this r
 | `.claude/skills/code-plan/SKILL.md` | source code | plan only after a locked spec |
 | `.claude/skills/pragmatic-guard/SKILL.md` | source code | refuse over-build |
 | `.agents/rules/yagni-strict.md` | standing rule | deferrals path |
-| `docs/adrs/adr-004-standalone-skills-contract.md` | profile ADR | adding an optional skill is not a contract break |
+| `docs/adrs/adr-007-quiet-install-contract.md` | profile ADR | adding an optional skill is not a contract break |
 | `src/setup/skill-sets.ts` | source code | current discovery members |
 | https://notes.granola.ai/d/d2a65f61-9ce1-414f-8c6e-a05a36cea5d1 | meeting notes | intended rescue path is docs then the code lane |
 | https://notes.granola.ai/d/6f807348-9cdc-48cf-8aa5-62ba6dc1a7cf | meeting notes | brownfield is slower and engineer-reviewed |
