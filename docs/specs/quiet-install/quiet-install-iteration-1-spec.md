@@ -112,7 +112,7 @@ Every string is exact, except `<placeholders>`.
 | Guard refusal (I1.4) | This file may hold secrets, so the harness blocked your agent from opening it. Open it yourself if you need to. |
 | Fresh tree, per runtime (I2.2) | `<runtime>` isn't connected yet. Ask your agent to run the `harness-init` skill. |
 | Codex warning (I2.1) | Codex reads only your `AGENTS.md`, so it won't load the harness on its own. Next: ask your agent to run the `harness-init` skill and add the harness lines to `AGENTS.md`, or ask Codex to read `.wolven-harness/AGENTS.md`. |
-| Missing CLI (I4.5) | I can't find `wolven-harness` on this machine, so I can't check the setup. Next: install it with `<install command>`, then tell me to continue. |
+| Missing CLI (I4.5) | I can't find `wolven-harness` on this machine, so I can't check the setup. Next: install it with `npm install -g @wolven-tech/harness`, then tell me to continue. |
 | Parity warning (I4.7) | This worktree is missing `<files>`, so your agent may not have the harness here. Next: open a new worktree, or copy `<files>` from your main checkout. |
 | Full install guide (I4.1) | Want git to track the whole harness? Follow the uninstall steps, but keep `.wolven-harness.json`. In that file, set `layout` to `home` and remove `harnessHome`, then run `wolven-harness setup`. |
 
@@ -315,7 +315,7 @@ flowchart TD
 ### Wave 5
 
 - [ ] I7.1 `proof-iter1-live-worktree` PASS
-- [ ] I7.2 `proof-iter1-findings-closed` PASS
+- [x] I7.2 `proof-iter1-findings-closed` PASS
 
 ## Eval / gates
 

@@ -64,10 +64,7 @@ author's judgement of the verdict as designed, not measured.
 
 - Whether to keep the code backstop, and whether it is a `doctor` warning or
   a `validate` error.
-- Proposed deferrals, none written: `code-repo-list`,
-  `validate-without-git`, `git-exposure-backstop`, `validate-nested-root`.
 
 ## Files
 
 - `jury-verdict-journeys-map.json` is the source.
-- `jury-verdict-journeys-map.html` is built from it.

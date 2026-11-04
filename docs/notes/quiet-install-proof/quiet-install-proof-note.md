@@ -10,7 +10,8 @@ status: stable
 Run on 2026-11-03 with Claude Code 2.1.312, and observed by the Human. It
 covers R10.1 and R10.2 of `docs/specs/quiet-install/quiet-install-spec.md`.
 
-The Human accepted this proof on 2026-11-03, including the limits below.
+The Human accepted this proof on 2026-11-03, including the limits below. The
+iteration-1 live check at the end of this note is a second run, on 2026-11-04.
 
 ## Fixture
 
@@ -95,3 +96,53 @@ branch's build passes with `.qmd` ignored, so this came from the proof setup.
   it prints the wrong next step.
 - The parity warning says "symlink", but a worktree holds a plain copy.
 - The parity warning needs a way to reach the person.
+
+## Iteration-1 live check
+
+Run on 2026-11-04 with Claude Code 2.1.318 and Cursor 3.28.7, and observed by
+the Human, in a fixture built from `0a2d941`. It covers I7.1 of
+`docs/specs/quiet-install/quiet-install-iteration-1-spec.md`. Every Claude Code
+step ran in a terminal, not the desktop app. Cursor was opened from the Dock.
+
+| Check | Observed | Result |
+| --- | --- | --- |
+| Missing CLI (I4.5) | The agent stopped before its first question, wrote nothing and did not look for another build. It printed the placeholder `<install command>` instead of a command and asked the Human for one | partial, fixed as B13 |
+| `harness-init`, declining the commit (I4.3) | Only the Quick setup question; hooks were not a checkbox; `.worktreeinclude` lists `.wolven-harness/.agents/hooks/`; `.cursor/hooks.json` runs the guard from `.wolven-harness/`; on No, the guard warning appeared | pass |
+| Worktree made before the commit | No `.wolven-harness/` folder at all, only the committed files | pass, answers `U-worktree-untracked-hooks` |
+| Guard in a worktree made after the commit (I7.1) | The agent's `.env` command was blocked with "This file may hold secrets, so the harness blocked your agent from opening it." and `FAKE_PROOF_VALUE` never appeared | pass, with the limit below |
+| Parity warning (I4.7) | The Human saw it at startup, without asking: the worktree is missing `CLAUDE.local.md, .claude/rules/` | pass |
+| `.qmd` scope | `qmd update` indexed five collections under `.wolven-harness/docs/`; the home marker was found and the client marker returned nothing | pass |
+| Cursor's guard (I4.10) | `wc -c .env` was blocked by `secret-path-guard.mjs` under `node`, exit 2, with the harness's own text, 61 ms after the call | pass, with the limits below |
+
+### Answer to `U-worktree-untracked-hooks`
+
+No. A worktree made before the commit holds no `.wolven-harness/` folder, hooks
+included, so an untracked hooks folder does not reach it. That is what the
+declined-commit warning in I4.3 says.
+
+### Limits of this run
+
+- **The step-1 message was incomplete.** The skill told the agent to print "the
+  global install `setup` prints", which an agent with no CLI cannot know. B13
+  names `npm install -g @wolven-tech/harness` in the message. A test pins it,
+  and step 1 was not rerun live.
+- **Cursor's block came from Claude-hook compatibility.** The log shows a
+  `preToolUse` step from `.claude/settings.local.json`. Cursor loaded the two
+  hooks in `.cursor/hooks.json` but never requested a `beforeShellExecution`
+  step, so the run does not show that file blocking on its own.
+  `https://github.com/WolvenTech/wolven-harness/issues/99` tracks that check.
+- **Cursor's file-read tool was not exercised.** Both chats that asked to read
+  `.env` were refused by the model before any tool call, so no
+  `beforeReadFile` step ran.
+- **Claude Code's file-read tool was not exercised either.** The agent chose a
+  shell command, and the guard blocked that.
+- **The parity check used a worktree that never had `CLAUDE.local.md`.** The
+  warning showed at startup, so the `rm` step had nothing to remove.
+- **The fixture needed two hand steps.** The commit landed on a new branch,
+  `chore/wolven-harness`, so the maintainer fast-forwarded `main` and pushed it
+  to the fixture's local origin before the post-commit worktree was made.
+- **The guard also blocked the agent's own check.** While committing, it
+  refused a `git check-ignore` on `.env` and a scan for key-shaped strings, so
+  the committed files were not scanned for pasted keys.
+- **The Human did not run the audit.** The safety audit was declined, so its
+  final wording had no live run.

@@ -63,7 +63,7 @@ one `n/a` cites the unchanged `wiring.json` format.
 | 22 | Trim prose-pinning tests | 19, 20 | `test/harness-init-layout.test.ts`, `test/skill-harness-init.test.ts`, `test/quiet-install-copy.test.ts` | `spawn` | sonnet | [x] Through `test-sync`: order, option, gate and mapped-output checks stay, each kept wording row has at most one test, and the lines removed are in the evidence: `proof-iter1-test-trim` |
 | 23 | Wave 4 gate | 19–22 | Spec boxes, plan marks | `inline` | — | [x] The full gate exits 0, the diffs are read, and the wave is committed |
 | 24 | Live worktree check | 23 | `docs/notes/quiet-install-proof/quiet-install-proof-note.md` | `inline` | — | [ ] STOP for the Human. Every check in I7.1 is observed in a fixture built from this head, `U-worktree-untracked-hooks` is answered, and the Human accepts the note: `proof-iter1-live-worktree` |
-| 25 | Close the findings | 24 | This plan's closing table, spec boxes | `inline` | — | [ ] Every row below has an outcome and evidence: `proof-iter1-findings-closed`. STOP: `Package` and `CI` turn green only after a push, which waits for the Human's ask through `code-pr` |
+| 25 | Close the findings | 24 | This plan's closing table, spec boxes | `inline` | — | [x] Every row below has an outcome and evidence: `proof-iter1-findings-closed`. STOP: `Package` and `CI` turn green only after a push, which waits for the Human's ask through `code-pr` |
 
 ## Wave stops
 
@@ -85,49 +85,49 @@ with a proof name, commit or reason.
 
 | Finding | Units | Outcome | Evidence |
 |---------|-------|---------|----------|
-| B1 | 01, 25 | | |
-| B2 | 02 | | |
-| B3 | 03, 24 | | |
-| B4 | 05 | | |
-| B5 | 03, 04 | | |
-| B6 | 07 | | |
-| B7 | 08, 12 | | |
-| B8 | 11, 24 | | |
-| B9 | 07 | | |
-| B10 | 17 | | |
-| B11 | 11, 14 | | |
-| B12 | 17a, 24 | | |
-| C1 | 09 | | |
-| C2 | 11 | | |
-| C3 | 08 | | |
-| V1 | 13 | | |
-| V2 | 13 | | |
-| V3 | 07 | | |
-| V4 | 07, 09 | | |
-| V5 | 07 | | |
-| V6 | 12, 13 | | |
-| V7 | 07 | | |
-| V8 | 08 | | |
-| V9 | 13 | | |
-| V10 | 15 | | |
-| V11 | 11 | | |
-| T1 | 22 | | |
-| T2 | 13 | | |
-| T3 | 25 | | |
-| Y1 | 19 | | |
-| Y2 | 19 | | |
-| Y3 | 20 | | |
-| S1 | 21 | | |
-| P1 | 04, 09, 12, 15 | | |
+| B1 | 01, 25 | fixed | `proof-iter1-ci-smoke`: the smoke step passed on both legs from a fresh pack at gate 23; `Package` and `CI` turn green at the push |
+| B2 | 02 | fixed | `proof-iter1-root-paths` |
+| B3 | 03, 24 | fixed | `proof-iter1-qmd-paths`; live: `qmd` indexed only the home, client marker not found |
+| B4 | 05 | fixed | `proof-iter1-quiet-stale` |
+| B5 | 03, 04 | fixed | `proof-iter1-rules-mapped`, `proof-iter1-guard-message`; live: refusal text seen in Claude Code and Cursor |
+| B6 | 07 | fixed | `proof-iter1-codex-warning` |
+| B7 | 08, 12 | fixed | `proof-iter1-quiet-hints`, `proof-iter1-missing-cli`, `proof-iter1-score-config`; live step 1 found B13, fixed with a test and not rerun live |
+| B8 | 11, 24 | fixed | `proof-iter1-hooks-tracked`; live: no `.wolven-harness/` before the commit, guard blocked after it |
+| B9 | 07 | fixed | `proof-iter1-fresh-tree` |
+| B10 | 17 | fixed | `proof-iter1-guides` |
+| B11 | 11, 14 | fixed | `proof-iter1-switch-cut`, `proof-iter1-refresh-rerun`; live: no layout question |
+| B12 | 17a, 24 | fixed | `proof-iter1-cursor-guard`; live: the guard blocked in Cursor, through Claude-hook compatibility, so the `.cursor/hooks.json` path alone is open as issue 99 |
+| C1 | 09 | fixed | `proof-iter1-rerun-link` |
+| C2 | 11 | no_change_needed | Moot once the switch is cut, by `proof-iter1-switch-cut` |
+| C3 | 08 | fixed | `proof-iter1-no-pm-prompt` |
+| V1 | 13 | fixed | `proof-iter1-init-voice` |
+| V2 | 13 | fixed | `proof-iter1-init-voice` |
+| V3 | 07 | fixed | `proof-iter1-doctor-voice` |
+| V4 | 07, 09 | fixed | `proof-iter1-rerun-link`, `proof-iter1-doctor-voice` |
+| V5 | 07 | fixed | `proof-iter1-doctor-voice` |
+| V6 | 12, 13 | fixed | `proof-iter1-audit-wording` |
+| V7 | 07 | fixed | `proof-iter1-doctor-voice` |
+| V8 | 08 | fixed | `proof-iter1-terminal-text` |
+| V9 | 13 | fixed | `proof-iter1-init-voice` |
+| V10 | 15 | fixed | `proof-iter1-parity-message`; live: the Human saw the warning at startup |
+| V11 | 11 | fixed | `proof-iter1-switch-cut`, `proof-iter1-hooks-tracked` |
+| T1 | 22 | fixed | `proof-iter1-test-trim`: three test files from 1165 to 829 lines |
+| T2 | 13 | fixed | `proof-iter1-one-home` |
+| T3 | 25 | no_change_needed | `stable-contract-doc-deferral.md` keeps ADR-007 as it is |
+| Y1 | 19 | fixed | `proof-iter1-one-predicate` |
+| Y2 | 19 | fixed | `proof-iter1-yagni-cuts` |
+| Y3 | 20 | fixed | `proof-iter1-misplaced` |
+| S1 | 21 | fixed | `proof-iter1-artifacts` |
+| P1 | 04, 09, 12, 15 | fixed | Closed by `proof-iter1-missing-cli`, `proof-iter1-rerun-link`, `proof-iter1-parity-message`; the live step-1 gap became B13 |
 
 ## Unresolved
 
 | Identifier | Decision needed | Owner | Blocking effect | Disposition | Unit |
 |---|---|---|---|---|---|
-| `U-sibling-verdict` | Drop the second Jury's sibling-folder verdict and its proposed deferrals? | Human | Non-blocking until closure | *(empty until decided)* | closure |
-| `U-worktree-untracked-hooks` | Does `.worktreeinclude` copy an untracked, non-ignored hooks folder? | maintainer | Non-blocking | *(empty until decided)* | 24 |
-| `U-cursor-ignored-rules` | Carried from the base spec | maintainer | Non-blocking | *(empty until decided)* | 24, if at hand |
-| `U-runtimes-ignored-load` | Carried from the base spec | maintainer | Non-blocking | *(empty until decided)* | 24, if at hand |
+| `U-sibling-verdict` | Drop the second Jury's sibling-folder verdict and its proposed deferrals? | Human | Non-blocking until closure | Dropped. Options not chosen carry no deferral; an ADR records the choice. | closure |
+| `U-worktree-untracked-hooks` | Does `.worktreeinclude` copy an untracked, non-ignored hooks folder? | maintainer | Non-blocking | No: a worktree made before the commit held no `.wolven-harness/` folder | 24 |
+| `U-cursor-ignored-rules` | Carried from the base spec | maintainer | Non-blocking | Not tested in this run; stays open | 24, if at hand |
+| `U-runtimes-ignored-load` | Carried from the base spec | maintainer | Non-blocking | Not tested in this run; stays open | 24, if at hand |
 
 ## Frontier order
 
@@ -188,4 +188,4 @@ The Human narrowed the audit row on 2026-11-04: a traced `harness-score` run on 
 | `HEAD` commit | `4ec616e` |
 | `git status` summary | clean before this section |
 | Intended diff scope | The Owns paths of units 19–22, `known-forms.json`, and this plan |
-| Decision on every discrepancy | Resolved: `TemplateWriter` stays, because `runSetup` takes it and `test/setup-quiet-install.test.ts` proves the write order through it. `wiring.json` outcomes are plain `string`, so no type needed trimming. `harness-misplaced` stays for a repo whose root `docs/` folders predate its quiet install, and now reads only those folders. Owns widened for `src/doctor/runtime-checks.ts`, `src/setup/render-wolven.ts`, `src/setup/config.ts`, `scripts/known-forms.mjs`, `site/commands.md` and ADR-007's `harness-misplaced` sentence. `jury-verdict-journeys-note.md:73` still names its deleted map page, and waits on `U-sibling-verdict` |
+| Decision on every discrepancy | Resolved: `TemplateWriter` stays, because `runSetup` takes it and `test/setup-quiet-install.test.ts` proves the write order through it. `wiring.json` outcomes are plain `string`, so no type needed trimming. `harness-misplaced` stays for a repo whose root `docs/` folders predate its quiet install, and now reads only those folders. Owns widened for `src/doctor/runtime-checks.ts`, `src/setup/render-wolven.ts`, `src/setup/config.ts`, `scripts/known-forms.mjs`, `site/commands.md` and ADR-007's `harness-misplaced` sentence. the stale map-page line in `jury-verdict-journeys-note.md` is removed with the `U-sibling-verdict` decision |
