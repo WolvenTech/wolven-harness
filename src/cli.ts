@@ -7,6 +7,7 @@ import { runSetup } from './setup/index.js';
 import { resolveOwnPackage } from './setup/own-package.js';
 import type { Io } from './setup/types.js';
 import { runSkills } from './skills/index.js';
+import { runUninstall } from './uninstall/index.js';
 import { runValidate } from './validate/index.js';
 
 function printUsage(io: Io): void {
@@ -26,6 +27,11 @@ function printUsage(io: Io): void {
       '  validate   Check the repo against the writing profile and claim gate',
       '  comments   Judge comment lines added since a base ref [--base <ref>]',
       '  skills     Copy chosen skills into the load paths claude, codex, and cursor already read',
+      '  uninstall  Scan, list, and remove harness installs while preserving docs',
+      '             [--dir <path>]',
+      '             [--yes]',
+      '             [--verbose]',
+      '             [--debug]',
       '',
       '  --version, -v  Print the package name and version',
       '',
@@ -60,6 +66,8 @@ export async function main(argv: string[], io: Io): Promise<number> {
       return runComments(rest, io);
     case 'skills':
       return runSkills(rest, io);
+    case 'uninstall':
+      return runUninstall(rest, io);
     default:
       io.stderr.write(`wolven-harness: unknown command "${command}"\n\n`);
       printUsage(io);
