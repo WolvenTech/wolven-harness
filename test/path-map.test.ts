@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 import { mapQuietInstallPaths, QUIET_INSTALL_PATH_MAP, unmapQuietInstallPaths } from '../src/setup/path-map.js';
 
@@ -36,4 +37,32 @@ test('quiet-install path map is idempotent and reverses for a layout switch', ()
   assert.equal(unmapQuietInstallPaths(mapped), text);
   const unchanged = 'site/.wolven-harness/docs/ https://example.com/.wolven-harness/.agents/';
   assert.equal(unmapQuietInstallPaths(unchanged), unchanged);
+});
+
+/**
+ * Installed skill text keeps its true root paths: a path that means the repository
+ * root is written with a `./` prefix so the map skips it.
+ */
+test('proof-iter1-root-paths: mapping the real layout and doctor skills leaves root paths at the root', () => {
+  const root = new URL('../templates/.agents/skills/', import.meta.url);
+  const rootSentences = [
+    ['harness-init/references/layout.md', 'to the root `./docs/`'],
+    ['harness-init/references/layout.md', 'back to `./docs/`'],
+    ['harness-init/references/layout.md', 'back to `./.agents/`'],
+    ['harness-init/references/layout.md', 'per skill in `./.agents/skills/`'],
+    ['harness-init/references/layout.md', '| Codex | `./.agents/skills/<name>` |'],
+    [
+      'harness-init/references/layout.md',
+      '| Antigravity | `./.agents/skills/<name>`, `./.agents/rules/wolven-harness.md` |',
+    ],
+    ['harness-doctor/SKILL.md', '(`./docs/` → `.wolven-harness/docs/` and `./.agents/` →'],
+  ] as const;
+  for (const [file, sentence] of rootSentences) {
+    const mapped = mapQuietInstallPaths(readFileSync(new URL(file, root), 'utf8'), 'linked');
+    assert.ok(mapped.includes(sentence), `${file}: ${sentence}`);
+    assert.ok(
+      !mapped.includes(sentence.replaceAll('`./', '`.wolven-harness/')),
+      `${file}: ${sentence} gained the prefix`,
+    );
+  }
 });

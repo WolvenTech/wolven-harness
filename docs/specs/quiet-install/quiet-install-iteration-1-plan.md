@@ -38,12 +38,12 @@ one `n/a` cites the unchanged `wiring.json` format.
 
 | # | Unit | Depends | Owns | Subagent | Model | Done when |
 |---|------|---------|------|----------|-------|-----------|
-| 01 | Smoke test both layouts | — | `.github/workflows/ci.yml` | `spawn` | sonnet | [ ] The smoke step, run by hand in a temp repo from a packed tarball, scores a quiet install with `pnpm exec harness-score`, and a second leg builds a full install by editing the config setup wrote: `proof-iter1-ci-smoke` (local half) |
-| 02 | True root paths survive the map | — | `templates/.agents/skills/harness-init/references/layout.md`, `templates/.agents/skills/harness-doctor/SKILL.md`, `test/path-map.test.ts` | `spawn` | sonnet | [ ] Mapping the real `layout.md` and `harness-doctor/SKILL.md` leaves every true root path pointing at the root: `proof-iter1-root-paths` |
-| 03 | Rules and the `.qmd` index install in their quiet form | — | `src/setup/apply.ts`, `src/setup/render-wolven.ts`, `src/doctor/drift.ts`, `test/doctor-drift.test.ts`, `test/quiet-install-qmd.test.ts` (new) | `spawn` | sonnet | [ ] A quiet install's rules name home paths, its `.qmd` collections resolve under `.wolven-harness/docs/` from the root, a client `docs/` is not indexed, and drift stays silent on both: `proof-iter1-rules-mapped`, `proof-iter1-qmd-paths` |
-| 04 | Guard refusal wording | — | `templates/.agents/hooks/secret-path-guard.mjs`, its repo copy if one exists, `test/secret-path-guard.test.ts` | `spawn` | sonnet | [ ] A refused read prints the spec's **Guard refusal** row: `proof-iter1-guard-message` |
-| 05 | Quiet known forms | 02, 03, 04 | `scripts/known-forms.mjs`, `test/doctor-drift.test.ts` | `spawn` | sonnet | [ ] A stale, unedited quiet file reports `doctor-drift-stale`, and a hand edit reports `doctor-drift-edited`: `proof-iter1-quiet-stale` |
-| 06 | Wave 1 gate | 01–05 | `known-forms.json`, spec boxes, plan marks | `inline` | — | [ ] `pnpm gen:known-forms` is run, the full gate exits 0, the diffs are read, and the wave is committed |
+| 01 | Smoke test both layouts | — | `.github/workflows/ci.yml` | `spawn` | sonnet | [x] The smoke step, run by hand in a temp repo from a packed tarball, scores a quiet install with `pnpm exec harness-score`, and a second leg builds a full install by editing the config setup wrote: `proof-iter1-ci-smoke` (local half) |
+| 02 | True root paths survive the map | — | `templates/.agents/skills/harness-init/references/layout.md`, `templates/.agents/skills/harness-doctor/SKILL.md`, `test/path-map.test.ts` | `spawn` | sonnet | [x] Mapping the real `layout.md` and `harness-doctor/SKILL.md` leaves every true root path pointing at the root: `proof-iter1-root-paths` |
+| 03 | Rules and the `.qmd` index install in their quiet form | — | `src/setup/apply.ts`, `src/setup/render-wolven.ts`, `src/doctor/drift.ts`, `test/doctor-drift.test.ts`, `test/quiet-install-qmd.test.ts` (new) | `spawn` | sonnet | [x] A quiet install's rules name home paths, its `.qmd` collections resolve under `.wolven-harness/docs/` from the root, a client `docs/` is not indexed, and drift stays silent on both: `proof-iter1-rules-mapped`, `proof-iter1-qmd-paths` |
+| 04 | Guard refusal wording | — | `templates/.agents/hooks/secret-path-guard.mjs`, its repo copy if one exists, `test/secret-path-guard.test.ts` | `spawn` | sonnet | [x] A refused read prints the spec's **Guard refusal** row: `proof-iter1-guard-message` |
+| 05 | Quiet known forms | 02, 03, 04 | `scripts/known-forms.mjs`, `test/doctor-drift.test.ts` | `spawn` | sonnet | [x] A stale, unedited quiet file reports `doctor-drift-stale`, and a hand edit reports `doctor-drift-edited`: `proof-iter1-quiet-stale` |
+| 06 | Wave 1 gate | 01–05 | `known-forms.json`, spec boxes, plan marks | `inline` | — | [x] `pnpm gen:known-forms` is run, the full gate exits 0, the diffs are read, and the wave is committed |
 | 07 | Doctor findings | 06 | `src/doctor/runtime-checks.ts`, `src/doctor/env-checks.ts`, `src/validate/report.ts`, `test/doctor-runtime.test.ts`, `test/doctor-env.test.ts` | `spawn` | sonnet | [ ] A fresh tree gives one line per runtime, Codex warns and clears, shared paths report once, and rendered findings carry the new voice with a next step: `proof-iter1-codex-warning`, `proof-iter1-fresh-tree`, `proof-iter1-doctor-voice` |
 | 08 | Setup's quiet output | 06 | `src/setup/index.ts`, `src/setup/summary.ts`, `src/setup/options.ts`, `test/setup-quiet-output.test.ts` (new) | `spawn` | sonnet | [ ] A quiet run prints both hints, asks no package-manager question, and prints no literal backticks: `proof-iter1-quiet-hints`, `proof-iter1-no-pm-prompt`, `proof-iter1-terminal-text` |
 | 09 | Rerun link and setup voice | 06 | `src/setup/runtimes.ts`, `test/runtime-registry.test.ts` | `spawn` | sonnet | [ ] A rerun counts its own link as wired, a foreign link stays occupied, and setup's strings say to ask your agent to run the `harness-init` skill: `proof-iter1-rerun-link` |
@@ -135,3 +135,17 @@ harness-init's files, while 14 and 15 run beside them, and 16 and 17 follow 12.
 Unit 11 owns `runtimes.ts` only once 09 has landed, which wave 2's gate ensures.
 Wave 4 runs 19, 20 and 21 in parallel, then 22, because 19 removes code that
 trimmed tests may touch. Wave 5 stays inline.
+
+## Execution / resume section
+
+### Wave 1 — units 01–05, gate 06
+
+| Field | Value |
+|-------|-------|
+| Unit identifier | 01, 02, 03, 04 in parallel, then 05, then gate 06 |
+| Spec/plan paths | `docs/specs/quiet-install/quiet-install-iteration-1-spec.md` / `docs/specs/quiet-install/quiet-install-iteration-1-plan.md` |
+| Obligation / proof status | I1.1–I1.6 — done; I1.1's green checks land at the push |
+| `HEAD` commit | `e379a41` |
+| `git status` summary | clean before this section |
+| Intended diff scope | The Owns paths of units 01–05, their `.agents/skills/` mirrors, `known-forms.json`, and this plan |
+| Decision on every discrepancy | Resolved, outside Owns at gate 06: `templates/.agents/hooks/README.md` no longer says the deny cites a path; four prose pins in `test/harness-init-layout.test.ts` and `test/harness-doctor-skill.test.ts` take the `./` form; the external-home check in `test/doctor-drift.test.ts` accepts any drift code, because mapped bytes now match a known quiet form. The malformed-payload deny also lost its path (I1.4) |

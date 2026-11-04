@@ -88,8 +88,8 @@ test('proof-quiet-install-doctor-refresh-pathmap: a quiet install compares and r
   const flat = flatten((await readSkill('harness-doctor')).body);
 
   assert.match(flat, /In a quiet install/);
-  assert.match(flat, /`docs\/` → `\.wolven-harness\/docs\/`/);
-  assert.match(flat, /`\.agents\/` → `\.wolven-harness\/\.agents\/`/);
+  assert.match(flat, /`\.\/docs\/` → `\.wolven-harness\/docs\/`/);
+  assert.match(flat, /`\.\/\.agents\/` → `\.wolven-harness\/\.agents\/`/);
   assert.match(flat, /Compare an installed skill with the current template after applying that map/);
   assert.match(flat, /write the template text with the map applied, never the raw template text/);
 });

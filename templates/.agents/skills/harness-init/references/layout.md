@@ -111,7 +111,7 @@ before anything changes.
    repository root stops here, before any diff, with this message: "Can't
    switch to a full install: `<path>` already exists at the repo root.
    Nothing changed. Move or rename it, then ask again." This covers the root
-   `docs/` and each carried file's root path.
+   `./docs/` and each carried file's root path.
 2. Unclear entries. Read the wiring record. An entry that points into
    `.wolven-harness/` and that the record does not name stops the switch with
    this message: "Can't switch to a full install: `<path>` points into
@@ -120,13 +120,13 @@ before anything changes.
 
 Then show one diff:
 
-- Move `.wolven-harness/docs/` to the root `docs/`.
+- Move `.wolven-harness/docs/` to the root `./docs/`.
 - Carry the person's files. List every file under `.wolven-harness/.agents/`,
   ignored files included. Find each one `wolven-harness doctor` reports as
   `doctor-drift-edited` (edited since install) and each one no template
   installed. Move each to the same path at the root, with the map reversed on
-  skill text (`.wolven-harness/docs/` back to `docs/`,
-  `.wolven-harness/.agents/` back to `.agents/`). Show them with this line:
+  skill text (`.wolven-harness/docs/` back to `./docs/`,
+  `.wolven-harness/.agents/` back to `./.agents/`). Show them with this line:
   "Your edited or added files move to the root: `<paths>`." Unedited template
   files are dropped, and the setup rerun recreates them.
 - Remove the quiet-install wiring the record names, and show it with this
@@ -315,19 +315,19 @@ an ignored path in the repository root:
 
 Every other runtime gets one row. Each entry point is an ignored path in the
 repository root, and the sources are the runtime's own documentation. Skills
-are one symlink per skill in `.agents/skills/`, and in `.kiro/skills/` for
+are one symlink per skill in `./.agents/skills/`, and in `.kiro/skills/` for
 Kiro. A generated file is covered by `doctor`'s "edited since install" check.
 
 | Runtime | Entry points (ignored) | Tracked-edit offer | Manual step | Sources |
 | --- | --- | --- | --- | --- |
-| Codex | `.agents/skills/<name>` | None: Codex follows no import, and `AGENTS.override.md` would hide the client's `AGENTS.md` | ask Codex to read .wolven-harness/AGENTS.md, or add its text to ~/.codex/AGENTS.md | [skills](https://learn.chatgpt.com/docs/build-skills), [AGENTS.md](https://learn.chatgpt.com/docs/agent-configuration/agents-md) |
-| Cursor | `.agents/skills/<name>`, `.cursor/rules/wolven-<rule>.mdc`, `.cursor/rules/wolven-agents.mdc`, `.cursor/hooks.json` | None | run "harness-init" to recreate the Cursor rules | [skills](https://cursor.com/docs/context/skills), [rules](https://cursor.com/docs/context/rules), [hooks](https://cursor.com/docs/agent/hooks) |
-| OpenCode | `.agents/skills/<name>` | An `instructions` entry in `opencode.json` listing `.wolven-harness/AGENTS.md` and `.wolven-harness/.agents/rules/*.md`. Tracked change: `opencode.json`, or New tracked file: `opencode.json` | add .wolven-harness/AGENTS.md and .wolven-harness/.agents/rules/*.md to instructions in opencode.json | [skills](https://opencode.ai/docs/skills/), [config](https://opencode.ai/docs/config/) |
-| Amp | `.agents/skills/<name>` | An `@.wolven-harness/AGENTS.md` line inside the harness block of the client's `AGENTS.md`. Tracked change: `AGENTS.md` | add @.wolven-harness/AGENTS.md inside the harness block in AGENTS.md | [skills](https://ampcode.com/docs/customize/skills), [AGENTS.md](https://ampcode.com/docs/customize/agents-md) |
-| GitHub Copilot | `.agents/skills/<name>`, `.github/instructions/wolven-<rule>.instructions.md` | Commit the generated `.github/instructions/wolven-<rule>.instructions.md` files. New tracked file: `.github/instructions/wolven-<rule>.instructions.md` | run "harness-init" to recreate the Copilot instruction files | [skills](https://docs.github.com/en/copilot/concepts/agents/about-agent-skills), [instructions](https://docs.github.com/en/copilot/how-tos/configure-custom-instructions/add-repository-instructions) |
-| Gemini CLI | `.agents/skills/<name>`, `GEMINI.md` | The `@.wolven-harness/AGENTS.md` line in the client's own `GEMINI.md`. Tracked change: `GEMINI.md` | add @.wolven-harness/AGENTS.md to GEMINI.md | [skills](https://geminicli.com/docs/cli/skills), [context files](https://geminicli.com/docs/cli/gemini-md) |
+| Codex | `./.agents/skills/<name>` | None: Codex follows no import, and `AGENTS.override.md` would hide the client's `AGENTS.md` | ask Codex to read .wolven-harness/AGENTS.md, or add its text to ~/.codex/AGENTS.md | [skills](https://learn.chatgpt.com/docs/build-skills), [AGENTS.md](https://learn.chatgpt.com/docs/agent-configuration/agents-md) |
+| Cursor | `./.agents/skills/<name>`, `.cursor/rules/wolven-<rule>.mdc`, `.cursor/rules/wolven-agents.mdc`, `.cursor/hooks.json` | None | run "harness-init" to recreate the Cursor rules | [skills](https://cursor.com/docs/context/skills), [rules](https://cursor.com/docs/context/rules), [hooks](https://cursor.com/docs/agent/hooks) |
+| OpenCode | `./.agents/skills/<name>` | An `instructions` entry in `opencode.json` listing `.wolven-harness/AGENTS.md` and `.wolven-harness/.agents/rules/*.md`. Tracked change: `opencode.json`, or New tracked file: `opencode.json` | add .wolven-harness/AGENTS.md and .wolven-harness/.agents/rules/*.md to instructions in opencode.json | [skills](https://opencode.ai/docs/skills/), [config](https://opencode.ai/docs/config/) |
+| Amp | `./.agents/skills/<name>` | An `@.wolven-harness/AGENTS.md` line inside the harness block of the client's `AGENTS.md`. Tracked change: `AGENTS.md` | add @.wolven-harness/AGENTS.md inside the harness block in AGENTS.md | [skills](https://ampcode.com/docs/customize/skills), [AGENTS.md](https://ampcode.com/docs/customize/agents-md) |
+| GitHub Copilot | `./.agents/skills/<name>`, `.github/instructions/wolven-<rule>.instructions.md` | Commit the generated `.github/instructions/wolven-<rule>.instructions.md` files. New tracked file: `.github/instructions/wolven-<rule>.instructions.md` | run "harness-init" to recreate the Copilot instruction files | [skills](https://docs.github.com/en/copilot/concepts/agents/about-agent-skills), [instructions](https://docs.github.com/en/copilot/how-tos/configure-custom-instructions/add-repository-instructions) |
+| Gemini CLI | `./.agents/skills/<name>`, `GEMINI.md` | The `@.wolven-harness/AGENTS.md` line in the client's own `GEMINI.md`. Tracked change: `GEMINI.md` | add @.wolven-harness/AGENTS.md to GEMINI.md | [skills](https://geminicli.com/docs/cli/skills), [context files](https://geminicli.com/docs/cli/gemini-md) |
 | Kiro | `.kiro/skills/<name>`, `.kiro/steering/wolven-harness.md` | Where `.gitignore` is in `agentIgnoreFiles`, the steering file as a new tracked file. New tracked file: `.kiro/steering/wolven-harness.md` | run "harness-init" to recreate the Kiro steering file | [skills](https://kiro.dev/docs/skills/), [steering](https://kiro.dev/docs/steering/), [ignore](https://kiro.dev/docs/kiroignore/) |
-| Antigravity | `.agents/skills/<name>`, `.agents/rules/wolven-harness.md` | None | run "harness-init" to recreate the Antigravity rule | [skills](https://www.antigravity.google/docs/skills), [rules](https://www.antigravity.google/docs/rules?tab=ide) |
+| Antigravity | `./.agents/skills/<name>`, `./.agents/rules/wolven-harness.md` | None | run "harness-init" to recreate the Antigravity rule | [skills](https://www.antigravity.google/docs/skills), [rules](https://www.antigravity.google/docs/rules?tab=ide) |
 
 Gemini CLI gets a root `GEMINI.md` holding `@.wolven-harness/AGENTS.md` only
 when the client has none. Offer each tracked edit in the one wiring diff, with

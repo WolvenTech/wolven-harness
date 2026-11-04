@@ -3,7 +3,9 @@ import { createHash } from 'node:crypto';
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { applySetMarkers } from '../src/setup/render-wolven.ts';
+import { isQuietMapped } from '../src/setup/apply.ts';
+import { mapQuietInstallPaths } from '../src/setup/path-map.ts';
+import { renderQmdIndex } from '../src/setup/render-wolven.ts';
 import { SKILL_SETS } from '../src/setup/skill-sets.ts';
 
 /** Release tags whose templates `setup` once copied into consumer repos. */
@@ -38,20 +40,25 @@ function setChoices() {
   return Array.from({ length: 2 ** SKILL_SETS.length }, (_, mask) => SKILL_SETS.filter((_set, i) => (mask >> i) & 1));
 }
 
-/** Adds the installed-path forms of one template file to `forms`. */
-function addTemplate(forms, template, bytes, renderQmd = false) {
+/**
+ * Adds the installed-path forms of one template file to `forms`.
+ * why: only the working tree's templates (`current`) get the quiet forms and the
+ * per-set `.qmd/index.yml` renders; no quiet install ever shipped from a release tag.
+ */
+function addTemplate(forms, template, bytes, current = false) {
   const installed = INSTALLED_AS[template] ?? template;
   if (UNCLASSIFIED.has(installed)) return;
-  const shas = installed === QMD_INDEX && renderQmd ? setChoices().map((sets) => renderIndex(bytes, sets)) : [sha256(bytes)];
-  for (const sha of shas) {
-    if (!forms.has(installed)) forms.set(installed, new Set());
-    forms.get(installed).add(sha);
+  const text = bytes.toString('utf8');
+  let variants = [bytes];
+  if (installed === QMD_INDEX && current) {
+    variants = setChoices().flatMap((sets) => [renderQmdIndex(text, sets), renderQmdIndex(text, sets, true)]);
+  } else if (installed !== QMD_INDEX && current && isQuietMapped(installed)) {
+    variants = [bytes, mapQuietInstallPaths(text, 'linked')];
   }
-}
-
-/** sha-256 of `.qmd/index.yml` as `setup` renders it for the chosen `sets`. */
-function renderIndex(bytes, sets) {
-  return sha256(Buffer.from(applySetMarkers(bytes.toString('utf8'), sets), 'utf8'));
+  for (const variant of variants) {
+    if (!forms.has(installed)) forms.set(installed, new Set());
+    forms.get(installed).add(sha256(typeof variant === 'string' ? Buffer.from(variant, 'utf8') : variant));
+  }
 }
 
 /** True when `tag` resolves in the repository at `root`. */

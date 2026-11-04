@@ -268,12 +268,12 @@ flowchart TD
 
 ### Wave 1
 
-- [ ] I1.1 `proof-iter1-ci-smoke` PASS (the smoke step passes locally; green checks land at the push in wave 5)
-- [ ] I1.2 `proof-iter1-root-paths` PASS
-- [ ] I1.3 `proof-iter1-rules-mapped` PASS
-- [ ] I1.4 `proof-iter1-guard-message` PASS
-- [ ] I1.5 `proof-iter1-qmd-paths` PASS
-- [ ] I1.6 `proof-iter1-quiet-stale` PASS
+- [x] I1.1 `proof-iter1-ci-smoke` PASS (the smoke step passes locally; green checks land at the push in wave 5)
+- [x] I1.2 `proof-iter1-root-paths` PASS
+- [x] I1.3 `proof-iter1-rules-mapped` PASS
+- [x] I1.4 `proof-iter1-guard-message` PASS
+- [x] I1.5 `proof-iter1-qmd-paths` PASS
+- [x] I1.6 `proof-iter1-quiet-stale` PASS
 
 ### Wave 2
 

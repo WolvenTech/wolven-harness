@@ -80,7 +80,7 @@ current templates. It does not rely on a recorded install inventory.
   template. Replace it only after a yes, then rerun `doctor` before proposing
   another refresh.
 - **In a quiet install**, the installed skills hold the template text with the
-  fixed path map applied (`docs/` → `.wolven-harness/docs/` and `.agents/` →
+  fixed path map applied (`./docs/` → `.wolven-harness/docs/` and `./.agents/` →
   `.wolven-harness/.agents/`, only where a path token starts). Compare an
   installed skill with the current template after applying that map, and when a
   refresh is approved, write the template text with the map applied, never the

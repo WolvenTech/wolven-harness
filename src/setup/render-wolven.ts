@@ -57,6 +57,15 @@ export function applySetMarkers(text: string, sets?: readonly SkillSet[]): strin
 }
 
 /**
+ * Renders `.qmd/index.yml` from its template for setup, drift and known forms.
+ * A quiet install indexes `./.wolven-harness/docs/...`, so a client `docs/` is never a collection.
+ */
+export function renderQmdIndex(template: string, sets?: readonly SkillSet[], quiet = false): string {
+  const rendered = applySetMarkers(template, sets);
+  return quiet ? rendered.replace(/^(\s*path: )\.\/docs\//gm, '$1./.wolven-harness/docs/') : rendered;
+}
+
+/**
  * Walks `templatesDir/.agents/skills/*` for each skill folder's
  * `SKILL.md`, and returns every skill's frontmatter, sorted by name. A new
  * skill folder is picked up automatically — no code change needed here.

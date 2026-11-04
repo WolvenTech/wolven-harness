@@ -3,7 +3,7 @@ import { lstat, mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { pathExists } from '../path-exists.js';
 import { mapQuietInstallPaths } from './path-map.js';
-import { applySetMarkers, renderWolven } from './render-wolven.js';
+import { renderQmdIndex, renderWolven } from './render-wolven.js';
 import { SET_PATHS, SKILL_SETS, type SkillSet } from './skill-sets.js';
 import type { Context, StepResult } from './types.js';
 
@@ -21,6 +21,11 @@ export const INSTALLED_AS: Record<string, string> = {
   'docs/maps/gitignore': 'docs/maps/.gitignore',
   '.wolven-harness/gitignore': '.gitignore',
 };
+
+/** True for installed files whose `docs/` and `.agents/` mentions a quiet install maps; hooks are not mapped. */
+export function isQuietMapped(installed: string): boolean {
+  return installed.startsWith('.agents/skills/') || installed.startsWith('.agents/rules/');
+}
 
 export function toPosix(relFsPath: string): string {
   return relFsPath.split(path.sep).join('/');
@@ -160,11 +165,10 @@ export async function applyTemplates(
       source === WOLVEN_MD
         ? await renderWolven(ctx, skillFolders, sets, options.quiet)
         : rel === QMD_INDEX
-          ? applySetMarkers(await raw(), sets)
+          ? renderQmdIndex(await raw(), sets, options.quiet)
           : await raw();
 
-    const mapped =
-      options.quiet && rel.startsWith('.agents/skills/') ? mapQuietInstallPaths(content, 'linked') : content;
+    const mapped = options.quiet && isQuietMapped(rel) ? mapQuietInstallPaths(content, 'linked') : content;
     await write(targetPath, mapped);
     created.push(rel);
   }

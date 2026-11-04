@@ -276,7 +276,10 @@ test('proof-quiet-install-runtime-table: every non-Claude registry runtime has a
   }
 
   const flat = flatten(section);
-  assert.match(flat, /Skills are one symlink per skill in `\.agents\/skills\/`, and in `\.kiro\/skills\/` for Kiro/);
+  assert.match(
+    flat,
+    /Skills are one symlink per skill in `\.\/\.agents\/skills\/`, and in `\.kiro\/skills\/` for Kiro/,
+  );
   assert.match(
     flat,
     /"<runtime> can't read <the harness instructions \/ rules> from a file only on this machine\. Add <change> to `<path>`\? Tracked change: `<path>` \(or New tracked file: `<path>`\)\."/,
@@ -286,7 +289,7 @@ test('proof-quiet-install-runtime-table: every non-Claude registry runtime has a
     flat,
     /A No, and Codex's instructions, leave the piece not set up to read the harness: name the row's manual step/,
   );
-  assert.match(flat, /Codex \| `\.agents\/skills\/<name>` \| None: Codex follows no import/);
+  assert.match(flat, /Codex \| `\.\/\.agents\/skills\/<name>` \| None: Codex follows no import/);
 });
 
 test('proof-quiet-install-hook-paths: hook commands run scripts under the home', async () => {
@@ -357,7 +360,7 @@ test('proof-quiet-install-init-fork: the keep-or-switch question precedes the se
   assert.ok(question < flat.indexOf('### Versioning'));
   assert.match(flat, /Options: "Quiet install" \(the default\) and "Full install"/);
   assert.match(flat, /for a repository the person owns/);
-  assert.match(flat, /Move `\.wolven-harness\/docs\/` to the root `docs\/`/);
+  assert.match(flat, /Move `\.wolven-harness\/docs\/` to the root `\.\/docs\/`/);
   assert.match(flat, /Remove the rest of `\.wolven-harness\/`/);
   assert.match(flat, /Rewrite `\.wolven-harness\.json` to `layout: "home"`/);
   assert.match(flat, /Apply this switch\? It removes `\.wolven-harness\/` and adds tracked files at the root\./);
@@ -377,8 +380,8 @@ test('proof-quiet-install-switch-keeps: edited and added files are carried to th
   assert.match(flat, /List every file under `\.wolven-harness\/\.agents\/`, ignored files included/);
   assert.match(flat, /`doctor-drift-edited` \(edited since install\) and each one no template installed/);
   assert.match(flat, /Move each to the same path at the root, with the map reversed on skill text/);
-  assert.match(flat, /`\.wolven-harness\/docs\/` back to `docs\/`/);
-  assert.match(flat, /`\.wolven-harness\/\.agents\/` back to `\.agents\/`/);
+  assert.match(flat, /`\.wolven-harness\/docs\/` back to `\.\/docs\/`/);
+  assert.match(flat, /`\.wolven-harness\/\.agents\/` back to `\.\/\.agents\/`/);
   assert.match(flat, /Your edited or added files move to the root: `<paths>`\./);
   assert.match(flat, /Unedited template files are dropped, and the setup rerun recreates them/);
   assert.match(flat, /each carried file's root path/);

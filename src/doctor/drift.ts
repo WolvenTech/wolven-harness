@@ -3,9 +3,9 @@ import { readFile, realpath } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { gitTopLevel } from '../git.js';
-import { type SelectedTemplateFile, selectTemplateFiles } from '../setup/apply.js';
+import { isQuietMapped, type SelectedTemplateFile, selectTemplateFiles } from '../setup/apply.js';
 import { mapQuietInstallPaths } from '../setup/path-map.js';
-import { applySetMarkers } from '../setup/render-wolven.js';
+import { renderQmdIndex } from '../setup/render-wolven.js';
 import { type SkillSet, skillFolders } from '../setup/skill-sets.js';
 import type { DoctorContext } from './index.js';
 import type { DoctorFinding } from './report.js';
@@ -140,12 +140,12 @@ export async function runDriftChecks(
     }
 
     const expectedText =
-      quiet && installed.startsWith('.agents/skills/') && templateText !== undefined
+      quiet && isQuietMapped(installed) && templateText !== undefined
         ? mapQuietInstallPaths(templateText, 'linked')
         : templateText;
     const expectedBytes =
       installed === QMD_INDEX && templateText !== undefined
-        ? Buffer.from(applySetMarkers(templateText, sets), 'utf8')
+        ? Buffer.from(renderQmdIndex(templateText, sets, quiet), 'utf8')
         : expectedText === undefined
           ? undefined
           : Buffer.from(expectedText, 'utf8');
