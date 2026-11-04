@@ -2,7 +2,7 @@
 type: note
 title: Gitignored harness access
 description: Whether Claude Code, Cursor and qmd load and search harness files that the client repo gitignores, for a harness kept in .wolven-harness/ inside that repo.
-status: draft
+status: stable
 ---
 
 # Gitignored harness access
@@ -26,14 +26,14 @@ and instructions, recursive search from the repo root, and indexing.
   `.git`. `git check-ignore` on a file there fails with
   `Pathspec '...' is in submodule '.wolven-harness'`, and `git add -A` adds the
   folder as an embedded repository (mode `160000`) instead of its files
-  (`docs/notes/gitignored-harness-access/probe.sh`, first variant, git 2.55.0).
+  (the one-off probe, first variant, git 2.55.0).
 - With the harness git dir kept outside the folder, in
   `.git/wolven-harness.git` with `--work-tree=.wolven-harness`, the parent sees
   plain files and versions only the re-included `docs/`
-  (`docs/notes/gitignored-harness-access/probe.sh`).
+  (the one-off probe).
 - From inside `.wolven-harness/`, plain `git rev-parse --show-toplevel`
   resolves to the client repo, so every harness git call needs
-  `--git-dir`/`--work-tree` (`docs/notes/gitignored-harness-access/probe.sh`).
+  `--git-dir`/`--work-tree` (the one-off probe).
 
 ### Claude Code
 
@@ -43,7 +43,7 @@ and instructions, recursive search from the repo root, and indexing.
 - Observed with Claude Code 2.1.312: with `.claude/` gitignored and
   `.claude/skills` a symlink into the gitignored `.wolven-harness/skills`, the
   session's init event lists `probe-skill`
-  (`docs/notes/gitignored-harness-access/probe.sh`).
+  (the one-off probe).
 - Instructions: `CLAUDE.md` "can import additional files using
   `@path/to/import` syntax", and a `CLAUDE.local.md` at the project root "loads
   alongside `CLAUDE.md`"; the docs tell you to add it to `.gitignore`
@@ -51,7 +51,7 @@ and instructions, recursive search from the repo root, and indexing.
 - Observed: a gitignored `CLAUDE.local.md` holding
   `@.wolven-harness/AGENTS.md` made the session answer with the codeword written
   only in the gitignored harness file
-  (`docs/notes/gitignored-harness-access/probe.sh`).
+  (the one-off probe).
 - A `CLAUDE.local.md` counts as a `CLAUDE.md` file, so in a repo that relies on
   `AGENTS.md` it stops Claude from reading `AGENTS.md` unless Project
   instructions is set to `claude-md-and-agents-md`
@@ -67,11 +67,11 @@ and instructions, recursive search from the repo root, and indexing.
   7.8.4: `grep -rn` from the repo root finds the re-included ADR and skips the
   ignored rule and skill; `grep -rn` on an explicit path into `.wolven-harness/`
   or through the `.claude/skills` link finds them; `find` ignores `.gitignore`
-  and finds everything (`docs/notes/gitignored-harness-access/probe.sh`).
+  and finds everything (the one-off probe).
 - Outside that tool, a script's system `grep` (BSD grep 2.6.0 on macOS) does not
   read `.gitignore` and finds the ignored rule too, so the skip belongs to the
   embedded grep, not to `grep` in general
-  (`docs/notes/gitignored-harness-access/probe.sh`).
+  (the one-off probe).
 
 ### Cursor
 
@@ -86,7 +86,7 @@ and instructions, recursive search from the repo root, and indexing.
   through the gitignored `.claude/skills` symlink. Asked to use only its
   built-in search, it reported `TOKEN_ADR` in the re-included ADR and no match
   for `TOKENRULE` in the ignored harness file. Both are the agent's own
-  report, not a tool trace (`docs/notes/gitignored-harness-access/probe.sh`).
+  report, not a tool trace (the one-off probe).
 
 ### qmd
 
@@ -98,7 +98,7 @@ and instructions, recursive search from the repo root, and indexing.
   `CLAUDE.local.md` and nothing under `.wolven-harness/` or `.claude/`. A
   collection rooted at `.wolven-harness` indexes all of it, ignored files
   included. A collection rooted at `.claude` finds nothing, because the skills
-  folder is a symlink (`docs/notes/gitignored-harness-access/probe.sh`).
+  folder is a symlink (the one-off probe).
 
 ## What this means for the layout
 
@@ -123,7 +123,7 @@ and instructions, recursive search from the repo root, and indexing.
 | https://cursor.com/docs/context/ignore-files | official docs | Cursor's `.gitignore` and `.cursorignore` handling |
 | https://cursor.com/docs/context/skills | official docs | Cursor's skill locations |
 | `/opt/homebrew/lib/node_modules/@tobilu/qmd/dist/cli/qmd.js:1552` (qmd 2.5.3), https://github.com/tobi/qmd | source code | qmd's scan options |
-| `docs/notes/gitignored-harness-access/probe.sh` | reproduction script | Every observed behaviour above |
+| One-off probe script (deleted; recoverable from git history) | reproduction script | Every observed behaviour above; it ran each case once and was not kept |
 
 ## Open questions
 

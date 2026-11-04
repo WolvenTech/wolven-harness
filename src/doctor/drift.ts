@@ -4,6 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { gitTopLevel } from '../git.js';
 import { isQuietMapped, type SelectedTemplateFile, selectTemplateFiles } from '../setup/apply.js';
+import { homeInsideRoot } from '../setup/config.js';
 import { mapQuietInstallPaths } from '../setup/path-map.js';
 import { renderQmdIndex } from '../setup/render-wolven.js';
 import { type SkillSet, skillFolders } from '../setup/skill-sets.js';
@@ -103,9 +104,7 @@ export async function runDriftChecks(
   if (linked) {
     try {
       const root = await realpath(await gitTopLevel(ctx.root));
-      const relative = path.relative(root, await realpath(ctx.harnessHome));
-      quiet =
-        relative !== '' && relative !== '..' && !relative.startsWith(`..${path.sep}`) && !path.isAbsolute(relative);
+      quiet = homeInsideRoot(root, await realpath(ctx.harnessHome)) !== undefined;
     } catch {
       quiet = false;
     }
@@ -141,7 +140,7 @@ export async function runDriftChecks(
 
     const expectedText =
       quiet && isQuietMapped(installed) && templateText !== undefined
-        ? mapQuietInstallPaths(templateText, 'linked')
+        ? mapQuietInstallPaths(templateText)
         : templateText;
     const expectedBytes =
       installed === QMD_INDEX && templateText !== undefined

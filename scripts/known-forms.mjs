@@ -53,7 +53,7 @@ function addTemplate(forms, template, bytes, current = false) {
   if (installed === QMD_INDEX && current) {
     variants = setChoices().flatMap((sets) => [renderQmdIndex(text, sets), renderQmdIndex(text, sets, true)]);
   } else if (installed !== QMD_INDEX && current && isQuietMapped(installed)) {
-    variants = [bytes, mapQuietInstallPaths(text, 'linked')];
+    variants = [bytes, mapQuietInstallPaths(text)];
   }
   for (const variant of variants) {
     if (!forms.has(installed)) forms.set(installed, new Set());

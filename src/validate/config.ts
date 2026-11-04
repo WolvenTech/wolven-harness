@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { readConfig } from '../setup/config.js';
+import { homeInsideRoot, readConfig } from '../setup/config.js';
 import type { Finding } from './report.js';
 
 const GLOB_CHARS = /[*?[\]{}]/;
@@ -66,10 +66,8 @@ export async function loadIgnoreConfig(root: string): Promise<IgnoreConfig> {
   const config = await readConfig(root);
   const result = partitionIgnore(config?.ignore ?? []);
   if (config?.layout === 'linked' && config.harnessHome) {
-    const rel = path.relative(root, path.resolve(root, config.harnessHome));
-    if (rel !== '' && rel !== '..' && !rel.startsWith(`..${path.sep}`) && !path.isAbsolute(rel)) {
-      result.homePrefix = rel.split(path.sep).join('/');
-    }
+    const rel = homeInsideRoot(root, path.resolve(root, config.harnessHome));
+    if (rel !== undefined) result.homePrefix = rel.split(path.sep).join('/');
   }
   return result;
 }

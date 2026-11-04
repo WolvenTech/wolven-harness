@@ -306,11 +306,11 @@ flowchart TD
 
 ### Wave 4
 
-- [ ] I6.1 `proof-iter1-test-trim` PASS
-- [ ] I6.2 `proof-iter1-one-predicate` PASS
-- [ ] I6.3 `proof-iter1-yagni-cuts` PASS
-- [ ] I6.4 `proof-iter1-misplaced` PASS
-- [ ] I6.5 `proof-iter1-artifacts` PASS
+- [x] I6.1 `proof-iter1-test-trim` PASS
+- [x] I6.2 `proof-iter1-one-predicate` PASS
+- [x] I6.3 `proof-iter1-yagni-cuts` PASS
+- [x] I6.4 `proof-iter1-misplaced` PASS
+- [x] I6.5 `proof-iter1-artifacts` PASS
 
 ### Wave 5
 

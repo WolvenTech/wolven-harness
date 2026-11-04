@@ -2,7 +2,7 @@
 type: note
 title: In-repo harness install
 description: The install path, from a global install onwards, when the harness lives in app/.wolven-harness/, and the proof runs that moved it from a nested git repo to a plain folder with re-included paths.
-status: draft
+status: stable
 ---
 
 # In-repo harness install
@@ -202,7 +202,3 @@ failures hold. Each line names the failure, then its mitigation.
    (read from the main checkout, which is documented) that warns when a
    worktree has no `CLAUDE.local.md` or `.claude/rules/`.
 
-## Map
-
-`in-repo-harness-m-map.json` is the source; `in-repo-harness-m-map.html` is
-built from it.

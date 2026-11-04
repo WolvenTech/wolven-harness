@@ -6,6 +6,14 @@ import { isSkillSet } from './skill-sets.js';
 import type { GitHost, Runtime } from './types.js';
 import { SetupError } from './types.js';
 
+/** The home's path under `root` when the home sits strictly inside it, else undefined. */
+export function homeInsideRoot(root: string, home: string): string | undefined {
+  const relative = path.relative(root, home);
+  return relative !== '' && relative !== '..' && !relative.startsWith(`..${path.sep}`) && !path.isAbsolute(relative)
+    ? relative
+    : undefined;
+}
+
 /** The package manager a project resolves to; `none` when there is no `package.json`. */
 export type PackageManager = 'npm' | 'yarn' | 'pnpm' | 'none';
 

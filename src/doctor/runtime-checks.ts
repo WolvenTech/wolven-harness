@@ -57,7 +57,7 @@ async function quietClaudeFindings(ctx: DoctorContext, rules: Rule[]): Promise<D
       });
     }
   };
-  await inspect(row.quietInstall?.entryPoints[0] ?? '', path.join(ctx.harnessHome, 'AGENTS.md'), 'doctor-entry');
+  await inspect('CLAUDE.local.md', path.join(ctx.harnessHome, 'AGENTS.md'), 'doctor-entry');
   if (rules.length === 0) {
     findings.push({
       level: 'error',
@@ -107,7 +107,7 @@ async function quietRuntimeFindings(
     file: string,
     code: DoctorCode,
     problem: () => Promise<string | undefined>,
-    fix: string = wiring.manualStep,
+    fix: string = wiring.manualStep ?? 'ask your agent to run the harness-init skill',
   ) => {
     // invariant: runtimes that share a path report it once, under the first runtime that reaches it.
     if (seen.has(`${code}:${file}`)) return;

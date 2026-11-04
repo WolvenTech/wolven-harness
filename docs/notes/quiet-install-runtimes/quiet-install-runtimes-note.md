@@ -2,7 +2,7 @@
 type: note
 title: Quiet-install entry points per runtime
 description: For each non-Claude registry runtime, the documented paths a quiet install can wire as ignored entry points for skills, instructions, rules and hooks, and where no local path exists.
-status: draft
+status: stable
 ---
 
 # Quiet-install entry points per runtime

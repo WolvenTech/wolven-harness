@@ -278,8 +278,10 @@ async function checkHarnessMisplaced(ctx: RepoContext): Promise<Finding[]> {
     map: 'maps',
   };
   const findings: Finding[] = [];
+  // why: a document lands here by habit or from a prior full install, only under the root docs folders; no other client file is opened.
+  const strayFolder = new RegExp(`^docs/(${Object.values(folders).join('|')})/.+\\.md$`);
   for (const rel of client.files) {
-    if (rel.startsWith(`${ctx.homePrefix}/`) || !rel.endsWith('.md')) continue;
+    if (rel.startsWith(`${ctx.homePrefix}/`) || !strayFolder.test(rel)) continue;
     let content: string;
     try {
       content = await client.read(rel);

@@ -3,7 +3,7 @@ import path from 'node:path';
 import { gitOriginUrl, gitTopLevel } from '../git.js';
 import { pathExists } from '../path-exists.js';
 import type { Config, PackageManager } from './config.js';
-import { isGitHost, isPackageManager, isRuntime, readConfig, writeConfig } from './config.js';
+import { homeInsideRoot, isGitHost, isPackageManager, isRuntime, readConfig, writeConfig } from './config.js';
 import { resolveOwnPackage } from './own-package.js';
 import { resolvePackageManager } from './package-manager.js';
 import { RUNTIME_REGISTRY, type RuntimeEnv } from './runtimes.js';
@@ -396,15 +396,11 @@ export async function resolveOptions(argv: string[], ctx: Context): Promise<Opti
 
   const flags = parseFlags(argv);
   const existing = await readConfig(ctx.root);
-  const homeRelative = path.relative(ctx.root, path.resolve(ctx.root, existing?.harnessHome ?? '.'));
   const quiet =
     mode === 'root' &&
     (existing === undefined ||
       (existing.layout === 'linked' &&
-        homeRelative !== '' &&
-        homeRelative !== '..' &&
-        !homeRelative.startsWith(`..${path.sep}`) &&
-        !path.isAbsolute(homeRelative)));
+        homeInsideRoot(ctx.root, path.resolve(ctx.root, existing.harnessHome ?? '.')) !== undefined));
 
   const interactive = canPrompt(ctx.io);
   const notes: Notes = {};

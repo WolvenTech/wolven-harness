@@ -119,7 +119,7 @@ export async function renderWolven(
 
   const rendered = applySetMarkers(template.split(SKILLS_TABLE_PLACEHOLDER).join(table), sets);
   if (!quiet) return rendered;
-  return mapQuietInstallPaths(rendered.slice(rendered.indexOf('<!-- wolven-harness:start -->')), 'linked').replaceAll(
+  return mapQuietInstallPaths(rendered.slice(rendered.indexOf('<!-- wolven-harness:start -->'))).replaceAll(
     '`.harness-score.json`',
     '`.wolven-harness/.harness-score.json`',
   );

@@ -1,8 +1,10 @@
 import assert from 'node:assert/strict';
-import { mkdir, writeFile } from 'node:fs/promises';
+import fsPromises, { mkdir, writeFile } from 'node:fs/promises';
+import { syncBuiltinESMExports } from 'node:module';
 import path from 'node:path';
 import { test } from 'node:test';
 import { buildRepoContext } from '../src/validate/repo.js';
+import { checkSpine } from '../src/validate/spine.js';
 import { makeRepo, run } from './helpers/fixture.js';
 
 const config = (extra = {}) =>
@@ -178,8 +180,17 @@ test('proof-quiet-install-misplaced: one tracked profile document warns with its
 
 test('proof-quiet-install-misplaced: all profile types warn when untracked, ignored documents do not', async () => {
   const dir = await quietRepo({ ...versionedHomeFiles, '.gitignore': 'ignored/\n' });
-  for (const type of ['adr', 'prd', 'spec', 'note', 'deferral', 'map']) {
-    await writeFile(path.join(dir, `${type}.md`), `---\ntype: ${type}\n---\n`);
+  await mkdir(path.join(dir, 'docs'));
+  for (const [type, folder] of [
+    ['adr', 'adrs'],
+    ['prd', 'prds'],
+    ['spec', 'specs'],
+    ['note', 'notes'],
+    ['deferral', 'deferrals'],
+    ['map', 'maps'],
+  ]) {
+    await mkdir(path.join(dir, 'docs', folder));
+    await writeFile(path.join(dir, 'docs', folder, 'stray.md'), `---\ntype: ${type}\n---\n`);
   }
   await mkdir(path.join(dir, 'ignored'));
   await writeFile(path.join(dir, 'ignored/decision.md'), adr);
@@ -188,4 +199,39 @@ test('proof-quiet-install-misplaced: all profile types warn when untracked, igno
   const warnings = result.stdout.split('\n').filter((line) => line.includes('[harness-misplaced]'));
   assert.equal(warnings.length, 6, result.stdout);
   assert.doesNotMatch(result.stdout, /ignored\/decision/);
+});
+
+test('proof-iter1-misplaced: a client markdown file outside the root docs folders is never read', async () => {
+  const dir = await quietRepo({
+    ...versionedHomeFiles,
+    'docs/adrs/stray-decision.md': adr,
+    'docs/guide.md': adr,
+    'notes/decision.md': adr,
+    'README.md': adr,
+  });
+  const ctx = await buildRepoContext(dir, { ignoreEntries: [], homePrefix: '.wolven-harness' });
+  const original = fsPromises.readFile;
+  const opened: string[] = [];
+  // hazard: patching the shared fs/promises export counts every read the check makes, including ones it hides behind its own context.
+  fsPromises.readFile = ((file: Parameters<typeof original>[0], ...rest: unknown[]) => {
+    opened.push(String(file));
+    return (original as (...args: unknown[]) => unknown)(file, ...rest);
+  }) as typeof original;
+  syncBuiltinESMExports();
+  let findings: Awaited<ReturnType<typeof checkSpine>>;
+  try {
+    findings = await checkSpine(ctx);
+  } finally {
+    fsPromises.readFile = original;
+    syncBuiltinESMExports();
+  }
+  assert.deepEqual(
+    findings.filter((f) => f.rule === 'harness-misplaced').map((f) => f.file),
+    ['docs/adrs/stray-decision.md'],
+  );
+  const markdown = opened.filter((file) => file.endsWith('.md') && !file.includes('.wolven-harness'));
+  assert.deepEqual(
+    markdown.map((file) => path.relative(dir, file)),
+    ['docs/adrs/stray-decision.md'],
+  );
 });

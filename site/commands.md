@@ -185,7 +185,7 @@ Every finding line has the form `level [code] path:line: message`; the path and 
 | `skill-frontmatter`, `rule-missing`, `harness-ignored` | Error | A skill is malformed, a cited rule is absent, or a required harness path is ignored. |
 | `claim-missing`, `claim-duplicate`, `claim-invalid` | Error | ADR claim has no unique valid target. |
 | `claim-draft`, `claim-deprecated`, `claim-slug-mismatch` | Error | ADR claim points to a decision that is not a matching stable record. |
-| `harness-misplaced` | Warning | In a quiet install, a harness document such as an ADR or spec sits outside `.wolven-harness/docs/` and is not validated; the message names where to move it. |
+| `harness-misplaced` | Warning | In a quiet install, a harness document such as an ADR or spec sits in one of the root `docs/` folders (`adrs`, `prds`, `specs`, `notes`, `deferrals`, `maps`) rather than under `.wolven-harness/docs/`, and is not validated; the message names where to move it. |
 | `skill-stub-open`, `step0-pending` | Warning | A skill stub still needs definition, or `AGENTS.md` lacks the harness section start marker. |
 | `adr-unrecognized`, `legacy-adr`, `adr-status-mismatch` | Warning | A decision record needs migration, uses an unrecognized folder, or its body contradicts its stable status. |
 | `legacy-claim` | Warning, verbose only | A claim resolves only to a legacy ADR outside `docs/adrs/`. |

@@ -215,7 +215,7 @@ async function makeQuietFixture(): Promise<{ ctx: DoctorContext; harnessHome: st
     await mkdir(path.dirname(file), { recursive: true });
     const text = await readFile(path.join(root, installed), 'utf8');
     const mapped = isQuietMapped(installed)
-      ? mapQuietInstallPaths(text, 'linked')
+      ? mapQuietInstallPaths(text)
       : installed === '.qmd/index.yml'
         ? renderQmdIndex(text, ctx.config.skillSets, true)
         : text;
@@ -252,7 +252,7 @@ test('proof-iter1-quiet-stale: a stale unedited quiet file is doctor-drift-stale
   await writeFile(table, JSON.stringify(currentForms(earlier)));
 
   const file = path.join(harnessHome, ...edited.split('/'));
-  await writeFile(file, mapQuietInstallPaths(await readFile(earlierTemplate, 'utf8'), 'linked'));
+  await writeFile(file, mapQuietInstallPaths(await readFile(earlierTemplate, 'utf8')));
   const stale = await runDriftChecks(ctx, table);
   assert.deepEqual(codes(stale), ['doctor-drift-stale']);
   assert.ok(stale[0].message.includes(edited));
@@ -270,7 +270,7 @@ test('proof-iter1-refresh-rerun: deleting a stale quiet file and rerunning setup
 
   const rel = '.agents/rules/yagni-strict.md';
   const file = path.join(root, '.wolven-harness', rel);
-  const expected = mapQuietInstallPaths(await readFile(path.join(templatesDir, rel), 'utf8'), 'linked');
+  const expected = mapQuietInstallPaths(await readFile(path.join(templatesDir, rel), 'utf8'));
   assert.equal(await readFile(file, 'utf8'), expected);
 
   await writeFile(file, `${expected}\nAn earlier line.\n`);

@@ -6,7 +6,7 @@ import process from 'node:process';
 const ENTRY_POINTS = ['CLAUDE.local.md', '.claude/rules/'];
 
 /** The one warning naming every entry point the project folder lacks; empty when it is complete. */
-export function warnings(projectDir) {
+function warnings(projectDir) {
   const missing = ENTRY_POINTS.filter((rel) => !existsSync(path.join(projectDir, rel)));
   if (missing.length === 0) return [];
   const files = missing.join(', ');

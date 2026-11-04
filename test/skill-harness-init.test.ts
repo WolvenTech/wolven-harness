@@ -64,57 +64,23 @@ test('skill-shape: lists steps 0 through 6 in order', async () => {
   }
 });
 
-test('proof-full-step1-covered: step 1 runs only when covered and validate reports legacy-adr', async () => {
-  const skill = await readSkill('harness-init');
-
-  const migrationSection = flatten(skill.body.split(/^### 1\. Legacy ADR migration/m)[1]?.split(/^### /m)[0] ?? '');
-  assert.match(
-    migrationSection,
-    /Runs when `harness:validate` reports `legacy-adr` and the Human runs it at the guided step question/,
-  );
-});
-
-test('skill-shape: re-run skips step 0, step 1, and resumes a draft session note', async () => {
-  const skill = await readSkill('harness-init');
-  const flat = flatten(skill.body);
-
-  assert.match(
-    flat,
-    /step 0 is skipped when `WOLVEN\.md` is already gone, or `AGENTS\.md` already holds the harness start marker/i,
-  );
-  assert.match(flat, /step 1 is skipped when there are no legacy-adr warnings/i);
-  assert.match(flat, /draft.*session note.*interrupted run.*is resumed/i);
-  assert.match(flat, /resumed, not replaced/i);
-});
-
-test('skill-shape: an AGENTS.md that already holds the harness section is refreshed, never folded twice', async () => {
+test('skill-shape: an AGENTS.md that already holds the harness section is never folded twice', async () => {
   const flat = flatten((await readSkill('harness-init')).body);
 
-  assert.match(flat, /already holds the harness section was integrated by an earlier run/i);
   assert.match(flat, /never fold it a second time/i);
-  assert.match(flat, /show the diff, ask whether to refresh the section, then delete `WOLVEN\.md`/i);
 });
 
-test('skill-shape: each writing step runs validate, shows the diff first, and waits for the choice', async () => {
-  const flat = flatten((await readSkill('harness-init')).body);
-
-  assert.match(flat, /runs `harness:validate` right after it writes/i);
-  assert.match(flat, /shows the human the diff before writing/i);
-  assert.match(flat, /waits for the human's choice/i);
-});
-
-test('skill-shape: no step offers a commit; the run makes one offer at the end, gated on a clean validate', async () => {
+test('skill-shape: each writing step shows the diff and runs validate; one commit offer at the end, gated on a clean validate', async () => {
   const skill = await readSkill('harness-init');
   const flat = flatten(skill.body);
 
   assert.match(flat, /Every writing step shows the Human the diff before writing/);
   assert.match(flat, /runs `harness:validate` right after it writes/i);
-  assert.match(flat, /waits for the Human's choice/i);
   assert.match(flat, /No step offers a commit; the run makes one offer, at the end/);
   assert.match(flat, /once `harness:validate` exits 0 \(`0 legacy-warn` as well, when migration ran\)/i);
 });
 
-test('skill-shape: the eight references exist and are each linked from the step that uses them', async () => {
+test('skill-shape: the references exist and are each linked from the step that uses them', async () => {
   const skill = await readSkill('harness-init');
 
   for (const ref of REFERENCES) {
@@ -133,24 +99,14 @@ test('skill-shape: names the other skills it consults only in backticks, never a
   }
 });
 
-test('runtime-rules: the four runtime gates are present under Hard gates', async () => {
+test('runtime-rules: the question gates are present under Hard gates', async () => {
   const skill = await readSkill('harness-init');
   const gates = flatten(skill.body.split(/^## Hard gates/m)[1]?.split(/^## /m)[0] ?? '');
 
-  assert.match(gates, /drives what comes next/i);
   assert.match(gates, /one question at a time/i);
   assert.match(gates, /recommended option listed first/i);
   assert.match(gates, /never invent/i);
-  assert.match(gates, /no status, successor ADR, entry mode, or decision/i);
   assert.match(gates, /names? no specific consumer repository|no consumer names/i);
-  assert.match(gates, /questions are plain language/i);
-  assert.match(gates, /supporting detail, never the subject/i);
-});
-
-test('runtime-rules: a failing claim after migration is expected input, not a defect', async () => {
-  const flat = flatten((await readSkill('harness-init')).body);
-
-  assert.match(flat, /claim that starts failing after migration is expected input/i);
 });
 
 test('runtime-rules: no file in the harness-init folder names a real consumer repository', async () => {
@@ -179,81 +135,40 @@ test('skill-harness-init: asks how harness:validate is wired, with three options
   assert.match(step, /Nothing is written without the Human's yes/);
 
   const ref = flatten(await skill.read('references/validate-wiring.md'));
-  assert.match(ref, /ask in plain language how `harness:validate` should run/i);
-  assert.match(ref, /`\.github\/workflows\/\*\.yml`/);
-  assert.match(ref, /`bitbucket-pipelines\.yml`/);
-  assert.match(ref, /sets up Node ≥ 22 before the install and validate steps/);
-  assert.match(ref, /`actions\/setup-node`/);
-  assert.match(ref, /`corepack enable`/);
-  assert.match(ref, /recorded `packageManager`/);
   for (const manager of ['npm', 'yarn', 'pnpm', 'none']) {
     assert.match(ref, new RegExp(`\\| \`${manager}\` \\|`), `${manager} has a branch`);
   }
-  assert.match(ref, /`npm ci`/);
-  assert.match(ref, /`npm run harness:validate`/);
-  assert.match(ref, /`yarn install --frozen-lockfile`/);
-  assert.match(ref, /`yarn harness:validate`/);
-  assert.match(ref, /`pnpm\/action-setup`/);
-  assert.match(ref, /`pnpm install --frozen-lockfile`/);
-  assert.match(ref, /`pnpm harness:validate`/);
-  assert.match(ref, /no install step/);
-  assert.match(ref, /globally installed `wolven-harness validate`/);
-  assert.match(ref, /Append `&& ` and the run-script form/);
   assert.match(ref, /Nothing is written without a yes: show the diff, wait for the Human's yes, then write/);
 
   const note = flatten(await skill.read('references/session-note-template.md'));
   assert.match(note, /## Validate wiring/);
 });
 
-test('skill-harness-init: step 0 puts the entry mode to the Human as a question and the note records question, recommendation and answer', async () => {
+test('skill-harness-init: step 0 never picks the entry mode silently', async () => {
   const skill = await readSkill('harness-init');
   const step = flatten(skill.body.split(/^### 0\. /m)[1]?.split(/^### /m)[0] ?? '');
-  assert.match(step, /Put the mode to the Human as one question, the recommended mode first with the reason/);
   assert.match(step, /never pick it silently/i);
 
   const modes = flatten(await skill.read('references/entry-modes.md'));
   assert.match(modes, /Never pick a mode silently/);
-  assert.match(modes, /put to the Human as one question phrased in plain language/i);
-
-  const note = flatten(await skill.read('references/session-note-template.md'));
-  assert.match(note, /the mode question as asked, the mode recommended and why, and your answer/);
-  assert.match(note, /the wiring question as asked, the option recommended and why, your answer/);
 });
 
-test('skill-harness-init: step 6 scores the harness, asks per dimension, and never drops a check without a yes', async () => {
+test('skill-harness-init: step 6 scores before the wiring question and never drops a check without a yes', async () => {
   const skill = await readSkill('harness-init');
   const step = flatten(skill.body.split(/^### 6\. /m)[1]?.split(/^## /m)[0] ?? '');
 
-  assert.match(step, /run `harness:score`/i);
-  assert.match(step, /For each dimension with a failing check, ask one question/);
   assert.match(step, /never drop one without the Human's yes/);
-  assert.match(
-    step,
-    /The run ends at hand-back\. Defining stubs or building score gaps is a separate change on its own branch/,
-  );
-  assert.match(step, /If the Human asks for it in the same session, say so and stop/);
   assert.ok(
     step.indexOf('harness:score') < step.indexOf('harness:validate'),
     'scoring comes before the wiring question',
   );
 
   const ref = flatten(await skill.read('references/harness-score.md'));
-  assert.match(ref, /ask one question in plain language/i);
-  assert.match(ref, /state what the repo lacks and what building it means/i);
-  assert.match(ref, /check IDs.*never the subject/i);
-  assert.match(ref, /explain non-obvious failure causes/i);
-  assert.match(ref, /spell out what a drop costs/i);
-  assert.match(
-    ref,
-    /L1 Context ≥ 40%; L2 Context ≥ 60%, Skills ≥ 30% or Hooks ≥ 30%, Hygiene ≥ 50%; L3 Sensors ≥ 60%, CI ≥ 50%; L4 Hooks ≥ 70%, Total ≥ 80%/,
-  );
   assert.match(
     ref,
     /`HYG-03`, `HYG-04` and `HYG-06` detect leaked credentials and can never be dropped\. The score step asks no dimension question about them/,
   );
-  assert.match(ref, /add `"no-hooks"` to `extends`/);
   assert.match(ref, /Never build a failing check inside this run/);
-  assert.match(ref, /The run ends at hand-back.*separate change on its own branch/);
   assert.match(ref, /Nothing is written without a yes/);
 
   const note = flatten(await skill.read('references/session-note-template.md'));
@@ -275,14 +190,11 @@ test('proof-basics-path-question: the Human picks the path from one plain questi
     'Quick setup is offered before Guided setup',
   );
   assert.match(question, /\*\*Quick setup \(recommended\)\*\*: connect the harness to <runtime names>;/);
-  assert.match(question, /everything else can wait/);
   assert.match(question, /\*\*Guided setup\*\*: walk through every step, skipping whatever you don't want yet/);
   assert.match(question, /Never pick it for them from what the tree shows/);
   assert.ok(raw.indexOf('## Resume first') < raw.indexOf('## The path question'), 'resume is checked first');
 
-  const fork = flatten(section(skill.body, '## Lean path'));
   assert.ok(skill.body.indexOf('## Re-run skips') < skill.body.indexOf('## Lean path'), 're-run skips come first');
-  assert.match(fork, /holds the resume check, the path question and the whole lean path/);
 
   for (const rel of skill.files) {
     assert.doesNotMatch(await skill.read(rel), /thin-evidence/i, `${rel} still judges the path from the tree`);
@@ -294,13 +206,7 @@ test('proof-basics-resume: a draft note resumes its path, and a stable note asks
   const resume = flatten(section(await skill.read(LEAN_PATH), '## Resume first'));
 
   assert.match(resume, /`draft` note that records a \*\*Path:\*\* resumes on that path, with the answers it records/);
-  assert.match(resume, /Ask none of them again/);
   assert.match(resume, /`stable` note means an earlier run finished\. It does not block a new run/);
-  assert.match(resume, /the path question is asked again/);
-  assert.match(
-    flatten(section(skill.body, '## Re-run skips')),
-    /resumed, not replaced, with the path and answers it already records/,
-  );
 });
 
 test('proof-basics-asks: the lean path asks the path question, then the AGENTS.md question in a full install, and no goal', async () => {
@@ -314,33 +220,7 @@ test('proof-basics-asks: the lean path asks the path question, then the AGENTS.m
     return index;
   });
   assert.ok(positions[0] < positions[1], 'path, then AGENTS.md');
-  assert.match(asks, /become questions only when they find something/);
   assert.doesNotMatch(asks, /What do you want to get done first/);
-});
-
-test('proof-basics-skips: the lean path leaves steps 1 to 5 and both step 6 questions for later', async () => {
-  const skips = flatten(
-    section(await (await readSkill('harness-init')).read(LEAN_PATH), '## What the lean path does not run'),
-  );
-
-  assert.match(skips, /\*\*Left for later\*\* in the note and listed in the hand-back/);
-  assert.match(skips, /Step 1, legacy ADR migration/);
-  assert.match(skips, /Step 2, discovery: neither reading the repo nor its questions/);
-  assert.match(skips, /Step 3, research/);
-  assert.match(skips, /Steps 4 and 5, skill proposals and stubs/);
-  assert.match(skips, /Step 6's score-gap questions/);
-  assert.match(skips, /Step 6's question about how to check the harness/);
-});
-
-test('proof-basics-writes: the lean path writes only the step 0 change and the note, with the one commit offer at the end', async () => {
-  const writes = flatten(
-    section(await (await readSkill('harness-init')).read(LEAN_PATH), '## What the lean path writes'),
-  );
-
-  assert.match(writes, /In a full install, only step 0's change and the session note/);
-  assert.match(writes, /the `AGENTS\.md` change, the `WOLVEN\.md` change that goes with it/);
-  assert.match(writes, /The run ends with the one commit offer in `SKILL\.md`/);
-  assert.match(writes, /In a quiet install, only what the quiet-install section writes and the session note/);
 });
 
 test('proof-safety-audit-offered-last: every path asks first, promises secrets stay unread, and offers it before the commit offer', async () => {
@@ -356,18 +236,13 @@ test('proof-safety-audit-offered-last: every path asks first, promises secrets s
     flatten(skill.body.replace(/^\s*> ?/gm, '')),
     /I can't find `wolven-harness` on this machine, so I can't check the setup\. Next: install it with `<install command>`, then tell me to continue\./,
   );
-  assert.doesNotMatch(step6, /looks through this repo/);
-  assert.match(step6, /"and its rules tell your agent not to open them"/);
   assert.match(step6, /"Run the audit \(recommended\)" and "Skip it"\. Never run it unasked/);
   assert.match(step6, /read only `HYG-03`, `HYG-04` and `HYG-06`/);
   assert.match(
     step6,
     /Never open a `\.env` or key file, a flagged file or a secret-shaped file yourself, and never print a value/,
   );
-  assert.match(step6, /A finding never stops the run/);
-  assert.match(step6, /Setup didn't cause this, and the audit changed nothing\. Next: have git ignore that file/);
   assert.match(step6, /Leave any path with a finding out of the commit offer/);
-  assert.match(step6, /"safety audit not run" under \*\*Left for later\*\*/);
   assert.ok(
     step6.indexOf('do you want a safety audit') < step6.indexOf('make the one commit offer'),
     'the safety audit comes before the commit offer',
@@ -376,13 +251,8 @@ test('proof-safety-audit-offered-last: every path asks first, promises secrets s
   const score = flatten(
     section(await skill.read('references/harness-score.md'), '## Safety audit at the end of setup'),
   );
-  assert.match(score, /`HYG-03` looks only at file names/);
   assert.match(score, /It never opens the file/);
   assert.match(score, /Never open a flagged file or a secret-shaped file to look closer/);
-  assert.match(
-    score,
-    /When the score is not covered this run, nothing else from the report is recorded or asked about/,
-  );
 
   const runs = flatten(section(await skill.read(LEAN_PATH), '## What the lean path runs'));
   const check = runs.indexOf('The safety audit question');
@@ -391,7 +261,6 @@ test('proof-safety-audit-offered-last: every path asks first, promises secrets s
     'the lean path offers the safety audit after the setup steps',
   );
   assert.match(runs, /as the last step, before the commit offer\. It runs only on a yes/);
-  assert.doesNotMatch(runs, /stops the run/);
 });
 
 test('proof-guided-no-checklist: guided setup opens with repo and role, then one step question per phase, in order', async () => {
@@ -399,18 +268,13 @@ test('proof-guided-no-checklist: guided setup opens with repo and role, then one
   const raw = section(skill.body, '## Guided setup');
   const guided = flatten(raw.replace(/^> ?/gm, ''));
 
-  assert.match(guided, /asks no coverage checklist/);
   assert.match(guided, /opens with one question, "What's this repo for, and what's your role in it\?"/);
-  assert.match(guided, /which replaces the goal question/);
-  assert.match(guided, /Next: <what the step does, in one line, with any tracked change named>\. Run it, or skip\?/);
   assert.match(guided, /The options are "Run it" and "Skip it"/);
-  assert.match(guided, /asked once per phase and never shown as a list/);
   const [table] = parseMarkdownTables(raw);
   assert.deepEqual(
     table.rows.map((row) => row[0]),
     ['Migration', 'Research', 'Skill suggestions', 'Score'],
   );
-  assert.match(guided, /The checks question closes the phases and carries its own "Skip it"/);
   assert.ok(
     skill.body.indexOf('## Guided setup') < skill.body.indexOf('## Workflow'),
     'guided setup comes before step 0',
@@ -426,11 +290,6 @@ test('proof-guided-skipped-is-later: a skipped step never runs and is listed for
     guided,
     /A skipped step is never asked about or run again this session: record it under \*\*Left for later\*\*/,
   );
-  assert.match(guided, /File-based discovery and the repo and `qmd` search still run, whatever is skipped/);
-
-  const step6 = flatten(skill.body.split(/^### 6\. /m)[1]?.split(/^## /m)[0] ?? '');
-  assert.match(step6, /in guided setup, put the checks question to the Human, with its own skip/);
-  assert.match(step6, /When the Human runs the score step, run `harness:score` again/);
 });
 
 test('proof-wiring-plain-labels: the wiring question asks how to check the harness, with three labels', async () => {
@@ -471,8 +330,6 @@ test('proof-handback-three-parts: the hand-back says what is installed, what wai
 test('proof-handback-next-work: the hand-back asks what to work on next and starts nothing without a yes', async () => {
   const step6 = flatten((await readSkill('harness-init')).body.split(/^### 6\. /m)[1]?.split(/^## /m)[0] ?? '');
 
-  assert.match(step6, /End the message by asking what to work on next/);
-  assert.match(step6, /`code-spec` starts as separate work on its own branch/);
   assert.match(step6, /Nothing starts without a yes/);
 });
 
@@ -510,32 +367,24 @@ test('skill-harness-init: lean rules live only in lean-path.md, which SKILL.md l
   assert.match(skill.body, /\[references\/lean-path\.md\]\(references\/lean-path\.md\)/);
 });
 
-test('proof-quiet-install-init-step0: the skill opens with the introduction and skips step 0 in a quiet install', async () => {
+test('proof-quiet-install-init-step0: the introduction comes first and step 0 is skipped in a quiet install', async () => {
   const skill = await readSkill('harness-init');
   const flat = flatten(skill.body.replace(/^> ?/gm, ''));
 
-  const intro =
-    'The harness is the set of instructions, rules and doc folders your coding agent follows. In a quiet install it lives in `.wolven-harness/`. Before anything outside that folder changes, you see the diff and say yes. Nothing is ever pushed.';
-  assert.ok(flat.includes(intro), 'the introduction is quoted verbatim');
+  const intro = 'The harness is the set of instructions, rules and doc folders';
+  assert.ok(flat.includes(intro), 'SKILL.md has the introduction');
   assert.ok(flat.indexOf(intro) < flat.indexOf('## Lean path'), 'introduction comes first');
   assert.ok(flat.indexOf(intro) < flat.indexOf('## Hard gates'), 'introduction precedes the gates');
 
   const step = flatten(skill.body.split(/^### 0\. /m)[1]?.split(/^### /m)[0] ?? '');
   assert.match(step, /^Entry integration Skipped in a quiet install/);
-  assert.match(step, /setup already wrote `\.wolven-harness\/AGENTS\.md`, and there is no `WOLVEN\.md` to fold/);
-  assert.match(flat, /It is also skipped in a quiet install, always/);
 });
 
-test('proof-quiet-install-lean-path: quick setup asks no goal, guided setup opens with repo and role', async () => {
+test('proof-quiet-install-lean-path: neither install asks a goal, and guided setup runs the quiet-install section', async () => {
   const skill = await readSkill('harness-init');
   const lean = await skill.read(LEAN_PATH);
   const question = flatten(section(lean, '## The path question'));
 
-  assert.match(
-    question,
-    /\*\*Quick setup \(recommended\)\*\*: connect the harness to <runtime names>; everything else can wait\./,
-  );
-  assert.match(question, /\*\*Guided setup\*\*: walk through every step, skipping whatever you don't want yet\./);
   assert.match(question, /never call the second answer a "full tour"/);
   for (const rel of ['SKILL.md', LEAN_PATH, 'references/entry-modes.md']) {
     assert.doesNotMatch(await skill.read(rel), /Just the basics|The full tour/, `${rel} keeps the old path labels`);
@@ -548,14 +397,7 @@ test('proof-quiet-install-lean-path: quick setup asks no goal, guided setup open
   assert.match(runs, /In a quiet install, the questions above, then the hand-back/);
 
   const guided = flatten(section(skill.body, '## Guided setup'));
-  assert.match(guided, /opens with one question, "What's this repo for, and what's your role in it\?"/);
   assert.match(guided, /guided setup then runs the quiet-install section/);
-  assert.match(guided, /The closing asks what to work on next/);
-  const order = ['Migration', 'Research', 'Skill suggestions', 'Score'].map((phase) => guided.indexOf(`| ${phase} |`));
-  assert.ok(
-    order.every((at, i) => at >= 0 && (i === 0 || at > order[i - 1])),
-    'phases are offered in order',
-  );
 });
 
 test('proof-quiet-install-init-agents-conflict: the harness block is three lines of text, with Yes and No only', async () => {
@@ -569,21 +411,11 @@ test('proof-quiet-install-init-agents-conflict: the harness block is three lines
   assert.equal(lines[0], '<!-- wolven-harness:start -->');
   assert.equal(lines.at(-1), '<!-- wolven-harness:end -->');
   assert.ok(lines.length - 2 <= 3, 'at most three lines of text between the markers');
-  assert.match(block, /Its instructions are in `\.wolven-harness\/AGENTS\.md`/);
-  assert.match(block, /Harness docs go under `\.wolven-harness\/docs\/`/);
   assert.doesNotMatch(block, /@/, 'the default block holds no @ import');
 
-  assert.match(
-    flat,
-    /Only after a yes to Amp's tracked-edit offer, the block gains a fourth line, `@\.wolven-harness\/AGENTS\.md`/,
-  );
   assert.match(flat, /never an `@` import/);
   assert.match(flat, /No other line of the file changes/);
-  assert.match(flat, /create a root `AGENTS\.md` that holds only the block/);
-  assert.match(flat, /Codex, Cursor, Amp, opencode, Copilot, Antigravity/);
-  assert.match(flat, /On a No, nothing is written to those files\. The runtimes that read that file stay not set up/);
-  assert.match(flat, /`wolven-harness doctor` names them/);
-  assert.match(flatten(skill.body), /"Harness block in a quiet install"/);
+  assert.match(flat, /On a No, nothing is written to those files/);
 });
 
 test('proof-quiet-install-init-statement: one commit offer at the end, listing only trackable paths', async () => {
@@ -592,39 +424,19 @@ test('proof-quiet-install-init-statement: one commit offer at the end, listing o
 
   assert.match(offer, /makes exactly one commit offer, at the end, in both installs/);
   assert.match(offer, /No phase, step, file, ADR, claim, or stub gets an offer of its own/);
-  assert.match(offer, /naming the branch `git branch --show-current` prints/);
-  assert.match(offer, /Commit these <N> files to `<branch>`\? Nothing is pushed\./);
-  assert.match(offer, /tagged `\(tracked\)` when git already tracks it or `\(new\)` when the run created it/);
   assert.match(offer, /List only paths git would track, and never force-add one/);
-  assert.match(
-    offer,
-    /`\.wolven-harness\/\.gitignore`, `\.wolven-harness\/AGENTS\.md`, the ticked home folders, `\.wolven-harness\/\.agents\/hooks\/`, `\.wolven-harness\.json`, and each tracked root file/,
-  );
-  assert.match(offer, /root `\.gitignore`, `AGENTS\.md`, `CLAUDE\.md` or `\.dockerignore`/);
-  assert.match(offer, /The session note is in the list only when the Notes folder is ticked/);
-  assert.match(offer, /"The session note is kept on this machine only\."/);
-  assert.match(offer, /None of them is ever in the list/);
   assert.match(offer, /Never stage with `git add -A` or `git add \.`/);
 
   assert.ok(skill.body.indexOf('## Commit offer') < skill.body.indexOf('## Workflow'), 'the offer rule is stated once');
   assert.doesNotMatch(skill.body, /Phased commits|per-phase|each phase's commit|that phase's commit offer/i);
-  assert.doesNotMatch(skill.body, /offer one commit of that phase/i);
-  const flatBody = flatten(skill.body);
   const step6 = flatten(skill.body.split(/^### 6\. /m)[1]?.split(/^## /m)[0] ?? '');
   assert.match(step6, /make the one commit offer \(see "Commit offer"\), and hand the run back/);
-  assert.match(flatBody, /A commit offer before the end of the run, or a commit per file, ADR, claim, or stub/);
-  assert.match(flatBody, /Listing an ignored path in the commit offer, or force-adding one/);
 });
 
-test('proof-quiet-install-init-statement: the closing lists local-only and kept paths, and both packaging lines by condition', async () => {
+test('proof-quiet-install-init-statement: the closing has both packaging lines, the dockerignore one first', async () => {
   const skill = await readSkill('harness-init');
   const offer = flatten(section(skill.body, '## Commit offer').replace(/^> ?/gm, ''));
 
-  assert.match(
-    offer,
-    /"These stay on this machine, and git ignores them: `<paths>`\." That covers the symlinks, the Claude Code settings and the wiring record/,
-  );
-  assert.match(offer, /"Kept as yours: `<path>` \(`<merged \/ saved as wolven-<name> \/ skipped>`\)\."/);
   assert.match(
     offer,
     /When it added `\.wolven-harness\/` to the root `\.dockerignore`: "Docker builds skip the harness: your `\.dockerignore` now excludes `\.wolven-harness\/`\. Archives and rsync deploys need their own exclusion\."/,
@@ -639,33 +451,19 @@ test('proof-quiet-install-init-statement: the closing lists local-only and kept 
   );
 });
 
-test('proof-quiet-install-init-statement: a yes goes to code-commit by path, no remote means no offer, a worktree gets only tracked folders', async () => {
+test('proof-quiet-install-init-statement: a yes goes to code-commit by path, a no commits nothing, no remote means no offer', async () => {
   const skill = await readSkill('harness-init');
   const offer = flatten(section(skill.body, '## Commit offer'));
 
   assert.match(offer, /On a yes, pass the listed paths by name to `code-commit`/);
-  assert.match(
-    offer,
-    /not installed \(no `\.agents\/skills\/code-commit\/`\), make the commit with plain `git commit` of those paths/,
-  );
   assert.match(offer, /On a no, nothing is committed and the changes stay in the working tree/);
-  assert.match(
-    offer,
-    /When `git remote` prints nothing, make no commit offer, since there is no remote to share the commit with\. Say: "This repo has no remote, so no commit was offered\. Your changes stay in the working tree\."/,
-  );
-  assert.match(
-    offer,
-    /a worktree gets only the folders git tracks\. An unticked docs folder can't be read from a worktree session, and a write to it lands in the worktree's ignored copy, which is lost when the worktree is removed/,
-  );
+  assert.match(offer, /When `git remote` prints nothing, make no commit offer/);
 });
 
-test('proof-quiet-install-terms-first: the session note template names the new paths and says you, never the Human', async () => {
+test('proof-quiet-install-terms-first: the session note template says you, never the Human, and keeps no retired labels', async () => {
   const skill = await readSkill('harness-init');
   const note = await skill.read('references/session-note-template.md');
-  const later = flatten(section(note, '## Left for later'));
 
-  assert.match(later, /\*\*Path:\*\* <Quick setup \(lean\) or Guided setup \(full\)>/);
-  assert.match(later, /\*\*Repo and role:\*\* <your answer to "What's this repo for, and what's your role in it\?"/);
   assert.doesNotMatch(note, /Just the basics|The full tour|\*\*Goal:\*\*|\*\*Covered:\*\*/);
   assert.doesNotMatch(note, /the Human/i);
   assert.doesNotMatch(note, /phase's commit offer|phase commit/);

@@ -168,7 +168,7 @@ export async function applyTemplates(
           ? renderQmdIndex(await raw(), sets, options.quiet)
           : await raw();
 
-    const mapped = options.quiet && isQuietMapped(rel) ? mapQuietInstallPaths(content, 'linked') : content;
+    const mapped = options.quiet && isQuietMapped(rel) ? mapQuietInstallPaths(content) : content;
     await write(targetPath, mapped);
     created.push(rel);
   }

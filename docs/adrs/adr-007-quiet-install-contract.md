@@ -332,8 +332,10 @@ Guarantees:
     re-includes. The entry points and the rest of the harness home are
     ignored by design and are not reported;
   - `ignore` entries are relative to the harness home;
-  - a tracked or untracked-but-not-ignored Markdown file outside the home
-    with a profile `type` raises a warning naming its proper home folder.
+  - a tracked or untracked-but-not-ignored Markdown file in a root `docs/`
+    folder (`adrs`, `prds`, `specs`, `notes`, `deferrals`, `maps`) with a
+    profile `type` raises a warning naming its proper home folder; no other
+    client file is read.
 
 Finding codes:
 
