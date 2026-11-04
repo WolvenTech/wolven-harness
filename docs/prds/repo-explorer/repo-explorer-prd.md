@@ -12,7 +12,7 @@ status: draft
 - **Who:** Consumers on an undocumented or brownfield repo using the harness.
 - **Pain:** Consumers on an undocumented or brownfield repo cannot fill the harness's claim-checked ADR collection from a repo deep dive, because `harness-init` writes skill stubs not ADRs, `adr` records one confirmed decision at a time with no candidate menu, and nothing presents a Human-chosen list of draft ADRs for QMD to index after promotion.
 - **Why now:** The 16 Oct 2026 harness session named ADR generation from an undocumented codebase, and the 7 Aug 2026 adoption audit required engineers to review those records before they become ground truth. `harness-init` and `adr` still leave that gap.
-- **Evidence:** [repo-explorer research note](../../notes/repo-explorer/repo-explorer-note.md); [Wolven Harness, 16 Oct 2026](https://notes.granola.ai/d/d2a65f61-9ce1-414f-8c6e-a05a36cea5d1); [AI Adoption Audit, 7 Aug 2026](https://notes.granola.ai/d/6f807348-9cdc-48cf-8aa5-62ba6dc1a7cf); ADR-000, ADR-001, ADR-004; `.claude/skills/adr/SKILL.md`; `.claude/skills/harness-init/SKILL.md`; `src/setup/skill-sets.ts`.
+- **Evidence:** [repo-explorer research note](../../notes/repo-explorer/repo-explorer-note.md); [Wolven Harness, 16 Oct 2026](https://notes.granola.ai/d/d2a65f61-9ce1-414f-8c6e-a05a36cea5d1); [AI Adoption Audit, 7 Aug 2026](https://notes.granola.ai/d/6f807348-9cdc-48cf-8aa5-62ba6dc1a7cf); ADR-000, ADR-001, ADR-007; `.claude/skills/adr/SKILL.md`; `.claude/skills/harness-init/SKILL.md`; `src/setup/skill-sets.ts`.
 
 Grilling ran in the parent session; the Human confirmed this problem as option A (propose-then-choose ADRs).
 
