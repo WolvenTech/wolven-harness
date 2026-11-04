@@ -250,17 +250,25 @@ test('pm-detect: setup records none without a package.json and npm with no other
 });
 
 test('pm-detect: several lockfiles off a terminal exit 1 naming --package-manager', async () => {
-  const dir = await makeRepo({ 'package.json': packageJson(), 'pnpm-lock.yaml': '', 'yarn.lock': '' }, { git: true });
+  const dir = await makeRepo(
+    { 'package.json': packageJson(), 'pnpm-lock.yaml': '', 'yarn.lock': '' },
+    { git: true, layout: 'home' },
+  );
+
+  const before = await readConfigFile(dir);
 
   const result = await run(['setup', '--git-host', 'gh', '--runtimes', 'codex', '--skills', 'none'], { cwd: dir });
 
   assert.equal(result.code, 1);
   assert.match(result.stderr, /--package-manager/);
-  await assert.rejects(readConfigFile(dir), 'nothing is written on a failed resolution');
+  assert.deepEqual(await readConfigFile(dir), before, 'nothing is written on a failed resolution');
 });
 
 test('pm-detect: several lockfiles on a terminal ask once and record the answer', async () => {
-  const dir = await makeRepo({ 'package.json': packageJson(), 'pnpm-lock.yaml': '', 'yarn.lock': '' }, { git: true });
+  const dir = await makeRepo(
+    { 'package.json': packageJson(), 'pnpm-lock.yaml': '', 'yarn.lock': '' },
+    { git: true, layout: 'home' },
+  );
   const asked: string[] = [];
 
   const result = await run(['setup', '--git-host', 'gh', '--runtimes', 'codex', '--skills', 'none'], {
@@ -276,7 +284,7 @@ test('pm-detect: several lockfiles on a terminal ask once and record the answer'
 });
 
 test('pm-detect: an invalid flag value on a terminal is asked again', async () => {
-  const dir = await makeRepo({ 'package.json': packageJson() }, { git: true });
+  const dir = await makeRepo({ 'package.json': packageJson() }, { git: true, layout: 'home' });
   const asked: string[] = [];
 
   const result = await run(

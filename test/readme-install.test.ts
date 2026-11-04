@@ -137,16 +137,20 @@ test('readme-install: the release page says to close and reopen the release PR b
   assert.match(release, /[Cc]lose and reopen the release PR before merging/);
 });
 
-test('proof-docs-basics-path: README and the harness-init page explain the basics path and the full tour', async () => {
+test('proof-docs-basics-path: README and the harness-init page explain quick setup and guided setup', async () => {
   const readme = await readReadme();
   const page = await readDoc('site/install.md');
-  const basics = section(page, 'Basics path');
+  const basics = section(page, 'Quick setup and guided setup');
 
-  assert.match(readme, /basics path/i);
-  assert.match(readme, /full tour opens with one checklist/i);
+  assert.match(readme, /Quick setup connects the harness/);
+  assert.match(readme, /Guided setup walks through every step one at a time/);
   assert.match(basics, /asking how much setup you want right now/);
-  assert.match(basics, /\*\*Just the basics\*\* asks for your first goal in one sentence/);
-  assert.match(basics, /"What should this run cover\?"/);
+  assert.match(
+    basics,
+    /\*\*Quick setup\*\* connects the harness to your coding agents and hands back\. It asks no goal question/,
+  );
+  assert.match(basics, /\*\*Guided setup\*\* opens by asking what the repo is for and your role in it/);
+  assert.doesNotMatch(page, /Just the basics|full tour|"What should this run cover\?"/);
   assert.match(basics, /\*\*Left for later\*\*/);
   for (const doc of [readme, basics]) {
     assert.match(doc, /references\/lean-path\.md/);

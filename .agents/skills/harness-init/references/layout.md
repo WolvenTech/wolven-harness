@@ -10,7 +10,7 @@ question at a time and show every diff before writing.
 
 **Contents:** [Which layout](#which-layout) · [Home layout](#home-layout) ·
 [Linked layout](#linked-layout) · [Bootstrap copies](#bootstrap-copies) ·
-[No moves](#no-moves)
+[Quiet install](#quiet-install) · [No moves](#no-moves)
 
 ## Which layout
 
@@ -87,9 +87,264 @@ Otherwise the Human has edited that folder: leave it in place, name the files
 that differ, and ask before anything is deleted. Never overwrite an edited
 copy.
 
+## Quiet install
+
+Follow this section when `.wolven-harness.json` records `layout: "linked"`
+and a `harnessHome` of `.wolven-harness`. The quiet install goes by this name and description wherever you name it to
+the person:
+
+- Quiet install: The harness lives in `.wolven-harness/`, and git sees only
+  what you pick.
+
+**Place.** Quick setup runs this section right after the path question.
+Guided setup runs it after the guided steps. Ask one question at a time, show
+every diff before writing, and say "symlinks" to the person, never "links" or
+"entry points".
+
+### Versioning
+
+Ask: "Which harness folders should git track?" Offer these items as
+checkboxes:
+
+- "Rules: instructions your agent always follows" (ticked)
+- "Decision records (ADRs): why the code is the way it is. They keep your
+  agent's context accurate over the long run, so keep them current" (ticked)
+- "Notes" (not ticked)
+- "Requirements and specs" (not ticked)
+- "Postponed-work notes" (not ticked)
+
+Follow the list with this footer: "Ticked folders get committed, and everyone
+with repo access sees them. Unticked ones stay on this machine and don't reach
+worktrees."
+
+When the question tool can't show items already ticked, never make the
+person tick the defaults by hand. Ask the same question as one choice first,
+with the footer: "Keep the defaults (recommended): Rules and Decision
+records (ADRs)" and "Choose the folders myself". Show the checkboxes only
+after the second answer.
+
+The items map to `.agents/rules/`, `docs/adrs/`, `docs/notes/`,
+`docs/prds/` with `docs/specs/`, and `docs/deferrals/`. The home's
+`AGENTS.md` and `.agents/hooks/` are always tracked and are not checkboxes:
+a worktree reaches the hooks only through git. Edit only
+`.wolven-harness/.gitignore`, so it re-includes exactly the ticked folders;
+show that diff and write only on a yes.
+
+### Ignore and wiring
+
+Ask: "How should we ignore the harness local-only files?" Options:
+
+- "In `.gitignore` (tracked change everyone with repo access sees)"
+- "Only on this machine: `.git/info/exclude` (nothing tracked changes)"
+
+Check every entry-point path against what the repository root already holds
+before the diff is built. The check comes first, and the diff shows its
+outcome. Read the wiring record first (see Wiring record below): a path with
+a recorded outcome is not checked again.
+
+- A path that does not exist goes into the diff as a new symlink.
+- A path that already is a symlink into `.wolven-harness/` stays as it is.
+- When `.claude/skills/` is a real folder, keep it and add the symlinks beside the client's own
+  skills. Say this when you reach it: "Your `.claude/skills/` folder is
+  kept. The harness adds one symlink per skill inside it, and git ignores
+  them." Treat `.claude/rules/` the same way.
+- Any other path that exists and is not a symlink into `.wolven-harness/` is
+  an occupied entry point: a real `CLAUDE.local.md` or `.qmd`, or a client
+  skill or rule named like a harness one. Keep the client's copy and ask,
+  one path at a time: "You already have `<path>`, and it stays as it is. For
+  the harness's `<name>`: merge it into yours (tracked change when `<path>`
+  is tracked), save it next to yours as `wolven-<name>`, or skip it?" The
+  three answers:
+
+- "Merge into mine": the wiring diff shows the merged text. When `<path>` is
+  tracked, the diff line says "Tracked change: `<path>`".
+- "Save as wolven-<name>": the diff links the harness copy beside the client's
+  under that name.
+- "Skip it": the diff creates nothing for that path.
+
+Never replace, move or delete a client path, whatever the answer.
+
+Then ask: "Create the harness symlinks for <runtime names>? The diff lists
+each symlink, the Claude Code hooks it sets up, and any tracked change, such
+as `.dockerignore`." Name the actual recorded runtimes, such as "Claude Code
+and Cursor". Show one diff with every entry point and every ignore line for
+those runtimes, and take one approval for the whole diff:
+
+- The ignore lines cover every entry point, and the bootstrap symlinks
+  (`<runtime skills folder>/harness-init`) too, so they stop showing as
+  untracked.
+- Every entry point stays ignored: each is a symlink into a folder other
+  clones may not have. Never re-include one to clear a failed check; show
+  the failure and ask.
+- The `.qmd` symlink carries this line, here and wherever a question names
+  it: "`.qmd` is the search index for your harness docs. It lets your agent
+  search your decision records, specs and notes before it answers, instead
+  of working from memory."
+- When the repository root has a `.dockerignore`, the same diff adds
+  `.wolven-harness/` to it.
+- The harness block is a short marked note in the root `AGENTS.md` and
+  `CLAUDE.md` that points agents to `.wolven-harness/AGENTS.md`. Its question
+  below is part of this diff.
+- Each line that writes outside `.wolven-harness/` carries "Tracked change:
+  `<path>`" or "New tracked file: `<path>`".
+
+On a yes, write the diff, then write the wiring record
+`.wolven-harness/wiring.json`. On a no, leave everything outside
+`.wolven-harness/` unchanged and say "Nothing changed." with the next step:
+run the `harness-init` skill again when you want the harness connected.
+
+### Wiring record
+
+`.wolven-harness/wiring.json` says, for this machine, what each entry point
+ended up as, so a later run and `doctor` can tell a deliberate choice from
+missing wiring. Write it after each approved wiring diff, never before:
+
+```json
+{
+  "entries": [
+    { "path": ".claude/skills/code-commit", "outcome": "linked" },
+    { "path": "CLAUDE.local.md", "outcome": "skipped" }
+  ]
+}
+```
+
+Each entry has two fields. `path` is the entry point's path in the repository
+root, the one the client would see. `outcome` is one of:
+
+- `linked`: the harness made the symlink or generated file.
+- `merged`: the harness text went into the client's file.
+- `prefixed`: the client's path is kept, and the harness copy is linked
+  beside it as `wolven-<name>`, which gets its own `linked` entry.
+- `skipped`: nothing was created for the path.
+- `unwired`: the person said No to a tracked-edit offer, so the piece is not
+  set up. `doctor` still reports it with the manual step.
+
+On a rerun, read the record first. Ask again only for an entry point that is
+missing and has no recorded outcome. A `linked` entry whose symlink or generated
+file is gone, such as `.cursor/hooks.json` or a quiet rule copy, goes into the
+diff to be recreated, without a question. The nested
+`.gitignore` ignores `wiring.json`, so it never reaches the commit list.
+
+### Harness block
+
+Ask: "Add the harness block to <file names>? (Tracked change; `AGENTS.md` is
+created if missing.)" Options: Yes and No only. Name the root `AGENTS.md` or
+`CLAUDE.md` files the repository has. Offer it as part of the wiring diff
+above, not as a separate write.
+
+It is text, never an `@` import. Its lines, where it goes, when `AGENTS.md` is
+created, and what a No leaves are in
+[Harness block in a quiet install](entry-modes.md#harness-block-in-a-quiet-install).
+
+### Claude Code entry points
+
+For Claude Code, the quiet install uses exactly these entry points. Each is
+an ignored path in the repository root:
+
+| Path | What it is |
+| --- | --- |
+| `CLAUDE.local.md` | File symlink to `.wolven-harness/AGENTS.md` |
+| `.claude/skills/` | A real folder with one symlink per home skill, the bootstrap symlink among them |
+| `.claude/rules/` | A real folder with one file symlink per home rule |
+| `.claude/settings.local.json` | The secret guard and the worktree-parity hooks |
+| `.worktreeinclude` | Lists `CLAUDE.local.md`, `.claude/rules/`, `.claude/rules/*.md`, each linked `.claude/skills/<name>`, `.claude/settings.local.json`, `.wolven-harness/.agents/hooks/` |
+| `.qmd` | Symlink to the home's `.qmd` |
+
+### Other runtimes
+
+Every other runtime gets one row. Each entry point is an ignored path in the
+repository root, and the sources are the runtime's own documentation. Skills
+are one symlink per skill in `./.agents/skills/`, and in `.kiro/skills/` for
+Kiro. A generated file is covered by `doctor`'s "edited since install" check.
+
+| Runtime | Entry points (ignored) | Tracked-edit offer | Manual step | Sources |
+| --- | --- | --- | --- | --- |
+| Codex | `./.agents/skills/<name>` | None: Codex follows no import, and `AGENTS.override.md` would hide the client's `AGENTS.md` | ask Codex to read .wolven-harness/AGENTS.md, or add its text to ~/.codex/AGENTS.md | [skills](https://learn.chatgpt.com/docs/build-skills), [AGENTS.md](https://learn.chatgpt.com/docs/agent-configuration/agents-md) |
+| Cursor | `./.agents/skills/<name>`, `.cursor/rules/wolven-<rule>.mdc`, `.cursor/rules/wolven-agents.mdc`, `.cursor/hooks.json` | None | ask your agent to run the harness-init skill to recreate the Cursor rules | [skills](https://cursor.com/docs/context/skills), [rules](https://cursor.com/docs/context/rules), [hooks](https://cursor.com/docs/agent/hooks) |
+| OpenCode | `./.agents/skills/<name>` | An `instructions` entry in `opencode.json` listing `.wolven-harness/AGENTS.md` and `.wolven-harness/.agents/rules/*.md`. Tracked change: `opencode.json`, or New tracked file: `opencode.json` | add .wolven-harness/AGENTS.md and .wolven-harness/.agents/rules/*.md to instructions in opencode.json | [skills](https://opencode.ai/docs/skills/), [config](https://opencode.ai/docs/config/) |
+| Amp | `./.agents/skills/<name>` | An `@.wolven-harness/AGENTS.md` line inside the harness block of the client's `AGENTS.md`. Tracked change: `AGENTS.md` | add @.wolven-harness/AGENTS.md inside the harness block in AGENTS.md | [skills](https://ampcode.com/docs/customize/skills), [AGENTS.md](https://ampcode.com/docs/customize/agents-md) |
+| GitHub Copilot | `./.agents/skills/<name>`, `.github/instructions/wolven-<rule>.instructions.md` | Commit the generated `.github/instructions/wolven-<rule>.instructions.md` files. New tracked file: `.github/instructions/wolven-<rule>.instructions.md` | ask your agent to run the harness-init skill to recreate the Copilot instruction files | [skills](https://docs.github.com/en/copilot/concepts/agents/about-agent-skills), [instructions](https://docs.github.com/en/copilot/how-tos/configure-custom-instructions/add-repository-instructions) |
+| Gemini CLI | `./.agents/skills/<name>`, `GEMINI.md` | The `@.wolven-harness/AGENTS.md` line in the client's own `GEMINI.md`. Tracked change: `GEMINI.md` | add @.wolven-harness/AGENTS.md to GEMINI.md | [skills](https://geminicli.com/docs/cli/skills), [context files](https://geminicli.com/docs/cli/gemini-md) |
+| Kiro | `.kiro/skills/<name>`, `.kiro/steering/wolven-harness.md` | Where `.gitignore` is in `agentIgnoreFiles`, the steering file as a new tracked file. New tracked file: `.kiro/steering/wolven-harness.md` | ask your agent to run the harness-init skill to recreate the Kiro steering file | [skills](https://kiro.dev/docs/skills/), [steering](https://kiro.dev/docs/steering/), [ignore](https://kiro.dev/docs/kiroignore/) |
+| Antigravity | `./.agents/skills/<name>`, `./.agents/rules/wolven-harness.md` | None | ask your agent to run the harness-init skill to recreate the Antigravity rule | [skills](https://www.antigravity.google/docs/skills), [rules](https://www.antigravity.google/docs/rules?tab=ide) |
+
+Gemini CLI gets a root `GEMINI.md` holding `@.wolven-harness/AGENTS.md` only
+when the client has none. Offer each tracked edit in the one wiring diff, with
+this question: "<runtime> can't read <the harness instructions / rules> from
+a file only on this machine. Add <change> to `<path>`? Tracked change:
+`<path>` (or New tracked file: `<path>`)." Options: "Yes" and "No, leave
+<runtime> without it". A No, and Codex's instructions, leave the piece not
+set up to read the harness: name the row's manual step and record `unwired`.
+
+### Claude Code hooks
+
+The hook commands run the scripts under the home, from any working
+directory. `.claude/settings.local.json` holds:
+
+```json
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|Read|Grep|Glob",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.wolven-harness/.agents/hooks/secret-path-guard.mjs\""
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.wolven-harness/.agents/hooks/worktree-parity.mjs\""
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+The secret guard runs before reads and shell commands. The parity check runs
+at session start and warns when a worktree lost its entry points.
+
+### Cursor hooks
+
+`.cursor/hooks.json` runs the same secret guard from the home, before reads
+and shell commands:
+
+```json
+{
+  "version": 1,
+  "hooks": {
+    "beforeReadFile": [
+      {
+        "command": "node .wolven-harness/.agents/hooks/secret-path-guard.mjs"
+      }
+    ],
+    "beforeShellExecution": [
+      {
+        "command": "node .wolven-harness/.agents/hooks/secret-path-guard.mjs"
+      }
+    ]
+  }
+}
+```
+
+When the client already has a `.cursor/hooks.json`, never overwrite it. Offer
+to add these two entries to it, through the same wiring diff and question as
+the other client paths, and record the outcome: `merged` on a yes, `unwired`
+on a no. `doctor` reports the file when it is missing or differs and has no
+recorded outcome.
+
 ## No moves
 
-This step creates links and config keys only. It never moves, renames or
+This step creates symlinks, config keys, ignore lines and the wiring record only. It never moves, renames or
 deletes a folder or file to make a layout fit, and it never writes under
-`codeRepo`. When a layout cannot be reached without a move, say so and stop:
-that is a question for the Human, not a step.
+`codeRepo`. When a layout cannot be reached without a move, say so, say
+"Nothing changed.", and stop with the next step: move the files yourself,
+then run `harness-init` again.
