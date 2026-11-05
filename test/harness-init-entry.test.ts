@@ -300,7 +300,7 @@ test('step0-fixture: the light block carries the markers, so validate clears ste
 test('proof-entry-plain-labels: step 0 asks how much to change AGENTS.md, with two labels tied to the modes', async () => {
   const flat = flatten(await readEntryModes());
 
-  assert.match(flat, /"How much should we change your current AGENTS\.md\?"/);
+  assert.match(flat, /"How much should we change your current AGENTS\.md\? Tracked change: `AGENTS\.md`\."/);
   assert.match(flat, /with two answers named for what they do/i);
   assert.match(flat, /\*\*A short section\*\* \(light\): adds a brief summary of where skills and rules live/);
   assert.match(flat, /\*\*The whole guide\*\* \(full\): copies the full harness guide and skills list in/);

@@ -146,23 +146,42 @@ jobs:
           mv "$RUNNER_TEMP"/*.tgz "$RUNNER_TEMP/package.tgz"
 
       # why: installs the packed tarball into an empty repo, which catches files
-      # the published package omits and the in-repo tests cannot see.
+      # the published package omits and the in-repo tests cannot see. A new repo
+      # gets the quiet layout, so the first leg scores it and the second leg
+      # flips the config setup wrote to the full layout.
       - name: Smoke test the packed CLI
         run: |
           set -euo pipefail
-          cd "$(mktemp -d)"
-          git init --quiet
-          echo '{"name":"smoke","private":true}' > package.json
-          # why: validate unions untracked non-ignored paths; node_modules must stay gitignored.
-          echo 'node_modules/' > .gitignore
-          pnpm add --save-dev "$RUNNER_TEMP/package.tgz"
-          version="$(pnpm exec wolven-harness --version)"
-          [[ "$version" == "@wolven-tech/harness "* ]]
-          pnpm exec wolven-harness setup --git-host gh --runtimes claude,codex --skills ship < /dev/null
-          pnpm exec wolven-harness validate
           score_version="$(node -p "require('$GITHUB_WORKSPACE/package.json').devDependencies['harness-score']")"
-          pnpm add --save-dev --save-exact "harness-score@$score_version"
-          pnpm harness:score
+          smoke_repo() {
+            cd "$(mktemp -d)"
+            git init --quiet
+            echo '{"name":"smoke","private":true}' > package.json
+            # why: validate unions untracked non-ignored paths; node_modules must stay gitignored.
+            echo 'node_modules/' > .gitignore
+            pnpm add --save-dev "$RUNNER_TEMP/package.tgz"
+            pnpm add --save-dev --save-exact "harness-score@$score_version"
+          }
+          (
+            smoke_repo
+            version="$(pnpm exec wolven-harness --version)"
+            [[ "$version" == "@wolven-tech/harness "* ]]
+            pnpm exec wolven-harness setup --git-host gh --runtimes claude,codex --skills ship < /dev/null
+            pnpm exec wolven-harness validate
+            # why: a quiet install keeps its score config inside the harness home, and the root must stay clean.
+            pnpm exec harness-score --config .wolven-harness/.harness-score.json
+            [[ ! -e .harness-score.json ]]
+          )
+          (
+            smoke_repo
+            pnpm exec wolven-harness setup --git-host gh --runtimes claude,codex --skills ship < /dev/null
+            # why: the guide's route removes the quiet files but keeps the config; a hand-written config fails on its required fields, so edit the one setup wrote.
+            rm -rf .wolven-harness .claude .agents .qmd CLAUDE.local.md
+            node -e "const fs=require('fs');const c=JSON.parse(fs.readFileSync('.wolven-harness.json','utf8'));c.layout='home';delete c.harnessHome;fs.writeFileSync('.wolven-harness.json',JSON.stringify(c,null,2)+'\\n')"
+            pnpm exec wolven-harness setup --git-host gh --runtimes claude,codex --skills ship < /dev/null
+            pnpm exec wolven-harness validate
+            pnpm harness:score
+          )
 
   # why: branch protection reads the newest Actions suite for the check name CI.
   # A title-only edit still has to report CI, and only once this head SHA's code

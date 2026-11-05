@@ -6,6 +6,14 @@ import { isSkillSet } from './skill-sets.js';
 import type { GitHost, Runtime } from './types.js';
 import { SetupError } from './types.js';
 
+/** The home's path under `root` when the home sits strictly inside it, else undefined. */
+export function homeInsideRoot(root: string, home: string): string | undefined {
+  const relative = path.relative(root, home);
+  return relative !== '' && relative !== '..' && !relative.startsWith(`..${path.sep}`) && !path.isAbsolute(relative)
+    ? relative
+    : undefined;
+}
+
 /** The package manager a project resolves to; `none` when there is no `package.json`. */
 export type PackageManager = 'npm' | 'yarn' | 'pnpm' | 'none';
 
@@ -264,7 +272,11 @@ async function existingKeyOrder(file: string): Promise<string[]> {
  * carrying an existing `ignore`/`extra` value forward — `writeConfig` never
  * invents or drops them itself, it only writes what it is given.
  */
-export async function writeConfig(root: string, config: Config): Promise<void> {
+export async function writeConfig(
+  root: string,
+  config: Config,
+  write: (file: string, content: string) => Promise<void> = (file, content) => writeFile(file, content, 'utf8'),
+): Promise<void> {
   const file = path.join(root, CONFIG_FILENAME);
 
   const fresh: Record<string, unknown> = {
@@ -310,5 +322,5 @@ export async function writeConfig(root: string, config: Config): Promise<void> {
   }
 
   const json = `${JSON.stringify(body, null, 2)}\n`;
-  await writeFile(file, json, 'utf8');
+  await write(file, json);
 }

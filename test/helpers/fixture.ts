@@ -21,10 +21,21 @@ const GIT_ENV = {
  * relative path -> content), and, when `opts.git` is true, `git init`s it
  * with a local test identity and one commit.
  */
-export async function makeRepo(files: Record<string, string>, opts: { git?: boolean } = {}): Promise<string> {
+export async function makeRepo(
+  files: Record<string, string>,
+  opts: { git?: boolean; layout?: 'home' } = {},
+): Promise<string> {
   const dir = await mkdtemp(path.join(tmpdir(), 'wolven-harness-'));
 
-  for (const [rel, content] of Object.entries(files)) {
+  const fixtureFiles =
+    opts.layout === 'home'
+      ? {
+          '.wolven-harness.json': JSON.stringify({ version: 1, gitHost: 'gh', runtimes: ['codex'], layout: 'home' }),
+          ...files,
+        }
+      : files;
+
+  for (const [rel, content] of Object.entries(fixtureFiles)) {
     const full = path.join(dir, rel);
     await mkdir(path.dirname(full), { recursive: true });
     await writeFile(full, content, 'utf8');

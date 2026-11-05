@@ -1,9 +1,12 @@
 import { createHash } from 'node:crypto';
-import { readFile } from 'node:fs/promises';
+import { readFile, realpath } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { type SelectedTemplateFile, selectTemplateFiles } from '../setup/apply.js';
-import { applySetMarkers } from '../setup/render-wolven.js';
+import { gitTopLevel } from '../git.js';
+import { isQuietMapped, type SelectedTemplateFile, selectTemplateFiles } from '../setup/apply.js';
+import { homeInsideRoot } from '../setup/config.js';
+import { mapQuietInstallPaths } from '../setup/path-map.js';
+import { renderQmdIndex } from '../setup/render-wolven.js';
 import { type SkillSet, skillFolders } from '../setup/skill-sets.js';
 import type { DoctorContext } from './index.js';
 import type { DoctorFinding } from './report.js';
@@ -97,6 +100,15 @@ export async function runDriftChecks(
   const findings: DoctorFinding[] = [];
   const linked = ctx.config.layout === 'linked' && ctx.harnessHome !== ctx.root;
   const baseDir = linked ? ctx.harnessHome : ctx.root;
+  let quiet = false;
+  if (linked) {
+    try {
+      const root = await realpath(await gitTopLevel(ctx.root));
+      quiet = homeInsideRoot(root, await realpath(ctx.harnessHome)) !== undefined;
+    } catch {
+      quiet = false;
+    }
+  }
   const sets = (ctx.config.skillSets ?? []) as readonly SkillSet[];
   const known = await readKnownForms(knownFormsFile);
 
@@ -126,12 +138,16 @@ export async function runDriftChecks(
       continue;
     }
 
+    const expectedText =
+      quiet && isQuietMapped(installed) && templateText !== undefined
+        ? mapQuietInstallPaths(templateText)
+        : templateText;
     const expectedBytes =
       installed === QMD_INDEX && templateText !== undefined
-        ? Buffer.from(applySetMarkers(templateText, sets), 'utf8')
-        : templateText === undefined
+        ? Buffer.from(renderQmdIndex(templateText, sets, quiet), 'utf8')
+        : expectedText === undefined
           ? undefined
-          : Buffer.from(templateText, 'utf8');
+          : Buffer.from(expectedText, 'utf8');
     if (expectedBytes !== undefined && bytes.equals(expectedBytes)) continue;
 
     const forms = known.forms[installed] ?? [];
@@ -139,7 +155,7 @@ export async function runDriftChecks(
       findings.push({
         level: 'warn',
         code: 'doctor-drift-stale',
-        message: `${installed} matches a previous template; run "harness-doctor" to refresh it`,
+        message: `${installed} matches a previous template; ask your agent to run the harness-doctor skill to refresh it`,
       });
     } else {
       findings.push({

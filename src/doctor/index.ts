@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { CONFIG_FILENAME, type Config, readConfig } from '../setup/config.js';
+import { CONFIG_FILENAME, type Config, homeInsideRoot, readConfig } from '../setup/config.js';
 import { resolveOwnPackage } from '../setup/own-package.js';
 import type { Io } from '../setup/types.js';
 import { SetupError } from '../setup/types.js';
@@ -27,6 +27,11 @@ export interface DoctorContext {
   templatesDir: string;
   /** This CLI's own version, for the version-behind warning. */
   packageVersion: string;
+}
+
+/** True when a linked install keeps its home strictly inside the open repository. */
+export function isQuietInstall(ctx: DoctorContext): boolean {
+  return ctx.config.layout === 'linked' && homeInsideRoot(ctx.root, ctx.harnessHome) !== undefined;
 }
 
 /** One read-only check: it returns findings instead of throwing. */

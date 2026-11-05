@@ -1,0 +1,5 @@
+interface:
+  display_name: "Harness Remove"
+  short_description: "Guides thorough removal of remaining harness edits and configuration"
+policy:
+  allow_implicit_invocation: false

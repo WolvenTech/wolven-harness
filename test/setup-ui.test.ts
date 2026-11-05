@@ -190,23 +190,26 @@ test('setup-ui: a TTY without a real stdin and no missing values still needs fla
 test('setup-ui: the step trace is hidden by default and shown with --debug or WOLVEN_HARNESS_DEBUG=1', async () => {
   const args = ['setup', '--git-host', 'gh', '--runtimes', 'codex'];
 
-  const quiet = await run(args, { cwd: await makeRepo({}, { git: true }) });
+  const quiet = await run(args, { cwd: await makeRepo({}, { git: true, layout: 'home' }) });
   assert.doesNotMatch(quiet.stderr + quiet.stdout, /wolven-harness:setup\]/);
 
-  const debug = await run([...args, '--debug'], { cwd: await makeRepo({}, { git: true }) });
+  const debug = await run([...args, '--debug'], { cwd: await makeRepo({}, { git: true, layout: 'home' }) });
   assert.equal(debug.code, 0);
   assert.match(debug.stderr, /\[wolven-harness:setup\] step resolveOptions/);
   assert.match(debug.stderr, /\[wolven-harness:setup\] step applyTemplates/);
   assert.doesNotMatch(debug.stdout, /wolven-harness:setup\]/);
 
-  const viaEnv = await run(args, { cwd: await makeRepo({}, { git: true }), env: { WOLVEN_HARNESS_DEBUG: '1' } });
+  const viaEnv = await run(args, {
+    cwd: await makeRepo({}, { git: true, layout: 'home' }),
+    env: { WOLVEN_HARNESS_DEBUG: '1' },
+  });
   assert.match(viaEnv.stderr, /\[wolven-harness:setup\] step wireRuntimes/);
 });
 
 test('setup-ui: non-TTY output is plain text with the summary and next steps', async () => {
   const dir = await makeRepo(
     { 'package.json': `${JSON.stringify({ name: 'consumer', version: '1.0.0' }, null, 2)}\n` },
-    { git: true },
+    { git: true, layout: 'home' },
   );
 
   const result = await run(['setup', '--git-host', 'gh', '--runtimes', 'claude,codex'], { cwd: dir });
@@ -227,7 +230,7 @@ test('setup-ui: non-TTY output is plain text with the summary and next steps', a
 });
 
 test('setup-ui: summary counts come from what was really written', async () => {
-  const dir = await makeRepo({}, { git: true });
+  const dir = await makeRepo({}, { git: true, layout: 'home' });
 
   const result = await run(['setup', '--git-host', 'gh', '--runtimes', 'codex'], { cwd: dir });
 
@@ -254,10 +257,10 @@ test('setup-ui: summary counts come from what was really written', async () => {
 
 test('setup-ui: --verbose lists every created file and default output does not', async () => {
   const args = ['setup', '--git-host', 'gh', '--runtimes', 'claude'];
-  const plain = await run(args, { cwd: await makeRepo({}, { git: true }) });
+  const plain = await run(args, { cwd: await makeRepo({}, { git: true, layout: 'home' }) });
   assert.doesNotMatch(plain.stdout, /\.agents\/rules\/qmd-first\.md/);
 
-  const dir = await makeRepo({ 'CLAUDE.md': 'mine\n' }, { git: true });
+  const dir = await makeRepo({ 'CLAUDE.md': 'mine\n' }, { git: true, layout: 'home' });
   const verbose = await run([...args, '--verbose'], { cwd: dir });
   assert.equal(verbose.code, 0, verbose.stderr);
   assert.match(verbose.stdout, /^created:$/m);

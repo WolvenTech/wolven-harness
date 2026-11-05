@@ -23,6 +23,7 @@ const EXPECTED_SKILLS = [
   'handoff',
   'harness-doctor',
   'harness-init',
+  'harness-remove',
   'journey-map',
   'pragmatic-guard',
   'prototype',
@@ -33,7 +34,7 @@ const EXPECTED_SKILLS = [
   'wayfinder',
 ].sort();
 
-const ASK_ONLY_SKILLS = new Set(['code-pr', 'code-review', 'code-ci', 'handoff']);
+const ASK_ONLY_SKILLS = new Set(['code-pr', 'code-review', 'code-ci', 'handoff', 'harness-remove']);
 
 test('ask-only: the template skill set is exactly the expected folders', async () => {
   const entries = await readdir(skillsRoot, { withFileTypes: true });

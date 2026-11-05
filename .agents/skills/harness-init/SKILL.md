@@ -11,6 +11,25 @@ bare `.agents/skills/` tree) to a working setup: the entry file folded into
 a short list of suggested skills stubbed out, the harness scored, and a
 session note recording what happened. The Human steers every write.
 
+Before the first question, say this to the Human:
+
+> The harness is the set of instructions, rules and doc folders your coding
+> agent follows. In a quiet install it lives in `.wolven-harness/`. Before
+> anything outside that folder changes, you see the diff and say yes. Nothing
+> is ever pushed.
+
+Then, before the first question, check where the session runs. When
+`git rev-parse --git-dir` and `git rev-parse --git-common-dir` differ, it is
+in a git worktree. A worktree with no `.wolven-harness.json` has no harness
+yet, so stop: write nothing, never write into the main checkout from here,
+and never copy the harness in. The main checkout is the first path
+`git worktree list` prints. Say:
+
+> This session is in a git worktree, and the harness isn't here yet: it stays
+> in your main checkout until you commit it. Nothing changed. Next: open a
+> session on `<main checkout path>` with no worktree, then run `harness-init`
+> there.
+
 **Consult:** `adr`, `research`, `code-commit` (when installed), `qmd`, `grilling`.
 
 ## Hard gates
@@ -19,7 +38,14 @@ These rules hold across every step below.
 
 1. **`harness:validate` drives what comes next.** Read its output before
    deciding the next move — never guess at a status, a warning, or an exit
-   code it would have reported.
+   code it would have reported. In a quiet install the command is
+   `wolven-harness validate`. When the CLI is missing, stop and say:
+
+   > I can't find `wolven-harness` on this machine, so I can't check the
+   > setup. Next: install it with `npm install -g @wolven-tech/harness`, then
+   > tell me to continue.
+
+   Never hunt for another build of the CLI.
 2. **One question at a time.** An ambiguity — an entry mode, an ADR status,
    a successor, anything the repo or the Human hasn't settled — becomes a
    single question to the Human, the recommended option listed first (see
@@ -41,35 +67,75 @@ These rules hold across every step below.
 `references/session-note-template.md` renders the record of this run at
 `docs/notes/harness-init-<yyyy-mm-dd>/harness-init-<yyyy-mm-dd>-note.md`
 (a second run on the same day adds `-2`). It is created `draft` at the start
-of step 0. Each phase below adds its section to the note before that
-phase's commit offer, so every phase commit carries its part of the note,
-and the note turns `stable` at hand-back in step 6. A `draft` note left by
-an interrupted run is where the next run resumes from — never start a
-second note over it.
+of step 0, or right after the path question in a quiet install, which skips
+step 0. Each phase below adds its section to the note, and the
+note turns `stable` at hand-back in step 6. A `draft` note left by an
+interrupted run is where the next run resumes from — never start a second
+note over it.
 
-## Phased commits
+## Writing steps
 
-The run has three writing phases:
-
-| Phase | Steps |
-|-------|-------|
-| Entry | 0 |
-| Migration | 1 |
-| Setup | 2–6 |
-
-At the end of each phase, once `harness:validate` exits 0 — `0 legacy-warn`
-as well, for the migration phase — offer one commit of that phase's paths
-through `code-commit`, and commit only on the Human's yes. When `code-commit`
-is not installed (no `.agents/skills/code-commit/`), ask the Human before each
-phase's commit and make it with plain `git commit` of that phase's paths, again
-only on their yes. Never a single commit at the end of the whole run, and
-never a commit per file, ADR, claim, or stub. A declined commit leaves that
-phase uncommitted, and the next phase's offer covers only its own paths —
-the two never merge into one.
-
-Every writing step also shows the Human the diff before writing, runs
+Every writing step shows the Human the diff before writing, runs
 `harness:validate` right after it writes, and waits for the Human's choice
-before moving on.
+before moving on. No step offers a commit; the run makes one offer, at the
+end (see "Commit offer").
+
+## Commit offer
+
+The run makes exactly one commit offer, at the end, in both installs, once
+`harness:validate` exits 0 (`0 legacy-warn` as well, when migration ran). It
+comes after step 6 has set the session note `stable` and before the
+hand-back message. No phase, step, file, ADR, claim, or stub gets an offer
+of its own. Ask, naming the branch `git branch --show-current` prints:
+
+> Commit these <N> files to `<branch>`? Nothing is pushed.
+
+Under the question, list every path, each tagged `(tracked)` when git
+already tracks it or `(new)` when the run created it. List only paths git
+would track, and never force-add one:
+
+- In a quiet install: `.wolven-harness/.gitignore`, `.wolven-harness/AGENTS.md`,
+  the ticked home folders, `.wolven-harness/.agents/hooks/`,
+  `.wolven-harness.json`, and each tracked root file
+  the run created or edited with the Human's yes, such as the root
+  `.gitignore`, `AGENTS.md`, `CLAUDE.md` or `.dockerignore`.
+- In a full install: every path the run created or changed that git would
+  track.
+- The session note is in the list only when the Notes folder is ticked.
+  Otherwise the closing message says: "The session note is kept on this
+  machine only."
+
+In a quiet install, the closing message also says what stays out of the
+commit:
+
+- The ignored paths, in one line: "These stay on this machine, and git
+  ignores them: `<paths>`." That covers the symlinks, the Claude Code
+  settings and the wiring record. None of them is ever in the list.
+- Each kept client path, one line each: "Kept as yours: `<path>` (`<merged /
+  saved as wolven-<name> / skipped>`)."
+- Packaging, by what the approved wiring diff did. When it added
+  `.wolven-harness/` to the root `.dockerignore`: "Docker builds skip the
+  harness: your `.dockerignore` now excludes `.wolven-harness/`. Archives and
+  rsync deploys need their own exclusion." Otherwise: "Packaging that ignores
+  `.gitignore` (a Docker build, an archive, an rsync deploy) picks up the
+  whole harness, unticked docs included. Exclude `.wolven-harness/` there."
+- The worktree limit: a worktree gets only the folders git tracks. An
+  unticked docs folder can't be read from a worktree session, and a write to
+  it lands in the worktree's ignored copy, which is lost when the worktree is
+  removed.
+
+On a yes, pass the listed paths by name to `code-commit`. When `code-commit`
+is not installed (no `.agents/skills/code-commit/`), make the commit with
+plain `git commit` of those paths. Never stage with `git add -A` or
+`git add .`. On a no, nothing is committed and the changes stay in the
+working tree. In a quiet install, a no also says the guard line: "Nothing is
+committed, so the secret guard won't reach new worktrees until you commit
+`.wolven-harness/.agents/hooks/`."
+
+When `git remote` prints nothing, make no commit offer, since there is no
+remote to share the commit with. Say: "This repo has no remote, so no commit
+was offered. Your changes stay in the working tree." In a quiet install, also
+say the guard line above.
 
 ## Re-run skips
 
@@ -77,7 +143,8 @@ A re-run does not redo what an earlier run already finished:
 
 - Step 0 is skipped when `WOLVEN.md` is already gone, or `AGENTS.md`
   already holds the harness start marker (`<!-- wolven-harness:start -->`).
-  A plain mention of `WOLVEN.md` does not count.
+  A plain mention of `WOLVEN.md` does not count. It is also skipped in a
+  quiet install, always (see step 0).
 - An `AGENTS.md` that already holds the harness section was integrated by
   an earlier run, even when `setup` has since brought `WOLVEN.md` back:
   never fold it a second time; show the diff, ask whether to refresh the
@@ -85,50 +152,58 @@ A re-run does not redo what an earlier run already finished:
   [references/entry-modes.md](references/entry-modes.md)).
 - Step 1 is skipped when there are no legacy-ADR warnings left.
 - A `draft` session note from an interrupted run is resumed, not replaced,
-  with the path, goal and coverage it already records.
+  with the path and answers it already records.
 
 ## Lean path
 
-The path question comes after the re-run checks above. Load
+The path question comes after the re-run checks above, and after the
+introduction at the top. Load
 [references/lean-path.md](references/lean-path.md) before step 0: it holds
-the resume check, the path question ("How much setup do you want right
-now?") and the whole lean path. When the Human picks "Just the basics",
-follow it and skip the steps it leaves for later. When they pick "The full
-tour", run the workflow below, trimmed by the coverage checklist.
+the resume check, the path question and the whole lean path. When the Human picks "Quick setup", follow
+it and skip the steps it leaves for later. When they pick "Guided setup",
+follow "Guided setup" below.
 
-## Full tour coverage
+## Guided setup
 
-On the full path, before step 0, show one checklist: "What should this run
-cover?" Every item starts ticked, and the Human unticks whatever should
-wait. Record the ticked items in the note as **Covered:**.
+Guided setup asks no coverage checklist. It opens with one question, "What's
+this repo for, and what's your role in it?", which replaces the goal
+question. Record the answer in the note as given; never compose one for the
+Human. Then, in this order, offer each remaining phase on its own with the
+guided step question, asked once per phase and never shown as a list:
 
-| Item | Covers |
-|------|--------|
-| Move old decision records | Step 1 |
-| Ask about the project's stage and plans | Step 2, its two questions |
-| Look up your tools on the web | Step 3, the web pass |
-| Suggest skills for this repo | Steps 4 and 5 |
-| Check the harness score now | Step 6, the score and its questions |
-| Set up automatic checks | Step 6, the question about how to check the harness |
+> Next: <what the step does, in one line, with any tracked change named>. Run
+> it, or skip?
 
-An unticked item is never asked about or run: record it under **Left for
-later** in the note and list it in the hand-back. File-based discovery and
-the repo and `qmd` search still run on the full path, whatever is ticked.
-With every item unticked, the run reads the leaked-credential checks, makes
-only step 0's change, and hands back.
+The options are "Run it" and "Skip it".
 
-## Leaked credentials before step 0
+| Phase | Steps | What the question says it does |
+|-------|-------|--------------------------------|
+| Migration | 1 | Copy your old decision records into the harness; your files are not changed |
+| Research | 3 | Look up the tools your repo uses on the web, up to five pages |
+| Skill suggestions | 4 and 5 | Suggest template skills for this repo and write the ones you pick |
+| Score | 6, the score and its questions | Score the harness and go over the gaps |
 
-On both paths, once the path question and the goal or the coverage are
-settled, and before step 0 writes anything (the session note included), run
-`harness:score` and read the leaked-credential checks: `HYG-03`, `HYG-04`
-and `HYG-06`. A failure stops the run and shows the Human the finding
-before any file is written. See
-[references/harness-score.md](references/harness-score.md).
+The checks question closes the phases and carries its own "Skip it", so it
+gets no guided step question (see step 6). A skipped step is never asked
+about or run again this session: record it under **Left for later** in the
+note and list it in the hand-back. File-based discovery and the repo and
+`qmd` search still run, whatever is skipped. In a quiet install, guided
+setup then runs the quiet-install section of
+[references/layout.md](references/layout.md), after the last phase and
+before the hand-back. The closing asks what to work on next.
 
 ## Workflow
 
 ### 0. Entry integration
+
+Skipped in a quiet install, the `.wolven-harness` folder inside the git
+top-level: setup already wrote `.wolven-harness/AGENTS.md`, and there is no
+`WOLVEN.md` to fold. The client's root `AGENTS.md` and `CLAUDE.md` get the
+harness block instead (a short note in them that points agents to
+`.wolven-harness/AGENTS.md`), in the wiring diff of the quiet-install
+section (see "Harness block in a quiet install" in
+[references/entry-modes.md](references/entry-modes.md)). The rest of this
+step is for a full install.
 
 Fold the entry file into `AGENTS.md` in one of two modes — full or light.
 Put the mode to the Human as one question, the recommended mode first with
@@ -148,8 +223,8 @@ writing profile governs. See
 
 ### 1. Legacy ADR migration (optional)
 
-Runs when "Move old decision records" is covered and `harness:validate`
-reports `legacy-adr`. Turns each
+Runs when `harness:validate` reports `legacy-adr` and the Human runs it at
+the guided step question. Turns each
 legacy ADR into a profile ADR under `docs/adrs/` — keeping its number,
 moving it, prepending frontmatter, mapping its status (asking when part
 of a superseded ADR still applies, and searching for the tokens tests pin
@@ -172,15 +247,15 @@ subjects, propose a pattern only at 80% agreement or more, and record
 Human confirms. See [references/convention.md](references/convention.md).
 
 Read what the repo already shows — manifests, lockfiles, README, `AGENTS.md`, CI
-config, `docs/adrs/`, installed skills, top-level layout. When "Ask about the
-project's stage and plans" is covered, also ask the Human for what files
-can't show: lifecycle stage and decisions not yet visible in code. Produces a context list, a lifecycle note, and a
-decided-tools list. See [references/discovery.md](references/discovery.md).
+config, `docs/adrs/`, installed skills, top-level layout. The
+repo-and-role answer stands in for what files can't show, such as the
+lifecycle stage; ask no separate stage question. Produces a context list, a
+lifecycle note, and a decided-tools list. See [references/discovery.md](references/discovery.md).
 
 ### 3. Research
 
-Search the repo and `qmd` first. Web research runs only when "Look up your
-tools on the web" is covered and the Human says yes, is capped at five primary-source fetches, and covers
+Search the repo and `qmd` first. Web research runs only when the Human runs
+the research step, is capped at five primary-source fetches, and covers
 decided tools only, with every finding cited in the session note; offer
 `research` for depth on one tool. Continue repo-only, and say so in the
 note, when the web is unavailable. See
@@ -188,7 +263,7 @@ note, when the web is unavailable. See
 
 ### 4. Suggest 2–4 skills
 
-When "Suggest skills for this repo" is covered, first judge whether the repo
+When the Human runs the skill-suggestion step, first judge whether the repo
 is new or still unexplored, and skip steps 4 and 5 on a well-understood repo
 unless the Human overrules. Otherwise suggest two to four architectural
 skills, each named for a decided tool or
@@ -209,8 +284,8 @@ warns `skill-stub-open` once for that `SKILL.md`.
 
 ### 6. Score, session note and hand-back
 
-The leaked-credential checks already ran before step 0. When "Check the
-harness score now" is covered, run `harness:score` again and record the
+When the Human runs the
+score step, run `harness:score` again and record the
 level and score. For each dimension with a failing check, ask one question
 in plain language: state what the repo lacks and what building it means, with check IDs as supporting references,
 and spell out any maturity cap dropping them would cause. Keep its checks as
@@ -219,16 +294,45 @@ in this run, and never drop one without the Human's yes. Score again and record
 the level, the score and every drop. See
 [references/harness-score.md](references/harness-score.md).
 
-Then, when "Set up automatic checks" is covered, put one question to the
-Human: how should `harness:validate` be wired —
+Then, in guided setup, put the checks question to the Human, with its own
+skip: how should `harness:validate` be wired —
 (a) as a CI job on pull requests, (b) chained into the repo's existing
 `validate` or `test` script, or (c) local only? Detect the CI config and the
 existing scripts first, frame the options with that evidence, and list the
 recommended option first. Nothing is written without the Human's yes. See
 [references/validate-wiring.md](references/validate-wiring.md).
 
-Then add the note's final sections, set it `stable`, and hand the run back to
-the Human in one closing message with three parts:
+Then, on both paths, offer the safety audit as the last step of setup, before
+the commit offer. Ask:
+
+> Last step: do you want a safety audit? The harness never opens your `.env`
+> or key files, and it blocks your agent from opening them. This audit checks
+> that protection is in place: that git ignores your `.env` files, and that no
+> key was pasted into your MCP config or harness files, which your agent loads
+> anyway. It reports file names, never values.
+
+For a runtime with no secret guard hook, or when the wiring was declined, say
+"and its rules tell your agent not to open them" in place of "and it blocks
+your agent from opening them". Options: "Run the audit (recommended)" and
+"Skip it". Never run it unasked. On a yes, run the pinned `harness-score`
+command `setup` printed (in a quiet install it ends in
+`--config .wolven-harness/.harness-score.json`; in a full install it is
+`harness:score`) and read only `HYG-03`, `HYG-04` and `HYG-06`. Never open a
+`.env` or key file, a flagged file or a secret-shaped file yourself, and never
+print a value. When it finds nothing, say so in one line of the closing
+message. A finding never stops the run; say:
+
+> The safety audit found a gap: <file and check>. Setup didn't cause this, and
+> the audit changed nothing. Next: have git ignore that file, or move the key
+> out of it.
+
+Leave any path with a finding out of the commit offer, and say so. "Skip it"
+lists "safety audit not run" under **Left for later**. See
+[references/harness-score.md](references/harness-score.md).
+
+Then add the note's final sections, set it `stable`, make the one commit
+offer (see "Commit offer"), and hand the run back to the Human in one closing
+message with three parts:
 
 1. **What's installed:** the skills and the runtimes they are ready in, the
    `AGENTS.md` change, anything else this run did, the commits made, and the
@@ -236,10 +340,9 @@ the Human in one closing message with three parts:
 2. **Left for later:** every step this run did not run.
 3. **Next steps:** a numbered list fitted to the installed skill sets.
 
-End the message by offering the next piece of work: "Should we start with a
-spec for “<goal>”?" when the Human gave a goal, or "What should we build
-first?" when none was given. On a yes, the run ends and `code-spec` starts
-as separate work on its own branch. Nothing starts without a yes. See
+End the message by asking what to work on next. When the Human names new
+work that needs a spec, the run ends and `code-spec` starts as separate work
+on its own branch. Nothing starts without a yes. See
 [references/session-note-template.md](references/session-note-template.md).
 
 The run ends at hand-back. Defining stubs or building score gaps is a
@@ -252,8 +355,9 @@ If the Human asks for it in the same session, say so and stop.
   Human.
 - Special-casing a known repo instead of applying these rules and asking
   the Human.
-- One commit at the end of the run, or a commit per file, ADR, claim, or
-  stub.
+- A commit offer before the end of the run, or a commit per file, ADR,
+  claim, or stub.
+- Listing an ignored path in the commit offer, or force-adding one.
 - Writing before showing the diff, or before the Human has chosen.
 - Starting a new session note over a `draft` note left by an interrupted
   run.

@@ -25,7 +25,7 @@ async function readPackageFile(dir: string): Promise<Record<string, unknown>> {
 
 test('install-devdep: warns when package.json exists without the dep in devDependencies', async () => {
   const pkg = { name: 'consumer', version: '1.0.0' };
-  const dir = await makeRepo({ 'package.json': `${JSON.stringify(pkg, null, 2)}\n` }, { git: true });
+  const dir = await makeRepo({ 'package.json': `${JSON.stringify(pkg, null, 2)}\n` }, { git: true, layout: 'home' });
 
   const result = await run(['setup', '--git-host', 'gh', '--runtimes', 'claude'], { cwd: dir });
 
@@ -45,7 +45,7 @@ test('install-devdep: no warning when the dep is already in devDependencies', as
     version: '1.0.0',
     devDependencies: { '@wolven-tech/harness': '^0.1.0' },
   };
-  const dir = await makeRepo({ 'package.json': `${JSON.stringify(pkg, null, 2)}\n` }, { git: true });
+  const dir = await makeRepo({ 'package.json': `${JSON.stringify(pkg, null, 2)}\n` }, { git: true, layout: 'home' });
 
   const result = await run(['setup', '--git-host', 'gh', '--runtimes', 'claude'], { cwd: dir });
 
@@ -59,7 +59,7 @@ test('install-devdep: a dep listed under dependencies gets a move hint, not a se
     version: '1.0.0',
     dependencies: { '@wolven-tech/harness': '^0.1.0' },
   };
-  const dir = await makeRepo({ 'package.json': `${JSON.stringify(pkg, null, 2)}\n` }, { git: true });
+  const dir = await makeRepo({ 'package.json': `${JSON.stringify(pkg, null, 2)}\n` }, { git: true, layout: 'home' });
 
   const result = await run(['setup', '--git-host', 'gh', '--runtimes', 'claude'], { cwd: dir });
 
@@ -71,7 +71,7 @@ test('install-devdep: a dep listed under dependencies gets a move hint, not a se
 });
 
 test('install-devdep: no warning without a package.json', async () => {
-  const dir = await makeRepo({}, { git: true });
+  const dir = await makeRepo({}, { git: true, layout: 'home' });
 
   const result = await run(['setup', '--git-host', 'gh', '--runtimes', 'claude'], { cwd: dir });
 
@@ -80,7 +80,7 @@ test('install-devdep: no warning without a package.json', async () => {
 });
 
 test("setup-config: a fresh run writes this package's own version as packageVersion", async () => {
-  const dir = await makeRepo({}, { git: true });
+  const dir = await makeRepo({}, { git: true, layout: 'home' });
 
   const result = await run(['setup', '--git-host', 'gh', '--runtimes', 'claude'], { cwd: dir });
 
@@ -99,7 +99,10 @@ test('setup-config: comments, ignore, and an unknown key survive a re-run unchan
     comments: { paths: ['src/**'] },
     someUnknownKey: { nested: [1, 2, 3] },
   };
-  const dir = await makeRepo({ '.wolven-harness.json': `${JSON.stringify(existing)}\n` }, { git: true });
+  const dir = await makeRepo(
+    { '.wolven-harness.json': `${JSON.stringify(existing)}\n` },
+    { git: true, layout: 'home' },
+  );
 
   const result = await run(['setup'], { cwd: dir, isTTY: false });
 
@@ -123,7 +126,10 @@ test('setup-config: a re-run keeps the existing key order and adds skillSets and
     ignore: ['test/**'],
     gitHost: 'gh',
   };
-  const dir = await makeRepo({ '.wolven-harness.json': `${JSON.stringify(existing)}\n` }, { git: true });
+  const dir = await makeRepo(
+    { '.wolven-harness.json': `${JSON.stringify(existing)}\n` },
+    { git: true, layout: 'home' },
+  );
 
   const result = await run(['setup'], { cwd: dir, isTTY: false });
 

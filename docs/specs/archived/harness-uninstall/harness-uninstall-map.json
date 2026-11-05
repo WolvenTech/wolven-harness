@@ -1,0 +1,303 @@
+{
+  "version": 1,
+  "title": "Harness Uninstall & Agentic Removal Map",
+  "subtitle": "Interactive flow for both old and new landscapes, deterministic CLI removal, and harness-remove handoff",
+  "trees": [
+    {
+      "id": "cli-flow",
+      "label": "1. CLI Uninstall (wolven-harness uninstall)",
+      "nodes": [
+        {
+          "id": "cli-start",
+          "kind": "start",
+          "label": "wolven-harness uninstall",
+          "sub": "CLI entry point",
+          "next": "scan-landscape"
+        },
+        {
+          "id": "scan-landscape",
+          "kind": "waypoint",
+          "tag": "Discovery",
+          "label": "Scan local landscape",
+          "next": "footprint-check"
+        },
+        {
+          "id": "footprint-check",
+          "kind": "choice",
+          "label": "Were harness footprints detected?",
+          "default": "found",
+          "options": [
+            {
+              "key": "none",
+              "label": "No installs found",
+              "hint": "Clean directory or unknown layout",
+              "next": "exit-clean"
+            },
+            {
+              "key": "found",
+              "label": "Installs found",
+              "hint": "Quiet, full, linked, or global",
+              "next": "show-manifest"
+            }
+          ]
+        },
+        {
+          "id": "exit-clean",
+          "kind": "card",
+          "label": "No action needed",
+          "sections": [
+            {
+              "head": "Result",
+              "items": [
+                "Prints: no harness installs found",
+                "Makes 0 filesystem changes",
+                "Exits with code 0"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "show-manifest",
+          "kind": "waypoint",
+          "tag": "Inspection",
+          "label": "Print discovered artifacts and preserved paths",
+          "next": "confirm-removal"
+        },
+        {
+          "id": "confirm-removal",
+          "kind": "choice",
+          "label": "Confirm removal?",
+          "default": "yes",
+          "options": [
+            {
+              "key": "no",
+              "label": "No / Cancel",
+              "hint": "Declined on prompt or Ctrl+C",
+              "next": "abort-clean"
+            },
+            {
+              "key": "yes",
+              "label": "Yes / --yes",
+              "hint": "Proceed with safe deletion",
+              "next": "landscape-route"
+            }
+          ]
+        },
+        {
+          "id": "abort-clean",
+          "kind": "card",
+          "label": "Uninstall cancelled",
+          "sections": [
+            {
+              "head": "Guarantees",
+              "items": [
+                "Aborted without touching disk",
+                "Zero files or symlinks deleted",
+                "Exits with code 0"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "landscape-route",
+          "kind": "choice",
+          "label": "Which landscape is being removed?",
+          "default": "both",
+          "options": [
+            {
+              "key": "new",
+              "label": "New quiet install (.wolven-harness/)",
+              "hint": "Linked layout with nested home",
+              "next": "clean-new"
+            },
+            {
+              "key": "old",
+              "label": "Old full install (in-repo root)",
+              "hint": "Home layout with root scaffolding",
+              "next": "clean-old"
+            },
+            {
+              "key": "both",
+              "label": "Both / linked / standalone",
+              "hint": "Cleans all discovered footprints",
+              "next": "clean-both"
+            }
+          ]
+        },
+        {
+          "id": "clean-new",
+          "kind": "waypoint",
+          "tag": "Removal",
+          "label": "Unlink bootstrap symlinks, root config & .wolven-harness/ scaffolding; preserve .wolven-harness/docs/",
+          "next": "removal-report"
+        },
+        {
+          "id": "clean-old",
+          "kind": "waypoint",
+          "tag": "Removal",
+          "label": "Delete root .wolven-harness.json, WOLVEN.md, .qmd/, .agents/, and global skills; preserve root docs/",
+          "next": "removal-report"
+        },
+        {
+          "id": "clean-both",
+          "kind": "waypoint",
+          "tag": "Removal",
+          "label": "Execute both removal passes; strictly protect all docs/ byte-for-byte",
+          "next": "removal-report"
+        },
+        {
+          "id": "removal-report",
+          "kind": "waypoint",
+          "tag": "Summary",
+          "label": "Report deleted files, preserved docs/, and remaining shared files",
+          "next": "offer-remove-skill"
+        },
+        {
+          "id": "offer-remove-skill",
+          "kind": "choice",
+          "label": "Install harness-remove skill for agentic cleanup?",
+          "default": "accept-skill",
+          "options": [
+            {
+              "key": "decline-skill",
+              "label": "No, finish here",
+              "hint": "Deterministic CLI uninstall complete",
+              "next": "cli-complete"
+            },
+            {
+              "key": "accept-skill",
+              "label": "Yes, install skill",
+              "hint": "Select agent runtime for deep cleanup",
+              "next": "install-skill"
+            }
+          ]
+        },
+        {
+          "id": "cli-complete",
+          "kind": "card",
+          "label": "CLI Uninstall Complete",
+          "sections": [
+            {
+              "head": "Status",
+              "items": [
+                "Harness scaffolding removed",
+                "Authored docs/ preserved intact",
+                "Shared files kept as-is"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "install-skill",
+          "kind": "card",
+          "label": "Skill Installed",
+          "sections": [
+            {
+              "head": "Handoff to Agent",
+              "items": [
+                "Copied harness-remove to runtime load path",
+                "Printed agent prompt to continue",
+                "Ready for human-supervised cleanup"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "agent-flow",
+      "label": "2. Agentic Deep Cleanup (harness-remove skill)",
+      "nodes": [
+        {
+          "id": "agent-start",
+          "kind": "start",
+          "label": "harness-remove skill",
+          "sub": "Agent runtime",
+          "next": "agent-inspect"
+        },
+        {
+          "id": "agent-inspect",
+          "kind": "waypoint",
+          "tag": "Inspection",
+          "label": "Agent inspects intertwined shared files",
+          "next": "agent-checklist"
+        },
+        {
+          "id": "agent-checklist",
+          "kind": "checklist",
+          "label": "Which shared-file edits to clean?",
+          "sub": "Human confirms each proposed change",
+          "items": [
+            {
+              "key": "scripts",
+              "label": "package.json harness:* scripts",
+              "hint": "Remove harness:validate, harness:comments, harness:score",
+              "on": true
+            },
+            {
+              "key": "agents-md",
+              "label": "AGENTS.md harness sections",
+              "hint": "Remove harness tables while keeping project instructions",
+              "on": true
+            },
+            {
+              "key": "gitignore",
+              "label": ".gitignore harness entries",
+              "hint": "Clean harness ignore rules",
+              "on": true
+            },
+            {
+              "key": "ci",
+              "label": "CI workflow steps",
+              "hint": "Remove harness validate/score jobs from GitHub Actions",
+              "on": false
+            }
+          ],
+          "next": "agent-apply"
+        },
+        {
+          "id": "agent-apply",
+          "kind": "waypoint",
+          "tag": "Execution",
+          "label": "Apply confirmed edits; preserve unconfirmed files and all docs/",
+          "next": "agent-done"
+        },
+        {
+          "id": "agent-done",
+          "kind": "card",
+          "label": "Deep Cleanup Finished",
+          "sections": [
+            {
+              "head": "Final Actions",
+              "items": [
+                "Shared file edits cleaned with human confirmation",
+                "harness-remove skill directory deletes itself",
+                "docs/ history and user codebase remain intact"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "from": "install-skill",
+      "to": "agent-start",
+      "label": "Handoff to agent runtime"
+    }
+  ],
+  "annotations": [
+    {
+      "id": "ann-docs",
+      "target": "show-manifest",
+      "text": "Critical invariant: docs/ is never deleted in either landscape"
+    },
+    {
+      "id": "ann-self-clean",
+      "target": "agent-done",
+      "text": "Skill removes its own directory once thorough cleanup finishes"
+    }
+  ]
+}
+

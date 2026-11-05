@@ -18,7 +18,7 @@ async function config(dir: string): Promise<Record<string, unknown>> {
 }
 
 test('setup-skill-sets: default without a terminal installs core and ship', async () => {
-  const dir = await makeRepo({}, { git: true });
+  const dir = await makeRepo({}, { git: true, layout: 'home' });
 
   const result = await run(BASE, { cwd: dir });
 
@@ -29,7 +29,7 @@ test('setup-skill-sets: default without a terminal installs core and ship', asyn
 });
 
 test('setup-skill-sets: --skills none installs core only', async () => {
-  const dir = await makeRepo({}, { git: true });
+  const dir = await makeRepo({}, { git: true, layout: 'home' });
 
   const result = await run([...BASE, '--skills', 'none'], { cwd: dir });
 
@@ -41,7 +41,7 @@ test('setup-skill-sets: --skills none installs core only', async () => {
 });
 
 test('setup-skill-sets: --skills ship,discovery installs every template skill', async () => {
-  const dir = await makeRepo({}, { git: true });
+  const dir = await makeRepo({}, { git: true, layout: 'home' });
 
   const result = await run([...BASE, '--skills=ship,discovery'], { cwd: dir });
 
@@ -53,19 +53,19 @@ test('setup-skill-sets: --skills ship,discovery installs every template skill', 
 test('setup-skill-sets: a flag beats saved config, and saved config beats the default', async () => {
   const saved = `${JSON.stringify({ version: 1, gitHost: 'gh', runtimes: ['codex'], skillSets: ['discovery'] })}\n`;
 
-  const fromConfig = await makeRepo({ '.wolven-harness.json': saved }, { git: true });
+  const fromConfig = await makeRepo({ '.wolven-harness.json': saved }, { git: true, layout: 'home' });
   const a = await run(['setup'], { cwd: fromConfig });
   assert.equal(a.code, 0, a.stderr);
   assert.deepEqual(await installed(fromConfig), [...CORE_SKILLS, ...SET_SKILLS.discovery].sort());
 
-  const fromFlag = await makeRepo({ '.wolven-harness.json': saved }, { git: true });
+  const fromFlag = await makeRepo({ '.wolven-harness.json': saved }, { git: true, layout: 'home' });
   const b = await run(['setup', '--skills', 'ship'], { cwd: fromFlag });
   assert.equal(b.code, 0, b.stderr);
   assert.deepEqual(await installed(fromFlag), [...CORE_SKILLS, ...SET_SKILLS.ship].sort());
 });
 
 test('setup-skill-sets: a TTY prompt is asked only when neither flag nor config decides', async () => {
-  const dir = await makeRepo({}, { git: true });
+  const dir = await makeRepo({}, { git: true, layout: 'home' });
   const seen: string[][] = [];
 
   const result = await run(['setup', '--git-host', 'gh', '--runtimes', 'codex'], {
@@ -90,7 +90,7 @@ test('setup-skill-sets: a TTY prompt is asked only when neither flag nor config 
 });
 
 test('setup-skill-sets: re-running with discovery keeps ship and adds discovery', async () => {
-  const dir = await makeRepo({}, { git: true });
+  const dir = await makeRepo({}, { git: true, layout: 'home' });
   await run(BASE, { cwd: dir });
 
   const again = await run([...BASE, '--skills', 'discovery'], { cwd: dir });
@@ -103,7 +103,7 @@ test('setup-skill-sets: re-running with discovery keeps ship and adds discovery'
 });
 
 test('setup-skill-sets: re-running with none after ship removes nothing and says so', async () => {
-  const dir = await makeRepo({}, { git: true });
+  const dir = await makeRepo({}, { git: true, layout: 'home' });
   await run(BASE, { cwd: dir });
 
   const again = await run([...BASE, '--skills', 'none'], { cwd: dir });
@@ -122,7 +122,7 @@ test('setup-skill-sets: WOLVEN.md lists exactly the installed skills', async () 
     ['none', [...CORE_SKILLS]],
     ['ship', [...CORE_SKILLS, ...SET_SKILLS.ship]],
   ] as const) {
-    const dir = await makeRepo({}, { git: true });
+    const dir = await makeRepo({}, { git: true, layout: 'home' });
     await run([...BASE, '--skills', flag], { cwd: dir });
 
     const wolven = await readFile(path.join(dir, 'WOLVEN.md'), 'utf8');
@@ -178,7 +178,7 @@ async function filesUnder(dir: string, prefix = ''): Promise<string[]> {
 }
 
 test('proof-journey-map-install: --skills discovery installs journey-map with its renderer and script', async () => {
-  const dir = await makeRepo({}, { git: true });
+  const dir = await makeRepo({}, { git: true, layout: 'home' });
 
   const result = await run([...BASE, '--skills', 'discovery'], { cwd: dir });
 
@@ -188,7 +188,7 @@ test('proof-journey-map-install: --skills discovery installs journey-map with it
 
 test('proof-journey-map-install: --skills ship and --skills none leave journey-map out', async () => {
   for (const skills of ['ship', 'none']) {
-    const dir = await makeRepo({}, { git: true });
+    const dir = await makeRepo({}, { git: true, layout: 'home' });
 
     const result = await run([...BASE, '--skills', skills], { cwd: dir });
 

@@ -1,15 +1,18 @@
-import { readFile } from 'node:fs/promises';
+import type { Dirent } from 'node:fs';
+import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { execGit, gitTopLevel } from '../git.js';
 import { isUnderDir, pathExists } from '../path-exists.js';
 
 /**
  * Everything the check modules need: the git root, the scanned file list
- * (tracked and untracked, non-ignored), the ignore entries that were
+ * (git-visible, or every home file for a quiet install), the ignore entries that were
  * applied (and how many files they dropped), and a root-relative file reader.
  */
 export interface RepoContext {
   root: string;
+  gitRoot?: string;
+  homePrefix?: string;
   files: string[];
   ignore: { entries: string[]; count: number };
   read(rel: string): Promise<string>;
@@ -54,15 +57,36 @@ async function listScannedFiles(root: string): Promise<string[]> {
 interface BuildRepoContextOptions {
   /** Valid `ignore` entries, each already checked to end in `/**`. */
   ignoreEntries: string[];
+  homePrefix?: string;
+}
+
+/** Lists home files directly so local-only documents participate in validation. */
+async function listHomeFiles(root: string, dir = ''): Promise<string[]> {
+  let entries: Dirent[];
+  try {
+    entries = await readdir(path.join(root, dir), { withFileTypes: true });
+  } catch (err) {
+    if ((err as NodeJS.ErrnoException).code === 'ENOENT') return [];
+    throw err;
+  }
+  const files: string[] = [];
+  for (const entry of entries) {
+    const rel = dir ? `${dir}/${entry.name}` : entry.name;
+    if (entry.isDirectory()) files.push(...(await listHomeFiles(root, rel)));
+    else files.push(rel);
+  }
+  return files.sort();
 }
 
 /**
- * Builds the `RepoContext` handed to check modules: lists tracked and
- * untracked non-ignored files, drops those under any `ignoreEntries`
+ * Builds the check context: scans git-visible files, or every quiet-install
+ * home file including ignored ones, and drops any `ignoreEntries`
  * directory, and records how many files each entry dropped in total.
  */
 export async function buildRepoContext(root: string, opts: BuildRepoContextOptions): Promise<RepoContext> {
-  const allFiles = await listScannedFiles(root);
+  const gitRoot = root;
+  if (opts.homePrefix) root = path.join(root, opts.homePrefix);
+  const allFiles = opts.homePrefix ? await listHomeFiles(root) : await listScannedFiles(root);
   const dirs = opts.ignoreEntries.map((entry) => entry.slice(0, -'/**'.length));
 
   const files = allFiles.filter((f) => !dirs.some((dir) => isUnderDir(f, dir)));
@@ -75,6 +99,7 @@ export async function buildRepoContext(root: string, opts: BuildRepoContextOptio
 
   return {
     root,
+    ...(opts.homePrefix ? { gitRoot, homePrefix: opts.homePrefix } : {}),
     files: present.filter((rel): rel is string => rel !== undefined),
     ignore: { entries: opts.ignoreEntries, count: ignoredCount },
     read: (rel: string) => readFile(path.join(root, rel), 'utf8'),
