@@ -38,7 +38,7 @@ work stops, uncommitted, ready to be asked for.
    **before mutate**; an undecided discrepancy stops the unit.
 4. **Verify-before-claim** — no done, shipped, or PASS claim without a
    real (non-empty) diff and fresh command output from this session; no
-   Done-when tick without in-session evidence.
+   Done-when tick without in-session evidence. Record each selected test's expected outcome, assertion, and the plausible wrong implementation it catches — an empty selection or a weak assertion is not a proof.
 5. **Validate before commit** — `harness:validate` PASS is required before
    `code-commit` is invoked or even asked for; never claim done on a red
    gate.
@@ -254,6 +254,6 @@ Breaking a hard gate above is an anti-pattern in itself. Also avoid:
 Refuse these as over-build (`pragmatic-guard`):
 
 - **Independent-verifier ceremony** — a separate verifier pass stacked on
-  the final check, which already proves the unit
+  the final check, which already runs the checks and records their outputs
 - **Execution log** — a running log or state file of the execution kept
   beside the plan's seven-field resume section

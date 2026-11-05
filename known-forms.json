@@ -57,9 +57,13 @@
       "baeb2c4647e38df887db93cad27a429358fe4ea85a642a0dbde92af25fda628a",
       "bdfabcf4785e43d9ee8356306c724671166bb682ed531985564d6577414a4592"
     ],
+    ".agents/skills/code-execute/NOTICE": [
+      "2d59b9fe75c9383bd20aa6baf23f3a04419591d680aeaa09721c3d81bb01134b"
+    ],
     ".agents/skills/code-execute/SKILL.md": [
       "1669327ce2fa1f10b1e3684e1b3399b06d61caec98e5a0ecde5a45bba3497e83",
       "63806aae97e51c681bfe32489b024c067e9a5f9514155c1b45a4d657a84a6ff0",
+      "70f180b751e4d8bd787b38b55da68b919c6e6a6c2a1bbdc4c0f447a3002764d2",
       "c2fb85d3438aa8cd39311ae1d08e55d587f55b036cc8b3efb04c40173f83803a",
       "df228df1a33f8a496bb202f76a76c3e7925d4750421d75db7fb835c631b0a10e"
     ],
@@ -68,6 +72,9 @@
       "63c08173140ea03eacaf906e1041e260848116498b30f3d33303402b6a0e1e33",
       "70f9b1f0b45ed53e1888c4e832e9ea6670800cbf6554ab80b2ad3dbab79b7a94",
       "85bb1c40180222c310af33d3b631c70bf552b56128d35d896025ad149432c118"
+    ],
+    ".agents/skills/code-plan/NOTICE": [
+      "2d59b9fe75c9383bd20aa6baf23f3a04419591d680aeaa09721c3d81bb01134b"
     ],
     ".agents/skills/code-plan/SKILL.md": [
       "58a77738240f1b3281831bd8bdcbb2bc2ca8afd21de2074274683f19e7e669c7",
@@ -108,6 +115,9 @@
       "850b1d4f492a71f29d970b798194f2f1cd2d0dbc8948d5697b98d9005c9ca6e0",
       "b050525004a56d847b369a94efb8f7459d7794d97cbf5c2d0e15908eb8f733c9"
     ],
+    ".agents/skills/code-review/NOTICE": [
+      "2d59b9fe75c9383bd20aa6baf23f3a04419591d680aeaa09721c3d81bb01134b"
+    ],
     ".agents/skills/code-review/SKILL.md": [
       "64a79662d9d1ba28a99498d065a8f83972f1266a8adb0eb24574573c8bb7bc1c",
       "7dddd12dd2ad64c9299cc1ada9959ae12aade80260628c92aac81e228dafcd6a",
@@ -122,8 +132,12 @@
       "804621b6d5d1362a611e000ae068cc8765fe6152ef696a051f18b19ce88c31dc",
       "cb894bbf664eb277135b3f183a0bf125f3597b15ece2640d4d0523f49096efbf"
     ],
+    ".agents/skills/code-spec/NOTICE": [
+      "2d59b9fe75c9383bd20aa6baf23f3a04419591d680aeaa09721c3d81bb01134b"
+    ],
     ".agents/skills/code-spec/SKILL.md": [
       "60d296122f7d5c9e798dd7bb4aad6d7ba17e857c8702b2911a42ea8cac8107d1",
+      "65fec185579e78c6c5c350bd855608a0e6112307ca7c1c427bfe5dd38f90d6c6",
       "87aa15bd28bd2f627b311b9f6b68649f1d9bf029d3b1a8ea80d1899d5b898e01",
       "fb9603c33cfa2ed36d886d4a4792896f93146f84e0a540d2fb569a6922eb880a"
     ],

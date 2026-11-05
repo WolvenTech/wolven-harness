@@ -52,7 +52,7 @@ A PRD is optional input: when the `create-prd` skill is installed it drafts and 
    ADRs, scripts, prior specs — that this initiative depends on. Cite what
    exists; never invent a surface.
 4. **Surface walk.** Name the paths and systems in mutate scope, and those
-   deliberately left out of scope.
+   deliberately left out of scope. A visual capture used as an implementation reference is binding unless labeled inspiration; an explicit departure needs Human approval in the spec.
 5. Draft from [TEMPLATE.md](references/TEMPLATE.md): obligation ↔ proof
    requirements, each paired with an acceptance box, plus out of scope and
    refuses.
