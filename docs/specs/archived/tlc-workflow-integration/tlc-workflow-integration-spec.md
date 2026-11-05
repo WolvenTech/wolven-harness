@@ -2,7 +2,7 @@
 type: spec
 title: TLC workflow integration (C + R) for code skills
 description: Keep the good practices brought from TLC — three concrete correctness fixes and a minimal CC-BY-4.0 NOTICE — and defer the review-ceremony upgrades to a deferral.
-status: stable
+status: deprecated
 ---
 
 # TLC workflow integration (C + R) for code skills
