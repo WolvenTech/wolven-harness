@@ -149,7 +149,7 @@ before execution. No change to CLI commands, finding codes, dependencies,
 setup replacement rules, host operations API, or skill-set membership is
 proposed. Sources: `package.json`, `src/setup/skill-sets.ts`,
 `src/setup/apply.ts`, `src/skills/install.ts`,
-`test/helpers/skill-contract.ts`, `docs/adrs/adr-006-install-check-and-repair-contract.md`.
+`test/helpers/skill-contract.ts`, `docs/adrs/adr-007-quiet-install-contract.md`.
 
 ## B's deterministic contract and honest limits
 
@@ -334,7 +334,7 @@ core and only replaces selectable differing folders after existing consent;
 R can use its existing review-folder replacement behavior. Do not change
 installer semantics or invent an automatic core updater. Sources:
 `src/setup/apply.ts`, `src/skills/install.ts`,
-`docs/adrs/adr-006-install-check-and-repair-contract.md`.
+`docs/adrs/adr-007-quiet-install-contract.md`.
 
 Use an optional workflow revision marker in new specs/plans. Existing
 approved plans keep their existing contract through completion; do not
