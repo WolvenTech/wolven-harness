@@ -163,7 +163,7 @@ A folder that already matches the package copy is left in place. When a chosen f
 wolven-harness uninstall [--dir <path>] [--yes] [--verbose] [--debug]
 ```
 
-Scans the folder for harness installs, lists what it will remove, and asks before removing anything. It also lists harness skills it finds in your home folder, such as under `~/.claude/skills/`, and removes them with the rest; skills of your own stay. It keeps your docs, such as `.wolven-harness/docs/`, and never edits files you share with the harness, such as `AGENTS.md`. In a terminal it then offers to install the `harness-remove` skill, so your agent can clean up what is left.
+Scans the folder for harness installs, lists what it will remove, and asks before removing anything. It also lists skills it finds in your home folder, such as under `~/.claude/skills/`, and removes them with the rest. A skill counts as the harness's when its `name` and `description` match the shipped skill, and its whole folder goes, even if you edited the rest of it, so copy any skill you changed before you confirm. Skills with another name or description stay. It keeps your docs, such as `.wolven-harness/docs/`, and never edits files you share with the harness, such as `AGENTS.md`. In a terminal it then offers to install the `harness-remove` skill, so your agent can clean up what is left.
 
 | Option | Behavior |
 | --- | --- |

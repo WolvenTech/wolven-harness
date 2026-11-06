@@ -43,7 +43,7 @@ Running `npx @wolven-tech/harness setup` works without a global install, but set
 
 `setup` generates the harness scaffold, with skills, rules and hooks. It never creates or edits your `AGENTS.md`, and it never commits to your repo. It also:
 
-- connects each coding agent you select (the CLI calls them runtimes) to the skills, and to the rules where that agent reads them directly;
+- in a full install, connects each coding agent you select (the CLI calls them runtimes) to the skills, and to the rules where that agent reads them directly; a quiet install copies the skills and rules into `.wolven-harness/` and connects only a `harness-init` link for each agent, and the `harness-init` skill connects the rest;
 - in a full install, adds missing `harness:validate`, `harness:comments` and `harness:score` scripts to an existing `package.json`, and writes a starter `.harness-score.json`;
 - a quiet install adds neither and keeps its score config in `.wolven-harness/`;
 - rewrites `.wolven-harness.json` on every run, with your setup choices and `packageVersion`.

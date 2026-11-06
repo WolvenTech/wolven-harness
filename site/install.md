@@ -62,7 +62,7 @@ Run the command from the repository root:
 wolven-harness uninstall
 ```
 
-It lists what it will remove and asks before removing anything. The list can include harness skills in your home folder, such as under `~/.claude/skills/`; skills of your own stay. It keeps `.wolven-harness/docs/`, where your decision records (ADRs), specs and notes live. It never edits files you share with the harness, such as `AGENTS.md`, so in a terminal it then offers to install the `harness-remove` skill. Ask your agent to run that skill to clean up what is left. See [`uninstall`](./commands#uninstall) for the options.
+It lists what it will remove and asks before removing anything. The list can include skills in your home folder, such as under `~/.claude/skills/`. A skill counts as the harness's when its `name` and `description` match the shipped skill, and its whole folder goes, even if you edited the rest of it. Copy any skill you changed before you confirm. Skills with another name or description stay. It keeps `.wolven-harness/docs/`, where your decision records (ADRs), specs and notes live. It never edits files you share with the harness, such as `AGENTS.md`, so in a terminal it then offers to install the `harness-remove` skill. Ask your agent to run that skill to clean up what is left. See [`uninstall`](./commands#uninstall) for the options.
 
 ### Remove it by hand
 

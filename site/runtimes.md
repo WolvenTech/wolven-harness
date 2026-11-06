@@ -6,7 +6,7 @@ description: How setup connects each supported coding agent.
 
 A runtime is a coding agent the harness can connect to. `setup` knows nine. Pass any comma-separated list like `--runtimes claude,codex`, or select them when interactive `setup` asks. Only macOS and Linux are supported; the symlinked rows need filesystem symlinks.
 
-This page describes a full install. In a quiet install, `setup` only puts a `harness-init` symlink in each agent's skills folder and writes no rules files. The `harness-init` skill creates the rest inside `.wolven-harness/`, after you approve each change.
+This page describes a full install. In a quiet install, `setup` copies the skills and rules into `.wolven-harness/`, but connects only a `harness-init` symlink in each agent's skills folder. The `harness-init` skill connects the rest to each agent, after you approve each change.
 
 | Agent | id | Project skills | Rules wiring |
 | --- | --- | --- | --- |
