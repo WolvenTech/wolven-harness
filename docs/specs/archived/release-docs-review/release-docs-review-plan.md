@@ -2,12 +2,12 @@
 type: spec
 title: Review the README and guide for the 0.4.0 release — plan
 description: Work-unit plan for correcting the README, the eight Guide pages and the CLI help, checking every statement, and proving the quickstart before the release.
-status: draft
+status: deprecated
 ---
 
 # Review the README and guide for the 0.4.0 release — plan
 
-**Spec:** `docs/specs/release-docs-review/release-docs-review-spec.md` (status `stable`)
+**Spec:** `docs/specs/archived/release-docs-review/release-docs-review-spec.md` (status `stable`)
 
 ## Structural gate
 
@@ -40,7 +40,7 @@ The ledger lives only in the pull request description. Until that pull request e
 
 | Identifier | Decision needed | Owner | Blocking effect | Disposition | Unit |
 |---|---|---|---|---|---|
-| `U-site-npm-gap` | The Guide pages go live at the docs merge, ahead of the npm publish. Is a short gap acceptable, or should the two merges happen back to back? | Rafael | Non-blocking for the units; blocks the merge in R4.2 | *(empty until decided)* | R4.2 |
+| `U-site-npm-gap` | The Guide pages go live at the docs merge, ahead of the npm publish. Is a short gap acceptable, or should the two merges happen back to back? | Rafael | None | Resolved: back to back. PR 100 is the last pull request before release PR 86 | R4.2 |
 
 ## Frontier order
 
@@ -53,7 +53,7 @@ Units run strictly in order. Units 02, 03 and 04 share pages, and unit 06 must r
 | Field | Value |
 |-------|-------|
 | Unit identifier | 01–06, run in order, inline, on one set of pages |
-| Spec/plan paths | `docs/specs/release-docs-review/release-docs-review-spec.md` / `docs/specs/release-docs-review/release-docs-review-plan.md` |
+| Spec/plan paths | `docs/specs/archived/release-docs-review/release-docs-review-spec.md` / `docs/specs/archived/release-docs-review/release-docs-review-plan.md` |
 | Obligation / proof status | R1.1, R1.2, R1.5, R2.1–R2.6, R2.8, R3.1–R3.3 — done; R2.7 — done, the Human held the release for the fix; R1.3, R1.4 — done on the final `README.md`; R4.3, R4.4 — done; R4.1, R4.2, R4.5 — pending the pull request |
 | `HEAD` commit | `7275eef` |
 | `git status` summary | dirty — only this initiative's PRD, spec and plan |

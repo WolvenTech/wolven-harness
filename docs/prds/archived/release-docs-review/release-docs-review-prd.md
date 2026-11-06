@@ -2,7 +2,7 @@
 type: prd
 title: Review the README and guide for the 0.4.0 release
 description: Correct the README, the eight Guide pages and the CLI help so a first-time installer reads what 0.4.0 actually does, before the release merges.
-status: stable
+status: deprecated
 ---
 
 # Review the README and guide for the 0.4.0 release
@@ -26,7 +26,7 @@ status: stable
 
 **Non-goals**
 
-- An upgrade guide from 0.3.x. The release changelog covers the breaking change, in line with the [cancelled upgrade guide](../archived/consumer-upgrade-guide/consumer-upgrade-guide-prd.md).
+- An upgrade guide from 0.3.x. The release changelog covers the breaking change, in line with the [cancelled upgrade guide](../consumer-upgrade-guide/consumer-upgrade-guide-prd.md).
 - Rewriting the product positioning or restructuring the onboarding path.
 - An automated check that catches future drift.
 

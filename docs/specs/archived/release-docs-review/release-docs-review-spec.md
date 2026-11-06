@@ -2,12 +2,12 @@
 type: spec
 title: Review the README and guide for the 0.4.0 release
 description: Freeze the known mismatches, the statement-by-statement check and the merge order that bring the README, the eight Guide pages and the CLI help in line with 0.4.0.
-status: stable
+status: deprecated
 ---
 
 # Review the README and guide for the 0.4.0 release
 
-**Source:** `docs/prds/release-docs-review/release-docs-review-prd.md` (status `stable`)
+**Source:** `docs/prds/archived/release-docs-review/release-docs-review-prd.md` (status `stable`)
 **Next:** After the Human approves → `code-plan` → `code-execute`, one wave.
 **Named proof (this spec's own structural gate):** `proof-release-docs-review-spec-obligations`
 
@@ -217,7 +217,7 @@ grep -ohE 'https://[^) >"]+' README.md site/index.md site/install.md site/cycle.
 
 | Identifier | Decision needed | Owner | Blocking effect | Disposition |
 |------------|-------------------|-------|-------------------|--------------|
-| `U-site-npm-gap` | The Guide pages go live at the docs merge, ahead of the npm publish. Is a short gap acceptable, or should the two merges happen back to back? | Human | Non-blocking for the edits; blocks the merge in R4.2 | Resolve before merging the docs pull request |
+| `U-site-npm-gap` | The Guide pages go live at the docs merge, ahead of the npm publish. Is a short gap acceptable, or should the two merges happen back to back? | Human | None | Resolved: back to back. PR 100 is the last pull request before release PR 86 |
 
 ## Out of scope
 
@@ -246,15 +246,22 @@ grep -ohE 'https://[^) >"]+' README.md site/index.md site/install.md site/cycle.
 - [x] `proof-release-docs-review-doctor-levels` PASS — R2.5
 - [x] `proof-release-docs-review-install-kinds` PASS — R2.6
 - [x] `proof-release-docs-review-defect-reported` PASS — R2.7
-- [x] `proof-release-docs-review-plain-language` PASS — R2.8
+- [ ] `proof-release-docs-review-plain-language` PASS — R2.8
 - [x] `proof-release-docs-review-help-setup` PASS — R3.1
 - [x] `proof-release-docs-review-help-summaries` PASS — R3.2
 - [x] `proof-release-docs-review-help-wording-only` PASS — R3.3
-- [ ] `proof-release-docs-review-single-pr` PASS — R4.1
+- [x] `proof-release-docs-review-single-pr` PASS — R4.1
 - [ ] `proof-release-docs-review-merge-order` PASS — R4.2
 - [x] `proof-release-docs-review-docs-build` PASS — R4.3
 - [x] `proof-release-docs-review-external-links` PASS — R4.4
 - [ ] `proof-release-docs-review-release-hold` PASS — R4.5
+
+Closure notes:
+
+- R1.4: the last full quickstart ran before the Human's own `README.md` edit; that edit left every command unchanged.
+- R2.8: the grep fails on "wire up" in `README.md`, which is the Human's own wording and stays. The other pages pass.
+- R4.2 and R4.5 close at the merges of PR 100 and release PR 86.
+- R2.7: the Human chose documentation only for `uninstall` in this release, so the command is unchanged.
 
 ## Eval / gates
 
@@ -270,7 +277,7 @@ grep -ohE 'https://[^) >"]+' README.md site/index.md site/install.md site/cycle.
 `proof-release-docs-review-spec-obligations`, which prints nothing when each proof sits in both places:
 
 ```bash
-F=docs/specs/release-docs-review/release-docs-review-spec.md; for p in $(sed -n '/^## Requirements/,/^### Proof commands/p' "$F" | grep -oE 'proof-release-docs-review-[a-z-]+' | sort -u); do sed -n '/^## Acceptance/,/^## Eval/p' "$F" | grep -q -- "$p" || echo "missing: $p"; done
+F=docs/specs/archived/release-docs-review/release-docs-review-spec.md; for p in $(sed -n '/^## Requirements/,/^### Proof commands/p' "$F" | grep -oE 'proof-release-docs-review-[a-z-]+' | sort -u); do sed -n '/^## Acceptance/,/^## Eval/p' "$F" | grep -q -- "$p" || echo "missing: $p"; done
 ```
 
 ## Cross-domain leak table
