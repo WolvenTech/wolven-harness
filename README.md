@@ -27,22 +27,25 @@ pnpm add -g @wolven-tech/harness
 
 You need Node 22 or later, git, and macOS or Linux.
 
-Then run setup from the top level of a Git repository, or from any folder near your repo code that sits outside the repository:
+Then run setup from the top level of a Git repository, or from any folder near your repo code:
 
 ```sh
 wolven-harness setup
 ```
 
-At a repository root, setup does a quiet install: the harness lives in `.wolven-harness/`, with `.wolven-harness.json` and a few untracked links beside it, so git sees only what you pick during `harness-init`. Next, open your coding agent in that folder and ask it to run the `harness-init` skill. A skill is a set of instructions your agent follows when you ask for it by name. To have git track the whole harness, see [Files and validation](https://wolventech.github.io/wolven-harness/layout).
+At your repo root, setup does a quiet install: the harness lives in `.wolven-harness/`, with `.wolven-harness.json` and a few untracked symlinks to wire up the harness. Your git sees only what you pick. 
 
-Running `npx @wolven-tech/harness setup` works without a global install, but setup then recommends the global install so you can use other commands like `skills` and `validate`.
+Next, open your coding agent in that folder and ask it to run the `harness-init` skill. A skill is a set of instructions your agent follows when you ask for it by name. To have git track the whole harness, see [Files and validation](https://wolventech.github.io/wolven-harness/layout).
+
+Running `npx @wolven-tech/harness setup` works without a global install, but setup then recommends the global install so you can use other commands like `doctor` and `validate`.
 
 ## Setup
 
-`setup` creates only paths that are missing. It never creates or edits `AGENTS.md`, and it never commits. It also:
+`setup` generates the harness scaffold, with skills, rules and hooks. It never creates or edits your `AGENTS.md`, and it never commits to your repo. It also:
 
 - connects each coding agent you select (the CLI calls them runtimes) to the skills, and to the rules where that agent reads them directly;
-- in a full install, adds missing `harness:validate`, `harness:comments` and `harness:score` scripts to an existing `package.json`, and writes a starter `.harness-score.json`; a quiet install adds neither and keeps its score config in `.wolven-harness/`;
+- in a full install, adds missing `harness:validate`, `harness:comments` and `harness:score` scripts to an existing `package.json`, and writes a starter `.harness-score.json`;
+- a quiet install adds neither and keeps its score config in `.wolven-harness/`;
 - rewrites `.wolven-harness.json` on every run, with your setup choices and `packageVersion`.
 
 In an interactive terminal, `setup` asks for your Git host, runtimes, and optional skill sets. In scripts or CI, pass `--git-host`, `--runtimes`, and any optional flags; see [Commands](https://wolventech.github.io/wolven-harness/commands) for all options and detection rules.
@@ -55,9 +58,13 @@ In an interactive terminal, `setup` asks for your Git host, runtimes, and option
 
 Use `--skills ship,discovery` to pick sets, or `--skills none` for core only. Re-runs never remove an installed set.
 
-## What to do next
+## Harness Init
 
-Ask your agent to run `harness-init`. It first asks how much setup you want right now. Quick setup connects the harness to your coding agents, then hands back; [`lean-path.md`](https://github.com/WolvenTech/wolven-harness/blob/main/templates/.agents/skills/harness-init/references/lean-path.md) lists what it leaves for later. Guided setup walks through every step one at a time, and you run or skip each. Either way, the run ends by asking what to work on next. See [Installation](https://wolventech.github.io/wolven-harness/install). Then:
+Ask your agent to run `harness-init`. It first asks how much setup you want right now. 
+
+`Quick setup` connects the harness to your coding agents, then hands back; [`lean-path.md`](https://github.com/WolvenTech/wolven-harness/blob/main/templates/.agents/skills/harness-init/references/lean-path.md) lists what it leaves for later. 
+
+`Guided setup` walks through every step one at a time, and you run or skip each. Either way, the run ends by asking what to work on next. See [Installation](https://wolventech.github.io/wolven-harness/install). Then:
 
 | Step | Skill | What it does |
 | --- | --- | --- |
@@ -70,7 +77,7 @@ Ask your agent to run `harness-init`. It first asks how much setup you want righ
 
 Every skill is listed on the [skills page](https://wolventech.github.io/wolven-harness/skills).
 
-## Check the install
+## Install QMD
 
 `harness-init` connects the harness, but it does not build the search index your agent uses. Install QMD, the local tool that searches your repo's docs, and build the index:
 
@@ -98,4 +105,6 @@ It lists what it will remove, asks before removing anything, and keeps your docs
 
 ## License
 
-MIT © WolvenTech. See [LICENSE](./LICENSE). To contribute, see [CONTRIBUTING.md](CONTRIBUTING.md).
+MIT © WolvenTech. See [LICENSE](./LICENSE). 
+
+To contribute, see [CONTRIBUTING.md](CONTRIBUTING.md).
