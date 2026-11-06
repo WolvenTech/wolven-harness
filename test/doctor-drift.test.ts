@@ -244,10 +244,19 @@ test('proof-quiet-install-drift-pathmap: mapped skills compare cleanly and hand 
 test('doctor-drift: the models block qmd update writes to the index is not a hand edit', async () => {
   const { ctx, harnessHome } = await makeQuietFixture();
   const file = path.join(harnessHome, '.qmd/index.yml');
-  await appendFile(file, 'models:\n  embed: hf:example/model.gguf\n');
+  const rendered = await readFile(file, 'utf8');
+  const models = 'models:\n  embed: hf:example/model.gguf\n';
+
+  await writeFile(file, `${rendered}${models}`);
   assert.deepEqual(await runDriftChecks(ctx), []);
 
-  await appendFile(file, 'extra: true\n');
+  await writeFile(file, `${rendered}${models}extra: true\n`);
+  assert.deepEqual(codes(await runDriftChecks(ctx)), ['doctor-drift-edited']);
+
+  await writeFile(file, `# a local note\n${rendered}`);
+  assert.deepEqual(codes(await runDriftChecks(ctx)), ['doctor-drift-edited']);
+
+  await writeFile(file, `# a local note\n${rendered}${models}`);
   assert.deepEqual(codes(await runDriftChecks(ctx)), ['doctor-drift-edited']);
 });
 

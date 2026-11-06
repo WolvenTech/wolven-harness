@@ -2,8 +2,6 @@ import { createHash } from 'node:crypto';
 import { readFile, realpath } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { isDeepStrictEqual } from 'node:util';
-import { parse } from 'yaml';
 import { gitTopLevel } from '../git.js';
 import { isQuietMapped, type SelectedTemplateFile, selectTemplateFiles } from '../setup/apply.js';
 import { homeInsideRoot } from '../setup/config.js';
@@ -28,17 +26,16 @@ function sha256(bytes: Buffer): string {
   return createHash('sha256').update(bytes).digest('hex');
 }
 
+/** The top-level `models` block `qmd update` writes into the index. */
+const QMD_MODELS_BLOCK = /^models:\n(?:[ \t]+.*\n)*/m;
+
 /**
- * True when an installed QMD index matches the expected one apart from `models`.
- * why: `qmd update` writes its model choices into the file, so that key is not a hand edit.
+ * True when an installed QMD index is the expected one plus a `models` block.
+ * why: `qmd update` writes its model choices into the file, so that block alone is not a hand edit.
  */
 function matchesQmdIndex(installed: Buffer, expected: Buffer): boolean {
-  try {
-    const { models: _models, ...rest } = parse(installed.toString('utf8')) as Record<string, unknown>;
-    return isDeepStrictEqual(rest, parse(expected.toString('utf8')));
-  } catch {
-    return false;
-  }
+  const text = installed.toString('utf8');
+  return QMD_MODELS_BLOCK.test(text) && Buffer.from(text.replace(QMD_MODELS_BLOCK, ''), 'utf8').equals(expected);
 }
 
 /** Resolves the package data file from either `src/doctor` or `dist/doctor`. */
