@@ -4,7 +4,7 @@ description: Connect the harness files to your repo’s existing instructions wi
 
 # Installation
 
-Install `@wolven-tech/harness` globally, then run `wolven-harness setup` at a Git repository's top level or in a folder outside every repository. At a top level, setup does a quiet install under `.wolven-harness/`; outside a repository, it installs the core skills and links for the coding agents you selected. Either way, ask your agent to run the `harness-init` skill there to finish. The command and the skill are separate: setup installs files, while the skill guides you through integrating them with your repository. It shows each diff and waits for your choice before writing.
+Install `@wolven-tech/harness` globally, then run `wolven-harness setup` at a Git repository's top level or in a folder outside every repository. At your repo root, setup does a quiet install under `.wolven-harness/`; outside a repository, it installs the core skills and links for the coding agents you selected. Either way, ask your agent to run the `harness-init` skill there to finish. The command and the skill are separate: setup installs files, while the skill guides you through integrating them with your repository. It shows each diff and waits for your choice before writing.
 
 ## What happens
 
