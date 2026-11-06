@@ -4,7 +4,7 @@ description: Configure local document search and find the decision record behind
 
 # Search
 
-The harness includes a `qmd-first` rule that directs an agent to search the repository's records before answering questions about its architecture. For the search to work, install the QMD CLI and build the local index configured by `.qmd/index.yml`; `wolven-harness setup` installs the configuration but not QMD itself.
+The harness includes a `qmd-first` rule that directs your agent to search the repository's records before answering questions about its architecture. QMD is the local search tool behind it. For the search to work, install QMD with `npm install -g @tobilu/qmd` and build the local index configured by `.qmd/index.yml`; `wolven-harness setup` installs the configuration but not QMD itself.
 
 Ask your agent a question you would otherwise have to investigate by hand:
 
@@ -12,17 +12,17 @@ Ask your agent a question you would otherwise have to investigate by hand:
 
 For this repository, the answer is recorded in [ADR-002](https://github.com/WolvenTech/wolven-harness/blob/main/docs/adrs/adr-002-public-npm-oidc.md). The decision explains that public npm avoids per-consumer registry credentials and uses OIDC trusted publishing for releases.
 
-That answer is specific to the harness repository. In your repository, the source of truth is your own decision record.
+That answer is specific to the harness repository. In your repository, the source of truth is your own decision record, also called an ADR (architecture decision record).
 
 ## Search order
 
-The standing rule asks the agent to:
+The rule asks the agent to:
 
 1. Search the `adrs` collection first with `qmd query -c adrs "<question>"`.
 2. Widen the search with `qmd query "<question>"` if no decision answers it.
 3. Read the full matching record before relying on it and identify the source file in its answer.
 
-ADRs are settled decisions. Specs and PRDs describe active or proposed work; notes may be dated and can become stale.
+ADRs are settled decisions. Specs and PRDs (product requirement documents) describe active or proposed work; notes may be dated and can become stale.
 
 ## Structured queries
 
@@ -39,6 +39,6 @@ For example, search for the npm publishing decision, exclude release troubleshoo
 
 ## Index lifecycle
 
-The `.qmd/index.yml` file defines the local collections. QMD builds and updates the actual index on the developer's machine; setup keeps the QMD local index out of Git (`.qmd/index.sqlite*` is not shared across clones or worktrees). Setup does not install QMD or build the index: install QMD yourself, then run `qmd update` and `qmd embed`, including in any cloud agent environment that should search the repository.
+The `.qmd/index.yml` file defines the local collections. QMD builds and updates the actual index on your machine; setup keeps the QMD local index out of Git (`.qmd/index.sqlite*` is not shared across clones or worktrees). Setup does not install QMD or build the index: install QMD yourself, then run `qmd update` and `qmd embed`, including in any cloud agent environment that should search the repository.
 
 A fresh **git worktree** starts with an empty local index even when the main checkout already built one. Run `qmd status` and check Documents → Total; when it shows `0 files indexed`, run `qmd update` before searching. Agents following the `qmd-first` rule perform the same self-repair automatically.

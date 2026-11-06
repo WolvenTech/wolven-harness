@@ -18,11 +18,11 @@ The agent reads the documentation, then writes a document with the requirements 
 
 Ask for `code-plan` along with a clear implementation description or a spec written with `code-spec`.
 
-The agent identifies the files to change, the tests to add, and the checks to run. Then presents you with a task plan that covers each implementation wave and the verification gates. You approve the plan before work starts.
+The agent identifies the files to change, the tests to add, and the checks to run. It then gives you a task plan that groups the work and names the checks that must pass. You approve the plan before work starts.
 
 ## Execute
 
-Ask for `code-execute` and the agent makes a code change and runs the tests and harness checks. If you pass along a plan written with `code-plan`, it can orchestrate subagents to execute it in one go, stopping at the defined human gates.
+Ask for `code-execute` and the agent makes a code change and runs the tests and harness checks. If you pass along a plan written with `code-plan`, it can use subagents to run it in one go, stopping wherever the plan needs your approval.
 
 You review the diff and results, then proceed.
 
@@ -30,7 +30,7 @@ You review the diff and results, then proceed.
 
 By default, the work stays uncommitted until you ask for `code-commit`.
 
-You can enable automatic commits in `.agents/code-commit.config.yml` with `autocommit: true`. Set `autocommit-rule` to `unit` to commit after each planned work unit, or `wave` to commit after a group of units passes its checks. The defaults are `false` and `wave`; `setup` does not create this config.
+You can enable automatic commits in `.agents/code-commit.config.yml` (`.wolven-harness/.agents/code-commit.config.yml` in a quiet install) with `autocommit: true`. Set `autocommit-rule` to `unit` to commit after each planned work unit, or `wave` to commit after a group of units passes its checks. The defaults are `false` and `wave`; `setup` does not create this config.
 
 Automatic commits require a plan, the `code-commit` skill, and passing validation. Invalid config values stop execution. Without a plan or the commit skill, the work stays uncommitted.
 

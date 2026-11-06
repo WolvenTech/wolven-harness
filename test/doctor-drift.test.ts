@@ -241,6 +241,25 @@ test('proof-quiet-install-drift-pathmap: mapped skills compare cleanly and hand 
   assert.ok(externalFindings.filter((finding) => finding.code.startsWith('doctor-drift-')).length > 1);
 });
 
+test('doctor-drift: the models block qmd update writes to the index is not a hand edit', async () => {
+  const { ctx, harnessHome } = await makeQuietFixture();
+  const file = path.join(harnessHome, '.qmd/index.yml');
+  const rendered = await readFile(file, 'utf8');
+  const models = 'models:\n  embed: hf:example/model.gguf\n';
+
+  await writeFile(file, `${rendered}${models}`);
+  assert.deepEqual(await runDriftChecks(ctx), []);
+
+  await writeFile(file, `${rendered}${models}extra: true\n`);
+  assert.deepEqual(codes(await runDriftChecks(ctx)), ['doctor-drift-edited']);
+
+  await writeFile(file, `# a local note\n${rendered}`);
+  assert.deepEqual(codes(await runDriftChecks(ctx)), ['doctor-drift-edited']);
+
+  await writeFile(file, `# a local note\n${rendered}${models}`);
+  assert.deepEqual(codes(await runDriftChecks(ctx)), ['doctor-drift-edited']);
+});
+
 test('proof-iter1-quiet-stale: a stale unedited quiet file is doctor-drift-stale and a hand edit is doctor-drift-edited', async () => {
   const { ctx, harnessHome, edited } = await makeQuietFixture();
   const earlier = path.join(await mkdtemp(path.join(tmpdir(), 'known-forms-')), 'earlier');
