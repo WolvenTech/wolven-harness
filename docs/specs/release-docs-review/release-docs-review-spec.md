@@ -53,7 +53,7 @@ Known mismatches, found by reading the files and by running `setup` and `doctor`
 
 This list is the starting point. R2.1 still checks every statement on every page.
 
-`harness-init` links `.qmd` in a quiet install but builds no index, and `setup` does not install QMD. In the clean repository, a hand-made `.qmd` link plus `qmd update` took `doctor` to `doctor: ok`. That run stood in for `harness-init`, which has not been run for this spec. `qmd update` also writes a `models:` block into `.qmd/index.yml`, which made `doctor` warn `doctor-drift-edited` on every install that followed the README. Under R2.7 the Human chose to fix that before the release, as its own change to `src/doctor/drift.ts`.
+`harness-init` links `.qmd` in a quiet install but builds no index, and `setup` does not install QMD. In the clean repository, a hand-made `.qmd` link plus `qmd update` took `doctor` to `doctor: ok`. That run stood in for `harness-init`, which has not been run for this spec. `qmd update` also writes a `models:` block into `.qmd/index.yml`, which made `doctor` warn `doctor-drift-edited` on every install that followed the README. Under R2.7 the Human chose to fix that before the release, as its own commit to `src/doctor/drift.ts` in the same pull request.
 
 ## Surface walk
 
@@ -61,7 +61,7 @@ This list is the starting point. R2.1 still checks every statement on every page
 - **Out of mutate scope (unchanged):**
   - `site/release.md` and `site/contributing.md`
   - `site/.vitepress/config.ts`
-  - `src/setup/**`, `src/doctor/**`, `src/uninstall/**` and every other `src/` file
+  - `src/setup/**`, `src/doctor/**`, `src/uninstall/**` and every other `src/` file, apart from the `src/doctor/drift.ts` fix R2.7 brought in
   - `templates/**`
   - `AGENTS.md` and `CONTRIBUTING.md`
   - `.github/workflows/**`, `release-please-config.json` and `.wolven-harness.json`'s schema
@@ -99,7 +99,7 @@ Commands for the proofs are under [Proof commands](#proof-commands).
 |----|------------|--------------|------------------|
 | R3.1 | (AC-3.1) The `setup` line does not imply the default install writes `WOLVEN.md` | `proof-release-docs-review-help-setup` | Command, prints `0` |
 | R3.2 | (AC-3.1) Each `--help` summary matches the `site/commands.md` overview | `proof-release-docs-review-help-summaries` | Inspect `--help` beside the overview table |
-| R3.3 | (AC-3.2) Only `printUsage` strings change under `src/`, so commands, flags and exit codes behave as before | `proof-release-docs-review-help-wording-only` | Command: the diff is `src/cli.ts` only, its hunks sit in `printUsage`, and `pnpm test` passes |
+| R3.3 | (AC-3.2) Under `src/`, only `printUsage` strings and the `src/doctor/drift.ts` fix change, so commands, flags and exit codes behave as before | `proof-release-docs-review-help-wording-only` | Command: the diff is `src/cli.ts` and `src/doctor/drift.ts`, the `src/cli.ts` hunks sit in `printUsage`, and `pnpm test` passes |
 
 ### R4 — Release
 
@@ -224,7 +224,7 @@ grep -ohE 'https://[^) >"]+' README.md site/index.md site/install.md site/cycle.
 - An upgrade guide from 0.3.x.
 - `site/release.md` and `site/contributing.md`.
 - Positioning rewrites and onboarding restructuring.
-- Any change to CLI behaviour, flags, exit codes or finding codes.
+- Any change to CLI flags, exit codes or finding codes, or to CLI behaviour beyond the fix R2.7 brought in.
 
 ## Pragmatic-guard refuses
 
@@ -279,7 +279,7 @@ F=docs/specs/release-docs-review/release-docs-review-spec.md; for p in $(sed -n 
 |------|--------|
 | `setup`'s closing summary still tells the reader to remove the harness by hand | `src/setup/summary.ts` is outside the PRD's scope; a separate change |
 | `entry-modes.md` in the `harness-init` template says four rule bodies | `templates/**` is outside the PRD's scope; a separate change |
-| Fixing a defect found during the review | Its own change, after the Human's decision under R2.7 |
+| Fixing a defect found during the review | Its own commit, after the Human's decision under R2.7 |
 | An upgrade path for 0.3.x installs | The release changelog, as the PRD decides |
 | An executable plan from this skill | `code-plan` only |
 

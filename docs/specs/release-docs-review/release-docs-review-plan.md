@@ -58,4 +58,4 @@ Units run strictly in order. Units 02, 03 and 04 share pages, and unit 06 must r
 | `HEAD` commit | `7275eef` |
 | `git status` summary | dirty — only this initiative's PRD, spec and plan |
 | Intended diff scope | `README.md`, the eight Guide pages, `src/cli.ts`, the three named tests where a pinned phrase is stale |
-| Decision on every discrepancy | R2.8 added on the Human's word during execution, with AC-2.4 in the PRD — resolved. `qmd update` adds a `models:` block to `.qmd/index.yml`, so `doctor` warned `doctor-drift-edited` on every install that followed the README — the Human chose to fix it before the release, as its own change outside this wave's commit |
+| Decision on every discrepancy | R2.8 added on the Human's word during execution, with AC-2.4 in the PRD — resolved. `qmd update` adds a `models:` block to `.qmd/index.yml`, so `doctor` warned `doctor-drift-edited` on every install that followed the README — the Human chose to fix it before the release, as its own commit in the same pull request |

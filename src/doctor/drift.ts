@@ -2,6 +2,8 @@ import { createHash } from 'node:crypto';
 import { readFile, realpath } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { isDeepStrictEqual } from 'node:util';
+import { parse } from 'yaml';
 import { gitTopLevel } from '../git.js';
 import { isQuietMapped, type SelectedTemplateFile, selectTemplateFiles } from '../setup/apply.js';
 import { homeInsideRoot } from '../setup/config.js';
@@ -24,6 +26,19 @@ interface KnownForms {
 /** sha-256 hex of installed bytes. */
 function sha256(bytes: Buffer): string {
   return createHash('sha256').update(bytes).digest('hex');
+}
+
+/**
+ * True when an installed QMD index matches the expected one apart from `models`.
+ * why: `qmd update` writes its model choices into the file, so that key is not a hand edit.
+ */
+function matchesQmdIndex(installed: Buffer, expected: Buffer): boolean {
+  try {
+    const { models: _models, ...rest } = parse(installed.toString('utf8')) as Record<string, unknown>;
+    return isDeepStrictEqual(rest, parse(expected.toString('utf8')));
+  } catch {
+    return false;
+  }
 }
 
 /** Resolves the package data file from either `src/doctor` or `dist/doctor`. */
@@ -149,6 +164,7 @@ export async function runDriftChecks(
           ? undefined
           : Buffer.from(expectedText, 'utf8');
     if (expectedBytes !== undefined && bytes.equals(expectedBytes)) continue;
+    if (installed === QMD_INDEX && expectedBytes !== undefined && matchesQmdIndex(bytes, expectedBytes)) continue;
 
     const forms = known.forms[installed] ?? [];
     if (forms.includes(sha256(bytes))) {
