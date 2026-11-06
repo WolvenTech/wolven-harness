@@ -74,8 +74,9 @@ and Risk is left out at Low.
 
 **Title:** `docs(specs): record an intake step`
 
-Task points at the relevant spec or plan path. Verification is `N/A` with a
-stated reason when no gate ran for a docs-only change, and any gate that ran
+In Task, link the relevant spec or plan at a revision where it exists.
+Verification is `N/A` with a stated reason when no gate ran for a docs-only
+change, and any gate that ran
 is named with its command. The Before merge boxes stay **unchecked**
 because implementation has not shipped yet. Pre-merge closure appears when
 the diff adds or changes files under `docs/specs`, `docs/prds` or

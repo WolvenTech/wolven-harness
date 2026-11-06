@@ -11,6 +11,9 @@ the round to the artifact, and surface remaining questions, typed Unresolved
 rows, and Human gates. Keep pending feedback in open items, separate from
 incorporated changes.
 
+Highlight each Human gate separately from automatic gates. State who decides,
+what they decide, and what waits.
+
 ## PRD
 
 Open with the confirmed problem. Use `Entrega / Resultado esperado / Casos de
@@ -29,9 +32,7 @@ wave for unphased work.
 
 Lead with wave blocks and gates, naming what each gate blocks. Put a horizontal
 divider before the first wave, between waves, and after the last. Show units
-only for a single wave or fewer than ten units overall, with unit, dependency,
+only for a single wave or fewer than ten units overall, with unit, wave, dependency,
 owned paths, `Subagent`, and Done when.
 
-Highlight each Human gate separately from automatic gates: state who decides,
-what they decide, and what waits. Show automatic checks and stop conditions
-under the affected wave when present.
+Show automatic checks and stop conditions under the affected wave when present.

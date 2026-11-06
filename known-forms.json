@@ -77,6 +77,8 @@
     ],
     ".agents/skills/code-execute/SKILL.md": [
       "1669327ce2fa1f10b1e3684e1b3399b06d61caec98e5a0ecde5a45bba3497e83",
+      "516b3c758624543c7c81d4aca6fbad651ec83da1f00d1c763591a54a4ffcf2be",
+      "52eb64493a022ea5010048512f36f0462ed7457e8c0e92c586b77a87ca27f724",
       "5465430f71338a72ad9fce907d821e5cd3a071df896d20e468426b2270fbfbb0",
       "63806aae97e51c681bfe32489b024c067e9a5f9514155c1b45a4d657a84a6ff0",
       "c2fb85d3438aa8cd39311ae1d08e55d587f55b036cc8b3efb04c40173f83803a",
@@ -128,12 +130,14 @@
       "db6e27f2122ac96a4fc5a8fa4b727cfa5ec05ae7fc0f9b80c8a9db26172662f7"
     ],
     ".agents/skills/code-pr/references/pr-body-template.md": [
+      "3efdec5867482f73960c355fe324a2e0f27d1c2ecbe5b189c7a3c664006998a8",
       "4abd6a5fcb7ca150df2730d4fb1dd0ceaa257858433cfa31b44973a04020e3ad",
       "557c841fc3b7a371be36ba86ffca0a3e80a839f8bb683d7f556864dd0e74603c",
       "5d691aead2f7779d64874e547989b3648bc3df3f9f23ca30de11d4ca89cdaa61",
       "86cc2d9b3f7d1218a8f36b9fcf15f9d8a3545f80d3820fc384b46312bf268ed3",
       "a1e5b9c0862773d3c26940673f2ba8d28375fbab56a49b6f246217cf145a6b8e",
-      "cb39251f3adb6926fca0a9af803ea2e1576db6328694b519e64123620ae596cf"
+      "cb39251f3adb6926fca0a9af803ea2e1576db6328694b519e64123620ae596cf",
+      "ffd532ab5d1cf68d301ecc4aab0b937ba1be24e56fed0ae2c61a58679c43167c"
     ],
     ".agents/skills/code-pr/references/pre-merge-closure.md": [
       "2e44431870e329268f52a6131ff7b136f798fa9bf63bec31ed9e3f34b8d1d964",
@@ -180,7 +184,8 @@
       "b05d9f581967678148293f932f04f48983654073dbc5130ff23ce1b3300e83f3"
     ],
     ".agents/skills/code-spec/references/approval-summary.md": [
-      "6cdbb1bd16c2b8a7e99ae7565a5413181814bc38c85c90a1e488455f1bc5e078"
+      "6cdbb1bd16c2b8a7e99ae7565a5413181814bc38c85c90a1e488455f1bc5e078",
+      "d581ca33ab035c0d209934b60dc6d44ca0a6cb90677387690d7469cfebfb2fb7"
     ],
     ".agents/skills/create-prd/SKILL.md": [
       "03113971e6d49393970581a6554f3c5c027259d70c20c4463dfa90d6a2297456",
@@ -190,7 +195,8 @@
       "ed49c74629e0c7ae638947b351fae69caa522fb2e7741d924976aacd4196cc7b"
     ],
     ".agents/skills/create-prd/references/approval-summary.md": [
-      "6cdbb1bd16c2b8a7e99ae7565a5413181814bc38c85c90a1e488455f1bc5e078"
+      "6cdbb1bd16c2b8a7e99ae7565a5413181814bc38c85c90a1e488455f1bc5e078",
+      "d581ca33ab035c0d209934b60dc6d44ca0a6cb90677387690d7469cfebfb2fb7"
     ],
     ".agents/skills/create-prd/references/prd-template.md": [
       "c36105b236d99e2a771749334231938c405c8781c41d63ca82826dc00fe1aee3"

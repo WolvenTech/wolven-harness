@@ -145,6 +145,9 @@ and show a compact table of relevant units:
 | Unit | Executor | State | Latest activity or result |
 | --- | --- | --- | --- |
 
+Use equivalent headings in the chat language. In Portuguese, use
+**Unidade / Quem executa / Estado / Última atividade ou resultado**.
+
 Prefix the validated state with ✅ after its proof gate passes.
 Show the observed gate outcome when known and what comes next or stays
 blocked. At an existing Human gate, post the decision needed, its owner,

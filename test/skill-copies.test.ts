@@ -74,7 +74,21 @@ test('proof-approval-summary-wiring; proof-approval-summary-drift', async () => 
   }
 });
 
-test('proof-approval-summary-format; proof-approval-summary-empty; proof-approval-summary-human-gate; proof-approval-summary-revision; proof-approval-summary-open-feedback', async () => {
+test('proof-approval-summary-human-gate', async () => {
+  const ref = await readFile(path.join(INSTALLED, 'code-spec/references/approval-summary.md'), 'utf8');
+  const [shared, skillSections] = ref.split('\n## PRD\n');
+  assert.ok(skillSections, 'expected the PRD section after the shared instructions');
+  assert.match(
+    shared.replace(/\s+/g, ' '),
+    /Human gate separately from automatic gates.*who decides, what they decide, and what waits/i,
+    'the Human-gate rule must appear in the shared instructions before ## PRD',
+  );
+  const plan = skillSections.split('\n## Plan\n')[1] ?? '';
+  assert.doesNotMatch(plan, /who decides,\s*what they decide, and what waits/i);
+  assert.match(plan, /automatic checks and stop conditions\s+under the affected wave/i);
+});
+
+test('proof-approval-summary-format; proof-approval-summary-empty; proof-approval-summary-revision; proof-approval-summary-open-feedback', async () => {
   const ref = (await readFile(path.join(INSTALLED, 'code-spec/references/approval-summary.md'), 'utf8')).replace(
     /\s+/g,
     ' ',
@@ -85,11 +99,10 @@ test('proof-approval-summary-format; proof-approval-summary-empty; proof-approva
     /source and scope.*technical flow.*Mermaid.*affected surfaces.*obligation IDs.*named proofs and evidence/i,
     /one row per wave.*one row per obligation/i,
     /wave blocks and gates.*what each gate blocks.*horizontal divider before the first wave, between waves, and after the last/i,
-    /only for a single wave or fewer than ten units overall.*unit, dependency, owned paths, `Subagent`, and Done when/i,
+    /only for a single wave or fewer than ten units overall.*unit, wave, dependency, owned paths, `Subagent`, and Done when/i,
     /empty findings or open items as “None”/i,
     /first draft, omit the delta/i,
     /do not invent a wave for unphased work/i,
-    /Human gate separately from automatic gates.*who decides, what they decide, and what waits.*automatic checks and stop conditions/i,
     /material revision.*same summary.*link the revised artifact.*concise delta.*map decisions.*remaining questions, typed Unresolved rows, and Human gates/i,
     /pending feedback in open items, separate from incorporated changes/i,
   ])

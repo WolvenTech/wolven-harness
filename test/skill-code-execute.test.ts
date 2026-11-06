@@ -223,6 +223,8 @@ test('proof-execution-chat-checkpoint', async () => {
     );
     assert.match(text, /Link the real plan when present, give the wave/);
     assert.match(text, /\| Unit \| Executor \| State \| Latest activity or result \|/);
+    assert.match(text, /Use equivalent headings in the chat language/);
+    assert.match(text, /Unidade \/ Quem executa \/ Estado \/ Última atividade ou resultado/);
     assert.match(text, /Prefix the validated state with ✅ after its proof gate passes/);
     assert.match(text, /observed gate outcome when known and what comes next or stays blocked/);
   }

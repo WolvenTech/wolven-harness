@@ -362,6 +362,9 @@ test('proof-pr-body-artifact-context: existing fields carry a reviewer-resolvabl
   );
   assert.match(section(example, 'Summary'), /\*\*How:\*\* Use the decided linked layout/);
   assert.match(template, /revision where they exist/);
+  const docsOnly = template.split('\n### Docs-only change, mid-initiative\n')[1] ?? '';
+  assert.match(docsOnly, /In Task, link the relevant spec or plan at a revision where it exists/);
+  assert.doesNotMatch(docsOnly, /Task points at/);
   assert.match(skill.body, /recorded decision explaining the diff/);
 });
 
