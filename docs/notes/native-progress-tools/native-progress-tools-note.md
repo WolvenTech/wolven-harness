@@ -9,7 +9,7 @@ status: draft
 
 ## Question
 
-How can `code-execute` maintain native progress in each active runtime, and which state still needs the chat checkpoint? This note supports [the execution reporting obligations](../../specs/approval-summary/approval-summary-spec.md).
+How can `code-execute` maintain native progress in each active runtime, and which state still needs the chat checkpoint? This note supports [the execution reporting obligations](../../specs/archived/approval-summary/approval-summary-spec.md).
 
 ## Findings
 
@@ -30,8 +30,8 @@ How can `code-execute` maintain native progress in each active runtime, and whic
 
 ### Applying the evidence
 
-- Use the active session's callable tools and their schemas. The native view tracks live status. At unit finish, gates and wave transitions, post the chat table with a link to the real plan and with executor, blocker and evidence details the native view cannot represent. For any absent or failed tracker, report progress in chat. A failed check or pending Human decision stays open. [Execution reporting obligations](../../specs/approval-summary/approval-summary-spec.md#r4--execution-reporting).
-- Use the plan's execution/resume section as the record on resume. A checklist item, task owner or plan approval notification does not replace dispatch, the observed proof gate, or the required Human decision. [Execution workflow](../../../.agents/skills/code-execute/SKILL.md), [execution reporting obligations](../../specs/approval-summary/approval-summary-spec.md#r4--execution-reporting).
+- Use the active session's callable tools and their schemas. The native view tracks live status. At unit finish, gates and wave transitions, post the chat table with a link to the real plan and with executor, blocker and evidence details the native view cannot represent. For any absent or failed tracker, report progress in chat. A failed check or pending Human decision stays open. [Execution reporting obligations](../../specs/archived/approval-summary/approval-summary-spec.md#r4--execution-reporting).
+- Use the plan's execution/resume section as the record on resume. A checklist item, task owner or plan approval notification does not replace dispatch, the observed proof gate, or the required Human decision. [Execution workflow](../../../.agents/skills/code-execute/SKILL.md), [execution reporting obligations](../../specs/archived/approval-summary/approval-summary-spec.md#r4--execution-reporting).
 
 ## Local probes
 
@@ -54,4 +54,4 @@ On 2026-11-06, isolated temporary directories received a prompt to create two te
 
 ## Open questions
 
-The live checks covered the local CLI sessions listed above. The Cursor desktop UI and a Codex session with the tracker exposed were not exercised. The execution workflow can select a tool from the active session at runtime and fall back to chat when unavailable. [Execution reporting obligations](../../specs/approval-summary/approval-summary-spec.md#r4--execution-reporting).
+The live checks covered the local CLI sessions listed above. The Cursor desktop UI and a Codex session with the tracker exposed were not exercised. The execution workflow can select a tool from the active session at runtime and fall back to chat when unavailable. [Execution reporting obligations](../../specs/archived/approval-summary/approval-summary-spec.md#r4--execution-reporting).

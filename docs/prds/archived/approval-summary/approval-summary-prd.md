@@ -2,7 +2,7 @@
 type: prd
 title: Approval summaries and execution progress
 description: Give Humans enough context to review drafts in chat and follow the approved work as it runs.
-status: stable
+status: deprecated
 ---
 
 # Approval summaries and execution progress

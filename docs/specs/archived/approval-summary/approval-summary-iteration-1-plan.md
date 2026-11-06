@@ -2,12 +2,12 @@
 type: spec
 title: Approval summaries and execution checkpoints, review fix iteration 1
 description: Moves the Human-gate rule into the shared approval summary and closes three smaller gaps found in the PR review, under obligations the spec already names.
-status: stable
+status: deprecated
 ---
 
 # Approval summaries and execution checkpoints, review fix iteration 1: plan
 
-**Source** — [Approval summaries and execution checkpoints](approval-summary-spec.md), `stable`, and the [PR #101 review](https://github.com/WolvenTech/wolven-harness/pull/101#pullrequestreview-5807697463) of `199db3b`.
+**Source** — [Approval summaries and execution checkpoints](approval-summary-spec.md), approved before archival, and the [PR #101 review](https://github.com/WolvenTech/wolven-harness/pull/101#pullrequestreview-5807697463) of `199db3b`.
 
 **Human gate** — The Human approves this plan and gives a separate go-ahead before any unit starts.
 
@@ -75,7 +75,7 @@ Units 01–03 have no dependency between them, and all are `inline`, so they run
 | Field | Value |
 | --- | --- |
 | Unit identifier | 01 — Every approval summary carries the Human-gate rule and the unit wave (Wave 1) |
-| Spec/plan paths | `docs/specs/approval-summary/approval-summary-spec.md` / `docs/specs/approval-summary/approval-summary-iteration-1-plan.md` |
+| Spec/plan paths | `docs/specs/archived/approval-summary/approval-summary-spec.md` / `docs/specs/archived/approval-summary/approval-summary-iteration-1-plan.md` |
 | Obligation / proof status | F1–F2, R1.3 and AC-1.1 — done. Scoped proof failed on the unchanged 199db3b reference before the move and passed afterward. All 62 approval tests passed, and the four copies matched byte for byte. |
 | HEAD commit | `199db3b` |
 | Git status summary | Dirty — `docs/specs/approval-summary/approval-summary-iteration-1-plan.md`. |
@@ -87,7 +87,7 @@ Units 01–03 have no dependency between them, and all are `inline`, so they run
 | Field | Value |
 | --- | --- |
 | Unit identifier | 02 — Checkpoint headings follow the chat language (Wave 1) |
-| Spec/plan paths | `docs/specs/approval-summary/approval-summary-spec.md` / `docs/specs/approval-summary/approval-summary-iteration-1-plan.md` |
+| Spec/plan paths | `docs/specs/archived/approval-summary/approval-summary-spec.md` / `docs/specs/archived/approval-summary/approval-summary-iteration-1-plan.md` |
 | Obligation / proof status | F3, R4.6 — done. The checkpoint proof verifies chat-language headings and the Portuguese labels in both copies. All 25 execution tests passed. |
 | HEAD commit | `199db3b` |
 | Git status summary | Dirty — `.agents/skills/code-spec/references/approval-summary.md`, `.agents/skills/create-prd/references/approval-summary.md`, `templates/.agents/skills/code-spec/references/approval-summary.md`, `templates/.agents/skills/create-prd/references/approval-summary.md`, `test/skill-copies.test.ts`, `docs/specs/approval-summary/approval-summary-iteration-1-plan.md`. |
@@ -99,7 +99,7 @@ Units 01–03 have no dependency between them, and all are `inline`, so they run
 | Field | Value |
 | --- | --- |
 | Unit identifier | 03 — The docs-only scenario links Task at a revision (Wave 1) |
-| Spec/plan paths | `docs/specs/approval-summary/approval-summary-spec.md` / `docs/specs/approval-summary/approval-summary-iteration-1-plan.md` |
+| Spec/plan paths | `docs/specs/archived/approval-summary/approval-summary-spec.md` / `docs/specs/archived/approval-summary/approval-summary-iteration-1-plan.md` |
 | Obligation / proof status | F4, R6.1 — done. The docs-only scenario requires a link at a revision and the proof rejects the old wording. All 26 PR contract tests passed. |
 | HEAD commit | `199db3b` |
 | Git status summary | Dirty — `.agents/skills/code-execute/SKILL.md`, `.agents/skills/code-spec/references/approval-summary.md`, `.agents/skills/create-prd/references/approval-summary.md`, `templates/.agents/skills/code-execute/SKILL.md`, `templates/.agents/skills/code-spec/references/approval-summary.md`, `templates/.agents/skills/create-prd/references/approval-summary.md`, `test/skill-code-execute.test.ts`, `test/skill-copies.test.ts`, `docs/specs/approval-summary/approval-summary-iteration-1-plan.md`. |
@@ -111,7 +111,7 @@ Units 01–03 have no dependency between them, and all are `inline`, so they run
 | Field | Value |
 | --- | --- |
 | Unit identifier | 04 — Preserve template recognition on upgrade (Wave 1) |
-| Spec/plan paths | `docs/specs/approval-summary/approval-summary-spec.md` / `docs/specs/approval-summary/approval-summary-iteration-1-plan.md` |
+| Spec/plan paths | `docs/specs/archived/approval-summary/approval-summary-spec.md` / `docs/specs/archived/approval-summary/approval-summary-iteration-1-plan.md` |
 | Obligation / proof status | Template fingerprints — done. Regeneration retained all 322 entries from 199db3b, and all 17 fingerprint and doctor-drift tests passed. |
 | HEAD commit | `199db3b` |
 | Git status summary | Dirty — `.agents/skills/code-execute/SKILL.md`, `.agents/skills/code-pr/references/pr-body-template.md`, `.agents/skills/code-spec/references/approval-summary.md`, `.agents/skills/create-prd/references/approval-summary.md`, `templates/.agents/skills/code-execute/SKILL.md`, `templates/.agents/skills/code-pr/references/pr-body-template.md`, `templates/.agents/skills/code-spec/references/approval-summary.md`, `templates/.agents/skills/create-prd/references/approval-summary.md`, `test/skill-code-execute.test.ts`, `test/skill-code-pr.test.ts`, `test/skill-copies.test.ts`, `docs/specs/approval-summary/approval-summary-iteration-1-plan.md`. |
@@ -123,7 +123,7 @@ Units 01–03 have no dependency between them, and all are `inline`, so they run
 | Field | Value |
 | --- | --- |
 | Unit identifier | 05 — **Iteration gate and finding report** (Wave 1) |
-| Spec/plan paths | `docs/specs/approval-summary/approval-summary-spec.md` / `docs/specs/approval-summary/approval-summary-iteration-1-plan.md` |
+| Spec/plan paths | `docs/specs/archived/approval-summary/approval-summary-spec.md` / `docs/specs/archived/approval-summary/approval-summary-iteration-1-plan.md` |
 | Obligation / proof status | All suites and F1–F4 re-report — done. The full suite passed 1,175 tests. Build, lint, validate, comments, and the diff whitespace check passed. |
 | HEAD commit | `199db3b` |
 | Git status summary | Dirty — `.agents/skills/code-execute/SKILL.md`, `.agents/skills/code-pr/references/pr-body-template.md`, `.agents/skills/code-spec/references/approval-summary.md`, `.agents/skills/create-prd/references/approval-summary.md`, `known-forms.json`, `templates/.agents/skills/code-execute/SKILL.md`, `templates/.agents/skills/code-pr/references/pr-body-template.md`, `templates/.agents/skills/code-spec/references/approval-summary.md`, `templates/.agents/skills/create-prd/references/approval-summary.md`, `test/skill-code-execute.test.ts`, `test/skill-code-pr.test.ts`, `test/skill-copies.test.ts`, `docs/specs/approval-summary/approval-summary-iteration-1-plan.md`. |

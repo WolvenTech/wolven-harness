@@ -2,12 +2,12 @@
 type: spec
 title: Approval summaries and execution checkpoints
 description: Define shared approval summaries and execution progress reporting for the repository and shipped skills.
-status: stable
+status: deprecated
 ---
 
 # Approval summaries and execution checkpoints
 
-**Source** — [Approval summaries and execution progress](../../prds/approval-summary/approval-summary-prd.md), `stable`.\
+**Source** — [Approval summaries and execution progress](../../../prds/archived/approval-summary/approval-summary-prd.md), approved before archival.\
 **Next** — Human approval → `code-plan` → `code-execute`.\
 **Structural proof** — `proof-approval-summary-spec-obligations`.
 
@@ -21,7 +21,7 @@ status: stable
 | `src/setup/skill-sets.ts`, `src/setup/apply.ts`, `test/skills-command.test.ts` | Yes | `code-spec` and `code-plan` are core. `create-prd` is optional and can be installed by itself. |
 | `test/helpers/skill-contract.ts`, `test/skill-copies.test.ts`, and `test/skill-*.test.ts` | Yes | Test skill instructions, file links and repo/template parity. The link helper already permits one specific shared reference between skill folders. |
 | `scripts/known-forms.mjs`, `known-forms.json` | Yes | Record shipped template forms for offline drift classification under ADR-007. |
-| [Native progress tools research](../../notes/native-progress-tools/native-progress-tools-note.md) | Yes | Documents the callable session tools and the client notifications separately. Local CLI probes observed Claude and Cursor updates. |
+| [Native progress tools research](../../../notes/native-progress-tools/native-progress-tools-note.md) | Yes | Documents the callable session tools and the client notifications separately. Local CLI probes observed Claude and Cursor updates. |
 
 ## Surface walk
 
@@ -179,8 +179,8 @@ node --input-type=module <<'JS'
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
-const prd = readFileSync('docs/prds/approval-summary/approval-summary-prd.md', 'utf8');
-const spec = readFileSync('docs/specs/approval-summary/approval-summary-spec.md', 'utf8');
+const prd = readFileSync('docs/prds/archived/approval-summary/approval-summary-prd.md', 'utf8');
+const spec = readFileSync('docs/specs/archived/approval-summary/approval-summary-spec.md', 'utf8');
 const rows = [...spec.matchAll(/^\| (R\d\.\d) \| (AC-\d\.\d) \| .*? \| `(proof-[\w-]+)`/gm)];
 assert.deepEqual(rows.map((row) => row[2]).sort(), [...prd.matchAll(/^#### (AC-\d\.\d):/gm)].map((row) => row[1]).sort());
 assert.equal(new Set(rows.map((row) => row[1])).size, rows.length);

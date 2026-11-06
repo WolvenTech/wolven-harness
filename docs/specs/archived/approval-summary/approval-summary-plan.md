@@ -2,12 +2,12 @@
 type: spec
 title: Approval summaries and execution checkpoints plan
 description: Order the work for shared approval summaries, execution checkpoints, review closeout, and the pull request body.
-status: stable
+status: deprecated
 ---
 
 # Approval summaries and execution checkpoints — plan
 
-**Source** — [Approval summaries and execution checkpoints](approval-summary-spec.md), `stable`.
+**Source** — [Approval summaries and execution checkpoints](approval-summary-spec.md), approved before archival.
 
 **Human gate** — The plan is stable. The Human gives a separate go-ahead before any implementation unit starts.
 
@@ -30,7 +30,7 @@ All units are in Wave 1. In Owns, a path prefixed by `{.,templates}/.agents/skil
 
 Unit 01 covers the reference and the standalone install check for R3.1. Unit 05 covers the final generated fingerprints after the template paths settle.
 
-For unit 02, use [the runtime research](../../notes/native-progress-tools/native-progress-tools-note.md) as implementation context for the locked R4.2 rules. The contract checks exercise the written instructions. The scenario review checks how they apply across the supported runtimes.
+For unit 02, use [the runtime research](../../../notes/native-progress-tools/native-progress-tools-note.md) as implementation context for the locked R4.2 rules. The contract checks exercise the written instructions. The scenario review checks how they apply across the supported runtimes.
 
 ### Verification commands
 
@@ -71,7 +71,7 @@ Units 01–04 are independently ready after the Human go-ahead. Run them in para
 | Field | Value |
 | --- | --- |
 | Unit identifier | 01 — Present artifact approval summaries (Wave 1 frontier) |
-| Spec/plan paths | `docs/specs/approval-summary/approval-summary-spec.md` / `docs/specs/approval-summary/approval-summary-plan.md` |
+| Spec/plan paths | `docs/specs/archived/approval-summary/approval-summary-spec.md` / `docs/specs/archived/approval-summary/approval-summary-plan.md` |
 | Obligation / proof status | R1.1–R3.2 — done. 61 approval contract tests passed. |
 | `HEAD` commit | `7275eef` |
 | `git status` summary | Dirty — untracked PRD, spec, plan, and runtime research note. No implementation edits. |
@@ -83,7 +83,7 @@ Units 01–04 are independently ready after the Human go-ahead. Run them in para
 | Field | Value |
 | --- | --- |
 | Unit identifier | 02 — Report execution progress and checkpoints (Wave 1 frontier) |
-| Spec/plan paths | `docs/specs/approval-summary/approval-summary-spec.md` / `docs/specs/approval-summary/approval-summary-plan.md` |
+| Spec/plan paths | `docs/specs/archived/approval-summary/approval-summary-spec.md` / `docs/specs/archived/approval-summary/approval-summary-plan.md` |
 | Obligation / proof status | R4.1–R4.6 — done. 25 execution contract tests passed. |
 | `HEAD` commit | `7275eef` |
 | `git status` summary | Dirty — untracked PRD, spec, plan, and runtime research note. No implementation edits. |
@@ -95,7 +95,7 @@ Units 01–04 are independently ready after the Human go-ahead. Run them in para
 | Field | Value |
 | --- | --- |
 | Unit identifier | 03 — Summarize review closeout in chat (Wave 1 frontier) |
-| Spec/plan paths | `docs/specs/approval-summary/approval-summary-spec.md` / `docs/specs/approval-summary/approval-summary-plan.md` |
+| Spec/plan paths | `docs/specs/archived/approval-summary/approval-summary-spec.md` / `docs/specs/archived/approval-summary/approval-summary-plan.md` |
 | Obligation / proof status | R5.1–R5.2 — done. Both named proofs passed in the 15-test review suite. |
 | `HEAD` commit | `7275eef` |
 | `git status` summary | Dirty — untracked PRD, spec, plan, and runtime research note. No implementation edits. |
@@ -107,7 +107,7 @@ Units 01–04 are independently ready after the Human go-ahead. Run them in para
 | Field | Value |
 | --- | --- |
 | Unit identifier | 04 — Format and link the PR body (Wave 1 frontier) |
-| Spec/plan paths | `docs/specs/approval-summary/approval-summary-spec.md` / `docs/specs/approval-summary/approval-summary-plan.md` |
+| Spec/plan paths | `docs/specs/archived/approval-summary/approval-summary-spec.md` / `docs/specs/archived/approval-summary/approval-summary-plan.md` |
 | Obligation / proof status | R6.1–R6.3 — done. 26 PR contract tests passed after verifying the linked PRD at the pinned revision. |
 | `HEAD` commit | `7275eef` |
 | `git status` summary | Dirty — untracked PRD, spec, plan, and runtime research note. No implementation edits. |
@@ -119,7 +119,7 @@ Units 01–04 are independently ready after the Human go-ahead. Run them in para
 | Field | Value |
 | --- | --- |
 | Unit identifier | 05 — Preserve template recognition on upgrade (Wave 1 frontier) |
-| Spec/plan paths | `docs/specs/approval-summary/approval-summary-spec.md` / `docs/specs/approval-summary/approval-summary-plan.md` |
+| Spec/plan paths | `docs/specs/archived/approval-summary/approval-summary-spec.md` / `docs/specs/archived/approval-summary/approval-summary-plan.md` |
 | Obligation / proof status | R3.1 template fingerprints — done. All 17 known-forms and doctor-drift tests passed, and all previous fingerprints were preserved. |
 | `HEAD` commit | `7275eef` |
 | `git status` summary | Dirty — four initiative documents and validated unit 01–04 edits. No existing `known-forms.json` edits. |
@@ -131,7 +131,7 @@ Units 01–04 are independently ready after the Human go-ahead. Run them in para
 | Field | Value |
 | --- | --- |
 | Unit identifier | 06 — Wave 1 and final gate (Wave 1 frontier) |
-| Spec/plan paths | `docs/specs/approval-summary/approval-summary-spec.md` / `docs/specs/approval-summary/approval-summary-plan.md` |
+| Spec/plan paths | `docs/specs/archived/approval-summary/approval-summary-spec.md` / `docs/specs/archived/approval-summary/approval-summary-plan.md` |
 | Obligation / proof status | Wave 1 integrated checks and scenario review — done. All 1,174 tests passed, plus build, lint, validate and comments. PR Markdown rendered with and without Task. |
 | `HEAD` commit | `7275eef` |
 | `git status` summary | Dirty — four initiative documents, six skill updates and tests, and generated template fingerprints. |
