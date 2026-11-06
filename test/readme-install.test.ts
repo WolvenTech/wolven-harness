@@ -142,8 +142,8 @@ test('proof-docs-basics-path: README and the harness-init page explain quick set
   const page = await readDoc('site/install.md');
   const basics = section(page, 'Quick setup and guided setup');
 
-  assert.match(readme, /Quick setup connects the harness/);
-  assert.match(readme, /Guided setup walks through every step one at a time/);
+  assert.match(readme, /`Quick setup` connects the harness/);
+  assert.match(readme, /`Guided setup` walks through every step one at a time/);
   assert.match(basics, /asking how much setup you want right now/);
   assert.match(
     basics,
