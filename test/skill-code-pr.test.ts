@@ -223,7 +223,8 @@ test('proof-templates-trim-pr-before-merge: two standing boxes plus the docs-tri
   const template = await skill.read('references/pr-body-template.md');
   const before = section(markdownFence(template), 'Before merge');
 
-  assert.match(before, /- \[ \] Manual test/);
+  assert.match(before, /^### Manual test$/m);
+  assert.match(before, /- \[ \] <PR-specific scenario/);
   assert.match(before, /- \[ \] CI green/);
   assert.match(before, /- \[ \] Pre-merge closure/);
   for (const folder of ['docs\\/specs', 'docs\\/prds', 'docs\\/adrs']) {
@@ -305,7 +306,8 @@ test('proof-templates-trim-pr-length: the EXAMPLE is a filled body of at most 25
   );
   assert.ok(verificationBullets.some((line) => line.includes('harness:validate')));
   for (const bullet of verificationBullets) assert.match(bullet, /`[^`]+`/);
-  assert.match(before, /- \[x\] Manual test/);
+  assert.match(before, /^### Manual test$/m);
+  assert.match(before, /- \[x\] Installed/);
   assert.match(before, /- \[x\] CI green/);
   assert.match(example, /checkbox reset/i);
   assert.doesNotMatch(body, /<[^>]+>/);
@@ -348,4 +350,51 @@ test('proof-cloud-session-skills-consults-stay', async () => {
 
   const closure = (await skill.read('references/pre-merge-closure.md')).replace(/\s+/g, ' ');
   assert.match(closure, /When `adr` is on the session skill list/);
+});
+
+test('proof-pr-body-artifact-context: existing fields carry a reviewer-resolvable artifact and decision', async () => {
+  const skill = await readSkill('code-pr');
+  const template = await skill.read('references/pr-body-template.md');
+  const example = markdownFence(skill.body.slice(skill.body.indexOf('## EXAMPLE — filled body')));
+  assert.match(
+    section(example, 'Summary'),
+    /\*\*Task:\*\* \[.+\]\(https:\/\/github\.com\/WolvenTech\/wolven-harness\/blob\/7275eef00fafd54aa8095db195867d098e1269a5\/docs\/prds\/archived\/quiet-install\/quiet-install-prd\.md\)/,
+  );
+  assert.match(section(example, 'Summary'), /\*\*How:\*\* Use the decided linked layout/);
+  assert.match(template, /revision where they exist/);
+  assert.match(skill.body, /recorded decision explaining the diff/);
+});
+
+test('proof-pr-body-optional-context: optional references and evidence rules survive', async () => {
+  const skill = await readSkill('code-pr');
+  const template = await skill.read('references/pr-body-template.md');
+  assert.match(template, /Omit Task when no relevant\s+reference exists/);
+  assert.match(template, /When no decision is\s+recorded, ground those fields in the diff/);
+  assert.match(skill.body, /this session's evidence/);
+  assert.match(template, /Never copy ticks forward/);
+  assert.match(skill.body, /commands actually\s+run this session/);
+});
+
+test('proof-pr-body-readable-layout: template and example have matching readable sections', async () => {
+  const skill = await readSkill('code-pr');
+  const template = await skill.read('references/pr-body-template.md');
+  const example = skill.body.slice(skill.body.indexOf('## EXAMPLE — filled body'));
+  for (const body of [markdownFence(template), markdownFence(example)]) {
+    assert.deepEqual(
+      [...body.matchAll(/^## (.+)$/gm)].map((match) => match[1]),
+      ['Summary', 'Verification', 'Before merge'],
+    );
+    assert.doesNotMatch(body, /^#{2,3} [^\n]+\n(?!\n)/m);
+    const summary = section(body, 'Summary');
+    assert.match(summary, /\*\*What:\*\*[^\n]+\n\n\*\*Why:\*\*[^\n]+\n\n\*\*How:\*\*/);
+    assert.match(summary, /\*\*How:\*\*[^\n]+\n\n\*\*Task:\*\*/);
+    for (const line of contentLines(section(body, 'Verification')).filter((line) => line.startsWith('- '))) {
+      assert.match(line, /^- `[^`]+`/);
+    }
+    const before = section(body, 'Before merge');
+    assert.match(before, /- \[[ x]\] CI green[\s\S]*### Manual test\n\n- \[[ x]\] [^\n]+\n- \[[ x]\] /);
+    if (before.includes('Pre-merge closure')) {
+      assert.ok(before.indexOf('Pre-merge closure') < before.indexOf('### Manual test'));
+    }
+  }
 });

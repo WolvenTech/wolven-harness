@@ -103,6 +103,54 @@ When **more than one unit** is in flight, or `git status` shows
 3. Do not paper over unrelated dirt by starting a side file or directory
    to hold state instead.
 
+## Execution progress and checkpoints
+
+At execution start or resume, on each unit state change, and at gate
+outcomes, report the real plan link when present, wave, unit ID and title,
+current activity and status, and executor. For `spawn`, use the actual
+dispatched agent name or ID once available; for `inline`, report `inline`.
+Track concurrent units separately. At a gate, report the observed result
+and what can proceed. Report blocked work, failed dispatch or checks, and
+the next action. Keep completion pending until the existing proof gate
+passes. The tracker projects observed execution state; the plan retains
+resume authority.
+
+If the active session exposes a callable native progress tool, update it
+at start or resume, unit state changes, and gate outcomes using its exposed
+schema. Supplement fields it cannot represent in chat. Select tools only
+from the active session and its existing configuration and permissions:
+
+- **Claude Code:** When `TaskCreate` and `TaskUpdate` are available, create
+  missing entries with the wave and unit ID in the subject, then update by
+  returned task ID. Use `TaskList` when available to reconcile on resume.
+  If `TodoWrite` is exposed instead, send the current list using its schema.
+- **Cursor:** Use the exposed Agent To-dos updater, identifying items by
+  wave and unit ID. Use merge behavior when available to preserve unrelated
+  items. `updateTodosToolCall` is a CLI stream key and `cursor/update_todos`
+  is an ACP client notification; select the callable session tool, not
+  either event name.
+- **Codex:** When `update_plan` is exposed and callable, send the complete
+  checklist using `step` and `status`. Keep at most one item `in_progress`.
+  For parallel work, use one active wave-level entry and show each unit in
+  the chat checkpoint.
+
+When no callable updater is available or an update fails, report progress
+in chat at the applicable milestones. For unphased or planless work, show
+the work and mode using available evidence.
+
+At unit finish, at a gate, and between waves, post a chat checkpoint even
+with native tracking active. Link the real plan when present, give the wave,
+and show a compact table of relevant units:
+
+| Unit | Executor | State | Latest activity or result |
+| --- | --- | --- | --- |
+
+Prefix the validated state with ✅ after its proof gate passes.
+Show the observed gate outcome when known and what comes next or stays
+blocked. At an existing Human gate, post the decision needed, its owner,
+and the work waiting. Resume affected work only after recording the
+decision.
+
 ## Consumer opt (commit cadence)
 
 Read `.agents/code-commit.config.yml` before mutate. An absent file, or an

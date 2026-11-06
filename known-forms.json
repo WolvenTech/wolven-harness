@@ -77,10 +77,12 @@
     ],
     ".agents/skills/code-execute/SKILL.md": [
       "1669327ce2fa1f10b1e3684e1b3399b06d61caec98e5a0ecde5a45bba3497e83",
+      "5465430f71338a72ad9fce907d821e5cd3a071df896d20e468426b2270fbfbb0",
       "63806aae97e51c681bfe32489b024c067e9a5f9514155c1b45a4d657a84a6ff0",
       "c2fb85d3438aa8cd39311ae1d08e55d587f55b036cc8b3efb04c40173f83803a",
       "da3d5d2f8d5e960cb040f2992b45fa355af83227723327f2f80667021f506cca",
-      "df228df1a33f8a496bb202f76a76c3e7925d4750421d75db7fb835c631b0a10e"
+      "df228df1a33f8a496bb202f76a76c3e7925d4750421d75db7fb835c631b0a10e",
+      "fcb7fd0046dfb162fd04b1e80b29f0b94800b42c5b64d88f083f9c87247d4128"
     ],
     ".agents/skills/code-execute/references/builder-brief.md": [
       "1e693d55466ebed4e4db86d6b73b38a06484509d783dcfa5a32bb7ae7353ec6d",
@@ -90,7 +92,9 @@
     ],
     ".agents/skills/code-plan/SKILL.md": [
       "172372450e7805c090dfcff4ae2ee91a46f5b93c39cb1c684442f6955ad52386",
+      "172e4e720dbb2a9188b9aebfe72b9ca027f35264ee4d39ba248fa6487a5d70f3",
       "58a77738240f1b3281831bd8bdcbb2bc2ca8afd21de2074274683f19e7e669c7",
+      "658a68cef00412da8abc77d3acff9955c852df1ecc5af86adc8c4634df09d0bb",
       "7412d7711fb3d701060f59ecd5879d9a61fd0178427372052022450ad58fc2ac"
     ],
     ".agents/skills/code-plan/references/EXAMPLE-units.md": [
@@ -108,9 +112,11 @@
     ".agents/skills/code-pr/SKILL.md": [
       "2907af7f0e283ed3119b90a8060283a99fe703c14eb965c16a0784d619171f79",
       "41eb963d8fa818b4f68e560098b496d87ffecce193060f167a76c9dfb2e6af9e",
+      "5efe7548516f81a33616f0a120a03d43b89cfbaa80d38e2948187dffed803414",
       "c9de58d8f78bfd4be844fc0825db6177c5afac0d75dabe70eebfa8ded58f6d97",
       "caf57faf933d5b06619f9606efb72df13cb758a74f1a15179f73f24559f94a7d",
       "df68827c2478253bc434229e164330283b6596baf02bfe0fbdaf0ff06cb8d999",
+      "ecfb88bf703fd43a67c942bcf29cd1435ca4be6463291d26f434c8a0de054582",
       "f380ddbcf376c41e9cece7b041af06b6163a264e26d5aa951eb6e32e66dcbfae",
       "fec8e4d4c1fb029801e42f6844a9a611b169ef5f6c05920b4f6791f0971858cc"
     ],
@@ -125,7 +131,9 @@
       "4abd6a5fcb7ca150df2730d4fb1dd0ceaa257858433cfa31b44973a04020e3ad",
       "557c841fc3b7a371be36ba86ffca0a3e80a839f8bb683d7f556864dd0e74603c",
       "5d691aead2f7779d64874e547989b3648bc3df3f9f23ca30de11d4ca89cdaa61",
-      "86cc2d9b3f7d1218a8f36b9fcf15f9d8a3545f80d3820fc384b46312bf268ed3"
+      "86cc2d9b3f7d1218a8f36b9fcf15f9d8a3545f80d3820fc384b46312bf268ed3",
+      "a1e5b9c0862773d3c26940673f2ba8d28375fbab56a49b6f246217cf145a6b8e",
+      "cb39251f3adb6926fca0a9af803ea2e1576db6328694b519e64123620ae596cf"
     ],
     ".agents/skills/code-pr/references/pre-merge-closure.md": [
       "2e44431870e329268f52a6131ff7b136f798fa9bf63bec31ed9e3f34b8d1d964",
@@ -135,10 +143,12 @@
     ],
     ".agents/skills/code-review/SKILL.md": [
       "351b42297f9fb3767d891081551726f94b0d7eba27aa8d10d032ab3191f0e051",
+      "374f53060f67e5125120c56d75ed638ad3ac3fc6225d05ea76d030f51e4f580b",
       "64a79662d9d1ba28a99498d065a8f83972f1266a8adb0eb24574573c8bb7bc1c",
       "7dddd12dd2ad64c9299cc1ada9959ae12aade80260628c92aac81e228dafcd6a",
       "8fe1c538ec1594dc3fe0efabd6c0cb45d7422af2776bfa697cd046b05e9e4cf4",
-      "bb4e772b9f9133b5dab2e4842afe50be4688163e778bff25e6e1625ed9184acb"
+      "bb4e772b9f9133b5dab2e4842afe50be4688163e778bff25e6e1625ed9184acb",
+      "c87ef8b5290bc8e088abb571195642449c81b0bc2717afdd3c3771360fe38891"
     ],
     ".agents/skills/code-review/agents/openai.yaml": [
       "45aeb7e2a03dc21da0573034e612af3417040b5c6fbb361cdf850ad07767d848"
@@ -151,8 +161,10 @@
     ],
     ".agents/skills/code-spec/SKILL.md": [
       "0a95ef069e68eaf2aa76ab8fcc36fe2d0a9e33ccdba14c53072508733c01964c",
+      "5e94a47b48da42f10f43987b7f3fbe343ab0eecee0bb7d71a7a869d75c67fba8",
       "60d296122f7d5c9e798dd7bb4aad6d7ba17e857c8702b2911a42ea8cac8107d1",
       "87aa15bd28bd2f627b311b9f6b68649f1d9bf029d3b1a8ea80d1899d5b898e01",
+      "ec3672b040f8c181b8382aaabec7b3d4887cb9de83c992eb678179a88e9a4899",
       "fb9603c33cfa2ed36d886d4a4792896f93146f84e0a540d2fb569a6922eb880a"
     ],
     ".agents/skills/code-spec/references/EXAMPLE.md": [
@@ -167,10 +179,18 @@
       "9244fb3caf36baa2280665c8ecfd279e7ee3f741f44c296d675dafcc80e05d66",
       "b05d9f581967678148293f932f04f48983654073dbc5130ff23ce1b3300e83f3"
     ],
+    ".agents/skills/code-spec/references/approval-summary.md": [
+      "6cdbb1bd16c2b8a7e99ae7565a5413181814bc38c85c90a1e488455f1bc5e078"
+    ],
     ".agents/skills/create-prd/SKILL.md": [
       "03113971e6d49393970581a6554f3c5c027259d70c20c4463dfa90d6a2297456",
       "6b838027354029840c462e253c3664269adaaa32f60793845bda7d527b3bb08d",
-      "89823c07e748ca2ed6888d64bd0081a81ca569c9d3efe40d439ed97b9a78df4e"
+      "89823c07e748ca2ed6888d64bd0081a81ca569c9d3efe40d439ed97b9a78df4e",
+      "dad54734417d61e5500a459241dd5decbaeda5442a8bf73a684442bd1f59811d",
+      "ed49c74629e0c7ae638947b351fae69caa522fb2e7741d924976aacd4196cc7b"
+    ],
+    ".agents/skills/create-prd/references/approval-summary.md": [
+      "6cdbb1bd16c2b8a7e99ae7565a5413181814bc38c85c90a1e488455f1bc5e078"
     ],
     ".agents/skills/create-prd/references/prd-template.md": [
       "c36105b236d99e2a771749334231938c405c8781c41d63ca82826dc00fe1aee3"

@@ -69,7 +69,11 @@ That run writes no deferral and no sentence claiming the guard ran.
    title, body, and comments (read PR and diff) before replacing anything.
 9. **Fill the template** — [pr-body-template.md](references/pr-body-template.md)
    in full, with Summary, Verification and Before merge describing the
-   actual diff and no path dump.
+   actual diff and no path dump. Use Task for relevant PRD, spec, plan or
+   ticket links that resolve for a reviewer; link repository artifacts at a
+   revision where they exist. Put a recorded decision explaining the diff in
+   Why or How; otherwise ground those fields in the diff. Omit Task when no
+   relevant reference exists. Keep the template field limits.
 10. **Checkbox reset** — write every Before merge checkbox as `[ ]` first,
     then tick only what this session's evidence supports. Never copy ticks
     forward from a prior body. The Pre-merge closure box stays unchecked
@@ -111,21 +115,32 @@ That run writes no deferral and no sentence claiming the guard ran.
 
 ## EXAMPLE — filled body
 
-**Title:** `feat(auth): add passwordless email sign-in`
+**Title:** `feat(setup): add quiet install`
 
 ```markdown
 ## Summary
-**What:** Add passwordless email sign-in with a one-time link and a session cookie.
-**Why:** Password resets are the top support driver, and passwords are the one credential still stored.
-**How:** A signed one-time token in the email is verified server-side before the session cookie is issued.
+
+**What:** Add a quiet install for unconfigured repositories.
+
+**Why:** Keep new installs contained in the harness home.
+
+**How:** Use the decided linked layout under `.wolven-harness/`.
+
+**Task:** [Quiet install PRD](https://github.com/WolvenTech/wolven-harness/blob/7275eef00fafd54aa8095db195867d098e1269a5/docs/prds/archived/quiet-install/quiet-install-prd.md)
 
 ## Verification
-- `npm test` — all green, including the new sign-in test file
+
+- `npm test` — quiet-install scenarios passed
 - `npm run harness:validate` — exit 0
 
 ## Before merge
-- [x] Manual test — signed in from a local build with a fresh link
+
 - [x] CI green
+
+### Manual test
+
+- [x] Installed in an unconfigured repository and observed the linked layout
+- [x] Repeated setup and observed no duplicate files
 ```
 
 The ticked boxes show the result **after** checkbox reset: every box starts

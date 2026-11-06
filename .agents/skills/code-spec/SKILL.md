@@ -74,7 +74,7 @@ A PRD is optional input: when the `create-prd` skill is installed it drafts and 
     `adr` skill, by name, to create, promote, or supersede it. Numbering
     and supersession live in `adr`; this section only decides whether one
     is owed.
-11. Present the draft for the Human to approve; revise in place, and
+11. Before asking for approval of the first draft or a material revision, read and use the [approval summary](references/approval-summary.md) to present the artifact in chat. Present the draft for the Human to approve; revise in place, and
     present again whenever a revision changes something material. Once the
     Human explicitly approves, change `status` from `draft` to `stable` —
     only the Human's explicit word moves it.
