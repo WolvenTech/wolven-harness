@@ -42,7 +42,9 @@ test('proof-skills-command-claude-project', async () => {
 
   assert.equal(result.code, 0);
   assert.equal(result.stdout, '');
-  await assertPackageCopy(path.join(dir, '.claude', 'skills', 'create-prd'));
+  const installed = path.join(dir, '.claude', 'skills', 'create-prd');
+  await assertPackageCopy(installed);
+  assert.match(await readFile(path.join(installed, 'references/approval-summary.md'), 'utf8'), /# Approval summary/);
 
   const skillsDir = await lstat(path.join(dir, '.claude', 'skills'));
   assert.equal(skillsDir.isSymbolicLink(), false);

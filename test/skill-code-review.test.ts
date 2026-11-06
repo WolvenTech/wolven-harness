@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import { test } from 'node:test';
 import { parse as parseYaml } from 'yaml';
 import { assertSkillBasics, readSkill } from './helpers/skill-contract.js';
@@ -50,6 +51,42 @@ test('skill-code-review: labels every finding blocking or nit', async () => {
   assert.match(criteria, /## Severity/);
   assert.match(criteria, /\bBlocking\b/);
   assert.match(criteria, /\bNit\b/);
+});
+
+test('proof-review-chat-summary', async () => {
+  for (const prefix of ['../', '../templates/']) {
+    const file = new URL(`${prefix}.agents/skills/code-review/SKILL.md`, import.meta.url);
+    const body = await readFile(file, 'utf8');
+    const closeout = body.split('## Chat closeout\n')[1]?.split('## Never merges')[0] ?? '';
+    const flat = closeout.replace(/\s+/g, ' ');
+
+    assert.match(
+      flat,
+      /After the review reaches a verdict.*clickable link to the actual PR.*verdict from the Verdict table/,
+      file.pathname,
+    );
+    assert.match(flat, /\*\*Blocking findings\*\* and \*\*Non-blockers\*\* separately/, file.pathname);
+    assert.match(flat, /\*\*Bloqueios\*\* and \*\*Ajustes menores\*\*/, file.pathname);
+    assert.match(flat, /\*\*Nit\*\* on the PR.*Link to the posted findings.*review record/, file.pathname);
+    assert.match(flat, /next action from the review-fix handoff or the verdict/, file.pathname);
+    assert.match(body.split('## Chat closeout\n')[0], /Post each finding.*post a review comment/, file.pathname);
+  }
+});
+
+test('proof-review-chat-gaps', async () => {
+  for (const prefix of ['../', '../templates/']) {
+    const file = new URL(`${prefix}.agents/skills/code-review/SKILL.md`, import.meta.url);
+    const body = await readFile(file, 'utf8');
+    const closeout = body.split('## Chat closeout\n')[1]?.split('## Never merges')[0] ?? '';
+    const flat = closeout.replace(/\s+/g, ' ');
+
+    assert.match(flat, /Mark each empty category explicitly as \*\*None\*\*/, file.pathname);
+    assert.match(
+      flat,
+      /unchecked review axis that affects the handoff, including ADR claims when `harness:validate` could not run/,
+      file.pathname,
+    );
+  }
 });
 
 test('skill-code-review: never merges', async () => {

@@ -72,7 +72,7 @@ export async function readSkill(name: string): Promise<SkillContract> {
   };
 }
 
-/** The shared git-host operations table, relative to the skills root: the only link a skill may make into another skill's folder. */
+/** The shared git-host operations table, relative to the skills root. */
 const SHARED_HOST_TABLE = ['code-pr', 'references', 'host-operations.md'];
 
 function isExternalLink(url: string): boolean {
@@ -81,8 +81,8 @@ function isExternalLink(url: string): boolean {
 
 /**
  * Fails if a relative markdown link in `content` (found in `rel`, inside
- * `skillDir`) resolves to a missing file, or outside the skill folder unless
- * it targets the one file every ship skill shares for git-host steps.
+ * `skillDir`) resolves to a missing file or crosses the skill boundary
+ * outside an explicitly shared reference.
  */
 function assertLocalLinksResolve(skillDir: string, rel: string, content: string): void {
   for (const match of content.matchAll(LINK_RE)) {
@@ -96,8 +96,11 @@ function assertLocalLinksResolve(skillDir: string, rel: string, content: string)
     const resolved = path.resolve(fileDir, withoutAnchor);
     const withinSkill = resolved === skillDir || resolved.startsWith(skillDir + path.sep);
     const isSharedHostTable = resolved === path.join(path.dirname(skillDir), ...SHARED_HOST_TABLE);
+    const isApprovalSummary =
+      path.basename(skillDir) === 'code-plan' &&
+      resolved === path.join(path.dirname(skillDir), 'code-spec', 'references', 'approval-summary.md');
 
-    assert.ok(withinSkill || isSharedHostTable, `${rel}: link "${url}" leaves the skill folder`);
+    assert.ok(withinSkill || isSharedHostTable || isApprovalSummary, `${rel}: link "${url}" leaves the skill folder`);
     assert.ok(existsSync(resolved), `${rel}: link "${url}" does not resolve to an existing file`);
   }
 }
@@ -116,7 +119,7 @@ export interface SkillBasicsOptions {
  * Checks the basics every template skill must satisfy: frontmatter `name`
  * equals the folder name, `description` is a non-empty string with no `|`,
  * every relative markdown link across the skill's `.md` files resolves to
- * an existing file inside the skill folder, and no file says
+ * an existing file in scope, and no file says
  * `pnpm validate` (consumers run `harness:validate`). With
  * `requireHarnessValidate`, also asserts `harness:validate` appears
  * somewhere in the skill.
@@ -221,4 +224,20 @@ export async function renderInto(
   }
 
   return makeRepo({ ...fixtureFiles, [dest]: rendered }, { git: true });
+}
+
+/** Checks the approval step and both triggers in one identified workflow copy. */
+export function assertApprovalWorkflow(file: string, content: string, link: string): void {
+  const flat = content.replace(/\s+/g, ' ');
+  assert.ok(
+    flat.includes(
+      `Before asking for approval of the first draft or a material revision, read and use the [approval summary](${link})`,
+    ),
+    `${file}: approval step, first draft, material revision, or reference missing`,
+  );
+}
+
+/** Checks the standalone mirror against the canonical reference. */
+export function assertApprovalMirror(file: string, canonical: string, mirror: string): void {
+  assert.equal(mirror, canonical, `${file}: approval summary reference differs`);
 }

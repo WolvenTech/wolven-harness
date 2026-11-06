@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import { test } from 'node:test';
 import { assertSkillBasics, readSkill } from './helpers/skill-contract.js';
 
@@ -142,4 +143,89 @@ test('builder-brief: pre-start print states the resolved opt', async () => {
   assert.match(preStart, /[Rr]esolved opt/);
   assert.match(preStart, /`autocommit`/);
   assert.match(preStart, /`autocommit-rule`/);
+});
+
+async function executionCopies(): Promise<string[]> {
+  return Promise.all(
+    ['../.agents/skills/code-execute/SKILL.md', '../templates/.agents/skills/code-execute/SKILL.md'].map((path) =>
+      readFile(new URL(path, import.meta.url), 'utf8').then((text) => text.replace(/\s+/g, ' ')),
+    ),
+  );
+}
+
+test('proof-execution-progress-fields', async () => {
+  for (const text of await executionCopies()) {
+    assert.match(text, /start or resume, on each unit state change, and at gate outcomes/);
+    assert.match(text, /plan link when present, wave, unit ID and title, current activity and status, and executor/);
+    assert.match(text, /actual dispatched agent name or ID once available; for `inline`, report `inline`/);
+    assert.match(text, /Track concurrent units separately/);
+    assert.match(text, /observed result and what can proceed/);
+  }
+});
+
+test('proof-execution-native-tracker', async () => {
+  for (const text of await executionCopies()) {
+    assert.match(text, /active session exposes a callable native progress tool/);
+    assert.match(text, /start or resume, unit state changes, and gate outcomes using its exposed schema/);
+    assert.match(text, /Supplement fields it cannot represent in chat/);
+    assert.match(
+      text,
+      /`TaskCreate` and `TaskUpdate` are available.*wave and unit ID.*returned task ID.*`TaskList` when available.*`TodoWrite` is exposed instead/,
+    );
+    assert.match(
+      text,
+      /Agent To-dos updater.*wave and unit ID.*merge behavior when available.*preserve unrelated items/,
+    );
+    assert.match(
+      text,
+      /`updateTodosToolCall` is a CLI stream key and `cursor\/update_todos` is an ACP client notification.*callable session tool/,
+    );
+    assert.match(
+      text,
+      /`update_plan` is exposed and callable.*complete checklist using `step` and `status`.*at most one item `in_progress`/,
+    );
+    assert.match(text, /parallel work, use one active wave-level entry and show each unit in the chat checkpoint/);
+  }
+});
+
+test('proof-execution-chat-fallback', async () => {
+  for (const text of await executionCopies()) {
+    assert.match(
+      text,
+      /no callable updater is available or an update fails, report progress in chat at the applicable milestones/,
+    );
+    assert.match(text, /unphased or planless work, show the work and mode using available evidence/);
+  }
+});
+
+test('proof-execution-progress-failure', async () => {
+  for (const text of await executionCopies()) {
+    assert.match(text, /blocked work, failed dispatch or checks, and the next action/);
+    assert.match(text, /Keep completion pending until the existing proof gate passes/);
+    assert.match(text, /tracker projects observed execution state; the plan retains resume authority/);
+    assert.match(text, /Verify-before-claim.*fresh command output/);
+    assert.match(text, /Honor the unit's `Subagent` value exactly/);
+  }
+});
+
+test('proof-execution-human-gate', async () => {
+  for (const text of await executionCopies()) {
+    assert.match(text, /Human gate, post the decision needed, its owner, and the work waiting/);
+    assert.match(text, /Resume affected work only after recording the decision/);
+  }
+});
+
+test('proof-execution-chat-checkpoint', async () => {
+  for (const text of await executionCopies()) {
+    assert.match(
+      text,
+      /unit finish, at a gate, and between waves, post a chat checkpoint even with native tracking active/,
+    );
+    assert.match(text, /Link the real plan when present, give the wave/);
+    assert.match(text, /\| Unit \| Executor \| State \| Latest activity or result \|/);
+    assert.match(text, /Use equivalent headings in the chat language/);
+    assert.match(text, /Unidade \/ Quem executa \/ Estado \/ Última atividade ou resultado/);
+    assert.match(text, /Prefix the validated state with ✅ after its proof gate passes/);
+    assert.match(text, /observed gate outcome when known and what comes next or stays blocked/);
+  }
 });
