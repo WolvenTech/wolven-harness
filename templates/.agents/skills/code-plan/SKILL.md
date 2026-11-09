@@ -83,7 +83,7 @@ finding as `fixed`, `skipped` or `no_change_needed`.
    the wave stops.
 6. Write `docs/specs/<slug>/<slug>-plan.md`, next to the spec, from
    [TEMPLATE-plan.md](references/TEMPLATE-plan.md) or from scratch.
-7. Hand off to `code-execute` once the plan is approved.
+7. Before asking for approval of the first draft or a material revision, read and use the [approval summary](../code-spec/references/approval-summary.md) to present the artifact in chat. Hand off to `code-execute` once the plan is approved.
 
 `code-execute` fills in its own inline execution/resume bookkeeping in this
 same plan file as work proceeds; this skill only produces the initial units

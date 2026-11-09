@@ -81,6 +81,20 @@ A finding with no cited diff line and no ref it violates is not posted.
 5. End with one verdict from review-criteria.md's Verdict table (Approve
    with nits / Request changes / Needs the Human) — never a merge.
 
+## Chat closeout
+
+After the review reaches a verdict, close out in chat with a clickable link
+to the actual PR and the verdict from the Verdict table. Summarize **Blocking
+findings** and **Non-blockers** separately. In Portuguese use **Bloqueios**
+and **Ajustes menores**. The second heading represents findings labeled
+**Nit** on the PR. Link to the posted findings when links are available.
+The findings posted on the PR are the review record.
+
+Mark each empty category explicitly as **None** or its equivalent in the
+chat language. Report any unchecked review axis that affects the handoff,
+including ADR claims when `harness:validate` could not run. End with the
+next action from the review-fix handoff or the verdict.
+
 ## Never merges
 
 This skill never merges, approves-and-merges, or enables auto-merge, and

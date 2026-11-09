@@ -33,6 +33,8 @@ Write the PRD from `references/prd-template.md` to `docs/prds/<slug>/<slug>-prd.
 
 ### 4. Approve
 
+Before asking for approval of the first draft or a material revision, read and use the [approval summary](references/approval-summary.md) to present the artifact in chat.
+
 Revise the draft in place until the Human approves it, then change `status` from `draft` to `stable`. Only the Human's explicit word moves the status — a quiet absence of objection is not approval.
 
 The approved PRD becomes `code-spec`'s input. Approval locks the requirements; it does not authorize writing code. At pre-merge closure, `code-pr` moves the whole PRD folder to `docs/prds/archived/<slug>/` with `status: deprecated`; that move is not this skill's job.
