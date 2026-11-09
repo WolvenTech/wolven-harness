@@ -26,6 +26,18 @@ function sha256(bytes: Buffer): string {
   return createHash('sha256').update(bytes).digest('hex');
 }
 
+/** The top-level `models` block `qmd update` writes into the index. */
+const QMD_MODELS_BLOCK = /^models:\n(?:[ \t]+.*\n)*/m;
+
+/**
+ * True when an installed QMD index is the expected one plus a `models` block.
+ * why: `qmd update` writes its model choices into the file, so that block alone is not a hand edit.
+ */
+function matchesQmdIndex(installed: Buffer, expected: Buffer): boolean {
+  const text = installed.toString('utf8');
+  return QMD_MODELS_BLOCK.test(text) && Buffer.from(text.replace(QMD_MODELS_BLOCK, ''), 'utf8').equals(expected);
+}
+
 /** Resolves the package data file from either `src/doctor` or `dist/doctor`. */
 function knownFormsPath(): string {
   return path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', 'known-forms.json');
@@ -149,6 +161,7 @@ export async function runDriftChecks(
           ? undefined
           : Buffer.from(expectedText, 'utf8');
     if (expectedBytes !== undefined && bytes.equals(expectedBytes)) continue;
+    if (installed === QMD_INDEX && expectedBytes !== undefined && matchesQmdIndex(bytes, expectedBytes)) continue;
 
     const forms = known.forms[installed] ?? [];
     if (forms.includes(sha256(bytes))) {

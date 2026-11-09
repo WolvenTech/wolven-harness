@@ -1,8 +1,10 @@
 ---
-description: All available skills, which ones setup installs, and the three standing rules.
+description: All available skills, which ones setup installs, and the rules your agent follows.
 ---
 
 # Skills
+
+A skill is a set of instructions your coding agent follows when you ask for it by name.
 
 ## What to ask for next
 
@@ -19,13 +21,13 @@ For a one-file change, you can ask for `code-execute` directly and skip the spec
 
 ## Full inventory
 
-All skills are available under `.agents/skills/`. `setup` always installs the eleven core skills (`harness-init`, `adr`, `grilling`, `pragmatic-guard`, `qmd`, `research`, `code-spec`, `code-plan`, `code-execute`, `harness-doctor`, `harness-remove`). The `ship` set (`code-commit`, `code-pr`, `code-review`, `code-ci`) and the `discovery` set (`create-prd`, `prototype`, `journey-map`, `wayfinder`, `handoff`, `the-fool`, `the-jury`) are optional. A fresh interactive setup preselects `ship`; a fresh non-interactive setup defaults to `ship`. Select `--skills discovery` or `--skills ship,discovery` to add sets, or `--skills none` for core skills only. Re-runs never remove installed files or sets. The five marked **ask-only** require an explicit request. PR creation, review, and CI work never merge the PR.
+All skills are available under `.agents/skills/`, or `.wolven-harness/.agents/skills/` in a quiet install. `setup` always installs the eleven core skills (`harness-init`, `adr`, `grilling`, `pragmatic-guard`, `qmd`, `research`, `code-spec`, `code-plan`, `code-execute`, `harness-doctor`, `harness-remove`). The `ship` set (`code-commit`, `code-pr`, `code-review`, `code-ci`) and the `discovery` set (`create-prd`, `prototype`, `journey-map`, `wayfinder`, `handoff`, `the-fool`, `the-jury`) are optional. A fresh interactive setup preselects `ship`; a fresh non-interactive setup defaults to `ship`. Select `--skills discovery` or `--skills ship,discovery` to add sets, or `--skills none` for core skills only. Re-runs never remove installed files or sets. The five marked **ask-only** run only when you ask for them by name. PR creation, review, and CI work never merge the PR.
 
 `grilling` (core) interviews toward a settled plan. `the-fool` challenges without forcing a decision. `the-jury` spawns five isolated juror agents, then deliberates with shared first-round opinions, and returns a dissent-preserving advisory verdict with confidence and a concrete test. Keep the three distinct.
 
 | Skill | Description |
 | --- | --- |
-| `adr` | Create, promote, and supersede decision records under docs/adrs/; repoint claims when one supersedes another. |
+| `adr` | Create, promote, and supersede decision records (ADRs) under `docs/adrs/`; update references when one replaces another. |
 | `code-ci` (ask-only) | Drive a PR to merge-ready: conflicts, then comments, then failing checks. Explicit ask; never merge. |
 | `code-commit` | Create a Conventional Commit when asked, or when `code-execute` meets the automatic commit requirements above. |
 | `code-execute` | Implement an approved plan and run checks. Commit behavior follows the config described above. |
@@ -36,10 +38,10 @@ All skills are available under `.agents/skills/`. `setup` always installs the el
 | `create-prd` | Clarify the problem, draft a lean PRD, and mark it stable only on approval. |
 | `grilling` | Interview one question at a time until every open branch of a plan, decision, or idea is settled. |
 | `handoff` (ask-only) | Save a handoff document to the OS temp directory for a fresh session. Ask-only; never automatic. |
-| `harness-init` | Fold WOLVEN.md into AGENTS.md, migrate legacy ADRs, discover, stub skills, and write a session note. |
-| `harness-doctor` | Check a wired install and guide one approved repair at a time. |
+| `harness-init` | Connect the harness to your repo and your coding agents, move old decision records, suggest skills, and write a session note. |
+| `harness-doctor` | Check an install and guide one approved repair at a time. |
 | `harness-remove` (ask-only) | Guide thorough removal of remaining harness edits and configuration while preserving docs/. |
-| `journey-map` | Draw a flow, a set of options, or a user journey as one interactive HTML page the Human can walk, answer, and send feedback from. |
+| `journey-map` | Draw a flow, a set of options, or a user journey as one interactive HTML page you can walk through, answer, and send feedback from. |
 | `pragmatic-guard` | Challenge unnecessary scope and record deferred work with a trigger for revisiting it under `docs/deferrals/`. |
 | `prototype` | Build a throwaway prototype that answers one question, then discard or promote it deliberately. |
 | `qmd` | Search local markdown notes, docs, and wikis with QMD, the local search tool the agent uses; retrieve documents or set up access. |
@@ -50,8 +52,10 @@ All skills are available under `.agents/skills/`. `setup` always installs the el
 
 ## Rules applied each session
 
-Three rules live under `.agents/rules/`:
+Five rules live under `.agents/rules/`, or `.wolven-harness/.agents/rules/` in a quiet install. Your agent follows them in every session:
 
 - `comments` defines the style checked by `wolven-harness comments`.
+- `project-skill-precedence` directs the agent to use your project's copy of a skill before any copy in your user folder.
 - `qmd-first` directs the agent to search the repo’s documents before answering from memory or the web.
+- `secrets` directs the agent never to read or print keys, certificates, `.env` files and credential folders, and to ask you when access is truly needed.
 - `yagni-strict` directs the agent to challenge unnecessary scope and record deferred work under `docs/deferrals/`.
