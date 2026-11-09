@@ -57,6 +57,14 @@ async function makeEarlierFixture(): Promise<{ dir: string; stale: string[]; edi
   };
   const stale: string[] = [];
 
+  // why: a shallow checkout has no tags, and the per-file `git show` below swallows that, so the
+  // later assertion would blame the table instead of the missing history.
+  try {
+    execFileSync('git', ['rev-parse', '--verify', '--quiet', 'refs/tags/v0.3.2'], { cwd: repoRoot, stdio: 'ignore' });
+  } catch {
+    assert.fail('the v0.3.2 tag is missing; this test needs full git history and tags (checkout fetch-depth: 0)');
+  }
+
   for (const { source, installed } of selected) {
     if (installed === 'AGENTS.md' || installed === 'WOLVEN.md' || installed === '.qmd/index.yml') continue;
 
