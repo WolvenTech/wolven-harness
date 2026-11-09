@@ -1,10 +1,12 @@
 ---
-description: How setup wires each supported agent runtime.
+description: How setup connects each supported coding agent.
 ---
 
 # Agent runtimes
 
-`setup` knows nine runtimes. Pass any comma-separated list like `--runtimes claude,codex`, or select them when interactive `setup` asks. Only macOS and Linux are supported; the symlinked rows need filesystem symlinks.
+A runtime is a coding agent the harness can connect to. `setup` knows nine. Pass any comma-separated list like `--runtimes claude,codex`, or select them when interactive `setup` asks. Only macOS and Linux are supported; the symlinked rows need filesystem symlinks.
+
+This page describes a full install. In a quiet install, `setup` copies the skills and rules into `.wolven-harness/`, but connects only a `harness-init` symlink in each agent's skills folder. The `harness-init` skill connects the rest to each agent, after you approve each change.
 
 | Agent | id | Project skills | Rules wiring |
 | --- | --- | --- | --- |
@@ -28,7 +30,7 @@ If `CLAUDE.md` is missing, setup creates one that imports `AGENTS.md`. Existing 
 
 ## Codex
 
-Codex reads `.agents/skills/` natively, so setup adds no Codex-specific skills wiring. Codex cannot import files, so when it is selected the `harness-init` skill writes the four rule bodies into `AGENTS.md` between the rules markers. Docs: [Codex](https://learn.chatgpt.com/docs/build-skills).
+Codex reads `.agents/skills/` natively, so setup adds no Codex-specific skills wiring. Codex cannot import files, so when it is selected the `harness-init` skill writes the full text of each rule into `AGENTS.md` between the rules markers. Docs: [Codex](https://learn.chatgpt.com/docs/build-skills).
 
 ## Cursor
 
