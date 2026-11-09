@@ -1,5 +1,33 @@
 # Changelog
 
+## [0.4.0](https://github.com/WolvenTech/wolven-harness/compare/v0.3.2...v0.4.0) (2026-11-09)
+
+
+### ⚠ BREAKING CHANGES
+
+* **setup:** setup at a repository root without configuration now creates a quiet install under .wolven-harness/ instead of a full install at the root.
+
+### Features
+
+* **agents:** qmd status empty-index bootstrap for fresh worktrees ([#74](https://github.com/WolvenTech/wolven-harness/issues/74)) ([292014e](https://github.com/WolvenTech/wolven-harness/commit/292014e512c42051069a98dac208c5a5844ac16e))
+* **doctor:** check a wired install and repair it with consent ([#76](https://github.com/WolvenTech/wolven-harness/issues/76)) ([05efd1e](https://github.com/WolvenTech/wolven-harness/commit/05efd1e72c18f8db8818e40481390d6c2436c02e))
+* **hooks:** secret-path guard rule, hook, and setup wiring for issue 80 ([#88](https://github.com/WolvenTech/wolven-harness/issues/88)) ([7c2773d](https://github.com/WolvenTech/wolven-harness/commit/7c2773d9ee469801b0c17902054024db56cfbfb6))
+* **install:** wire the harness into nine runtimes and run setup anywhere ([#75](https://github.com/WolvenTech/wolven-harness/issues/75)) ([bdb63b8](https://github.com/WolvenTech/wolven-harness/commit/bdb63b8537b22ffdc1dbfa0c928b3158a2143ce3))
+* **journey-map:** reload persistence and empty-copy feedback ([#93](https://github.com/WolvenTech/wolven-harness/issues/93)) ([2cb5230](https://github.com/WolvenTech/wolven-harness/commit/2cb5230b149eb4c99f3e03f1c723c20b8a7b0cf2))
+* **knowledge:** add an ask-only AI-pattern consultation pilot ([#78](https://github.com/WolvenTech/wolven-harness/issues/78)) ([7432586](https://github.com/WolvenTech/wolven-harness/commit/7432586cc80286a85e2a0215339f5cffc65159e5))
+* **setup:** install the harness quietly in .wolven-harness by default ([#98](https://github.com/WolvenTech/wolven-harness/issues/98)) ([e4555d3](https://github.com/WolvenTech/wolven-harness/commit/e4555d39be22d57a48012ec3bde5babaf5669a42))
+* **skills:** make approval and execution progress visible ([#101](https://github.com/WolvenTech/wolven-harness/issues/101)) ([0f74c6e](https://github.com/WolvenTech/wolven-harness/commit/0f74c6e75a199686a255bdebc4c1b1e1ac439506))
+* **uninstall:** add harness uninstall command and agentic removal skill ([#96](https://github.com/WolvenTech/wolven-harness/issues/96)) ([7275eef](https://github.com/WolvenTech/wolven-harness/commit/7275eef00fafd54aa8095db195867d098e1269a5))
+* **wayfinder:** make lanes the default canvas ([#82](https://github.com/WolvenTech/wolven-harness/issues/82)) ([3265bb5](https://github.com/WolvenTech/wolven-harness/commit/3265bb5ccedc0012e47d85e94e6e740f1d4b5ce6))
+
+
+### Bug Fixes
+
+* **cloud:** fall back to PATH qmd for MCP on macOS ([#91](https://github.com/WolvenTech/wolven-harness/issues/91)) ([a16b1fb](https://github.com/WolvenTech/wolven-harness/commit/a16b1fbcb779d259da6a7dee01f51bca6180fb57))
+* **cloud:** wire QMD MCP, Cursor rules, and robust install ([#90](https://github.com/WolvenTech/wolven-harness/issues/90)) ([fdb1cec](https://github.com/WolvenTech/wolven-harness/commit/fdb1cec248fcf6de14a77ef4e16ee9e95836218e))
+* **doctor:** stop a false QMD warning and align the docs with 0.4.0 ([#100](https://github.com/WolvenTech/wolven-harness/issues/100)) ([e6fb077](https://github.com/WolvenTech/wolven-harness/commit/e6fb0776ff1b3a8c3d5bdf7950c893fd0a83be3a))
+* **release:** cut 0.4.0 once and keep the release pull request current ([#85](https://github.com/WolvenTech/wolven-harness/issues/85)) ([76cbe9d](https://github.com/WolvenTech/wolven-harness/commit/76cbe9dd5b24aa5c462036060ca02a7ebf67b917))
+
 ## [0.3.2](https://github.com/WolvenTech/wolven-harness/compare/v0.3.1...v0.3.2) (2026-10-15)
 
 
