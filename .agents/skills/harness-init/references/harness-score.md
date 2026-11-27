@@ -9,7 +9,7 @@ repo chooses how deep its harness goes by dropping checks in
 
 ## Run it
 
-This reference was written against harness-score 1.6.5, the version `setup`
+This reference was written against harness-score 1.12.0, the version `setup`
 pins. Check IDs and presets below come from that release.
 
 Run `harness:score` and read the whole report. When it cannot run because
@@ -22,9 +22,9 @@ with no `package.json` has no `harness:score` script; use the pinned command
 In a quiet install the score file is `.wolven-harness/.harness-score.json`,
 read through `--config`; nothing writes that file at the repo root. The pinned
 command `setup` prints already carries the flag. The file's keys are
-`extends` and `rules`. `harness-score` 1.6.5 exits 0 with the flag and no file
-there. It does not understand quiet installs, so its report may flag files the
-home holds; see `docs/deferrals/score-quiet/score-quiet-deferral.md`.
+`extends` and `rules`. `harness-score` 1.12.0 exits 2 when `--config` names
+a file that does not exist. It does not understand quiet installs, so its
+report may flag files the home holds; see `docs/deferrals/score-quiet/score-quiet-deferral.md`.
 
 Record the level and score in the note as the "before" figure.
 

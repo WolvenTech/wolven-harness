@@ -8,7 +8,7 @@ import type { Context } from './types.js';
  * pinned devDependency, so the fix command setup prints installs the
  * version CI scores this repo with.
  */
-export const HARNESS_SCORE_VERSION = '1.6.5';
+export const HARNESS_SCORE_VERSION = '1.12.0';
 
 const HARNESS_SCORE = 'harness-score';
 

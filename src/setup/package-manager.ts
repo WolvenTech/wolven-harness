@@ -96,7 +96,7 @@ export function execBinary(manager: PackageManager, binary: string): string {
   return buildCommand(manager, 'exec-binary', binary);
 }
 
-/** Runs a package's binary without installing it, e.g. `pnpm dlx harness-score@1.6.5`. */
+/** Runs a package's binary without installing it, e.g. `pnpm dlx harness-score@1.12.0`. */
 export function executePackage(manager: PackageManager, spec: string): string {
   return buildCommand(manager, 'execute-package', spec);
 }
