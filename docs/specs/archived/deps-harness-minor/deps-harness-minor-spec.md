@@ -2,7 +2,7 @@
 type: spec
 title: Minor dependency updates for harness-score, Biome and clack
 description: Bumps harness-score, @biomejs/biome and @clack/prompts to their target minor versions in one commit, with every repo gate passing.
-status: stable
+status: deprecated
 ---
 
 # Minor dependency updates for harness-score, Biome and clack

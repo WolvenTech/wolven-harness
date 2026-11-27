@@ -2,7 +2,7 @@
 type: spec
 title: Minor dependency updates for harness-score, Biome and clack
 description: One wave that bumps three dependencies, runs every gate, and opens the PR.
-status: stable
+status: deprecated
 ---
 
 # Minor dependency updates for harness-score, Biome and clack — plan
