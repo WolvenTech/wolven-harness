@@ -6,7 +6,7 @@
     "useIgnoreFile": true
   },
   "files": {
-    "includes": ["src/**", "test/**", "site/.vitepress/config.*"]
+    "includes": ["src/**", "test/**", "!test/fixtures/**/*.md", "site/.vitepress/config.*"]
   },
   "formatter": {
     "indentStyle": "space",

@@ -44,13 +44,13 @@
     "harness:score": "harness-score"
   },
   "dependencies": {
-    "@clack/prompts": "^1.8.1",
+    "@clack/prompts": "^1.9.0",
     "yaml": "^2.6.1"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.5.14",
+    "@biomejs/biome": "2.6.9",
     "@types/node": "^22.10.2",
-    "harness-score": "1.6.5",
+    "harness-score": "1.12.0",
     "simple-git-hooks": "2.14.0",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2",
